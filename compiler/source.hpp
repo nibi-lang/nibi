@@ -33,8 +33,8 @@ public:
     return source_name_;
   }
   //! \brief Get a locator interface for the source.
-  std::unique_ptr<locator_if> get_locator(const size_t line, const size_t column) const {
-    return std::make_unique<locator_c>(source_name_.c_str(), line, column);
+  std::shared_ptr<locator_if> get_locator(const size_t line, const size_t column) const {
+    return std::make_shared<locator_c>(source_name_.c_str(), line, column);
   }
 private:
   class locator_c final : public locator_if {
@@ -75,6 +75,10 @@ public:
     auto source = std::make_shared<source_origin_c>(source_name);
     sources_.insert(std::make_pair(source_name, source));
     return source;
+  }
+  //! \brief Check if a source exists.
+  bool exists(const std::string& source_name) const {
+    return sources_.find(source_name) != sources_.end();
   }
 private:
   std::unordered_map<std::string, std::shared_ptr<source_origin_c>> sources_;
