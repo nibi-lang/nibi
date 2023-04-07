@@ -49,8 +49,8 @@ enum class token_e {
   MULTIPLY,
   POWER,
   MODULO,
-  LEFT_SHIFT,
-  RIGHT_SHIFT,
+  L_SHIFT,
+  R_SHIFT,
   LOGICAL_AND,
   LOGICAL_OR,
   LOGICAL_NOT,
@@ -60,7 +60,8 @@ enum class token_e {
   BITWISE_NOT,
   RAW_INTEGER,
   RAW_FLOAT,
-  RAW_STRING
+  RAW_STRING,
+  IDENTIFIER
 };
 
 //! \brief A token.
@@ -71,11 +72,20 @@ public:
   //! \param token The token value.
   token_c(std::shared_ptr<locator_if> locator, const token_e token)
     : locator_(locator), token_(token) {}
+  //! \brief Create a token.
+  //! \param locator The locator interface.
+  //! \param token The token value.
+  //! \param data The data associated with the token.
+  token_c(std::shared_ptr<locator_if> locator, const token_e token, const std::string& data)
+    : locator_(locator), token_(token), data_(data) {}
   //! \brief Get the token value.
   const token_e get_token() const { return token_; }
   //! \brief Get the locator interface.
   const std::shared_ptr<locator_if> get_locator() const { return locator_; }
+  //! \brief 
+  const std::string get_data() const { return data_; }
 private:
   std::shared_ptr<locator_if> locator_{nullptr};
   token_e token_{token_e::NIL};
+  std::string data_{""};
 };

@@ -5,23 +5,36 @@
 #include "source.hpp"
 #include <string_view>
 #include <optional>
+#include <unordered_map>
+
+//! \brief Enum to indicate the type of unclosed symbol if one exists
+enum class unclosed_type_e {
+  PAREN,
+  BRACKET,
+  BRACE
+};
 
 //! \brief A callback interface for the scanner that 
 //!        will be called when a token is found or an error occurs.
 class scanner_cb_if {
-public:
+public: 
+  //! \brief Called when a token is found.
   virtual void on_token(token_c token) = 0;
+  //! \brief Called when an error occurs.
   virtual void on_error(error_c error) = 0;
+  //! \brief Called when the input is complete, and indicates if there are unclosed symbols.
+  //! \param unclosed_symbol The type of unclosed symbol if one exists.
+  virtual void on_complete(std::optional<unclosed_type_e> unclosed_symbol) = 0;
 };
 
 //! \brief A scanner object.
 class scanner_c {
 public:
   scanner_c() = delete;
-  scanner_c(scanner_cb_if& cb) : cb_(cb) {}
+  scanner_c(scanner_cb_if& cb);
 
   //! \brief Scan a string.
-  bool scan_line( std::shared_ptr<source_origin_c> origin, std::string_view data);
+  bool scan_line(std::shared_ptr<source_origin_c> origin, std::string_view data);
 
   //! \brief Reset the scanner.
   void reset();
@@ -38,6 +51,7 @@ protected:
     std::size_t line_count{0};
   };
   tracker_s tracker_;
+  std::unordered_map<std::string, token_e> keywords_;
 };
 
 //! \brief A file reader object.
