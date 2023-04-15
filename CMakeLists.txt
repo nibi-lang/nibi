@@ -46,6 +46,8 @@ set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/input.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/list.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/token.cpp
 )
 
 set(APPLICATION_SOURCES

@@ -61,7 +61,13 @@ enum class token_e {
   RAW_INTEGER,
   RAW_FLOAT,
   RAW_STRING,
-  IDENTIFIER
+  IDENTIFIER,
+  INSIST_NIL,
+  INSIST_INT,
+  INSIST_FLOAT,
+  INSIST_STRING,
+  INSIST_PROMISE,
+  INSIST_FN
 };
 
 //! \brief A token.
@@ -89,3 +95,5 @@ private:
   token_e token_{token_e::NIL};
   std::string data_{""};
 };
+
+extern const char* token_to_string(const token_c& token);

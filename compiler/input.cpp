@@ -40,6 +40,7 @@ std::optional<error_c> file_reader_c::read_file(std::string_view path) {
 scanner_c::scanner_c(scanner_cb_if& cb) : cb_(cb)
 {
   keywords_ = {
+    {"nil", token_e::NIL},
     {"...",token_e::VARIADIC},
     {"fn",token_e::FN},
     {"loop",token_e::LOOP},
@@ -63,7 +64,13 @@ scanner_c::scanner_c(scanner_cb_if& cb) : cb_(cb)
     {"$args",token_e::ARGS_LIST},
     {"param",token_e::PARAM_BIND},
     {"mod",token_e::MODULE},
-    {"pub",token_e::PUBLIC}
+    {"pub",token_e::PUBLIC},
+    {"nil!",token_e::INSIST_NIL},
+    {"int!",token_e::INSIST_INT},
+    {"str!",token_e::INSIST_STRING},
+    {"float!",token_e::INSIST_FLOAT},
+    {"fn!", token_e::INSIST_FN},
+    {"promise!", token_e::INSIST_PROMISE}
   };
 }
 
@@ -73,15 +80,15 @@ void scanner_c::reset() {
 
 void scanner_c::indicate_complete() {
   if (tracker_.paren_count != 0) {
-    cb_.on_complete({unclosed_type_e::PAREN});
+    cb_.on_complete({scanner_cb_if::unclosed_type_e::PAREN});
     return;
   }
   if (tracker_.bracket_count != 0) {
-    cb_.on_complete({unclosed_type_e::BRACKET});
+    cb_.on_complete({scanner_cb_if::unclosed_type_e::BRACKET});
     return;
   }
   if (tracker_.brace_count != 0) {
-    cb_.on_complete({unclosed_type_e::BRACE});
+    cb_.on_complete({scanner_cb_if::unclosed_type_e::BRACE});
     return;
   }
   cb_.on_complete({});
@@ -107,7 +114,7 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin, std::string_v
           return false;
         }
         tracker_.paren_count--;
-        cb_.on_token(token_c(locator, token_e::R_PAREN));
+        cb_.on_token(token_c(locator, token_e::R_PAREN), tracker_.paren_count == 0);
         break;
       }
       case '[': { 

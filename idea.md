@@ -46,6 +46,14 @@ pub       make items available externally to something wrapped with mod
 |         bitwise or
 ~         bitwise not
 ^         bitwise xor
+
+nil!      declare the item must be nil
+int!      declare the item must be an integer
+str!      declare the item must be a string
+float!    declare the item must be a float
+promise!  declare the item must be a promise
+list!     declare the item must be a list
+fn!       declare the item must be a fn
 ```
 
 
@@ -64,4 +72,22 @@ pub       make items available externally to something wrapped with mod
 (std::cons 1 2 3 4)   # Returns [1 2 3 4]
 
 
+
+### Strong typing 
+
+```
+(int! (:= x 3)) # enforce the result to be an int
+
+
+(list! (:= y [1 2 "3" 4])) # `list` type is the most abstract "type" with
+                          # no way at compile time to determine what is in it, or force 
+                          # a type (at first )
+
+# type setting the params of a fn can be used to force params to be of
+# a specific type?
+(fn! (:= z (fn (int! a) (int! b) (int! c) {
+  (<- (+ a b c))
+})))
+
+```
 

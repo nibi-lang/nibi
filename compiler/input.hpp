@@ -7,19 +7,20 @@
 #include <optional>
 #include <unordered_map>
 
-//! \brief Enum to indicate the type of unclosed symbol if one exists
-enum class unclosed_type_e {
-  PAREN,
-  BRACKET,
-  BRACE
-};
 
 //! \brief A callback interface for the scanner that 
 //!        will be called when a token is found or an error occurs.
 class scanner_cb_if {
 public: 
+  //! \brief Enum to indicate the type of unclosed symbol if one exists
+  enum class unclosed_type_e {
+    PAREN,
+    BRACKET,
+    BRACE
+  };
+
   //! \brief Called when a token is found.
-  virtual void on_token(token_c token) = 0;
+  virtual void on_token(token_c token, bool end_list = false) = 0;
   //! \brief Called when an error occurs.
   virtual void on_error(error_c error) = 0;
   //! \brief Called when the input is complete, and indicates if there are unclosed symbols.
