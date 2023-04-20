@@ -8,11 +8,17 @@ namespace {
 class parser_c {
 public:
   parser_c() = delete;
-  parser_c(std::vector<token_c> &tokens,
+  parser_c(
+            // TODO: pass in the memory thing so we can allocate cells
+
+            // update parse() to return a cell_c* instead of a cell_list_t
+            
+    
+           std::vector<token_c> &tokens,
            std::function<void(error_c error)> on_error)
     : tokens_(tokens),
       on_error_(on_error) {}
-  std::unique_ptr<list_c> parse();
+  std::unique_ptr<cell_list_t> parse();
 private:
   std::vector<token_c> &tokens_;
   std::function<void(error_c error)> on_error_;
@@ -65,7 +71,7 @@ void list_builder_c::on_token(token_c token, bool end_list) {
   }
 }
 
-std::unique_ptr<list_c> parser_c::parse() {
+std::unique_ptr<cell_list_t> parser_c::parse() {
 
   std::cout << "Parser received " << tokens_.size() << " tokens\n";
 
