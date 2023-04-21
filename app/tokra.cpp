@@ -39,11 +39,6 @@ int main(int argc, char** argv) {
 
   list_receiver_stub stub;
 
-
-  // TODO: Pass the instruction memory to the list builder, 
-  //       so that it can create cells and add them to the instruction memory
-  //       - Also need to change list_receiver to take in a cell_c* 
-
   list_builder_c builder(instruction_memory, stub);
 
   file_reader_c reader(builder, source_manager);

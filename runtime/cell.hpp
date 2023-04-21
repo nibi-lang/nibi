@@ -24,6 +24,14 @@ enum class cell_type_e {
   FUNCTION
 };
 
+//! \brief The type of a function that a cell holds
+enum class function_type_e {
+  UNSET,                // Function type is not set
+  BUILTIN_CPP_FUNCTION, // Function implemented in C++ and compiled with tokra
+  EXTERNAL_FUNCTION,    // Function imported from shared lib
+  LAMBDA_FUNCTION       // Function defined in source code by user 
+};
+
 // Forward declarations
 class env_c;
 class cell_c;
@@ -36,6 +44,21 @@ using cell_fn_t = std::function<cell_c*(cell_list_t, env_c&)>;
 
 //! \brief A cell specific allocator
 using cell_memory_manager_t = memory::controller_c<cell_c>;
+
+//! \brief Function wrapper that holds the function
+//!        pointer, the name, and the type of the function
+struct function_info_s {
+  std::string name;
+  cell_fn_t fn;
+  function_type_e type;
+  function_info_s(
+    std::string name,
+    cell_fn_t fn,
+    function_type_e type)
+    : name(name),
+      fn(fn),
+      type(type) {}
+};
 
 //! \brief An exception that is thrown when a cell is accessed
 //!        in a way that does not correspond to its type
@@ -85,12 +108,13 @@ public:
     switch (type) {
       case cell_type_e::NIL:
       [[fallthrough]];
-      case cell_type_e::FUNCTION:
-      [[fallthrough]];
       case cell_type_e::ABERRANT:
       [[fallthrough]];
       case cell_type_e::REFERENCE:
         data = nullptr;
+      case cell_type_e::FUNCTION:
+        data = function_info_s("", nullptr, function_type_e::UNSET);
+        break;
       case cell_type_e::INTEGER:
         data = int64_t(0);
         break;
@@ -111,7 +135,7 @@ public:
   cell_c(cell_list_t list) : type(cell_type_e::LIST), data(list) {}
   cell_c(cell_c* data) : type(cell_type_e::REFERENCE), data(data) {}
   cell_c(aberrant_cell_if* acif) : type(cell_type_e::ABERRANT), data(acif) {}
-  cell_c(cell_fn_t fn)
+  cell_c(function_info_s fn)
     : type(cell_type_e::FUNCTION), data(fn) {}
 
   cell_c() = delete;
@@ -168,6 +192,6 @@ public:
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a function type
-  cell_fn_t as_function();
+  function_info_s& as_function();
 };
 

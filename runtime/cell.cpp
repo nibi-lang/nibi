@@ -1,5 +1,21 @@
 #include "cell.hpp"
 
+namespace {
+  const char *function_type_to_string(function_type_e type) {
+    switch(type) {
+      case function_type_e::UNSET:
+        return "UNSET";
+      case function_type_e::BUILTIN_CPP_FUNCTION:
+        return "BUILTIN_CPP_FUNCTION";
+      case function_type_e::EXTERNAL_FUNCTION:
+        return "EXTERNAL_FUNCTION";
+      case function_type_e::LAMBDA_FUNCTION:
+        return "LAMBDA_FUNCTION";
+    }
+    return "UNKNOWN";
+  }
+}
+
 int64_t cell_c::to_integer() {
   return this->as_integer();
 }
@@ -72,10 +88,10 @@ aberrant_cell_if* cell_c::as_aberrant() {
   }
 }
 
-cell_fn_t cell_c::as_function() {
+function_info_s& cell_c::as_function() {
   try
   {
-    return std::any_cast<cell_fn_t>(this->data);
+    return std::any_cast<function_info_s&>(this->data);
   }
   catch (const std::bad_any_cast& e)
   {
@@ -110,8 +126,15 @@ std::string cell_c::to_string() {
       else
         return cell->represent_as_string();
     }
-    case cell_type_e::FUNCTION:
-      return "<function>";
+    case cell_type_e::FUNCTION: {
+      auto fn = this->as_function();
+      std::string result = "<function:";
+      result += fn.name;
+      result += ", type:";
+      result += function_type_to_string(fn.type);
+      result += ">";
+      return result;
+    }
     case cell_type_e::LIST: {
       std::string result = "(";
       auto& list = this->as_list();

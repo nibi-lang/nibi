@@ -9,15 +9,15 @@
 
 
 #define PARSER_ENFORCE_CURRENT_CELL(___message) \
-  if (!current_cell) { \
+  if (!current_list) { \
     on_error_(error_c(current_token.get_locator(), ___message)); \
     return nullptr; \
   }
 
 #define PARSER_ADD_CELL \
-  auto& current_cell_list = current_cell->as_list(); \
+  auto& current_cell_list = current_list->as_list(); \
   current_cell_list.push_back(cell); \
-  return parse(remaining_tokens, current_cell);
+  return parse(tokens, current_list);
 
 namespace {
 
@@ -28,7 +28,7 @@ public:
            std::function<void(error_c error)> on_error)
     : ins_memory_(ins_memory),
       on_error_(on_error) {}
-  cell_c* parse(std::vector<token_c> tokens, cell_c *current_cell = nullptr);
+  cell_c* parse(std::vector<token_c>& tokens, cell_c *current_cell = nullptr);
 private:
   cell_memory_manager_t& ins_memory_;
   std::function<void(error_c error)> on_error_;
@@ -81,9 +81,7 @@ void list_builder_c::on_token(token_c token, bool end_list) {
   }
 }
 
-cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
-
-  std::cout << "Parser received " << tokens.size() << " tokens\n";
+cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
   if (tokens.empty()) {
     return nullptr;
@@ -91,32 +89,31 @@ cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
 
   auto current_token = tokens[0];
 
-  // Create a vector of tokens that excludes the first token
-  auto remaining_tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
+  tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
 
-  switch(current_token.get_token()) {
+
+  switch (current_token.get_token()) {
     case token_e::L_PAREN: {
-      // Create a list cell to recurse with
-      cell_c *process_list = ins_memory_.allocate(cell_type_e::LIST);
-      
-      // Build the list from the remaining tokens
-      parse(remaining_tokens, process_list);
+      auto* new_list = ins_memory_.allocate(cell_type_e::LIST);
+      new_list->locator = current_token.get_locator();
 
-      // Check if we have a complete list
-      if (current_cell) {
-        auto& current_cell_list = current_cell->as_list();
-        return parse(remaining_tokens, current_cell);
+      parse(tokens, new_list);
+
+      if (current_list) {
+        auto& current_list_actual = current_list->as_list();
+        current_list_actual.push_back(new_list);
+        return parse(tokens, current_list);
       } else {
-        return process_list;
+        return new_list;
       }
     }
     case token_e::R_PAREN: {
-      if (!current_cell) {
+      if (!current_list) {
         on_error_(
           error_c(current_token.get_locator(), "Unexpected closing parenthesis")
         );
       }
-      return current_cell;
+      return nullptr;
     }
 
     case token_e::ADD: {
@@ -127,23 +124,22 @@ cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
       // Allocate the cell in instruction memory containing the 
       // add instruction
       auto* cell = ins_memory_.allocate(
-        builtins::builtin_fn_arithmetic_add  // Function to perform function
+        function_info_s{
+          "+", 
+          builtins::builtin_fn_arithmetic_add,
+          function_type_e::BUILTIN_CPP_FUNCTION}
       );
+
       cell->locator = current_token.get_locator();
 
       PARSER_ADD_CELL
     }
 
     case token_e::RAW_INTEGER: {
-
-      std::cout << "Got raw integer: " << current_token.get_data() << std::endl;
-
       PARSER_ENFORCE_CURRENT_CELL("Unexpected integer");   
 
-      // Get the string value of the integer
       auto stringed_value = current_token.get_data();
 
-      // Convert the string value to an integer
       int64_t value_actual{0};
       try {
         value_actual = std::stoll(stringed_value);
@@ -163,20 +159,6 @@ cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
 
 
 
-
-
-
-
-
-
-
-    default: {
-
-      std::cout <<"Token not yet supported: " << token_to_string(current_token) << std::endl;
-      std::exit(-1);
-
-      return nullptr;
-    }
   }
 
   return nullptr;
