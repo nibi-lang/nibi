@@ -22,6 +22,13 @@ int main(int argc, char** argv) {
     std::cout << arg << std::endl;
   }
 
+  if (args.size() == 1) {
+    std::cout << "No input file specified" << std::endl;
+    return 1;
+  }
+
+  auto entry_file = args[1];
+
   source_manager_c source_manager;
 
   memory::controller_c<cell_c> instruction_memory;
@@ -36,7 +43,7 @@ int main(int argc, char** argv) {
   list_builder_c builder(instruction_memory, stub);
 
   file_reader_c reader(builder, source_manager);
-  reader.read_file("input.tokra");
+  reader.read_file(entry_file);
 
   return 0;
 }

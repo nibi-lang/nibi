@@ -42,28 +42,21 @@ if(WITH_ASAN)
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
-set(COMPILER_SOURCES
+set(APP_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/input.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/list.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/token.cpp
-)
-set(RUNTIME_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/cell.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
-)
-
-set(APPLICATION_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/app/tokra.cpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME}
-        ${RUNTIME_SOURCES}
-        ${COMPILER_SOURCES}
-        ${APPLICATION_SOURCES})
+        ${APP_SOURCES})
 
 #
 # Tests
