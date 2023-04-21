@@ -12,7 +12,13 @@
 // stub class to receive the list - this will be the type checker later
 class list_receiver_stub final : public list_cb_if {
 public:
-  void on_list(cell_c* list_cell) override {}
+  void on_list(cell_c* list_cell) override
+  {
+    auto& list = list_cell->as_list();
+    for(auto& cell : list) {
+      std::cout << "Cell: " << cell->to_string() << std::endl;
+    }
+  }
 };
 
 int main(int argc, char** argv) {

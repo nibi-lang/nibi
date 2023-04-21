@@ -37,16 +37,6 @@ using cell_fn_t = std::function<cell_c*(cell_list_t, env_c&)>;
 //! \brief A cell specific allocator
 using cell_memory_manager_t = memory::controller_c<cell_c>;
 
-//! \brief A cell tyope that can be used to store data
-//!        in the runtime from an external dynamic library
-//!        
-//!       This is a callback interface that the external library
-
-class aberrant_cell_if {
-public:
-  virtual ~aberrant_cell_if() = default;
-};
-
 //! \brief An exception that is thrown when a cell is accessed
 //!        in a way that does not correspond to its type
 class cell_access_exception_c final : public std::exception {
@@ -73,11 +63,48 @@ private:
   locator_ptr source_location_;
 };
 
+//! \brief A cell type that can be used to store data
+//!        in the runtime from an external dynamic library
+//!        
+//!       This is a callback interface that the external library
+class aberrant_cell_if {
+public:
+  virtual ~aberrant_cell_if() = default;
+  //! \brief Convert the cell to a string
+  //! \note If an exception occurs, throw a cell_access_exception_c
+  //!       with the message 
+  virtual std::string represent_as_string() = 0;
+};
+
 //! \brief A cell
 class cell_c final : public memory::markable_if {
 public:
   //! \brief Create a cell with a given type
-  cell_c(cell_type_e type) : type(type) {}
+  cell_c(cell_type_e type) : type(type) {
+    // Initialize the data based on given type
+    switch (type) {
+      case cell_type_e::NIL:
+      [[fallthrough]];
+      case cell_type_e::FUNCTION:
+      [[fallthrough]];
+      case cell_type_e::ABERRANT:
+      [[fallthrough]];
+      case cell_type_e::REFERENCE:
+        data = nullptr;
+      case cell_type_e::INTEGER:
+        data = int64_t(0);
+        break;
+      case cell_type_e::DOUBLE:
+        data = double(0.00);
+        break;
+      case cell_type_e::STRING:
+        data = std::string();
+        break;
+      case cell_type_e::LIST:
+        data = cell_list_t();
+        break;
+    }
+  }
   cell_c(int64_t data) : type(cell_type_e::INTEGER), data(data) {}
   cell_c(double data) : type(cell_type_e::DOUBLE), data(data) {}
   cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
@@ -97,13 +124,50 @@ public:
   std::any data{0};
   locator_ptr locator{nullptr};
 
-  //! \brief Attempt to access the cell as a list
-  //! \throws cell_access_exception_c if the cell is not a list
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not an integer type
+  int64_t to_integer();
+
+  //! \brief Get a reference to the cell value
+  //! \throws cell_access_exception_c if the cell is not an integer type
+  int64_t& as_integer();
+
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not a double type
+  double to_double();
+
+  //! \brief Get a reference to the cell value
+  //! \throws cell_access_exception_c if the cell is not a double type
+  double& as_double();
+
+  //! \brief Attempt to convert whatever data type exists to a string
+  //!        and return it
+  //! \throws cell_access_exception_c if the cell can not access data as its 
+  //!         listed type
+  std::string to_string();
+
+  //! \brief Get the string data as a reference
+  //! \throws cell_access_exception_c if the cell is not a string type
+  std::string& as_string();
+
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not a list type
+  cell_list_t to_list();
+
+  //! \brief Get a reference to the cell value
+  //! \throws cell_access_exception_c if the cell is not a list type
   cell_list_t& as_list();
 
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not a reference type
+  cell_c* as_reference();
 
-  // TODO add functions to access the cell as a string, integer, double, etc
-  //        Model them after as_list() and throw cell_access_exception_c
-  //        if the cell is not the correct type
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not an aberrant type
+  aberrant_cell_if* as_aberrant();
+
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not a function type
+  cell_fn_t as_function();
 };
 

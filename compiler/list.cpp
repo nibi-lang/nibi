@@ -128,9 +128,6 @@ cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
       // if we don't there is a syntax error
       PARSER_ENFORCE_CURRENT_CELL("Unexpected add instruction");   
 
-      env_c env;
-      builtins::builtin_fn_arithmetic_add(current_cell->as_list(), env);
-
       // Allocate the cell in instruction memory containing the 
       // add instruction
       auto* cell = ins_memory_.allocate(
