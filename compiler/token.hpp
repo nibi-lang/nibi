@@ -76,22 +76,22 @@ public:
   //! \brief Create a token.
   //! \param locator The locator interface.
   //! \param token The token value.
-  token_c(std::shared_ptr<locator_if> locator, const token_e token)
+  token_c(locator_ptr locator, const token_e token)
     : locator_(locator), token_(token) {}
   //! \brief Create a token.
   //! \param locator The locator interface.
   //! \param token The token value.
   //! \param data The data associated with the token.
-  token_c(std::shared_ptr<locator_if> locator, const token_e token, const std::string& data)
+  token_c(locator_ptr locator, const token_e token, const std::string& data)
     : locator_(locator), token_(token), data_(data) {}
   //! \brief Get the token value.
   const token_e get_token() const { return token_; }
   //! \brief Get the locator interface.
-  const std::shared_ptr<locator_if> get_locator() const { return locator_; }
+  const locator_ptr get_locator() const { return locator_; }
   //! \brief 
   const std::string get_data() const { return data_; }
 private:
-  std::shared_ptr<locator_if> locator_{nullptr};
+  locator_ptr locator_{nullptr};
   token_e token_{token_e::NIL};
   std::string data_{""};
 };

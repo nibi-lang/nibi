@@ -49,6 +49,10 @@ set(COMPILER_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/list.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/token.cpp
 )
+set(RUNTIME_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/cell.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
+)
 
 set(APPLICATION_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/app/tokra.cpp
@@ -57,6 +61,7 @@ set(APPLICATION_SOURCES
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME}
+        ${RUNTIME_SOURCES}
         ${COMPILER_SOURCES}
         ${APPLICATION_SOURCES})
 

@@ -14,39 +14,56 @@
 
 namespace memory {
 
-//! \brief An interface for objects that can be marked for deletion
+//! \brief An interface for objects that can be marked as in use
+//! \note Items are marked as in use by default
 class markable_if {
 public:
   virtual ~markable_if() = default;
 
-  //! \brief Mark this object for deletion
-  void mark_for_deletion() { marked_ = true; }
+  //! \brief Mark this object
+  //! \param marked Whether or not this object is marked
+  void mark_as_in_use(const bool marked) { marked_ = marked; }
 
-  //! \brief Check if this object is marked for deletion
+  //! \brief Check if this object is marked as in use
   bool is_marked() const { return marked_; }
 private:
-  bool marked_{false};
+  bool marked_{true};
 };
 
 //! \brief A controller for allocating and deallocating memory
-template<class T>
+//! \note  `T` must be declared as <MY_TYPE> not <MY_TYPE*>
+template<typename T>
 class controller_c {
 public:
   controller_c() = default;
-  template<class... Args>
+
+  //! \brief Allocate a new object
+  //! \param args The arguments to pass to the constructor
+  //! \return A pointer to the newly allocated object
+  //! \note The object bust inheret from markable_if
+  template<typename... Args>
   T* allocate(Args&&... args) {
-    static_assert(std::is_base_of<markable_if, T>::value, "Type `T` must be derived from markable_if");
-    auto *item = new T(std::forward<Args>(args)...);
+    auto* item = new T(std::forward<Args>(args)...);
     ++allocations;
+    markables_.push_front(item);
     return item;
   }
 
-  void mark_all() {
-    for (auto *item : collectables_) {
-      item->mark_for_deletion();
+  //! \brief Mark all objects as in use
+  void mark_all_as_in_use() {
+    for (auto *item : markables_) {
+      item->mark_as_in_use(true);
     }
   }
 
+  //! \brief Unmark all objects as in use
+  void unmark_all_as_in_use() {
+    for (auto *item : markables_) {
+      item->mark_as_in_use(false);
+    }
+  }
+
+  //! \brief Sweep all objects that are not marked as in use
   void sweep() {
     for (auto *item : markables_) {
       if (!item->is_marked()) {
@@ -57,11 +74,14 @@ public:
     }
   }
 
+  //! \brief Get the number of allocations
   std::size_t num_allocations() const { return allocations; }
+
+  //! \brief Get the number of deletions
   std::size_t num_deletions() const { return deletions; }
 
 private:
-  std::forward_list<markable*> markables_;
+  std::forward_list<markable_if*> markables_;
   std::size_t allocations{0};
   std::size_t deletions{0};
 };

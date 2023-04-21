@@ -16,6 +16,9 @@ public:
   virtual std::tuple<size_t, size_t> get_line_column() const = 0;
 };
 
+// Shorthand for a shared locator interface pointer.
+using locator_ptr = std::shared_ptr<locator_if>;
+
 //! \brief A source origin. (File, string, etc.)
 //!        Used to create locators.
 class source_origin_c {
@@ -33,7 +36,7 @@ public:
     return source_name_;
   }
   //! \brief Get a locator interface for the source.
-  std::shared_ptr<locator_if> get_locator(const size_t line, const size_t column) const {
+  locator_ptr get_locator(const size_t line, const size_t column) const {
     return std::make_shared<locator_c>(source_name_.c_str(), line, column);
   }
 private:

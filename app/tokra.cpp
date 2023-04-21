@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
   source_manager_c source_manager;
 
-  memory::controller_c<cell_c*> instruction_memory;
+  memory::controller_c<cell_c> instruction_memory;
 
   list_receiver_stub stub;
 
@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
   //       so that it can create cells and add them to the instruction memory
   //       - Also need to change list_receiver to take in a cell_c* 
 
-  list_builder_c builder(stub);
+  list_builder_c builder(instruction_memory, stub);
 
   file_reader_c reader(builder, source_manager);
   reader.read_file("input.tokra");

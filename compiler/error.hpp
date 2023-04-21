@@ -13,7 +13,7 @@ public:
   //! \brief Create an error.
   //! \param locator The locator interface.
   //! \param message The error message.
-  error_c(std::shared_ptr<locator_if> locator, const std::string message)
+  error_c(locator_ptr locator, const std::string message)
     : locator_(locator), message_(message) {}
 
   //! \brief Check if the error has a locator interface.
@@ -33,6 +33,6 @@ public:
 
   void draw_error(bool markup = true) const;
 private:
-  std::shared_ptr<locator_if> locator_{nullptr};
+  locator_ptr locator_{nullptr};
   std::string message_{""};
 };

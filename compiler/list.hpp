@@ -7,7 +7,7 @@
 #include <optional>
 #include <vector>
 #include "runtime/cell.hpp"
-
+#include "runtime/memory.hpp"
 
 //! \brief A callback interface for the list builder
 class list_cb_if {
@@ -23,7 +23,7 @@ public:
 class list_builder_c final : public scanner_cb_if {
 public:
   list_builder_c() = delete;
-  list_builder_c(list_cb_if& cb);
+  list_builder_c(cell_memory_manager_t& ins_memory,list_cb_if& cb);
   void on_token(token_c token, bool end_list=false) override;
   void on_error(error_c error) override;
   void on_complete(std::optional<unclosed_type_e> unclosed_symbol) override;
@@ -31,4 +31,5 @@ private:
   list_cb_if &cb_;
   std::vector<token_c> tokens_;
   std::vector<error_c> errors_;
+  cell_memory_manager_t& ins_memory_;
 };
