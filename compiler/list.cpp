@@ -93,9 +93,21 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
 
   switch (current_token.get_token()) {
+    case token_e::L_BRACKET: {
+      // Data lists must exist within an executable list ([ ... ]])
+      PARSER_ENFORCE_CURRENT_CELL("Unexpected opening bracket")
+      [[fallthrough]];
+    }
     case token_e::L_PAREN: {
       auto* new_list = ins_memory_.allocate(cell_type_e::LIST);
       new_list->locator = current_token.get_locator();
+
+      if (current_token.get_token() == token_e::L_PAREN) {
+        new_list->as_list_info().type = list_types_e::INSTRUCTION;
+      }
+      if (current_token.get_token() == token_e::L_BRACKET) {
+        new_list->as_list_info().type = list_types_e::DATA;
+      }
 
       parse(tokens, new_list);
 
@@ -107,6 +119,8 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
         return new_list;
       }
     }
+    case token_e::R_BRACKET:
+      [[fallthrough]];
     case token_e::R_PAREN: {
       if (!current_list) {
         on_error_(

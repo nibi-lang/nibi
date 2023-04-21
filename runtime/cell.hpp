@@ -32,6 +32,11 @@ enum class function_type_e {
   LAMBDA_FUNCTION       // Function defined in source code by user 
 };
 
+enum class list_types_e {
+  INSTRUCTION,          // A single list of instruction (+ 1 2 3)
+  DATA                  // A data list [1 2 3]
+};
+
 // Forward declarations
 class env_c;
 class cell_c;
@@ -58,6 +63,14 @@ struct function_info_s {
     : name(name),
       fn(fn),
       type(type) {}
+};
+
+//! \brief List wrapper that holds list meta data
+struct list_info_s {
+  list_types_e type;
+  cell_list_t list;
+  list_info_s(list_types_e type, cell_list_t list)
+    : type(type), list(list) {}
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -125,14 +138,14 @@ public:
         data = std::string();
         break;
       case cell_type_e::LIST:
-        data = cell_list_t();
+        data = list_info_s(list_types_e::DATA, cell_list_t());
         break;
     }
   }
   cell_c(int64_t data) : type(cell_type_e::INTEGER), data(data) {}
   cell_c(double data) : type(cell_type_e::DOUBLE), data(data) {}
   cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
-  cell_c(cell_list_t list) : type(cell_type_e::LIST), data(list) {}
+  cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
   cell_c(cell_c* data) : type(cell_type_e::REFERENCE), data(data) {}
   cell_c(aberrant_cell_if* acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn)
@@ -173,6 +186,14 @@ public:
   //! \brief Get the string data as a reference
   //! \throws cell_access_exception_c if the cell is not a string type
   std::string& as_string();
+
+  //! \brief Get a copy of the cell value
+  //! \throws cell_access_exception_c if the cell is not a list type
+  list_info_s to_list_info();
+
+  //! \brief Get a reference to the cell value
+  //! \throws cell_access_exception_c if the cell is not a list type
+  list_info_s& as_list_info();
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a list type

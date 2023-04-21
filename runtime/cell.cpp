@@ -48,14 +48,32 @@ double& cell_c::as_double() {
   }
 }
 
+
 cell_list_t cell_c::to_list() {
   return this->as_list();
 }
 
 cell_list_t& cell_c::as_list() {
+  try
+  {
+    auto& info = as_list_info();
+    return info.list;
+  }
+  catch (const std::bad_any_cast& e)
+  {
+      throw cell_access_exception_c(
+        "Cell is not a list", this->locator);
+  }
+}
+
+list_info_s cell_c::to_list_info() {
+  return this->as_list_info();
+}
+
+list_info_s& cell_c::as_list_info() {
     try
     {
-      return std::any_cast<cell_list_t&>(this->data);
+      return std::any_cast<list_info_s&>(this->data);
     }
     catch (const std::bad_any_cast& e)
     {
@@ -136,13 +154,29 @@ std::string cell_c::to_string() {
       return result;
     }
     case cell_type_e::LIST: {
-      std::string result = "(";
-      auto& list = this->as_list();
-      for (auto* cell : list) {
-        result += cell->to_string() + " ";
+      std::string result;
+      auto& list_info = this->as_list_info();
+
+      switch(list_info.type) {
+        case list_types_e::INSTRUCTION: {
+          result += "(";
+          for (auto* cell : list_info.list) {
+            result += cell->to_string() + " ";
+          }
+          result.pop_back();
+          result += ")";
+          break;
+        }
+        case list_types_e::DATA: {
+          result += "[";
+          for (auto* cell : list_info.list) {
+            result += cell->to_string() + " ";
+          }
+          result.pop_back();
+          result += "]";
+          break;
+        }
       }
-      result.pop_back();
-      result += ")";
       return result;
     }
   }
