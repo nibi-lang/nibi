@@ -17,7 +17,7 @@
 #define PARSER_ADD_CELL \
   auto& current_cell_list = current_cell->as_list(); \
   current_cell_list.push_back(cell); \
-  return current_cell;
+  return parse(remaining_tokens, current_cell);
 
 namespace {
 
@@ -91,36 +91,32 @@ cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
 
   auto current_token = tokens[0];
 
+  // Create a vector of tokens that excludes the first token
+  auto remaining_tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
+
   switch(current_token.get_token()) {
     case token_e::L_PAREN: {
       // Create a list cell to recurse with
       cell_c *process_list = ins_memory_.allocate(cell_type_e::LIST);
-
-      // Create a vector of tokens that excludes the first token
-      auto remaining_tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
       
       // Build the list from the remaining tokens
-      process_list = parse(remaining_tokens, process_list);
+      parse(remaining_tokens, process_list);
 
       // Check if we have a complete list
-      if (!process_list) {
-        on_error_( 
-          error_c( process_list->locator, "Expected complete list to be built by parser")
-        );
-        return nullptr;
+      if (current_cell) {
+        auto& current_cell_list = current_cell->as_list();
+        return parse(remaining_tokens, current_cell);
+      } else {
+        return process_list;
       }
-
-      return process_list;
     }
     case token_e::R_PAREN: {
       if (!current_cell) {
         on_error_(
           error_c(current_token.get_locator(), "Unexpected closing parenthesis")
         );
-
-        
-        return current_cell;
       }
+      return current_cell;
     }
 
     case token_e::ADD: {
@@ -139,6 +135,9 @@ cell_c* parser_c::parse(std::vector<token_c> tokens, cell_c *current_cell) {
     }
 
     case token_e::RAW_INTEGER: {
+
+      std::cout << "Got raw integer: " << current_token.get_data() << std::endl;
+
       PARSER_ENFORCE_CURRENT_CELL("Unexpected integer");   
 
       // Get the string value of the integer

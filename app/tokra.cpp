@@ -15,9 +15,7 @@ public:
   void on_list(cell_c* list_cell) override
   {
     auto& list = list_cell->as_list();
-    for(auto& cell : list) {
-      std::cout << "Cell: " << cell->to_string() << std::endl;
-    }
+    std::cout << "List: " << list_cell->to_string() << std::endl;
   }
 };
 
