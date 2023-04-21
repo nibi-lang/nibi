@@ -21,7 +21,8 @@ enum class cell_type_e {
   LIST,
   REFERENCE,
   ABERRANT,
-  FUNCTION
+  FUNCTION,
+  SYMBOL
 };
 
 //! \brief The type of a function that a cell holds
@@ -71,6 +72,12 @@ struct list_info_s {
   cell_list_t list;
   list_info_s(list_types_e type, cell_list_t list)
     : type(type), list(list) {}
+};
+
+// Temporary wrapper to distnguish strings from symbols
+// in the cell constructor
+struct symbol_s {
+  std::string data;
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -145,6 +152,7 @@ public:
   cell_c(int64_t data) : type(cell_type_e::INTEGER), data(data) {}
   cell_c(double data) : type(cell_type_e::DOUBLE), data(data) {}
   cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
+  cell_c(symbol_s data) : type(cell_type_e::SYMBOL), data(data.data) {}
   cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
   cell_c(cell_c* data) : type(cell_type_e::REFERENCE), data(data) {}
   cell_c(aberrant_cell_if* acif) : type(cell_type_e::ABERRANT), data(acif) {}

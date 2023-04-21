@@ -37,42 +37,7 @@ std::optional<error_c> file_reader_c::read_file(std::string_view path) {
   return {};
 }
 
-scanner_c::scanner_c(scanner_cb_if& cb) : cb_(cb)
-{
-  keywords_ = {
-    {"nil", token_e::NIL},
-    {"...",token_e::VARIADIC},
-    {"fn",token_e::FN},
-    {"loop",token_e::LOOP},
-    {"if",token_e::IF},
-    {"len",token_e::LEN},
-    {"at",token_e::AT},
-    {"view",token_e::VIEW},
-    {"quote",token_e::QUOTE},
-    {"eval",token_e::EVAL},
-    {"drop",token_e::DROP},
-    {"type",token_e::TYPE},
-    {"quit",token_e::QUIT},
-    {"rev",token_e::REV},
-    {"sub",token_e::SUB},
-    {"await",token_e::AWAIT},
-    {"use",token_e::USE},
-    {"load",token_e::LOAD},
-    {"nil?",token_e::IS_NIL},
-    {"promise?",token_e::IS_PROMISE},
-    {"exists?",token_e::EXISTS},
-    {"$args",token_e::ARGS_LIST},
-    {"param",token_e::PARAM_BIND},
-    {"mod",token_e::MODULE},
-    {"pub",token_e::PUBLIC},
-    {"nil!",token_e::INSIST_NIL},
-    {"int!",token_e::INSIST_INT},
-    {"str!",token_e::INSIST_STRING},
-    {"float!",token_e::INSIST_FLOAT},
-    {"fn!", token_e::INSIST_FN},
-    {"promise!", token_e::INSIST_PROMISE}
-  };
-}
+scanner_c::scanner_c(scanner_cb_if& cb) : cb_(cb){}
 
 void scanner_c::reset() {
   tracker_ = tracker_s{};
@@ -131,129 +96,6 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin, std::string_v
         cb_.on_token(token_c(locator, token_e::R_BRACKET));
         break;
       }
-      case '{': { 
-        tracker_.brace_count++;
-        cb_.on_token(token_c(locator, token_e::L_BRACE));
-        break;
-      }
-      case '}': { 
-        if (tracker_.brace_count == 0) {
-          cb_.on_error(error_c(locator, "Unmatched closing brace"));
-          return false;
-        }
-        tracker_.brace_count--;
-        cb_.on_token(token_c(locator, token_e::R_BRACE));
-        break;
-      }
-      case '<': {
-        if (col + 1 < data.size()) {
-          auto next = data[col + 1];
-          if (next == '=') {
-            cb_.on_token(token_c(locator, token_e::LTE));
-            col++;
-            break;
-          } else if (next == '<') {
-            cb_.on_token(token_c(locator, token_e::L_SHIFT));
-            col++;
-            break;
-          } else if (next == '-') {
-            cb_.on_token(token_c(locator, token_e::RETURN));
-            col++;
-            break;
-          }
-        } 
-        cb_.on_token(token_c(locator, token_e::LT));
-        break;
-      }
-      case '>': {
-        if (col + 1 < data.size()) {
-          auto next = data[col + 1];
-          if (next == '=') {
-            cb_.on_token(token_c(locator, token_e::GTE));
-            col++;
-            break;
-          } else if (next == '>') {
-            cb_.on_token(token_c(locator, token_e::R_SHIFT));
-            col++;
-            break;
-          }
-        }
-        cb_.on_token(token_c(locator, token_e::GT));
-        break;
-      }
-      case ':': {
-        if (col + 1 < data.size()) {
-          auto next = data[col + 1];
-          if (next == '=') {
-            cb_.on_token(token_c(locator, token_e::ASSIGNMENT));
-            col++;
-          } else if (next == ':') {
-            cb_.on_token(token_c(locator, token_e::SCOPE));
-            col++;
-          }
-        }
-        break;
-      }
-      case '+': {
-        cb_.on_token(token_c(locator, token_e::ADD));
-        break;
-      }
-      case '/': {
-        cb_.on_token(token_c(locator, token_e::DIVIDE));
-        break;
-      }
-      case '*': {
-        if (col + 1 < data.size()) {
-          auto next = data[col + 1];
-          if (next == '*') {
-            cb_.on_token(token_c(locator, token_e::POWER));
-            col++;
-            break;
-          }
-        }
-        cb_.on_token(token_c(locator, token_e::MULTIPLY));
-        break;
-      }
-      case '%': {
-        cb_.on_token(token_c(locator, token_e::MODULO));
-        break;
-      }
-      case '&': {
-        if (col + 1 < data.size()) {
-          auto next = data[col + 1];
-          if (next == '&') {
-            cb_.on_token(token_c(locator, token_e::BITWISE_AND));
-            col++;
-            break;
-          }
-        }
-        cb_.on_token(token_c(locator, token_e::LOGICAL_AND));
-        break;
-      }
-      case '|': {
-        if (col + 1 < data.size()) {
-          auto next = data[col + 1];
-          if (next == '|') {
-            cb_.on_token(token_c(locator, token_e::LOGICAL_OR));
-            col++;
-            break;
-          }
-        }
-        cb_.on_token(token_c(locator, token_e::BITWISE_OR));
-        break;
-      }
-      case '!': {
-        cb_.on_token(token_c(locator, token_e::LOGICAL_NOT));
-        break;
-      }
-      case '~': {
-        cb_.on_token(token_c(locator, token_e::BITWISE_NOT));
-        break;
-      }
-      case '^': {
-        cb_.on_token(token_c(locator, token_e::BITWISE_XOR));
-        break;
-      }
       case '"' : {
         bool in_str{true};
         std::string value = "\"";
@@ -283,10 +125,10 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin, std::string_v
 
           // check for negative number vs subtraction
           if (data[col] == '-' && col + 1 < data.size() && !std::isdigit(data[col + 1])) {
-            cb_.on_token(token_c(locator, token_e::SUBTRACT));
+            cb_.on_token(token_c(locator, token_e::SYMBOL, "-"));
             break;
           } else if (data[col] == '-' && col == data.size() - 1) {
-            cb_.on_token(token_c(locator, token_e::SUBTRACT));
+            cb_.on_token(token_c(locator, token_e::SYMBOL, "-"));
             break;
           }
 
@@ -311,25 +153,20 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin, std::string_v
           break;
         }
 
-        if (std::isalpha(data[col])) {
-          std::string word;
-          word += data[col];
-          while (col + 1 < data.size() && std::isalnum(data[col + 1])) {
-            word += data[col + 1];
-            col++;
-          }
-
-          // check for keywords vs identifiers
-          if (keywords_.find(word) != keywords_.end()) {
-            cb_.on_token(token_c(locator, keywords_[word]));
-          } else {
-            cb_.on_token(token_c(locator, token_e::IDENTIFIER, word));
-          }
-          break;
+        std::string word;
+        word += data[col];
+        while (col + 1 < data.size() && 
+              !std::isspace(data[col + 1]) && 
+              data[col + 1] != '(' && 
+              data[col + 1] != ')' &&
+              data[col + 1] != '[' &&
+              data[col + 1] != ']') {
+          word += data[col + 1];
+          col++;
         }
 
-        cb_.on_error(error_c(locator, "Unexpected character"));
-        return false;
+        cb_.on_token(token_c(locator, token_e::SYMBOL, word));
+        break;
       }
     }
   }

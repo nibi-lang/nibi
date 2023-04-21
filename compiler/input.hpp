@@ -52,7 +52,6 @@ protected:
     std::size_t line_count{0};
   };
   tracker_s tracker_;
-  std::unordered_map<std::string, token_e> keywords_;
 };
 
 //! \brief A file reader object.

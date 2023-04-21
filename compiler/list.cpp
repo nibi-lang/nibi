@@ -7,6 +7,7 @@
 
 #include "runtime/builtins/builtins.hpp"
 
+#include <unordered_map>
 
 #define PARSER_ENFORCE_CURRENT_CELL(___message) \
   if (!current_list) { \
@@ -33,6 +34,11 @@ private:
   cell_memory_manager_t& ins_memory_;
   std::function<void(error_c error)> on_error_;
 };
+
+std::unordered_map<std::string, cell_fn_t> builtin_symbols_map {
+  {":+", builtins::builtin_fn_arithmetic_add}
+};
+
 
 }
 
@@ -130,17 +136,25 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
       return nullptr;
     }
 
-    case token_e::ADD: {
-      // Check if we have a current cell to add to
-      // if we don't there is a syntax error
-      PARSER_ENFORCE_CURRENT_CELL("Unexpected add instruction");   
+    case token_e::SYMBOL: {
+      auto symbol_raw = current_token.get_data();
+      PARSER_ENFORCE_CURRENT_CELL("Unexpected symbol: " + symbol_raw);   
 
-      // Allocate the cell in instruction memory containing the 
-      // add instruction
+
+      // If the symbol isn't in the map, its an identifier
+      if (builtin_symbols_map.find(symbol_raw) == builtin_symbols_map.end()) {
+        auto* cell = ins_memory_.allocate(symbol_s{symbol_raw});
+
+        cell->locator = current_token.get_locator();
+
+        PARSER_ADD_CELL
+      }
+
+      // Load the builtin function and add it to the list with its type
       auto* cell = ins_memory_.allocate(
         function_info_s{
-          "+", 
-          builtins::builtin_fn_arithmetic_add,
+          symbol_raw, 
+          builtin_symbols_map[symbol_raw],
           function_type_e::BUILTIN_CPP_FUNCTION}
       );
 
