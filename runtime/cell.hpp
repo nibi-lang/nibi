@@ -57,6 +57,10 @@ struct function_info_s {
   std::string name;
   cell_fn_t fn;
   function_type_e type;
+  function_info_s()
+    : name(""), 
+      fn(nullptr),
+      type(function_type_e::UNSET) {};
   function_info_s(
     std::string name,
     cell_fn_t fn,

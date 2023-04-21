@@ -43,7 +43,11 @@ if(WITH_ASAN)
 endif()
 
 set(APP_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/builtins.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/environment_modifiers.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/asserts.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/checks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/input.cpp

@@ -127,6 +127,8 @@ std::string cell_c::to_string() {
       return std::to_string(this->as_integer());
     case cell_type_e::DOUBLE:
       return std::to_string(this->as_double());
+    case cell_type_e::SYMBOL:
+      [[fallthrough]];
     case cell_type_e::STRING:
       return this->as_string();
     case cell_type_e::REFERENCE: {

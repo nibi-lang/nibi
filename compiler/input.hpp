@@ -16,7 +16,6 @@ public:
   enum class unclosed_type_e {
     PAREN,
     BRACKET,
-    BRACE
   };
 
   //! \brief Called when a token is found.
@@ -48,7 +47,6 @@ protected:
   struct tracker_s {
     std::size_t bracket_count{0};
     std::size_t paren_count{0};
-    std::size_t brace_count{0};
     std::size_t line_count{0};
   };
   tracker_s tracker_;

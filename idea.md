@@ -2,8 +2,33 @@
 
 #         comment
 ()        list to execute
-{}        a 'body' of lists to execute that allows parameters
 []        create a list of data
++         add
+-         subtract
+/         divide
+*         multiply
+**        power
+%         modulus
+:=        assign a variable
+drop      drop a variable from memory
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ...       variadic arguments
 fn        create a function
 loop      a loop structure
@@ -15,7 +40,6 @@ at        returns a reference to an item within a list, returns nil if oob
 view      a view into a list, returns reference of list
 quote     stringify the parameters as a list
 eval      evaluate a string
-drop      drop a variable from its scope
 type      retrieve the type of a given variable
 quit      stop all processing
 rev       reverse a list and return a reference to it
@@ -31,12 +55,7 @@ params    bind variables to their relative place in the `$args` list
 mod       wrap statement(s) in a module name
 pub       make items available externally to something wrapped with mod
 ::        access item within a mod : `mod_name::public_item`
-+         add
--         subtract
-/         divide
-*         multiply
-**        power
-%         modulus
+
 <<        left shift
 >>        right shift
 &&        logical and
@@ -47,13 +66,6 @@ pub       make items available externally to something wrapped with mod
 ~         bitwise not
 ^         bitwise xor
 
-nil!      declare the item must be nil
-int!      declare the item must be an integer
-str!      declare the item must be a string
-float!    declare the item must be a float
-promise!  declare the item must be a promise
-list!     declare the item must be a list
-fn!       declare the item must be a fn
 ```
 
 

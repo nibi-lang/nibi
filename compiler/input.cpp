@@ -52,10 +52,6 @@ void scanner_c::indicate_complete() {
     cb_.on_complete({scanner_cb_if::unclosed_type_e::BRACKET});
     return;
   }
-  if (tracker_.brace_count != 0) {
-    cb_.on_complete({scanner_cb_if::unclosed_type_e::BRACE});
-    return;
-  }
   cb_.on_complete({});
 }
 

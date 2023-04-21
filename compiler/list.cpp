@@ -33,19 +33,15 @@ public:
 private:
   cell_memory_manager_t& ins_memory_;
   std::function<void(error_c error)> on_error_;
+  std::unordered_map<std::string, function_info_s>& builtins_{
+    builtins::get_builtin_symbols_map()
+  };
 };
-
-std::unordered_map<std::string, cell_fn_t> builtin_symbols_map {
-  {":+", builtins::builtin_fn_arithmetic_add}
-};
-
 
 }
 
-
-list_builder_c::list_builder_c(cell_memory_manager_t& ins_mem, list_cb_if& cb) : ins_memory_(ins_mem), cb_(cb) {
-
-}
+list_builder_c::list_builder_c(cell_memory_manager_t& ins_mem, list_cb_if& cb)
+  : ins_memory_(ins_mem), cb_(cb) {}
 
 void list_builder_c::on_error(error_c error) {
   // TODO: add error to list and allow up-to a certain number of errors
@@ -59,6 +55,19 @@ void list_builder_c::on_complete(std::optional<unclosed_type_e> unclosed_symbol)
   // if a symbol is unclosed, then the program can not continue
   // and we need to attempt to find the unclosed symbol and 
   // draw an error for it
+
+  if (tokens_.size()) {
+    on_error(error_c(tokens_.back().get_locator(), "Unfinished list"));
+    return;
+  }
+
+  if (unclosed_symbol.has_value()) {
+    on_error(
+      error_c(
+        tokens_.back().get_locator(), 
+        "Unclosed " + (*unclosed_symbol == unclosed_type_e::BRACKET) ? "data list" : "instruction list"));
+    return;
+  }
 }
 
 void list_builder_c::on_token(token_c token, bool end_list) {
@@ -142,7 +151,7 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
 
       // If the symbol isn't in the map, its an identifier
-      if (builtin_symbols_map.find(symbol_raw) == builtin_symbols_map.end()) {
+      if (builtins_.find(symbol_raw) == builtins_.end()) {
         auto* cell = ins_memory_.allocate(symbol_s{symbol_raw});
 
         cell->locator = current_token.get_locator();
@@ -150,13 +159,21 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
         PARSER_ADD_CELL
       }
 
-      // Load the builtin function and add it to the list with its type
-      auto* cell = ins_memory_.allocate(
-        function_info_s{
-          symbol_raw, 
-          builtin_symbols_map[symbol_raw],
-          function_type_e::BUILTIN_CPP_FUNCTION}
-      );
+      /*
+          Here we encode the actual builtin method into the 
+          instruction itsself. Typically we would put these in
+          the global env and then reference them from there, but
+          map lookups are slow, and we want to be able to execute
+          these instructions as fast as possible. So we encode the
+          actual function pointer into the instruction itself.
+
+          This will also make it easier to block users from
+          overwriting builtin functions as the instruction
+          will show as a function, not a symbol without
+          needing to check against all builtins (map)
+          to confirm its okay to use
+      */
+      auto* cell = ins_memory_.allocate(builtins_[symbol_raw]);
 
       cell->locator = current_token.get_locator();
 
