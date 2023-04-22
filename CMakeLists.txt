@@ -48,12 +48,13 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/environment_modifiers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/asserts.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/checks.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/error.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/input.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/list.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/token.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/list.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/token.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/cell.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/environment.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/runtime.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/app/tokra.cpp
 )
 

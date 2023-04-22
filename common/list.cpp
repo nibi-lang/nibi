@@ -3,7 +3,7 @@
 #include <iostream>
 #include <functional>
 
-#include "compiler/error.hpp"
+#include "common/error.hpp"
 
 #include "runtime/builtins/builtins.hpp"
 

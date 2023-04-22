@@ -8,8 +8,6 @@
 
 - Start populating the lists returned by list parser into an instruction set
 
-- Rename compiler to "front" or "intake" or "setup" ... or "shared" ... "common" ?
-
 - Start a processor that impls the list_cb_if that processes the lists as they come in
   need to work in the mark and sweep of these instructions as they come in. We don't 
   need to have all instructions allocated throughout the lifetime of the program, which
@@ -30,3 +28,72 @@
 
 Keyword `ref` should be used to _not_ clone an item, and assume any (:= a b) is an indication to clone b into new symbol a
 
+
+
+
+### Custom interfaces/ types - Later Potential implementations
+
+```
+iface - define interface
+fn    - Describe a function that will be implemented
+var   - Insist a variable exists
+
+(iface my_interface 
+  [
+    (fn my_method (arg1 arg2 arg3))
+    (fn my_other_method)
+    (var x)
+  ]
+)
+
+
+---- Custom type -----
+
+(obj my_type [
+
+  // No constructor - if the user wants they can pass a list to the type
+  // on creation and it will be mapped to variables in order
+
+  (pub fn some_method (a b c) [])
+
+  (fn some_private_method [])
+
+  // Var is used to describe that a given var will exist
+  (var some_variable)
+])
+
+// Example instantiation -
+// the my_type becomes a function that returns a cell containing the type 
+// and instantiated with whatever data list is given
+(:= x (my_type [0]))
+
+
+(type my_type my_interface [
+
+  // MUST implement all items in interface
+])
+
+
+```
+
+### Routers
+
+A router as a built in type that can be defined to take a particular interface 
+in to register to recieve data, and others can call on routers to transmit data
+
+
+(router some_name target_interface)
+(router some_name object_type)
+
+(some_name register x)
+
+  router    router fn   obj fn
+(some_name    submit    get_data   "Data to go to registered interfaces")
+
+
+
+```
+
+
+
+```

@@ -7,7 +7,7 @@
 #include <functional>
 #include <string>
 #include "memory.hpp"
-#include "compiler/source.hpp"
+#include "common/source.hpp"
 
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
