@@ -14,6 +14,7 @@ class list_cb_if {
 public:
   virtual ~list_cb_if() = default;
   //! \brief Called when a list is found from tokens
+  //! \param list_cell The cell that represents the list
   virtual void on_list(cell_c* list_cell) = 0;
 };
 

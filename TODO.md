@@ -6,7 +6,6 @@
 
 # Implementations
 
-- Start populating the lists returned by list parser into an instruction set
 
 - Start a processor that impls the list_cb_if that processes the lists as they come in
   need to work in the mark and sweep of these instructions as they come in. We don't 
@@ -17,10 +16,6 @@
   So we can pull it from the instruction. THAT or we mark the instructions whose 
   data we rely on as in use.
 
-  We've been operating on the assumption all envs will have their owm memory boyo
-  but we _could_ have 1 for everything, and intermittently have all envs mark cells.
-  This means for reference cells and whatnot we should have a means to propagate
-  the marks to children
 
 - Lists are being populated, and _some_ builtins are mapped but not implemented. need to impl them and add other builtins
 
