@@ -35,6 +35,12 @@ public:
   //!       in the environment or in the parent
   cell_c *get_cell(std::string_view name);
 
+  //! \brief Get the env that a cell is in
+  //! \param name The name of the cell
+  //! \return The env if it exists in this environment or
+  //!         a parent environment. otherwise, nullptr
+  env_c *get_env(std::string_view name);
+
   //! \brief Set a cell in the local environment
   //!        This will not update the cell in the parent environment(s)
   //! \param name The name of the cell

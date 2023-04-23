@@ -6,15 +6,11 @@
 
 # Implementations
 
+`:=` Assignment operator
+cell clone method so we can do a deep copy from cell to cell
+`true!` as the first and base assertion so we can make scripted tests
+`false!` ^^ 
 
-- Start a processor that impls the list_cb_if that processes the lists as they come in
-  need to work in the mark and sweep of these instructions as they come in. We don't 
-  need to have all instructions allocated throughout the lifetime of the program, which
-  means we don't want be referencing data in instructions within the env.
-
-  This means we should impl a "clone" in cell to do a deep copy of a cell and its data. 
-  So we can pull it from the instruction. THAT or we mark the instructions whose 
-  data we rely on as in use.
 
 
 - Lists are being populated, and _some_ builtins are mapped but not implemented. need to impl them and add other builtins

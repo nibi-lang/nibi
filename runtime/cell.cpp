@@ -1,5 +1,5 @@
 #include "cell.hpp"
-
+#include "runtime/runtime.hpp"
 namespace {
 const char *function_type_to_string(function_type_e type) {
   switch (type) {
@@ -69,6 +69,60 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "REFERENCE";
   }
   return "UNKNOWN";
+}
+
+cell_c::~cell_c() {
+  if (this->type == cell_type_e::LIST) {
+    auto &info = this->as_list_info();
+    for (auto &cell : info.list) {
+      /*
+        By marking this as not in use it will be 
+        recycled by the memory manager on the next
+        pass. This means that deletions will
+        be performed in a batched manner.
+      */
+      cell->mark_as_in_use(false);
+    }
+  }
+}
+
+cell_c* cell_c::clone() {
+
+  // Allocate a new cell
+  cell_c* new_cell = global_runtime->get_runtime_memory().allocate(this->type);
+
+  // Copy the data
+  new_cell->locator = this->locator;
+
+  switch (this->type) {
+  case cell_type_e::NIL:
+    new_cell->mark_as_in_use(false);
+    return global_cell_nil;
+  case cell_type_e::INTEGER:
+    new_cell->data = this->as_integer();
+    break;
+  case cell_type_e::DOUBLE:
+    new_cell->data = this->as_double();
+    break;
+  case cell_type_e::STRING:
+    new_cell->data = this->as_string();
+    break;
+  case cell_type_e::FUNCTION:
+    new_cell->data = this->as_function_info();
+    break;
+  case cell_type_e::REFERENCE:
+    new_cell->data = this->to_referenced_cell();
+    break;
+  case cell_type_e::LIST:
+    list_info_s linf = this->as_list_info();
+    list_info_s other = new_cell->as_list_info();
+    for(auto& cell : linf.list) {
+      other.list.push_back(cell->clone());
+    }
+    break;
+  }
+
+  return new_cell;
 }
 
 int64_t cell_c::to_integer() { return this->as_integer(); }

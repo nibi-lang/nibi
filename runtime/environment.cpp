@@ -30,6 +30,22 @@ env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {
   }
 }
 
+env_c* env_c::get_env(std::string_view name) {
+
+  // Check current environment first
+  if (cell_map_.find(name) != cell_map_.end()) {
+    return this;
+  }
+
+  // If not found, check parent environment
+  if (parent_env_) {
+    return parent_env_->get_env(name);
+  }
+
+  // If not found, return nullptr
+  return nullptr;
+}
+
 cell_c *env_c::get_cell(std::string_view name) {
 
   // Check current environment first
@@ -47,6 +63,9 @@ cell_c *env_c::get_cell(std::string_view name) {
 }
 
 void env_c::set_local_cell(std::string_view name, cell_c &cell) {
+  if (cell_map_.find(name) != cell_map_.end()) {
+    cell_map_[name]->mark_as_in_use(false);
+  }
   cell_map_[name] = &cell;
 }
 

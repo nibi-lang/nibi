@@ -174,6 +174,14 @@ public:
   cell_c &operator=(const cell_c &other) = delete;
   cell_c &operator=(cell_c &&other) = delete;
 
+  //! \brief Destroy the cell
+  //! \note If the cell contains a list, the list have each 
+  //!       of its members marked to be collected
+  ~cell_c();
+
+  //! \brief Clone the current cell
+  cell_c* clone();
+
   cell_type_e type{cell_type_e::NIL};
   std::any data{0};
   locator_ptr locator{nullptr};
