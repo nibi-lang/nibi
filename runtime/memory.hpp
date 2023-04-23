@@ -30,26 +30,29 @@ private:
   bool marked_{true};
 };
 
-//! \brief An interface for an object that has say over
-//!        what objects are in use
-class marker_if {
-public:
-  //! \brief Mark all items that are in use by this object
-  virtual void mark_items_in_use() = 0;
-};
-
 //! \brief A controller for allocating and deallocating memory
 //! \note  `T` must be declared as <MY_TYPE> not <MY_TYPE*>
 template<typename T>
 class controller_c {
 public:
+  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 256;
+
+  //! \brief Construct a new controller object
   controller_c(){};
 
-  //! \brief Create a new controller with an interface
-  //!        for marking items as in use
-  //! \param marker The marker interface that decides 
-  //!               what items are in use
-  controller_c(marker_if* marker) : marker_{marker} {}
+  //! \brief Construct a new controller object with custom allocs before sweep
+  //! \param allocs_trigger The number of allocations before a sweep is triggered
+  controller_c(const std::size_t allocs_trigger)
+    : allocations_before_sweep(allocs_trigger) {};
+
+  //! \brief Destroy the controller object
+  //! \note This will destroy all marked and unmarked objects
+  //!       that were allocated by this controller
+  ~controller_c() {
+    for (auto *item : markables_) {
+      delete item;
+    }
+  }
 
   //! \brief Allocate a new object
   //! \param args The arguments to pass to the constructor
@@ -57,48 +60,34 @@ public:
   //! \note The object bust inheret from markable_if
   template<typename... Args>
   T* allocate(Args&&... args) {
+
+    // Check to see if we need to sweep
+    if (++allocations_trigger >= allocations_before_sweep) {
+
+      // Perform sweep
+      sweep();
+
+      // Even if sweep doesn't sweep anything,
+      // we want to reset the trigger
+      allocations_trigger = 0;
+    }
+
     auto* item = new T(std::forward<Args>(args)...);
-    ++allocations;
     markables_.push_front(item);
     return item;
   }
 
-  //! \brief Mark all objects as in use
-  void mark_all_as_in_use() {
-    for (auto *item : markables_) {
-      item->mark_as_in_use(true);
-    }
-  }
-
-  //! \brief Unmark all objects as in use
-  void mark_all_as_unused() {
-    for (auto *item : markables_) {
-      item->mark_as_in_use(false);
-    }
-  }
-
-  //! \brief Sweep all objects that are not marked as in use
+private:
+  std::forward_list<markable_if*> markables_;
+  std::size_t allocations_trigger{0};
+  std::size_t allocations_before_sweep{DEFAULT_ALLOCATIONS_BEFORE_SWEEP};
   void sweep() {
     for (auto *item : markables_) {
       if (!item->is_marked()) {
         delete item;
-        --allocations;
-        ++deletions;
       }
     }
   }
-
-  //! \brief Get the number of allocations
-  std::size_t num_allocations() const { return allocations; }
-
-  //! \brief Get the number of deletions
-  std::size_t num_deletions() const { return deletions; }
-
-private:
-  std::forward_list<markable_if*> markables_;
-  std::size_t allocations{0};
-  std::size_t deletions{0};
-  marker_if* marker_{nullptr};
 };
 
 }

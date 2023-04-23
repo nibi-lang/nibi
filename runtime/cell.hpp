@@ -25,6 +25,8 @@ enum class cell_type_e {
   SYMBOL
 };
 
+extern const char* cell_type_to_string(const cell_type_e type);
+
 //! \brief The type of a function that a cell holds
 enum class function_type_e {
   UNSET,                // Function type is not set
@@ -46,10 +48,26 @@ class cell_c;
 using cell_list_t = std::list<cell_c*>;
 
 //! \brief A function that takes a list of cells and an environment
-using cell_fn_t = std::function<cell_c*(cell_list_t, env_c&)>;
+using cell_fn_t = std::function<cell_c*(cell_list_t&, env_c&)>;
 
 //! \brief A cell specific allocator
 using cell_memory_manager_t = memory::controller_c<cell_c>;
+
+//! \brief A global cell representing nil
+extern cell_c* global_cell_nil;
+
+//! \brief A global cell representing true
+extern cell_c* global_cell_true;
+
+//! \brief A global cell representing false
+extern cell_c* global_cell_false;
+
+//! \brief Initialize the global cells
+//! \return True if the initialization was successful
+extern bool global_cells_initialize();
+
+//! \brief Destroy the global cells
+extern void global_cells_destroy();
 
 //! \brief Function wrapper that holds the function
 //!        pointer, the name, and the type of the function
@@ -217,7 +235,7 @@ public:
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a reference type
-  cell_c* as_reference();
+  cell_c* to_referenced_cell();
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an aberrant type
@@ -225,6 +243,8 @@ public:
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a function type
-  function_info_s& as_function();
+  function_info_s& as_function_info();
 };
 
+static inline int64_t cell_to_integer(cell_c* c) { return c->to_integer(); }
+static inline double cell_to_double(cell_c* c) { return c->to_double(); }

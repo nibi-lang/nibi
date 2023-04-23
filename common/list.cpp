@@ -72,7 +72,7 @@ void list_builder_c::on_complete(std::optional<unclosed_type_e> unclosed_symbol)
 
 void list_builder_c::on_token(token_c token, bool end_list) {
 
-  std::cout << "builder received token: " << token_to_string(token) << std::endl;
+  //std::cout << "builder received token: " << token_to_string(token) << std::endl;
 
   // Accumulate tokens until we have a "end_list" condition (all parens closed)
   tokens_.push_back(token);
@@ -87,7 +87,7 @@ void list_builder_c::on_token(token_c token, bool end_list) {
     // if the list is not empty, then we need to send it to the callback
     // an empty lists means an error was found, and the error was already
     // reported to the callback
-    if (new_list) {
+    if (new_list && new_list->as_list().size()) {
       cb_.on_list(new_list);
     }
 
@@ -105,7 +105,6 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
   auto current_token = tokens[0];
 
   tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
-
 
   switch (current_token.get_token()) {
     case token_e::L_BRACKET: {
@@ -200,12 +199,7 @@ cell_c* parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
       PARSER_ADD_CELL
     }
-
-
-
-
   }
-
   return nullptr;
 }
 

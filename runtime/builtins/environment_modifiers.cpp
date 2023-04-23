@@ -5,20 +5,20 @@
 
 namespace builtins {
 
-cell_c* builtin_fn_env_assignment(cell_list_t args, env_c &env) {
+cell_c* builtin_fn_env_assignment(cell_list_t& list, env_c &env) {
 
   // TODO:  Implement this function
 
-  std::cout << "perform assignment " << args.size() << " arguments" << std::endl;
-  return nullptr;
+  std::cout << "perform assignment " << list.size() << " arguments" << std::endl;
+  return global_cell_nil;
 }
 
-cell_c* builtin_fn_env_drop(cell_list_t args, env_c &env) {
+cell_c* builtin_fn_env_drop(cell_list_t& list, env_c &env) {
 
   // TODO:  Implement this function
 
-  std::cout << "perform drop " << args.size() << " arguments" << std::endl;
-  return nullptr;
+  std::cout << "perform drop " << list.size() << " arguments" << std::endl;
+  return global_cell_nil;
 }
 
 }

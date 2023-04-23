@@ -75,19 +75,6 @@ bool env_c::drop_cell(std::string_view name) {
   return false;
 }
 
-void env_c::mark_items_in_use() {
-
-  // Mark all cells in the environment as being in use
-  for(auto& [name, cell] : cell_map_) {
-    cell->mark_as_in_use(true);
-  }
-
-  // If there is a child environment, mark it as being in use
-  if (child_env_) {
-    child_env_->mark_items_in_use();
-  }
-}
-
 void env_c::register_child(env_c& child_env) {
   child_env_ = &child_env;
 }

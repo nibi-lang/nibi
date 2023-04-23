@@ -11,7 +11,7 @@
 
 //! \brief The environment object that will be used to store
 //!        and manage the cells that are used in different scopes
-class env_c final : public memory::marker_if {
+class env_c {
 public:
   env_c() = delete;
   ~env_c();
@@ -46,12 +46,6 @@ public:
   //! \param name The name of the cell
   //! \returns True if the cell was dropped, false if item not found
   bool drop_cell(std::string_view name);
-
-  //! \brief From memory::marker_if, update all cells 
-  //!        held in the environment as being in use
-  //! \note  This is used by the garbage collector, and 
-  //!        the call is propageted to children environments
-  void mark_items_in_use() override;
 
 private:
 

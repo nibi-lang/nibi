@@ -16,6 +16,63 @@ namespace {
   }
 }
 
+cell_c* global_cell_nil{nullptr};
+cell_c* global_cell_true{nullptr};
+cell_c* global_cell_false{nullptr};
+
+void global_cells_destroy() {
+  if (global_cell_nil) {
+    delete global_cell_nil;
+    global_cell_nil = nullptr;
+  }
+
+  if (global_cell_true) {
+    delete global_cell_true;
+    global_cell_true = nullptr;
+  }
+
+  if (global_cell_false) {
+    delete global_cell_false;
+    global_cell_false = nullptr;
+  }
+}
+
+bool global_cells_initialize() {
+  global_cell_nil = new cell_c(cell_type_e::NIL);
+  global_cell_true = new cell_c((int64_t) 1);
+  global_cell_false = new cell_c((int64_t) 0);
+
+  if (global_cell_true && 
+      global_cell_false && 
+      global_cell_nil) {
+    return true;
+  }
+  
+  // If we get here, something went wrong so we need to clean up
+  global_cells_destroy();
+  return false;
+}
+
+const char* cell_type_to_string(const cell_type_e type) {
+  switch(type) {
+    case cell_type_e::NIL:
+      return "NIL";
+    case cell_type_e::INTEGER:
+      return "INTEGER";
+    case cell_type_e::DOUBLE:
+      return "DOUBLE";
+    case cell_type_e::STRING:
+      return "STRING";
+    case cell_type_e::FUNCTION:
+      return "FUNCTION";
+    case cell_type_e::LIST:
+      return "LIST";
+    case cell_type_e::REFERENCE:
+      return "REFERENCE";
+  }
+  return "UNKNOWN";
+}
+
 int64_t cell_c::to_integer() {
   return this->as_integer();
 }
@@ -82,7 +139,7 @@ list_info_s& cell_c::as_list_info() {
     }
 }
 
-cell_c* cell_c::as_reference() {
+cell_c* cell_c::to_referenced_cell() {
   try
   {
     return std::any_cast<cell_c*>(this->data);
@@ -106,7 +163,7 @@ aberrant_cell_if* cell_c::as_aberrant() {
   }
 }
 
-function_info_s& cell_c::as_function() {
+function_info_s& cell_c::as_function_info() {
   try
   {
     return std::any_cast<function_info_s&>(this->data);
@@ -132,7 +189,7 @@ std::string cell_c::to_string() {
     case cell_type_e::STRING:
       return this->as_string();
     case cell_type_e::REFERENCE: {
-      auto* cell = this->as_reference();
+      auto* cell = this->to_referenced_cell();
       if (!cell)
         return "nil";
       else
@@ -147,7 +204,7 @@ std::string cell_c::to_string() {
         return cell->represent_as_string();
     }
     case cell_type_e::FUNCTION: {
-      auto fn = this->as_function();
+      auto& fn = this->as_function_info();
       std::string result = "<function:";
       result += fn.name;
       result += ", type:";
