@@ -150,6 +150,8 @@ public:
       data = double(0.00);
       break;
     case cell_type_e::STRING:
+      [[fallthrough]];
+    case cell_type_e::SYMBOL:
       data = std::string();
       break;
     case cell_type_e::LIST:

@@ -42,7 +42,7 @@ private:
   public:
     locator_c(const char *source, const size_t line, const size_t column)
         : line_(line), column_(column), source_name_(source) {}
-    std::tuple<size_t, size_t> get_line_column() const {
+    virtual std::tuple<size_t, size_t> get_line_column() const override {
       return std::make_tuple(line_, column_);
     }
     virtual const size_t get_line() const override { return line_; }
