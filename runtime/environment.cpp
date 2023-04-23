@@ -8,14 +8,13 @@ env_c::~env_c() {
   }
 
   // Mark all cells in the environment as not being in use
-  for(auto& [name, cell] : cell_map_) {
+  for (auto &[name, cell] : cell_map_) {
     cell->mark_as_in_use(false);
   }
 }
 
-env_c::env_c(cell_list_t& parameter_list,
-        env_c* parent_env)
-  : parent_env_(parent_env) {
+env_c::env_c(cell_list_t &parameter_list, env_c *parent_env)
+    : parent_env_(parent_env) {
 
   // If a parent environment is provided, register this environment
   if (parent_env_) {
@@ -23,8 +22,7 @@ env_c::env_c(cell_list_t& parameter_list,
   }
 }
 
-env_c::env_c(env_c* parent_env)
-  : parent_env_(parent_env) {
+env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {
 
   // If a parent environment is provided, register this environment
   if (parent_env_) {
@@ -32,7 +30,7 @@ env_c::env_c(env_c* parent_env)
   }
 }
 
-cell_c* env_c::get_cell(std::string_view name) {
+cell_c *env_c::get_cell(std::string_view name) {
 
   // Check current environment first
   if (cell_map_.find(name) != cell_map_.end()) {
@@ -48,7 +46,7 @@ cell_c* env_c::get_cell(std::string_view name) {
   return nullptr;
 }
 
-void env_c::set_local_cell(std::string_view name, cell_c& cell) {
+void env_c::set_local_cell(std::string_view name, cell_c &cell) {
   cell_map_[name] = &cell;
 }
 
@@ -56,7 +54,7 @@ bool env_c::drop_cell(std::string_view name) {
 
   // Check current environment first
   if (cell_map_.find(name) != cell_map_.end()) {
-    
+
     // Immediately mark the cell as not in use
     cell_map_[name]->mark_as_in_use(false);
 
@@ -75,6 +73,4 @@ bool env_c::drop_cell(std::string_view name) {
   return false;
 }
 
-void env_c::register_child(env_c& child_env) {
-  child_env_ = &child_env;
-}
+void env_c::register_child(env_c &child_env) { child_env_ = &child_env; }

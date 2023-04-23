@@ -26,14 +26,14 @@ public:
 
   //! \brief Check if this object is marked as in use
   bool is_marked() const { return marked_; }
+
 private:
   bool marked_{true};
 };
 
 //! \brief A controller for allocating and deallocating memory
 //! \note  `T` must be declared as <MY_TYPE> not <MY_TYPE*>
-template<typename T>
-class controller_c {
+template <typename T> class controller_c {
 public:
   static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 256;
 
@@ -41,9 +41,10 @@ public:
   controller_c(){};
 
   //! \brief Construct a new controller object with custom allocs before sweep
-  //! \param allocs_trigger The number of allocations before a sweep is triggered
+  //! \param allocs_trigger The number of allocations before a sweep is
+  //! triggered
   controller_c(const std::size_t allocs_trigger)
-    : allocations_before_sweep(allocs_trigger) {};
+      : allocations_before_sweep(allocs_trigger){};
 
   //! \brief Destroy the controller object
   //! \note This will destroy all marked and unmarked objects
@@ -58,8 +59,7 @@ public:
   //! \param args The arguments to pass to the constructor
   //! \return A pointer to the newly allocated object
   //! \note The object bust inheret from markable_if
-  template<typename... Args>
-  T* allocate(Args&&... args) {
+  template <typename... Args> T *allocate(Args &&...args) {
 
     // Check to see if we need to sweep
     if (++allocations_trigger >= allocations_before_sweep) {
@@ -72,13 +72,13 @@ public:
       allocations_trigger = 0;
     }
 
-    auto* item = new T(std::forward<Args>(args)...);
+    auto *item = new T(std::forward<Args>(args)...);
     markables_.push_front(item);
     return item;
   }
 
 private:
-  std::forward_list<markable_if*> markables_;
+  std::forward_list<markable_if *> markables_;
   std::size_t allocations_trigger{0};
   std::size_t allocations_before_sweep{DEFAULT_ALLOCATIONS_BEFORE_SWEEP};
   void sweep() {
@@ -90,4 +90,4 @@ private:
   }
 };
 
-}
+} // namespace memory

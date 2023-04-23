@@ -16,7 +16,7 @@ std::optional<error_c> file_reader_c::read_file(std::string_view path) {
 
   scanner_.reset();
 
-  std::ifstream ifs; 
+  std::ifstream ifs;
   ifs.open(file_path, std::ios::in);
   if (ifs.fail()) {
     return error_c("Failed to open file");
@@ -25,7 +25,7 @@ std::optional<error_c> file_reader_c::read_file(std::string_view path) {
   auto source_origin = sm_.get_source(file_path.string());
 
   std::string data;
-  while(!ifs.eof()) {
+  while (!ifs.eof()) {
     std::getline(ifs, data);
     scanner_.scan_line(source_origin, data);
   }
@@ -37,11 +37,9 @@ std::optional<error_c> file_reader_c::read_file(std::string_view path) {
   return {};
 }
 
-scanner_c::scanner_c(scanner_cb_if& cb) : cb_(cb){}
+scanner_c::scanner_c(scanner_cb_if &cb) : cb_(cb) {}
 
-void scanner_c::reset() {
-  tracker_ = tracker_s{};
-}
+void scanner_c::reset() { tracker_ = tracker_s{}; }
 
 void scanner_c::indicate_complete() {
   if (tracker_.paren_count != 0) {
@@ -55,115 +53,116 @@ void scanner_c::indicate_complete() {
   cb_.on_complete({});
 }
 
-bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin, std::string_view data) {
+bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
+                          std::string_view data) {
   tracker_.line_count++;
-  for(std::size_t col = 0; col < data.size(); col++) {
+  for (std::size_t col = 0; col < data.size(); col++) {
     auto locator = origin->get_locator(tracker_.line_count, col);
-    switch(data[col]) {
-      case ' ': {
-        // ignore whitespace
-        break;
+    switch (data[col]) {
+    case ' ': {
+      // ignore whitespace
+      break;
+    }
+    case '(': {
+      tracker_.paren_count++;
+      cb_.on_token(token_c(locator, token_e::L_PAREN));
+      break;
+    }
+    case ')': {
+      if (tracker_.paren_count == 0) {
+        cb_.on_error(error_c(locator, "Unmatched closing paren"));
+        return false;
       }
-      case '(': { 
-        tracker_.paren_count++;
-        cb_.on_token(token_c(locator, token_e::L_PAREN));
-        break;
+      tracker_.paren_count--;
+      cb_.on_token(token_c(locator, token_e::R_PAREN),
+                   tracker_.paren_count == 0);
+      break;
+    }
+    case '[': {
+      tracker_.bracket_count++;
+      cb_.on_token(token_c(locator, token_e::L_BRACKET));
+      break;
+    }
+    case ']': {
+      if (tracker_.bracket_count == 0) {
+        cb_.on_error(error_c(locator, "Unmatched closing bracket"));
+        return false;
       }
-      case ')': { 
-        if (tracker_.paren_count == 0) {
-          cb_.on_error(error_c(locator, "Unmatched closing paren"));
-          return false;
-        }
-        tracker_.paren_count--;
-        cb_.on_token(token_c(locator, token_e::R_PAREN), tracker_.paren_count == 0);
-        break;
-      }
-      case '[': { 
-        tracker_.bracket_count++;
-        cb_.on_token(token_c(locator, token_e::L_BRACKET));
-        break;
-      }
-      case ']': { 
-        if (tracker_.bracket_count == 0) {
-          cb_.on_error(error_c(locator, "Unmatched closing bracket"));
-          return false;
-        }
-        tracker_.bracket_count--;
-        cb_.on_token(token_c(locator, token_e::R_BRACKET));
-        break;
-      }
-      case '"' : {
-        bool in_str{true};
-        std::string value = "\"";
-        decltype(col) start = col++;
-        while (col < data.size()) {
-          if (data[col] == '"') {
-            if (col > 0 && data[col - 1] != '\\') {
-              value += data[col];
-              break;
-            }
-          }
-          value += data[col++];
-        }
-
-        if (!value.ends_with('"')) {
-          //std::cout << "<<" << value << ">>\n";
-          cb_.on_error(error_c(locator, "Unterminated string"));
-          return false;
-        }
-
-        cb_.on_token(token_c(locator, token_e::RAW_STRING, value));
-        break;
-      }
-      default: {
-
-        if (std::isdigit(data[col]) || data[col] == '-') {
-
-          // check for negative number vs subtraction
-          if (data[col] == '-' && col + 1 < data.size() && !std::isdigit(data[col + 1])) {
-            cb_.on_token(token_c(locator, token_e::SYMBOL, "-"));
-            break;
-          } else if (data[col] == '-' && col == data.size() - 1) {
-            cb_.on_token(token_c(locator, token_e::SYMBOL, "-"));
+      tracker_.bracket_count--;
+      cb_.on_token(token_c(locator, token_e::R_BRACKET));
+      break;
+    }
+    case '"': {
+      bool in_str{true};
+      std::string value = "\"";
+      decltype(col) start = col++;
+      while (col < data.size()) {
+        if (data[col] == '"') {
+          if (col > 0 && data[col - 1] != '\\') {
+            value += data[col];
             break;
           }
+        }
+        value += data[col++];
+      }
 
-          std::string number;
-          number += data[col];
-          while (col + 1 < data.size() && (std::isdigit(data[col + 1]) || data[col + 1] == '.') ) {
-            number += data[col + 1];
-            col++;
-          }
+      if (!value.ends_with('"')) {
+        // std::cout << "<<" << value << ">>\n";
+        cb_.on_error(error_c(locator, "Unterminated string"));
+        return false;
+      }
 
-          if (std::regex_match(number, is_number)) {
-            if (number.find('.') != std::string::npos) {
-              cb_.on_token(token_c(locator, token_e::RAW_FLOAT, number));
-            } else {
-              cb_.on_token(token_c(locator, token_e::RAW_INTEGER, number));
-            }
-            break;
-          } else {
-            cb_.on_error(error_c(locator, "Malformed numerical value"));
-            return false;
-          }
+      cb_.on_token(token_c(locator, token_e::RAW_STRING, value));
+      break;
+    }
+    default: {
+
+      if (std::isdigit(data[col]) || data[col] == '-') {
+
+        // check for negative number vs subtraction
+        if (data[col] == '-' && col + 1 < data.size() &&
+            !std::isdigit(data[col + 1])) {
+          cb_.on_token(token_c(locator, token_e::SYMBOL, "-"));
+          break;
+        } else if (data[col] == '-' && col == data.size() - 1) {
+          cb_.on_token(token_c(locator, token_e::SYMBOL, "-"));
           break;
         }
 
-        std::string word;
-        word += data[col];
-        while (col + 1 < data.size() && 
-              !std::isspace(data[col + 1]) && 
-              data[col + 1] != '(' && 
-              data[col + 1] != ')' &&
-              data[col + 1] != '[' &&
-              data[col + 1] != ']') {
-          word += data[col + 1];
+        std::string number;
+        number += data[col];
+        while (col + 1 < data.size() &&
+               (std::isdigit(data[col + 1]) || data[col + 1] == '.')) {
+          number += data[col + 1];
           col++;
         }
 
-        cb_.on_token(token_c(locator, token_e::SYMBOL, word));
+        if (std::regex_match(number, is_number)) {
+          if (number.find('.') != std::string::npos) {
+            cb_.on_token(token_c(locator, token_e::RAW_FLOAT, number));
+          } else {
+            cb_.on_token(token_c(locator, token_e::RAW_INTEGER, number));
+          }
+          break;
+        } else {
+          cb_.on_error(error_c(locator, "Malformed numerical value"));
+          return false;
+        }
         break;
       }
+
+      std::string word;
+      word += data[col];
+      while (col + 1 < data.size() && !std::isspace(data[col + 1]) &&
+             data[col + 1] != '(' && data[col + 1] != ')' &&
+             data[col + 1] != '[' && data[col + 1] != ']') {
+        word += data[col + 1];
+        col++;
+      }
+
+      cb_.on_token(token_c(locator, token_e::SYMBOL, word));
+      break;
+    }
     }
   }
   return true;
