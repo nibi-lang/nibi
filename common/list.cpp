@@ -194,11 +194,40 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
       return nullptr;
     }
 
-    auto *cell = ins_memory_.allocate(value_actual);
+    auto *cell = ins_memory_.allocate((int64_t)value_actual);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
   }
+
+  case token_e::RAW_FLOAT: {
+    PARSER_ENFORCE_CURRENT_CELL("Unexpected float");
+
+    auto stringed_value = current_token.get_data();
+
+    double value_actual{0.00};
+    try {
+      value_actual = std::stod(stringed_value);
+    } catch (std::exception &e) {
+      on_error_(error_c(current_token.get_locator(),
+                        {"Invalid double value: " + stringed_value}));
+      return nullptr;
+    }
+
+    auto *cell = ins_memory_.allocate((double)value_actual);
+    cell->locator = current_token.get_locator();
+
+    PARSER_ADD_CELL
+  }
+
+  case token_e::RAW_STRING: {
+    PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
+    auto *cell = ins_memory_.allocate( current_token.get_data());
+    cell->locator = current_token.get_locator();
+
+    PARSER_ADD_CELL
+  }
+
   }
   return nullptr;
 }
