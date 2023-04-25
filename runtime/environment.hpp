@@ -25,6 +25,11 @@ public:
   //! \brief Create an environment object without parameters
   //! \param parent_env The parent environment (optional)
   env_c(env_c *parent_env = nullptr);
+  //! \brief Get the env that a cell is in
+  //! \param name The name of the cell
+  //! \return The env if it exists in this environment or
+  //!         a parent environment. otherwise, nullptr
+  env_c *get_env(std::string_view name);
 
   //! \brief Get a cell from the environment
   //! \param name The name of the cell
@@ -33,19 +38,12 @@ public:
   //! \note Use this function to get a cell from the environment
   //!       that needs to be updated if we want to ensure it exists
   //!       in the environment or in the parent
-  cell_c *get_cell(std::string_view name);
+  cell_c *get(std::string_view name);
 
-  //! \brief Get the env that a cell is in
-  //! \param name The name of the cell
-  //! \return The env if it exists in this environment or
-  //!         a parent environment. otherwise, nullptr
-  env_c *get_env(std::string_view name);
-
-  //! \brief Set a cell in the local environment
-  //!        This will not update the cell in the parent environment(s)
+  //! \brief Set a cell in the environment
   //! \param name The name of the cell
   //! \param cell The cell to set
-  void set_local_cell(std::string_view name, cell_c &cell);
+  void set(std::string_view name, cell_c &cell);
 
   //! \brief Drop a cell from the environment, or parent environment(s)
   //! \param name The name of the cell

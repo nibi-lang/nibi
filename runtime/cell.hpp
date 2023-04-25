@@ -22,7 +22,7 @@ enum class cell_type_e {
   REFERENCE,
   ABERRANT,
   FUNCTION,
-  SYMBOL
+  SYMBOL,
 };
 
 extern const char *cell_type_to_string(const cell_type_e type);
@@ -95,7 +95,7 @@ struct symbol_s {
 
 //! \brief An exception that is thrown when a cell is accessed
 //!        in a way that does not correspond to its type
-class cell_access_exception_c final : public std::exception {
+class cell_access_exception_c : public std::exception {
 public:
   //! \brief Create the exception
   //! \param message The message to display

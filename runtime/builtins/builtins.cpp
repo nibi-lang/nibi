@@ -29,6 +29,8 @@ static function_info_s builtin_assert_inf = {
     "true!", builtin_fn_assert_true, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_is_nil_inf = {
     "nil?", builtin_fn_check_nil, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_dbg_inf = {
+    "dbg", builtin_fn_debug_dbg, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
@@ -37,6 +39,7 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"%", builtin_mod_inf},         {"**", builtin_pow_inf},
     {":=", builtin_assignment_inf}, {"drop", builtin_drop_inf},
     {"true!", builtin_assert_inf},  {"nil?", builtin_is_nil_inf},
+    {"dbg", builtin_dbg_inf}
 };
 
 // Retrieve the map of symbols to function info structs

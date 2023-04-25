@@ -48,6 +48,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/environment_modifiers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/asserts.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/checks.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/list.cpp

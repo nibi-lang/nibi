@@ -104,7 +104,7 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env) {
   }
   case cell_type_e::SYMBOL: {
     // Load the symbol from the environment
-    auto *loaded_cell = env.get_cell(cell->as_string());
+    auto *loaded_cell = env.get(cell->as_string());
     if (!loaded_cell) {
       throw exception_c("Symbol not found in environment: " + cell->as_string(),
                         cell->locator);

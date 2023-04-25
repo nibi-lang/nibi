@@ -46,50 +46,36 @@ env_c* env_c::get_env(std::string_view name) {
   return nullptr;
 }
 
-cell_c *env_c::get_cell(std::string_view name) {
-
-  // Check current environment first
-  if (cell_map_.find(name) != cell_map_.end()) {
-    return cell_map_[name];
+cell_c *env_c::get(std::string_view name) {
+  auto* env = get_env(name);
+  if (!env) {
+    return nullptr;
   }
-
-  // If not found, check parent environment
-  if (parent_env_) {
-    return parent_env_->get_cell(name);
-  }
-
-  // If not found, return nullptr
-  return nullptr;
+  return env->cell_map_[name];
 }
 
-void env_c::set_local_cell(std::string_view name, cell_c &cell) {
-  if (cell_map_.find(name) != cell_map_.end()) {
-    cell_map_[name]->mark_as_in_use(false);
+void env_c::set(std::string_view name, cell_c &cell) {
+  auto* env = get_env(name);
+  if (!env) {
+    env = this;
   }
-  cell_map_[name] = &cell;
+  env->cell_map_[name] = &cell;
 }
 
 bool env_c::drop_cell(std::string_view name) {
 
-  // Check current environment first
-  if (cell_map_.find(name) != cell_map_.end()) {
-
-    // Immediately mark the cell as not in use
-    cell_map_[name]->mark_as_in_use(false);
-
-    // Remove the cell from the environment
-    cell_map_.erase(name);
-
-    return true;
+  auto* env = get_env(name);
+  if (!env) {
+    return false;
   }
 
-  // If not found, check parent environment
-  if (parent_env_) {
-    return parent_env_->drop_cell(name);
-  }
+  // Immediately mark the cell as not in use
+  env->cell_map_[name]->mark_as_in_use(false);
 
-  // If not found, return false
-  return false;
+  // Remove the cell from the environment
+  env->cell_map_.erase(name);
+
+  return true;
 }
 
 void env_c::register_child(env_c &child_env) { child_env_ = &child_env; }
