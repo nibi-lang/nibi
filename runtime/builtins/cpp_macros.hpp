@@ -17,12 +17,17 @@
     ___loop_body                                                               \
   }
 
-#define LIST_ENFORCE_SIZE(___op, ___size)                                      \
+// Check if the list is a given size, and if not error out.
+// converts size to number of arguments expected, so if you want 2 arguments
+// you should pass 3
+#define LIST_ENFORCE_SIZE(___cmd, ___op, ___size)                              \
   if (!(list.size() ___op ___size)) {                                          \
-    global_runtime->halt_with_error(error_c(                                   \
-        list.front()->locator, "Expected " + std::to_string(___size) +         \
-                                   " items in list, got " +                    \
-                                   std::to_string(list.size()) + "."));        \
+    static_assert(___size > 0, "LIST_ENFORCE_SIZE must be > 0");               \
+    global_runtime->halt_with_error(                                           \
+        error_c(list.front()->locator,                                         \
+                std::string(___cmd) + " instruction expects " +                \
+                    std::to_string(___size - 1) + " parameters, got " +        \
+                    std::to_string(list.size() - 1) + "."));                   \
     return global_cell_nil;                                                    \
   }
 

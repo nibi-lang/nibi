@@ -11,7 +11,7 @@ namespace builtins {
 
 cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
-  LIST_ENFORCE_SIZE(==, 3)
+  LIST_ENFORCE_SIZE(":=", ==, 3)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -44,7 +44,7 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
 cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env) {
 
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("drop", >=, 2)
 
   LIST_ITER_SKIP_N(1, {
     if (!env.drop((*it)->as_symbol())) {
@@ -83,7 +83,7 @@ cell_c *builtin_fn_env_try(cell_list_t &list, env_c &env) {
 
   */
 
-  LIST_ENFORCE_SIZE(==, 3)
+  LIST_ENFORCE_SIZE("try", ==, 3)
 
   auto it = list.begin();
 

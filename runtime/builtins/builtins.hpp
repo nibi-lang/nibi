@@ -44,13 +44,6 @@ extern cell_c *builtin_fn_check_nil(cell_list_t &list, env_c &env);
 // Assertions
 
 extern cell_c *builtin_fn_assert_true(cell_list_t &list, env_c &env);
-// assert exists (exists!)
-// assert is nil (nil!)
-// assert is int (int!)
-// assert is real (real!)
-// assert is string (string!)
-// assert is list (list!)
-// assert is function (fn!)
 
 // Arithmetic functions
 

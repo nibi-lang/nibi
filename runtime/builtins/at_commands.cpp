@@ -12,7 +12,7 @@ namespace builtins {
   @debug <0|1>
 */
 cell_c *builtin_fn_at_debug(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(==, 2)
+  LIST_ENFORCE_SIZE("@debug", ==, 2)
   auto *value = list_get_nth_arg(1, list, env);
   if (value->type != cell_type_e::INTEGER) {
     throw runtime_c::exception_c("Expected integer value", value->locator);

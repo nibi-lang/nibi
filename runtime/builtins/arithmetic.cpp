@@ -30,31 +30,31 @@ namespace builtins {
   }
 
 cell_c *builtin_fn_arithmetic_add(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("+", >=, 2)
   PERFORM_OPERATION(list_perform_add)
   return global_cell_nil;
 }
 
 cell_c *builtin_fn_arithmetic_sub(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("-", >=, 2)
   PERFORM_OPERATION(list_perform_sub)
   return global_cell_nil;
 }
 
 cell_c *builtin_fn_arithmetic_div(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("/", >=, 2)
   PERFORM_OPERATION(list_perform_div)
   return global_cell_nil;
 }
 
 cell_c *builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("*", >=, 2)
   PERFORM_OPERATION(list_perform_mul)
   return global_cell_nil;
 }
 
 cell_c *builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("%", >=, 2)
   auto *first_arg = list_get_nth_arg(1, list, env);
   int64_t accumulate{first_arg->as_integer()};
 
@@ -64,7 +64,7 @@ cell_c *builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
 }
 
 cell_c *builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE(>=, 2)
+  LIST_ENFORCE_SIZE("**", >=, 2)
   PERFORM_OPERATION(list_perform_pow)
   return global_cell_nil;
 }

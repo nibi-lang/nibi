@@ -222,12 +222,11 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
   case token_e::RAW_STRING: {
     PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
-    auto *cell = ins_memory_.allocate( current_token.get_data());
+    auto *cell = ins_memory_.allocate(current_token.get_data());
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
   }
-
   }
   return nullptr;
 }

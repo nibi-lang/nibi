@@ -33,6 +33,8 @@ dbg-var
 
 try
 
+assert
+
 ```
 
 # AT Commands
@@ -73,9 +75,20 @@ Returns true iff the message was output
 
 # Non-Debug Instructions
 
+
+### assert
+
+Expects 2 parameters. The first will be evaluated and if it does not
+yield a `true` condition a runtime exception will be thrown with the
+error message provided by the second parameter (expects string).
+
+```
+(assert 1 "Value was not equal to 1!")
+```
+
 ### try
 
-Expects 3 parameters. The first will be executed and if an exception occurs
+Expects 2 parameters. The first will be executed and if an exception occurs
 then the second list will be executed with a variable `$e` present in the 
 environment while the recovery list is being processed.
 
