@@ -175,12 +175,12 @@ public:
   cell_c &operator=(cell_c &&other) = delete;
 
   //! \brief Destroy the cell
-  //! \note If the cell contains a list, the list have each 
+  //! \note If the cell contains a list, the list have each
   //!       of its members marked to be collected
   ~cell_c();
 
   //! \brief Clone the current cell
-  cell_c* clone();
+  cell_c *clone();
 
   cell_type_e type{cell_type_e::NIL};
   std::any data{0};
@@ -214,7 +214,7 @@ public:
 
   //! \brief Get the symbol value
   //! \throws cell_access_exception_c if the cell is not a symbol type
-  std::string& as_symbol();
+  std::string &as_symbol();
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a list type

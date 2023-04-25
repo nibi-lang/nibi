@@ -30,7 +30,7 @@ env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {
   }
 }
 
-env_c* env_c::get_env(std::string_view name) {
+env_c *env_c::get_env(std::string_view name) {
 
   // Check current environment first
   if (cell_map_.find(name) != cell_map_.end()) {
@@ -47,7 +47,7 @@ env_c* env_c::get_env(std::string_view name) {
 }
 
 cell_c *env_c::get(std::string_view name) {
-  auto* env = get_env(name);
+  auto *env = get_env(name);
   if (!env) {
     return nullptr;
   }
@@ -55,7 +55,7 @@ cell_c *env_c::get(std::string_view name) {
 }
 
 void env_c::set(std::string_view name, cell_c &cell) {
-  auto* env = get_env(name);
+  auto *env = get_env(name);
   if (!env) {
     env = this;
   }
@@ -64,7 +64,7 @@ void env_c::set(std::string_view name, cell_c &cell) {
 
 bool env_c::drop(std::string_view name) {
 
-  auto* env = get_env(name);
+  auto *env = get_env(name);
   if (!env) {
     return false;
   }

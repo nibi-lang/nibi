@@ -10,8 +10,8 @@
 namespace builtins {
 
 namespace {
-void add_debug_info(std::string& result, cell_c& cell_value, cell_c& processed, const char *prefix = "") {
-  
+void add_debug_info(std::string &result, cell_c &cell_value, cell_c &processed,
+                    const char *prefix = "") {
 
   if (processed.type == cell_type_e::SYMBOL) {
     result += prefix;
@@ -26,8 +26,17 @@ void add_debug_info(std::string& result, cell_c& cell_value, cell_c& processed, 
   result += "\n\n";
 
   result += "----------------\n";
-
 }
+} // namespace
+
+cell_c *builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
+  if (!global_runtime->is_debug_enabled()) {
+    return global_cell_false;
+  }
+  LIST_ENFORCE_SIZE(>, 1)
+  LIST_ITER_AND_LOAD_SKIP_N(1,
+                            { global_runtime->execute_cell(arg, env, true); });
+  return global_cell_true;
 }
 
 cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
@@ -36,9 +45,7 @@ cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
   }
 
   LIST_ENFORCE_SIZE(>, 1)
-  LIST_ITER_AND_LOAD_SKIP_N(1, {
-    std::cout << arg->to_string() << std::endl;
-  });
+  LIST_ITER_AND_LOAD_SKIP_N(1, { std::cout << arg->to_string() << std::endl; });
   return global_cell_true;
 }
 
@@ -61,7 +68,7 @@ cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   auto origin = list.begin();
 
-  auto* dbg_cell = (*origin);
+  auto *dbg_cell = (*origin);
 
   std::string result;
 
@@ -78,7 +85,6 @@ cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   std::size_t args_count{0};
   LIST_ITER_AND_LOAD_SKIP_N(1, {
-
     result += "\nArg " + std::to_string(args_count++) + ":\n";
 
     add_debug_info(result, *arg, *(*it), "\t");

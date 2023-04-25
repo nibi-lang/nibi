@@ -63,7 +63,8 @@ void runtime_c::halt_with_error(error_c error) {
   std::exit(1);
 }
 
-cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env, bool process_data_list) {
+cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
+                                bool process_data_list) {
 
   switch (cell->type) {
   case cell_type_e::LIST: {
@@ -72,7 +73,7 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env, bool process_data_list
     // If its a known data list just return the list
     if (list_info.type == list_types_e::DATA) {
       if (process_data_list) {
-        cell_c* last_result = global_cell_nil;
+        cell_c *last_result = global_cell_nil;
         for (auto &list_cell : list_info.list) {
           last_result = execute_cell(list_cell, env);
         }

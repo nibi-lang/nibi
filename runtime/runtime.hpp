@@ -27,6 +27,7 @@ public:
         : message_(message), source_location_(source_location) {}
     char *what() { return const_cast<char *>(message_.c_str()); }
     locator_ptr get_source_location() const { return source_location_; }
+
   private:
     std::string message_;
     locator_ptr source_location_;
@@ -47,9 +48,10 @@ public:
   //! \brief Execute a single instruction
   //! \param instruction The instruction to execute
   //! \param env The environment that will be used during execution
-  //! \param process_data_cell If true, a data list [] will be iterated and each item processed
-  //! \return The result of executing the instruction
-  cell_c *execute_cell(cell_c *instruction, env_c &env, bool process_data_cell = false);
+  //! \param process_data_cell If true, a data list [] will be iterated and each
+  //! item processed \return The result of executing the instruction
+  cell_c *execute_cell(cell_c *instruction, env_c &env,
+                       bool process_data_cell = false);
 
   //! \brief Halt execution and print an error message
   //! \param error The error that will be printed
@@ -68,7 +70,6 @@ public:
   void set_debug_enabled(bool debug_enabled) { debug_enabled_ = debug_enabled; }
 
 private:
-
   bool debug_enabled_{false};
 
   // The environment that will be used to store and execute

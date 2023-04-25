@@ -19,10 +19,10 @@
 
 #define LIST_ENFORCE_SIZE(___op, ___size)                                      \
   if (!(list.size() ___op ___size)) {                                          \
-    global_runtime->halt_with_error(                                           \
-        error_c(list.front()->locator,                                         \
-                "Expected " + std::to_string(___size) + " arguments, got " +   \
-                    std::to_string(list.size()) + "."));                       \
+    global_runtime->halt_with_error(error_c(                                   \
+        list.front()->locator, "Expected " + std::to_string(___size) +         \
+                                   " items in list, got " +                    \
+                                   std::to_string(list.size()) + "."));        \
     return global_cell_nil;                                                    \
   }
 

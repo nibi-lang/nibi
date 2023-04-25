@@ -76,7 +76,7 @@ cell_c::~cell_c() {
     auto &info = this->as_list_info();
     for (auto &cell : info.list) {
       /*
-        By marking this as not in use it will be 
+        By marking this as not in use it will be
         recycled by the memory manager on the next
         pass. This means that deletions will
         be performed in a batched manner.
@@ -86,10 +86,10 @@ cell_c::~cell_c() {
   }
 }
 
-cell_c* cell_c::clone() {
+cell_c *cell_c::clone() {
 
   // Allocate a new cell
-  cell_c* new_cell = global_runtime->get_runtime_memory().allocate(this->type);
+  cell_c *new_cell = global_runtime->get_runtime_memory().allocate(this->type);
 
   // Copy the data
   new_cell->locator = this->locator;
@@ -116,7 +116,7 @@ cell_c* cell_c::clone() {
   case cell_type_e::LIST:
     list_info_s linf = this->as_list_info();
     list_info_s other = new_cell->as_list_info();
-    for(auto& cell : linf.list) {
+    for (auto &cell : linf.list) {
       other.list.push_back(cell->clone());
     }
     break;
@@ -273,6 +273,7 @@ std::string &cell_c::as_symbol() {
   try {
     return std::any_cast<std::string &>(this->data);
   } catch (const std::bad_any_cast &e) {
-    throw cell_access_exception_c("Symbol cell does not contain a string", this->locator);
+    throw cell_access_exception_c("Symbol cell does not contain a string",
+                                  this->locator);
   }
 }

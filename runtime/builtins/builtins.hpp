@@ -12,11 +12,15 @@ namespace builtins {
 //!        corresponding builtin function.
 std::unordered_map<std::string, function_info_s> &get_builtin_symbols_map();
 
-// Debugg helper functions
+// @ commands
 
+extern cell_c *builtin_fn_at_debug(cell_list_t &list, env_c &env);
+
+// Debug helper functions
+
+extern cell_c *builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env);
-
 
 // Environment modification functions
 
