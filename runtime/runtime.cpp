@@ -1,6 +1,7 @@
 #include "runtime.hpp"
 
 #include <iostream>
+#include "common/rang.hpp"
 
 runtime_c *global_runtime{nullptr};
 
@@ -58,7 +59,7 @@ void runtime_c::halt_with_error(error_c error) {
       Once that is complete we will gracefully shutdown
 
   */
-  std::cout << "HALTING WITH ERROR" << std::endl;
+  std::cout << rang::fg::red << "\n[ RUNTIME HALT ]\n" << rang::fg::reset << std::endl;
   error.draw_error();
   std::exit(1);
 }

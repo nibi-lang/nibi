@@ -19,6 +19,8 @@ public:
 // Shorthand for a shared locator interface pointer.
 using locator_ptr = std::shared_ptr<locator_if>;
 
+extern void draw_locator(locator_if &location);
+
 //! \brief A source origin. (File, string, etc.)
 //!        Used to create locators.
 class source_origin_c {

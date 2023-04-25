@@ -52,8 +52,25 @@ static function_info_s builtin_dbg_var_inf = {
 static function_info_s builtin_dbg_out_inf = {
     "dbg-out", builtin_fn_debug_dbg_out, function_type_e::BUILTIN_CPP_FUNCTION};
 
+// comparison
+static function_info_s builtin_comparison_eq_inf = {
+    "eq", builtin_fn_comparison_eq, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_neq_inf = {
+    "neq", builtin_fn_comparison_neq, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_lt_inf = {
+    "<", builtin_fn_comparison_lt, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_gt_inf = {
+    ">", builtin_fn_comparison_gt, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_lte_inf = {
+    "<=", builtin_fn_comparison_lte, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_gte_inf = {
+    ">=", builtin_fn_comparison_gte, function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
+    {"eq", builtin_comparison_eq_inf}, {"neq", builtin_comparison_neq_inf},
+    {"<", builtin_comparison_lt_inf},  {">", builtin_comparison_gt_inf},
+    {"<=", builtin_comparison_lte_inf}, {">=", builtin_comparison_gte_inf},
     {"+", builtin_add_inf},           {"-", builtin_sub_inf},
     {"/", builtin_div_inf},           {"*", builtin_mul_inf},
     {"%", builtin_mod_inf},           {"**", builtin_pow_inf},

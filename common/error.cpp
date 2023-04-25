@@ -1,17 +1,16 @@
 #include "error.hpp"
 #include <iostream>
 
-// TODO: Add markup support.
+#include "rang.hpp"
 
 void error_c::draw_error(bool markup) const {
 
-  if (!locator_) {
-    std::cout << "error: " << message_ << std::endl;
+  if (!locator_ || !markup) {
+    std::cout << rang::fg::red << "ERROR: " << rang::fg::reset << message_ << std::endl;
     return;
   }
 
-  auto [line, column] = locator_->get_line_column();
-  auto source_name = locator_->get_source_name();
-  std::cout << source_name << ":" << line << ":" << column
-            << ": error: " << message_ << std::endl;
+  draw_locator(*locator_);
+
+  std::cout << rang::fg::cyan << "\nMessage: " << rang::fg::reset << message_ << "\n" << std::endl;
 }

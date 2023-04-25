@@ -50,10 +50,12 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/checks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/at_commands.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/comparison.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/list.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/token.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/source.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/cell.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/environment.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/runtime.cpp

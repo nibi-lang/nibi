@@ -54,4 +54,14 @@ extern cell_c *builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env);
 
+// Comparison functions
+
+extern cell_c *builtin_fn_comparison_eq(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_comparison_neq(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_comparison_lt(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_comparison_gt(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_comparison_lte(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_comparison_gte(cell_list_t &list, env_c &env);
+
+
 } // namespace builtins
