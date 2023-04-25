@@ -265,3 +265,14 @@ std::string &cell_c::as_string() {
     throw cell_access_exception_c("Cell is not a string", this->locator);
   }
 }
+
+std::string &cell_c::as_symbol() {
+  if (this->type != cell_type_e::SYMBOL) {
+    throw cell_access_exception_c("Cell is not a symbol", this->locator);
+  }
+  try {
+    return std::any_cast<std::string &>(this->data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Symbol cell does not contain a string", this->locator);
+  }
+}

@@ -212,6 +212,10 @@ public:
   //! \throws cell_access_exception_c if the cell is not a string type
   std::string &as_string();
 
+  //! \brief Get the symbol value
+  //! \throws cell_access_exception_c if the cell is not a symbol type
+  std::string& as_symbol();
+
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a list type
   list_info_s to_list_info();

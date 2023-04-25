@@ -30,7 +30,25 @@ void add_debug_info(std::string& result, cell_c& cell_value, cell_c& processed, 
 }
 }
 
-cell_c *builtin_fn_debug_dbg(cell_list_t &list, env_c &env) {
+cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
+  if (!global_runtime->is_debug_enabled()) {
+    return global_cell_false;
+  }
+
+  LIST_ENFORCE_SIZE(>, 1)
+  LIST_ITER_AND_LOAD_SKIP_N(1, {
+    std::cout << arg->to_string() << std::endl;
+  });
+  return global_cell_true;
+}
+
+cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
+
+  if (!global_runtime->is_debug_enabled()) {
+    return global_cell_nil;
+  }
+
+  LIST_ENFORCE_SIZE(>, 1)
 
   /*
       Might want to consider doing a source code lookup for the
@@ -48,7 +66,7 @@ cell_c *builtin_fn_debug_dbg(cell_list_t &list, env_c &env) {
   std::string result;
 
   result += "\n----------------\n\n";
-  result += "`dbg` instruction [";
+  result += "`dbg-var` instruction [";
   result += dbg_cell->locator->get_source_name();
   result += ":(";
   result += std::to_string(dbg_cell->locator->get_line());

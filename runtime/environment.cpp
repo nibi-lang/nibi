@@ -62,7 +62,7 @@ void env_c::set(std::string_view name, cell_c &cell) {
   env->cell_map_[name] = &cell;
 }
 
-bool env_c::drop_cell(std::string_view name) {
+bool env_c::drop(std::string_view name) {
 
   auto* env = get_env(name);
   if (!env) {

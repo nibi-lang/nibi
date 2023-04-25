@@ -48,7 +48,7 @@ public:
   //! \brief Drop a cell from the environment, or parent environment(s)
   //! \param name The name of the cell
   //! \returns True if the cell was dropped, false if item not found
-  bool drop_cell(std::string_view name);
+  bool drop(std::string_view name);
 
 private:
   //! Called by env with parents, used to register child environment

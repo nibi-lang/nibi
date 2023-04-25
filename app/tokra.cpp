@@ -84,6 +84,11 @@ int main(int argc, char **argv) {
 
   setup();
 
+  std::cout << "WARNING: Enabling debug mode until `@runtime` is implemented"
+            << std::endl;
+
+  global_runtime->set_debug_enabled(true);
+
   run_from_file(entry_file);
 
   teardown();

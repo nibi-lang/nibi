@@ -25,12 +25,20 @@ static function_info_s builtin_assignment_inf = {
     ":=", builtin_fn_env_assignment, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_drop_inf = {
     "drop", builtin_fn_env_drop, function_type_e::BUILTIN_CPP_FUNCTION};
+
+
+static function_info_s builtin_try_inf = {
+    "try", builtin_fn_env_try, function_type_e::BUILTIN_CPP_FUNCTION};
+
+
 static function_info_s builtin_assert_inf = {
     "true!", builtin_fn_assert_true, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_is_nil_inf = {
     "nil?", builtin_fn_check_nil, function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_dbg_inf = {
-    "dbg", builtin_fn_debug_dbg, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_dbg_var_inf = {
+    "dbg-var", builtin_fn_debug_dbg_var, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_dbg_out_inf = {
+    "dbg-out", builtin_fn_debug_dbg_out, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
@@ -38,8 +46,9 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"/", builtin_div_inf},         {"*", builtin_mul_inf},
     {"%", builtin_mod_inf},         {"**", builtin_pow_inf},
     {":=", builtin_assignment_inf}, {"drop", builtin_drop_inf},
+    {"try", builtin_try_inf},
     {"true!", builtin_assert_inf},  {"nil?", builtin_is_nil_inf},
-    {"dbg", builtin_dbg_inf}
+    {"dbg-var", builtin_dbg_var_inf}, {"dbg-out", builtin_dbg_out_inf}
 };
 
 // Retrieve the map of symbols to function info structs

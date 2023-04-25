@@ -35,10 +35,7 @@ void runtime_c::on_list(cell_c *list_cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
-    auto *debug_result = execute_cell(list_cell, global_env_);
-
-    std::cout << "DEBUG:  " << debug_result->to_string() << std::endl;
-
+    execute_cell(list_cell, global_env_);
   } catch (runtime_c::exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {
@@ -66,7 +63,7 @@ void runtime_c::halt_with_error(error_c error) {
   std::exit(1);
 }
 
-cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env) {
+cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env, bool process_data_list) {
 
   switch (cell->type) {
   case cell_type_e::LIST: {
@@ -74,6 +71,15 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env) {
 
     // If its a known data list just return the list
     if (list_info.type == list_types_e::DATA) {
+      if (process_data_list) {
+        cell_c* last_result = global_cell_nil;
+        for (auto &list_cell : list_info.list) {
+          last_result = execute_cell(list_cell, env);
+        }
+        return last_result;
+      }
+
+      // If we aren't processing it, just return the list
       return cell;
     }
 
