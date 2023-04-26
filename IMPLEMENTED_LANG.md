@@ -31,9 +31,47 @@ iter
 (:= x (view some_list [0 5]))
 
 
+(:= (at my_list 4) 100)
+
+(:= x (view my_list 0 (len my_list)))
+
+
 
 ```
 
+
+Ideas:
+
+```
+
+
+# Idea about having things built in to the language, but not populated into
+# builtins until requested - with everything placed in global env iif 
+# it hasn't been brought in already
+(@using "io")
+(@using "disk")
+(@using "bin")
+
+(:= underlying (bin-bits my_integer)) # Get a list of bits that represent the integer
+
+# Would be: [ 0 0 0 0 1 0 0 0 ... ]
+
+(:= underlying (lshift underlying 4))
+
+(:= my_integer (bin-int underlying))
+
+# The integer now has been shifted left by 4, but using lshift as a list-only op
+# This sould allow low level access to types
+
+
+----------
+
+# Importing a file
+
+(@import "some_file")
+
+
+```
 
 
 Implemented Keywords:

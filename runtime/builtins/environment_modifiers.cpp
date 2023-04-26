@@ -16,30 +16,52 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
   auto it = list.begin();
   std::advance(it, 1);
 
-  auto &target_variable_name = (*it)->as_string();
-
   auto *target_assignment_value =
       global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
-  // Explicitly clone the value as we might be reading from
-  // an instruction that will be mutated later
+  switch ((*it)->type) {
+    case cell_type_e::SYMBOL: {
 
-  target_assignment_value = target_assignment_value->clone();
+      auto &target_variable_name = (*it)->as_string();
 
-  // We could shortcut this with something like a `local` keyword
-  // so we don't scan multiple maps and just go straight to the
-  // given env
+        // Explicitly clone the value as we might be reading from
+        // an instruction that will be mutated later
 
-  auto *target_env = env.get_env(target_variable_name);
+        target_assignment_value = target_assignment_value->clone();
 
-  if (!target_env) {
-    target_env = &env;
-  }
+        // We could shortcut this with something like a `local` keyword
+        // so we don't scan multiple maps and just go straight to the
+        // given env
 
-  target_env->set(target_variable_name, *target_assignment_value);
+        auto *target_env = env.get_env(target_variable_name);
 
-  // Return a pointer to the new cell so assignments can be chained
-  return target_assignment_value;
+        if (!target_env) {
+          target_env = &env;
+        }
+
+        target_env->set(target_variable_name, *target_assignment_value);
+
+        // Return a pointer to the new cell so assignments can be chained
+        return target_assignment_value;
+
+    }
+    case cell_type_e::LIST: {
+      auto& target_list = (*it)->as_list_info();
+      if (target_list.type == list_types_e::DATA) { break; }
+
+      // If a process list is given as the target, we will execute it
+      // and get the target cell
+      auto* target_cell = global_runtime->execute_cell((*it), env);
+
+      // Then update that cell directly
+      target_cell->update_data_and_type_to(*target_assignment_value);
+    }
+    default:
+      break;
+    }
+
+    throw runtime_c::exception_c("Invalid assignment target",
+                                  (*it)->locator);
 }
 
 cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env) {

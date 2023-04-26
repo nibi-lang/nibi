@@ -186,6 +186,11 @@ public:
   std::any data{0};
   locator_ptr locator{nullptr};
 
+  void update_data_and_type_to(cell_c &other) {
+    this->type = other.type;
+    this->data = other.data;
+  }
+
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an integer type
   int64_t to_integer();

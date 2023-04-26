@@ -238,7 +238,8 @@ std::string cell_c::to_string() {
       for (auto *cell : list_info.list) {
         result += cell->to_string() + " ";
       }
-      result.pop_back();
+      if (result.size() > 1)
+        result.pop_back();
       result += ")";
       break;
     }
@@ -247,7 +248,8 @@ std::string cell_c::to_string() {
       for (auto *cell : list_info.list) {
         result += cell->to_string() + " ";
       }
-      result.pop_back();
+      if (result.size() > 1)
+        result.pop_back();
       result += "]";
       break;
     }

@@ -21,6 +21,11 @@ void add_debug_info(std::string &result, cell_c &cell_value, cell_c &processed,
   }
 
   result += prefix;
+  result += "Type: ";
+  result += cell_type_to_string(cell_value.type);
+  result += "\n";
+
+  result += prefix;
   result += "Value: ";
   result += cell_value.to_string();
   result += "\n\n";
@@ -57,15 +62,6 @@ cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("dbg-var", >, 1)
 
-  /*
-      Might want to consider doing a source code lookup for the
-      resulting output to window in on the source code.
-      in the output to show the instruction area.
-
-
-      Could make a good cause to commonize a source viewer
-  */
-
   auto origin = list.begin();
 
   auto *dbg_cell = (*origin);
@@ -74,12 +70,18 @@ cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   result += "\n----------------\n\n";
   result += "`dbg-var` instruction [";
-  result += dbg_cell->locator->get_source_name();
-  result += ":(";
-  result += std::to_string(dbg_cell->locator->get_line());
-  result += ",";
-  result += std::to_string(dbg_cell->locator->get_column());
-  result += ")]\n\nCells given: ";
+
+  if (dbg_cell->locator) {
+    result += dbg_cell->locator->get_source_name();
+    result += ":(";
+    result += std::to_string(dbg_cell->locator->get_line());
+    result += ",";
+    result += std::to_string(dbg_cell->locator->get_column());
+    result += ")";
+  } else {
+    result += "< no location info given >";
+  }
+  result += "]\n\nCells given: ";
   result += std::to_string(list.size() - 1);
   result += "\n";
 
