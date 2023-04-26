@@ -16,52 +16,57 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
   auto it = list.begin();
   std::advance(it, 1);
 
+  if ((*it)->type != cell_type_e::SYMBOL) {
+    throw runtime_c::exception_c("Expected symbol as first argument to :=",
+                                 (*it)->locator);
+  }
+
+  auto &target_variable_name = (*it)->as_string();
+
   auto *target_assignment_value =
       global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
-  switch ((*it)->type) {
-    case cell_type_e::SYMBOL: {
+  // Explicitly clone the value as we might be reading from
+  // an instruction that will be mutated later
 
-      auto &target_variable_name = (*it)->as_string();
+  target_assignment_value = target_assignment_value->clone();
 
-        // Explicitly clone the value as we might be reading from
-        // an instruction that will be mutated later
+  // We could shortcut this with something like a `local` keyword
+  // so we don't scan multiple maps and just go straight to the
+  // given env
 
-        target_assignment_value = target_assignment_value->clone();
+  auto *target_env = env.get_env(target_variable_name);
 
-        // We could shortcut this with something like a `local` keyword
-        // so we don't scan multiple maps and just go straight to the
-        // given env
+  if (!target_env) {
+    target_env = &env;
+  }
 
-        auto *target_env = env.get_env(target_variable_name);
+  target_env->set(target_variable_name, *target_assignment_value);
 
-        if (!target_env) {
-          target_env = &env;
-        }
+  // Return a pointer to the new cell so assignments can be chained
+  return target_assignment_value;
+}
 
-        target_env->set(target_variable_name, *target_assignment_value);
+cell_c *builtin_fn_env_set(cell_list_t &list, env_c &env) {
 
-        // Return a pointer to the new cell so assignments can be chained
-        return target_assignment_value;
+  LIST_ENFORCE_SIZE("set!", ==, 3)
 
-    }
-    case cell_type_e::LIST: {
-      auto& target_list = (*it)->as_list_info();
-      if (target_list.type == list_types_e::DATA) { break; }
+  auto *target_assignment_cell =
+      global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
-      // If a process list is given as the target, we will execute it
-      // and get the target cell
-      auto* target_cell = global_runtime->execute_cell((*it), env);
+  if (target_assignment_cell == global_cell_nil ||
+      target_assignment_cell == global_cell_true ||
+      target_assignment_cell == global_cell_false) {
+      throw runtime_c::exception_c(
+          "Resulting cell invalid for `set` operation: " + target_assignment_cell->to_string(),
+                                  list.front()->locator);
+  }
 
-      // Then update that cell directly
-      target_cell->update_data_and_type_to(*target_assignment_value);
-    }
-    default:
-      break;
-    }
+  auto *target_assignment_value =
+      global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
-    throw runtime_c::exception_c("Invalid assignment target",
-                                  (*it)->locator);
+  // Then update that cell directly
+  target_assignment_cell->update_data_and_type_to(*target_assignment_value);
 }
 
 cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env) {
