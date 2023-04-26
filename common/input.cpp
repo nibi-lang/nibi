@@ -58,10 +58,12 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
   tracker_.line_count++;
   for (std::size_t col = 0; col < data.size(); col++) {
     auto locator = origin->get_locator(tracker_.line_count, col);
+    if (std::isspace(data[col])) {
+      continue;
+    }
     switch (data[col]) {
-    case ' ': {
-      // ignore whitespace
-      break;
+    case '#': {
+      return true;
     }
     case '(': {
       tracker_.paren_count++;

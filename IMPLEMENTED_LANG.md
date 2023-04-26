@@ -11,9 +11,36 @@ handled as a series of commands to be executed depending on the command that its
 used with (see: try)
 
 
+Planned Keywords:
+
+```
+->      Push to the front of a data list
+<-      Push to the back of a data list
+
+<<      Left shift
+>>      Right shift
+
+
+iter
+
+(iter x [
+  (dbg-out $i)
+])
+
+???????????
+(:= x (view some_list [0 5]))
+
+
+
+```
+
+
+
 Implemented Keywords:
 
 ```
+
+# Comments
 
 @debug
 
@@ -26,6 +53,13 @@ drop
 *
 %
 **
+
+eq    works for numerical and strings
+neq   works for numerical and strings
+<     numerical only
+>     numerical only
+<=    numerical only
+>=    numerical only
 
 dbg
 dbg-out

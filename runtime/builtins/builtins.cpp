@@ -68,16 +68,26 @@ static function_info_s builtin_comparison_gte_inf = {
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
-    {"eq", builtin_comparison_eq_inf}, {"neq", builtin_comparison_neq_inf},
-    {"<", builtin_comparison_lt_inf},  {">", builtin_comparison_gt_inf},
-    {"<=", builtin_comparison_lte_inf}, {">=", builtin_comparison_gte_inf},
-    {"+", builtin_add_inf},           {"-", builtin_sub_inf},
-    {"/", builtin_div_inf},           {"*", builtin_mul_inf},
-    {"%", builtin_mod_inf},           {"**", builtin_pow_inf},
-    {":=", builtin_assignment_inf},   {"drop", builtin_drop_inf},
-    {"try", builtin_try_inf},         {"assert", builtin_assert_inf},
-    {"nil?", builtin_is_nil_inf},     {"dbg-var", builtin_dbg_var_inf},
-    {"dbg-out", builtin_dbg_out_inf}, {"dbg", builtin_dbg_dbg_inf},
+    {"eq", builtin_comparison_eq_inf},
+    {"neq", builtin_comparison_neq_inf},
+    {"<", builtin_comparison_lt_inf},
+    {">", builtin_comparison_gt_inf},
+    {"<=", builtin_comparison_lte_inf},
+    {">=", builtin_comparison_gte_inf},
+    {"+", builtin_add_inf},
+    {"-", builtin_sub_inf},
+    {"/", builtin_div_inf},
+    {"*", builtin_mul_inf},
+    {"%", builtin_mod_inf},
+    {"**", builtin_pow_inf},
+    {":=", builtin_assignment_inf},
+    {"drop", builtin_drop_inf},
+    {"try", builtin_try_inf},
+    {"assert", builtin_assert_inf},
+    {"nil?", builtin_is_nil_inf},
+    {"dbg-var", builtin_dbg_var_inf},
+    {"dbg-out", builtin_dbg_out_inf},
+    {"dbg", builtin_dbg_dbg_inf},
     {"@debug", builtin_at_debug_inf}};
 
 // Retrieve the map of symbols to function info structs

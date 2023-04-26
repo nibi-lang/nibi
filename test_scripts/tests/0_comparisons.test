@@ -1,0 +1,13 @@
+(:= a 1)
+(:= b 5)
+(:= c 10)
+(:= d 10)
+
+(assert (eq c d) "Scripted tests - 0_comparisons.test")
+(assert (neq c a) "Scripted tests - 0_comparisons.test")
+(assert (> c b) "Scripted tests - 0_comparisons.test")
+(assert (< b c) "Scripted tests - 0_comparisons.test")
+(assert (>= c b) "Scripted tests - 0_comparisons.test")
+(assert (<= b c) "Scripted tests - 0_comparisons.test")
+(assert (>= c d) "Scripted tests - 0_comparisons.test")
+(assert (<= d c) "Scripted tests - 0_comparisons.test")

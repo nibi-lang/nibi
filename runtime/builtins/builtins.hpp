@@ -63,5 +63,4 @@ extern cell_c *builtin_fn_comparison_gt(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_comparison_lte(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_comparison_gte(cell_list_t &list, env_c &env);
 
-
 } // namespace builtins

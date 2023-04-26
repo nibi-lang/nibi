@@ -1,0 +1,5 @@
+
+
+(:= x 0)
+(drop x)
+(try (drop x) (dbg-out "caught it!"))

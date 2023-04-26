@@ -18,7 +18,7 @@ namespace memory {
 //! \note Items are marked as in use by default
 class markable_if {
 public:
-  virtual ~markable_if() = default;
+  virtual ~markable_if() {}
 
   //! \brief Mark this object
   //! \param marked Whether or not this object is marked
@@ -51,7 +51,8 @@ public:
   //!       that were allocated by this controller
   ~controller_c() {
     for (auto *item : markables_) {
-      delete item;
+      if (item)
+        delete item;
     }
   }
 
@@ -82,11 +83,13 @@ private:
   std::size_t allocations_trigger{0};
   std::size_t allocations_before_sweep{DEFAULT_ALLOCATIONS_BEFORE_SWEEP};
   void sweep() {
-    for (auto *item : markables_) {
+    markables_.remove_if([](markable_if *item) {
       if (!item->is_marked()) {
         delete item;
+        return true;
       }
-    }
+      return false;
+    });
   }
 };
 

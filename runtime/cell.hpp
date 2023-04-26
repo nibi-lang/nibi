@@ -243,6 +243,11 @@ public:
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a function type
   function_info_s &as_function_info();
+
+  //! \brief Check if a cell is a numeric type
+  bool is_numeric() const {
+    return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
+  }
 };
 
 static inline int64_t cell_to_integer(cell_c *c) { return c->to_integer(); }

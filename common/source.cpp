@@ -1,16 +1,17 @@
 #include "source.hpp"
 
+#include "rang.hpp"
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <vector>
-#include <iomanip>
-#include "rang.hpp"
 
 void draw_locator(locator_if &location) {
 
-  std::cout << rang::fg::magenta << location.get_source_name() << rang::fg::reset << " : ("
-            << rang::fg::blue << location.get_line() << rang::fg::reset << ","
-            << rang::fg::blue << location.get_column() << rang::fg::reset << ")\n";
+  std::cout << rang::fg::magenta << location.get_source_name()
+            << rang::fg::reset << " : (" << rang::fg::blue
+            << location.get_line() << rang::fg::reset << "," << rang::fg::blue
+            << location.get_column() << rang::fg::reset << ")\n";
 
   struct line_data_pair_s {
     uint64_t number;
