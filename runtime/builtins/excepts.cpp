@@ -66,7 +66,7 @@ cell_c *builtin_fn_except_throw(cell_list_t &list, env_c &env) {
   std::advance(it, 1);
   auto *exec_cell = (*it);
 
-  auto* thrown = global_runtime->execute_cell(exec_cell, env, true);
+  auto *thrown = global_runtime->execute_cell(exec_cell, env, true);
 
   throw runtime_c::exception_c(thrown->to_string(), list.front()->locator);
 }

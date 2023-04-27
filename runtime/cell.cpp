@@ -114,8 +114,8 @@ cell_c *cell_c::clone() {
     new_cell->data = this->to_referenced_cell();
     break;
   case cell_type_e::LIST:
-    list_info_s linf = this->as_list_info();
-    list_info_s other = new_cell->as_list_info();
+    auto &linf = this->as_list_info();
+    auto &other = new_cell->as_list_info();
     for (auto &cell : linf.list) {
       other.list.push_back(cell->clone());
     }

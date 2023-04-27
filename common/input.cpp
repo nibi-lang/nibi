@@ -114,6 +114,9 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
         return false;
       }
 
+      // Remove the quotes
+      value = value.substr(1, value.size() - 2);
+
       cb_.on_token(token_c(locator, token_e::RAW_STRING, value));
       break;
     }

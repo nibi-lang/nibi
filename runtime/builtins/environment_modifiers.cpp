@@ -31,6 +31,28 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   target_assignment_value = target_assignment_value->clone();
 
+  // Check if the item exists
+  {
+    /*
+       TODO: SPEED OPTIMIZATION - MEMORY LEAK PROTECTION
+
+        We may want to remove this and instead add a "time since creation"
+        to a cell, and when its placed in an env, it gets a pointer to the env.
+
+        After some mount of time, the cell env pointer is checked to see if the
+       env still exists. If the env does NOT exist it should mark itself as no
+       longer in use.
+
+        We do this now to ensure that we don't leak memory
+    */
+
+    auto &current_env_map = env.get_map();
+    if (current_env_map.find(target_variable_name) != current_env_map.end()) {
+      current_env_map[target_variable_name]->mark_as_in_use(false);
+      current_env_map.erase(target_variable_name);
+    }
+  }
+
   env.set(target_variable_name, *target_assignment_value);
 
   // Return a pointer to the new cell so assignments can be chained

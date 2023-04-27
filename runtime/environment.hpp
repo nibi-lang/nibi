@@ -48,7 +48,15 @@ public:
   //! \brief Drop a cell from the environment, or parent environment(s)
   //! \param name The name of the cell
   //! \returns True if the cell was dropped, false if item not found
+  //! \post The cell will be erased from the environment and marked for deletion
   bool drop(std::string name);
+
+  //! \brief Get the map of cells in the environment
+  //! \return The map of cells in the environment
+  //! \note This is meant for custom temporary cell placement
+  //!       If there is a method to do what you are trying to do,
+  //!       use it lest you break something or cause a memory leak
+  std::unordered_map<std::string, cell_c *> &get_map() { return cell_map_; }
 
 private:
   //! Called by env with parents, used to register child environment

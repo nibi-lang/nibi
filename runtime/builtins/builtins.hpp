@@ -33,6 +33,17 @@ extern cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_except_try(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_except_throw(cell_list_t &list, env_c &env);
 
+// List functions
+
+extern cell_c *builtin_fn_list_push_front(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_list_push_back(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_list_at(cell_list_t &list, env_c &env);
+
+// Common functions
+
+extern cell_c *builtin_fn_common_len(cell_list_t &list, env_c &env);
+
 // Checking functions
 
 extern cell_c *builtin_fn_check_nil(cell_list_t &list, env_c &env);

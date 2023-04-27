@@ -1,0 +1,73 @@
+(:= x [])
+
+# Chain together push_fronts to ensure lists being returned by each
+# Implicitly convert the list to string for checking
+
+(assert (eq "[10 20 30]" (>| 10 (>| 20 (>| 30 x)))) "No dice")
+
+(:= y [])
+
+(assert (eq "[30 20 10]" (|< 10 (|< 20 (|< 30 y)))) "No dice")
+
+# push y into x
+
+(assert (eq "[10 20 30 [30 20 10]]" (|< y x)) "No dice")
+
+(:= indicies [])
+(:= values [])
+
+# Iterate over y and collect the values and indicies that
+# exist to check later
+(iter y [
+  (|< $idx indicies)
+  (|< $it  values)
+])
+
+# Ensure that the temp variables have been removed
+
+(:= did_drop 0)
+(try [
+  (drop $idx)
+  (set did_drop 1)
+] [ 
+  # Expected
+])
+
+(assert (eq 0 did_drop) "$idx wasnt cleaned")
+
+(try [
+  (drop $it)
+  (set did_drop 1)
+] [ 
+  # Expected
+])
+
+(assert (eq 0 did_drop) "$it wasnt cleaned")
+
+# Check that the values are what we expected 
+
+(assert (eq y values) "No dice")
+(assert (eq "[0 1 2]" indicies) "No dice")
+
+(:= temp [1 2 3])
+
+# Note: to update you have to use `set`
+(iter temp (set $it (+ 1 $it)))
+
+(assert (eq "[2 3 4]" temp) "No dice")
+
+(:= some_list [0 0 0 0 0 0 0 0 9 0])
+
+(assert (eq 9 (at some_list 8)) "Incorrect item retrieved")
+
+# We can't embed this into the assert, because set returns the cell that 
+# was updated. In this case the cell that was updated was an individual subset
+# of the entire list
+
+(set (at some_list 4) 1)
+
+(assert  (eq "[0 0 0 0 1 0 0 0 9 0]" some_list) "At failure")
+
+(assert (eq 22 (at [0 1 2 3 4 22 6 7 8] 5)) "Nope")
+
+(assert (eq 22 (at [0 1 2 3 4 22 6 7 8] (+ 3 1 1))) "Nope")
