@@ -26,7 +26,7 @@ cell_c *builtin_fn_assert_true(cell_list_t &list, env_c &env) {
     throw runtime_c::exception_c(message->as_string(), value->locator);
   }
 
-  return global_cell_true;
+  return global_cell_nil;
 }
 
 } // namespace builtins

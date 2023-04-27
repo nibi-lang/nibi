@@ -120,6 +120,7 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
       return nullptr;
     }
     // Return the loaded cell
+
     return loaded_cell;
   }
   case cell_type_e::REFERENCE: {

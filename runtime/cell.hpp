@@ -9,6 +9,8 @@
 #include <list>
 #include <string>
 
+#include <iostream>
+
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
 //!       meant to be used by external libraries that
@@ -186,10 +188,10 @@ public:
   std::any data{0};
   locator_ptr locator{nullptr};
 
-  void update_data_and_type_to(cell_c &other) {
-    this->type = other.type;
-    this->data = other.data;
-  }
+  //! \brief Update the cell data and type to match another cell
+  //! \param other The other cell to match
+  //! \note This will not update the locator
+  void update_data_and_type_to(cell_c &other);
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an integer type

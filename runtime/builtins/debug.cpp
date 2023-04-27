@@ -41,17 +41,17 @@ cell_c *builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("dbg", >, 1)
   LIST_ITER_AND_LOAD_SKIP_N(1,
                             { global_runtime->execute_cell(arg, env, true); });
-  return global_cell_true;
+  return global_cell_nil;
 }
 
 cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
   if (!global_runtime->is_debug_enabled()) {
-    return global_cell_false;
+    return global_cell_nil;
   }
 
   LIST_ENFORCE_SIZE("dbg-out", >, 1)
   LIST_ITER_AND_LOAD_SKIP_N(1, { std::cout << arg->to_string() << std::endl; });
-  return global_cell_true;
+  return global_cell_nil;
 }
 
 cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {

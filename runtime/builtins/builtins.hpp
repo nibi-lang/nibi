@@ -25,6 +25,7 @@ extern cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env);
 // Environment modification functions
 
 extern cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_env_set(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_env_try(cell_list_t &list, env_c &env);
 

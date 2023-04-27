@@ -125,6 +125,11 @@ cell_c *cell_c::clone() {
   return new_cell;
 }
 
+void cell_c::update_data_and_type_to(cell_c &other) {
+  this->type = other.type;
+  this->data = other.data;
+}
+
 int64_t cell_c::to_integer() { return this->as_integer(); }
 
 int64_t &cell_c::as_integer() {

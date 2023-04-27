@@ -31,6 +31,8 @@ static function_info_s builtin_pow_inf = {
 // environment
 static function_info_s builtin_assignment_inf = {
     ":=", builtin_fn_env_assignment, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_set_inf = {
+    "set", builtin_fn_env_set, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_drop_inf = {
     "drop", builtin_fn_env_drop, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_try_inf = {
@@ -81,6 +83,7 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"%", builtin_mod_inf},
     {"**", builtin_pow_inf},
     {":=", builtin_assignment_inf},
+    {"set", builtin_set_inf},
     {"drop", builtin_drop_inf},
     {"try", builtin_try_inf},
     {"assert", builtin_assert_inf},
