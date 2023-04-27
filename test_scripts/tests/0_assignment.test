@@ -1,0 +1,16 @@
+
+# Declare a value directly
+(:= x 44)
+
+(assert (eq x 44) "x not created")
+
+# Update the value directly
+(:= x 33)
+
+(assert (eq x 33) "x not updated")
+
+# Update the value indirectly and ensure `set` returns it 
+(assert (eq 906 (set x 906)) "set did not return the value that x was set to")
+
+# Ensure that it was updated 
+(assert (eq 906 x) "x was not updated by set")

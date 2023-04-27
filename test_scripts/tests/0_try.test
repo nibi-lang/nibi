@@ -1,0 +1,53 @@
+(:= x 0)
+(drop x)
+(try (drop x) (dbg-out "caught it!"))
+
+(try [
+  (:= a 0)
+  (:= b 1)
+  (:= c 2)
+] (assert 0 "Exception thrown for some reason") )
+
+(assert (eq a 0) "failed to exec all items in try list")
+(assert (eq b 1) "failed to exec all items in try list")
+(assert (eq c 2) "failed to exec all items in try list")
+
+(:= flag 0)
+(try (drop non_existing_item) [
+  (set flag 1)
+])
+
+(assert flag "Failed to exec the recovery cell?")
+
+(try [
+  (drop non_existing_item)
+] [
+  (set flag 0)
+])
+
+(assert (eq flag 0) "Failed to exec the recovery cell?")
+
+(try [
+  (set b 906)
+] [
+  (assert 0 "Exception thrown for some reason")
+])
+
+(assert (eq b 906) "Failed to exec the check cell?")
+
+(:= v 1)
+
+# This instruction attempts to update the value of v. Set returns a pointer to the data set,
+# and try returns a pointer to the result of the last thing done, so check1 should be set to 
+# the same value. Assign also returns the value of the thing it set so we check it for equality 
+
+(assert (eq 2 (:= check1 (try (set v 2) (assert 0 "Error setting v")))) "Failed to get value from try statement")
+
+(assert (eq v check1) "v and check1 were not equal???")
+
+# Here we do something similar, but we attempt to update with `set` a value that doesn't exist
+# so we should retrieve the last thing completed in the recovery case 
+
+(assert (eq 2 (:= check1 (try (set i_dont_exist 90) (:= check2 v)))) "Failed to get value from try statement")
+
+(assert (eq v check2) "v and check2 were not equal???")

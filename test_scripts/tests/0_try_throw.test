@@ -1,0 +1,8 @@
+(:= message "i like dogs")
+
+(try
+  (throw message)
+  (:= result $e)
+)
+
+(assert (eq message result) "Throw did not give the correct result?!")
