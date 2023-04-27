@@ -54,9 +54,9 @@ public:
   //! \brief Get the map of cells in the environment
   //! \return The map of cells in the environment
   //! \note This is meant for custom temporary cell placement
-  //!       If there is a method to do what you are trying to do, 
+  //!       If there is a method to do what you are trying to do,
   //!       use it lest you break something or cause a memory leak
-  std::unordered_map<std::string, cell_c *>& get_map() { return cell_map_; }
+  std::unordered_map<std::string, cell_c *> &get_map() { return cell_map_; }
 
 private:
   //! Called by env with parents, used to register child environment

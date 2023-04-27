@@ -10,6 +10,28 @@
   when its ready
 */
 
+/*
+      NOTE:
+
+      TODO:
+
+
+      Right now we can still have leaks. if someone does (dbg-out (len(
+   my_list)) a new integer will be made, displayed, and NEVER stored so it can't
+   be marked as not in use.
+
+
+      Need to default things to being marked as not in use, and then mark them
+   as in use when they are stored in a variable.
+
+      To ensure sweep doesn't immediately delete the object, we need to
+      have a "sweep count" and ensure that a cell is checked twice and confirmed
+      as not in use before deleting it.
+
+
+*/
+
+#include <exception>
 #include <forward_list>
 
 namespace memory {
@@ -35,7 +57,8 @@ private:
 //! \note  `T` must be declared as <MY_TYPE> not <MY_TYPE*>
 template <typename T> class controller_c {
 public:
-  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 256;
+  static constexpr std::size_t MINIMUM_ALLOCATIONS_BEFORE_SWEEP = 8;
+  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 64;
 
   //! \brief Construct a new controller object
   controller_c(){};
@@ -43,8 +66,15 @@ public:
   //! \brief Construct a new controller object with custom allocs before sweep
   //! \param allocs_trigger The number of allocations before a sweep is
   //! triggered
+  //! \note If this is less than MINIMUM_ALLOCATIONS_BEFORE_SWEEP, it will be
+  //! set to MINIMUM_ALLOCATIONS_BEFORE_SWEEP
   controller_c(const std::size_t allocs_trigger)
-      : allocations_before_sweep(allocs_trigger){};
+      : allocations_before_sweep(allocs_trigger) {
+    // Ensure there is an arbitrary minimum enforced
+    if (allocations_before_sweep < MINIMUM_ALLOCATIONS_BEFORE_SWEEP) {
+      allocations_before_sweep = MINIMUM_ALLOCATIONS_BEFORE_SWEEP;
+    }
+  };
 
   //! \brief Destroy the controller object
   //! \note This will destroy all marked and unmarked objects

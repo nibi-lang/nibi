@@ -1,0 +1,9 @@
+(:= s "This is a string")
+(:= i 34)
+(:= d 2.2)
+(:= l [1 2 3 4 5])
+
+(assert (eq 16 (len s)) "invalid len")
+(assert (eq 2  (len i)) "invalid len")
+(assert (eq 8  (len d)) "invalid len")
+(assert (eq 5  (len l)) "invalid len")

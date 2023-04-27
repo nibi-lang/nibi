@@ -18,6 +18,8 @@
 # pop back and return pointer to list
 (|> my_list)
 
+
+
 # iterate over my_list exceute whatever is in the second argument
 # for every element that is in the list
 # $it will be available during the course of the execution that
@@ -30,14 +32,10 @@
 
 ])
 
-
-# retrieve length of the list
-(len my_list)
-
-# reverse the list and return pointer to list
-(rev my_list)
-
 # retrieve element at index of list
 (at my_list 0)
+|x| 
+
+(:= s (stol "This is a string that will become a list!"))
 
 ```

@@ -11,12 +11,12 @@ cell_c *builtin_fn_list_push_front(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE(">|", ==, 3)
 
   auto *value_to_push = list_get_nth_arg(1, list, env);
-  
+
   auto *list_to_push_to = list_get_nth_arg(2, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
-  // Clone the target and push it back 
+  // Clone the target and push it back
   list_info.list.push_front(value_to_push->clone());
 
   return list_to_push_to;
@@ -26,12 +26,12 @@ cell_c *builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("|<", ==, 3)
 
   auto *value_to_push = list_get_nth_arg(1, list, env);
-  
+
   auto *list_to_push_to = list_get_nth_arg(2, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
-  // Clone the target and push it back 
+  // Clone the target and push it back
   list_info.list.push_back(value_to_push->clone());
 
   return list_to_push_to;
@@ -47,15 +47,15 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
   std::advance(it, 2);
   auto *ins_to_exec_per_item = (*it);
 
-  cell_c * idx = global_runtime->get_runtime_memory().allocate((int64_t)0);
+  cell_c *idx = global_runtime->get_runtime_memory().allocate((int64_t)0);
 
   // here we use the map directly so we don't accidently create drop the
-  // items we are iterating - so we need to manually clean up  
-  auto& current_env_map = env.get_map();
+  // items we are iterating - so we need to manually clean up
+  auto &current_env_map = env.get_map();
 
   current_env_map["$idx"] = idx;
 
-  for (auto* cell : list_info.list) {
+  for (auto *cell : list_info.list) {
 
     // $it will just point to the element, not copy it
     current_env_map["$it"] = cell;
@@ -76,6 +76,27 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
 
   // Return the list we iterated
   return list_to_iterate;
+}
+
+cell_c *builtin_fn_list_at(cell_list_t &list, env_c &env) {
+  LIST_ENFORCE_SIZE("at", ==, 3)
+
+  auto *requested_idx = list_get_nth_arg(2, list, env);
+
+  auto *target_list = list_get_nth_arg(1, list, env);
+
+  auto &list_info = target_list->as_list_info();
+
+  auto actual_idx_val = requested_idx->as_integer();
+
+  if (actual_idx_val < 0 || actual_idx_val >= list_info.list.size()) {
+    throw std::runtime_error("Index OOB for given list");
+  }
+
+  auto it = list_info.list.begin();
+  std::advance(it, actual_idx_val);
+
+  return (*it);
 }
 
 } // namespace builtins

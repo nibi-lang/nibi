@@ -9,6 +9,7 @@
 | try     | Attempt to execute a list and handle any built in exceptions | last cell yielded from executed list
 | throw   | Throw an exception that can be caught by `try` or will result in a runtime halt | na
 | assert  | Assert a given condition to be true or throw an error | nil
+| len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
 
 | @ commands | description | returns
 |----       |----          |----
@@ -25,6 +26,7 @@
 | >|    | Push value to front of list | modified list cell
 | |<    | Push value to back of list  | modified list cell
 | iter  | Iterate over a list         | iterated list
+| at    | Retrieve an index into a list | cell at given index
 
 | arithmetic | description | returns
 |---- |---- |----
@@ -58,7 +60,9 @@
 
 **..** - Indicating a continuation without specifed end
 
-**STR** - An explicit `string` value expected
+**STR** - An explicit `string` value
+
+**I** - An explicit `integer` value
 
 **RD** - Any raw data member (`string, integer, double`) 
 
@@ -114,6 +118,23 @@ All arguments must be expressed as a `symbol`
 
 ```
 ( drop < S .. > .. )
+```
+
+### Retrieve length
+
+Keyword: `len`
+
+| arg1
+|----
+| Item to retrieve length of 
+
+```
+Note: If the item is not a list it will be converted to a string and the length of the string
+      value will be returned.
+```
+
+```
+( len < RD S () [] > )
 ```
 
 ### Try
@@ -262,6 +283,22 @@ warning: any variable with the same name in the current environment that would
 
 ```
 ( iter < [] S > < () [*] > )
+```
+
+### At
+
+keyword: `at`
+
+| arg1               | arg2 |
+|----                |----
+| list to index into | index to access
+
+```
+Note: Arg 2 is required to evaluate to an integer type
+```
+
+```
+( at < S [] > < () S I > )
 ```
 
 ----

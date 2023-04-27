@@ -79,6 +79,12 @@ static function_info_s builtin_list_push_back_inf = {
     "|<", builtin_fn_list_push_back, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_list_iter_inf = {
     "iter", builtin_fn_list_iter, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_list_at_inf = {
+    "at", builtin_fn_list_at, function_type_e::BUILTIN_CPP_FUNCTION};
+
+// common functions
+static function_info_s builtin_common_len_inf = {
+    "len", builtin_fn_common_len, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
@@ -103,6 +109,8 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {">|", builtin_list_push_front_inf},
     {"|<", builtin_list_push_back_inf},
     {"iter", builtin_list_iter_inf},
+    {"at", builtin_list_at_inf},
+    {"len", builtin_common_len_inf},
     {"nil?", builtin_is_nil_inf},
     {"dbg-var", builtin_dbg_var_inf},
     {"dbg-out", builtin_dbg_out_inf},

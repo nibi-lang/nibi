@@ -39,13 +39,14 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
         We may want to remove this and instead add a "time since creation"
         to a cell, and when its placed in an env, it gets a pointer to the env.
 
-        After some mount of time, the cell env pointer is checked to see if the env still
-        exists. If the env does NOT exist it should mark itself as no longer in use.
+        After some mount of time, the cell env pointer is checked to see if the
+       env still exists. If the env does NOT exist it should mark itself as no
+       longer in use.
 
         We do this now to ensure that we don't leak memory
     */
 
-    auto& current_env_map = env.get_map();
+    auto &current_env_map = env.get_map();
     if (current_env_map.find(target_variable_name) != current_env_map.end()) {
       current_env_map[target_variable_name]->mark_as_in_use(false);
       current_env_map.erase(target_variable_name);
