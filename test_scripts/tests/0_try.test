@@ -1,5 +1,36 @@
-
-
 (:= x 0)
 (drop x)
 (try (drop x) (dbg-out "caught it!"))
+
+(try [
+  (:= a 0)
+  (:= b 1)
+  (:= c 2)
+] (assert 0 "Exception thrown for some reason") )
+
+(assert (eq a 0) "failed to exec all items in try list")
+(assert (eq b 1) "failed to exec all items in try list")
+(assert (eq c 2) "failed to exec all items in try list")
+
+(:= flag 0)
+(try (drop non_existing_item) [
+  (set flag 1)
+])
+
+(assert flag "Failed to exec the recovery cell?")
+
+(try [
+  (drop non_existing_item)
+] [
+  (set flag 0)
+])
+
+(assert (eq flag 0) "Failed to exec the recovery cell?")
+
+(try [
+  (set b 906)
+] [
+  (assert 0 "Exception thrown for some reason")
+])
+
+(assert (eq b 906) "Failed to exec the check cell?")
