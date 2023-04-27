@@ -20,6 +20,12 @@
 | dbg-out | Print given cells iff debug enabled | nil
 | dbg-var | Construct a string detailing information about given cells | string
 
+| list commands | description | returns
+|----   |---- |----
+| >|    | Push value to front of list | modified list cell
+| |<    | Push value to back of list  | modified list cell
+| iter  | Iterate over a list         | iterated list
+
 | arithmetic | description | returns
 |---- |---- |----
 | +  | Add a series of cells | resulting value  
@@ -136,6 +142,10 @@ Keyword: `throw`
 Note: Whatever is returned from the execution of arg1 will be forcefully converted to a string for the given
 exception. If the result can not be turned into a string it will throw a cell_access_exception instead.
 
+This means that if you want to directly update the cell that `$it` points to, you NEED to use `set`
+and not `:=`. The former will find where it points and update it, the latter will overwrite $it into env
+and be overwritten at the end of the instruction list.
+
 ```
 ( throw < [*] () S RD > )
 ```
@@ -191,6 +201,71 @@ A variable number of arguments accepted with the minimum being 1
 
 ----
 
+## List Instructions
+
+### Push Front
+
+keyword: `>|`
+
+```
+Note: the `|` is meant to represent the boundary of a list, with the `>` showing 
+      a direction that the data is being inserted. Notation assumes that the "front" of
+      a list is the "left" side when reading
+```
+
+| arg1 | arg2 |
+|----  |----
+| value to push | list to push to
+
+```
+( >| < () [] S RD > [] )
+```
+
+### Push Back
+
+keyword: `|<`
+
+```
+Note: the `|` is meant to represent the boundary of a list, with the `>` showing 
+      a direction that the data is being inserted. Notation assumes that the "front" of
+      a list is the "left" side when reading
+```
+
+| arg1 | arg2 |
+|----  |----
+| value to push | list to push to
+
+```
+( |< < () [] S RD > [] )
+```
+
+### Iterate
+
+keyword: `iter`
+
+| arg1            | arg2 |
+|----             |----
+| list to iterate | instruction(s) to execute per item
+
+```
+Temporary values created:
+
+$it  - The current item being iterated over
+$idx - The index that $it exists within the given list (0-indexed)
+
+These variables will exist for the duration of the execution of arg2 over the list,
+and then removed post-iteration
+
+warning: any variable with the same name in the current environment that would
+         conflict with these temporary variables will be overwritten. 
+```
+
+```
+( iter < [] S > < () [*] > )
+```
+
+----
+
 ## Arithmetic
 
 A variable number of arguments accepted with the minimum being 2
@@ -205,7 +280,15 @@ A variable number of arguments accepted with the minimum being 2
 
 All comparison operators take exactly 2 arguments
 
-`eq` and `neq` will accept any cell type and attempt to check equality - non numerical items will be converted to a string for comparisons
+`eq` and `neq` will accept any cell type and attempt to check equality.
+Whatever the simple type the lhs takes on, eq and neq will attempt to convert the rhs to 
+for checking. 
+
+This means if the lhs operand is a string, it will attempt to stringify the rhs and so on
+with integers and doubles. 
+
+If the lhs is a more complex type like a list or a function, both sides will be 
+stringified for comparison.
 
 the remaining comparisons require that the arguments are numerical types (integer, float)
 

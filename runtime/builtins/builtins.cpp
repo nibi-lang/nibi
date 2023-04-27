@@ -72,6 +72,14 @@ static function_info_s builtin_comparison_lte_inf = {
 static function_info_s builtin_comparison_gte_inf = {
     ">=", builtin_fn_comparison_gte, function_type_e::BUILTIN_CPP_FUNCTION};
 
+// lists
+static function_info_s builtin_list_push_front_inf = {
+    ">|", builtin_fn_list_push_front, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_list_push_back_inf = {
+    "|<", builtin_fn_list_push_back, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_list_iter_inf = {
+    "iter", builtin_fn_list_iter, function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"eq", builtin_comparison_eq_inf},
@@ -92,6 +100,9 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"try", builtin_try_inf},
     {"throw", builtin_throw_inf},
     {"assert", builtin_assert_inf},
+    {">|", builtin_list_push_front_inf},
+    {"|<", builtin_list_push_back_inf},
+    {"iter", builtin_list_iter_inf},
     {"nil?", builtin_is_nil_inf},
     {"dbg-var", builtin_dbg_var_inf},
     {"dbg-out", builtin_dbg_out_inf},
