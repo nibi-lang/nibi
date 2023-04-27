@@ -10,34 +10,14 @@
   when its ready
 */
 
-/*
-      NOTE:
-
-      TODO:
-
-
-      Right now we can still have leaks. if someone does (dbg-out (len(
-   my_list)) a new integer will be made, displayed, and NEVER stored so it can't
-   be marked as not in use.
-
-
-      Need to default things to being marked as not in use, and then mark them
-   as in use when they are stored in a variable.
-
-      To ensure sweep doesn't immediately delete the object, we need to
-      have a "sweep count" and ensure that a cell is checked twice and confirmed
-      as not in use before deleting it.
-
-
-*/
-
 #include <exception>
 #include <forward_list>
 
 namespace memory {
 
 //! \brief An interface for objects that can be marked as in use
-//! \note Items are marked as in use by default
+//! \note Items are marked NOT in use by default, and must be marked as in use
+//!       within the number of allocations before sweep assigned to controller_c
 class markable_if {
 public:
   virtual ~markable_if() {}
@@ -49,8 +29,17 @@ public:
   //! \brief Check if this object is marked as in use
   bool is_marked() const { return marked_; }
 
+  //! \brief If the object is marked as in use, then this method will be
+  //!        called so the object can check to see if it is still
+  //!        in use.
+  //! \note This is called by the controller_c when it sweeps and the
+  //!       object indicates that it is marked as in use, to verify
+  //!       that it is still in use. This is to prevent memory leaks.
+  //!                         "trust but verify"
+  virtual void verify_marked_status() = 0;
+
 private:
-  bool marked_{true};
+  bool marked_{false};
 };
 
 //! \brief A controller for allocating and deallocating memory
@@ -83,6 +72,7 @@ public:
     for (auto *item : markables_) {
       if (item)
         delete item;
+      item = nullptr;
     }
   }
 
@@ -114,10 +104,17 @@ private:
   std::size_t allocations_before_sweep{DEFAULT_ALLOCATIONS_BEFORE_SWEEP};
   void sweep() {
     markables_.remove_if([](markable_if *item) {
+      // Check if the item is marked, and if it is, delete it
+      // and return true to remove it from the list
       if (!item->is_marked()) {
         delete item;
+        item = nullptr;
         return true;
       }
+
+      // Since the item is marked, we need to ask it to check its status
+      // and maybe unmark itself
+      item->verify_marked_status();
       return false;
     });
   }

@@ -11,7 +11,7 @@
 
 //! \brief The environment object that will be used to store
 //!        and manage the cells that are used in different scopes
-class env_c {
+class env_c : private cell_canary_if {
 public:
   env_c() = delete;
   ~env_c();
@@ -57,6 +57,10 @@ public:
   //!       If there is a method to do what you are trying to do,
   //!       use it lest you break something or cause a memory leak
   std::unordered_map<std::string, cell_c *> &get_map() { return cell_map_; }
+
+  //! \brief Check if the environment is a global environment
+  //! \return True if the environment is a global environment
+  bool is_global_env() { return !parent_env_; }
 
 private:
   //! Called by env with parents, used to register child environment

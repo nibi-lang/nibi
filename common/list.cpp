@@ -118,6 +118,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
   case token_e::L_PAREN: {
     auto *new_list = ins_memory_.allocate(cell_type_e::LIST);
     new_list->locator = current_token.get_locator();
+    new_list->mark_as_in_use(true);
 
     if (current_token.get_token() == token_e::L_PAREN) {
       new_list->as_list_info().type = list_types_e::INSTRUCTION;
@@ -153,7 +154,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
     // If the symbol isn't in the map, its an identifier
     if (builtins_.find(symbol_raw) == builtins_.end()) {
       auto *cell = ins_memory_.allocate(symbol_s{symbol_raw});
-
+      cell->mark_as_in_use(true);
       cell->locator = current_token.get_locator();
 
       PARSER_ADD_CELL
@@ -174,7 +175,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
         to confirm its okay to use
     */
     auto *cell = ins_memory_.allocate(builtins_[symbol_raw]);
-
+    cell->mark_as_in_use(true);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -195,6 +196,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
     }
 
     auto *cell = ins_memory_.allocate((int64_t)value_actual);
+    cell->mark_as_in_use(true);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -215,6 +217,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
     }
 
     auto *cell = ins_memory_.allocate((double)value_actual);
+    cell->mark_as_in_use(true);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -223,6 +226,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
   case token_e::RAW_STRING: {
     PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
     auto *cell = ins_memory_.allocate(current_token.get_data());
+    cell->mark_as_in_use(true);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL

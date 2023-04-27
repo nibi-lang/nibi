@@ -59,6 +59,15 @@ void env_c::set(std::string name, cell_c &cell) {
   if (!env) {
     env = this;
   }
+  // Indicate that the cell is in use
+  cell.mark_as_in_use(true);
+
+  // Set this environment as the canary for the cell
+  // in case its overwritten and lost to the environment
+  // so it can mark itself as not in use
+  cell.set_canary(this);
+
+  // Store the cell
   env->cell_map_[name] = &cell;
 }
 

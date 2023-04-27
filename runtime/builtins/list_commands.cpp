@@ -48,6 +48,7 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
   auto *ins_to_exec_per_item = (*it);
 
   cell_c *idx = global_runtime->get_runtime_memory().allocate((int64_t)0);
+  idx->mark_as_in_use(true);
 
   // here we use the map directly so we don't accidently create drop the
   // items we are iterating - so we need to manually clean up

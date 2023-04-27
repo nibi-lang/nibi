@@ -23,6 +23,15 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   auto &target_variable_name = (*it)->as_string();
 
+  // Ensure that the user doesn't attempt to overwrite a temporary variable
+
+  if (target_variable_name.starts_with('$')) {
+    throw runtime_c::exception_c(
+        "Cannot assign to a variable that starts with a '$' as those are "
+        "reserved for temporary variables",
+        (*it)->locator);
+  }
+
   auto *target_assignment_value =
       global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
@@ -31,21 +40,13 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   target_assignment_value = target_assignment_value->clone();
 
-  // Check if the item exists
-  {
-    /*
-       TODO: SPEED OPTIMIZATION - MEMORY LEAK PROTECTION
-
-        We may want to remove this and instead add a "time since creation"
-        to a cell, and when its placed in an env, it gets a pointer to the env.
-
-        After some mount of time, the cell env pointer is checked to see if the
-       env still exists. If the env does NOT exist it should mark itself as no
-       longer in use.
-
-        We do this now to ensure that we don't leak memory
-    */
-
+  // If the environment is a global environment, then we must check to
+  // ensure we don't overwrite a variable that is in use without first
+  // indicating its not in use.
+  // If we abandon a cell by overwriting it, then the cell will mark
+  // itself as not in use when this environment is destroyed and the
+  // gc asks it to check its status (canary)
+  if (env.is_global_env()) {
     auto &current_env_map = env.get_map();
     if (current_env_map.find(target_variable_name) != current_env_map.end()) {
       current_env_map[target_variable_name]->mark_as_in_use(false);

@@ -12,9 +12,6 @@
 #include <runtime/memory.hpp>
 
 namespace {
-// The number of instructions that can be executed before
-// the instruction memory is swept to free up cells
-constexpr std::size_t INSTRUCTIONS_ALLOWED_BEFORE_SWEEP = 50;
 
 // Instruction manager used by all list builders
 cell_memory_manager_t *instruction_memory{nullptr};
@@ -36,8 +33,7 @@ void teardown() {
 }
 
 void setup() {
-  instruction_memory =
-      new cell_memory_manager_t(INSTRUCTIONS_ALLOWED_BEFORE_SWEEP);
+  instruction_memory = new cell_memory_manager_t();
   program_global_env = new env_c(nullptr);
   source_manager = new source_manager_c();
 

@@ -93,6 +93,10 @@ Keyword: `:=`
 | symbol to designate | symbol or list that will yield the value to set
 
 ```
+  Note: Variables starting with `$` will not be allowed. 
+```
+
+```
 ( := S < () S > )
 ```
 
@@ -277,8 +281,9 @@ $idx - The index that $it exists within the given list (0-indexed)
 These variables will exist for the duration of the execution of arg2 over the list,
 and then removed post-iteration
 
-warning: any variable with the same name in the current environment that would
-         conflict with these temporary variables will be overwritten. 
+While `$` variables are not able to be `:=` assigned, they can be updated using `set`
+so iterated values can be updated in place
+
 ```
 
 ```
