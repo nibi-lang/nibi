@@ -34,3 +34,20 @@
 ])
 
 (assert (eq b 906) "Failed to exec the check cell?")
+
+(:= v 1)
+
+# This instruction attempts to update the value of v. Set returns a pointer to the data set,
+# and try returns a pointer to the result of the last thing done, so check1 should be set to 
+# the same value. Assign also returns the value of the thing it set so we check it for equality 
+
+(assert (eq 2 (:= check1 (try (set v 2) (assert 0 "Error setting v")))) "Failed to get value from try statement")
+
+(assert (eq v check1) "v and check1 were not equal???")
+
+# Here we do something similar, but we attempt to update with `set` a value that doesn't exist
+# so we should retrieve the last thing completed in the recovery case 
+
+(assert (eq 2 (:= check1 (try (set i_dont_exist 90) (:= check2 v)))) "Failed to get value from try statement")
+
+(assert (eq v check2) "v and check2 were not equal???")
