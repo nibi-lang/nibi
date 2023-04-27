@@ -35,8 +35,12 @@ static function_info_s builtin_set_inf = {
     "set", builtin_fn_env_set, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_drop_inf = {
     "drop", builtin_fn_env_drop, function_type_e::BUILTIN_CPP_FUNCTION};
+
+// exceptions
 static function_info_s builtin_try_inf = {
-    "try", builtin_fn_env_try, function_type_e::BUILTIN_CPP_FUNCTION};
+    "try", builtin_fn_except_try, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_throw_inf = {
+    "throw", builtin_fn_except_throw, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // asserts
 static function_info_s builtin_assert_inf = {
@@ -86,6 +90,7 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"set", builtin_set_inf},
     {"drop", builtin_drop_inf},
     {"try", builtin_try_inf},
+    {"throw", builtin_throw_inf},
     {"assert", builtin_assert_inf},
     {"nil?", builtin_is_nil_inf},
     {"dbg-var", builtin_dbg_var_inf},

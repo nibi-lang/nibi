@@ -6,7 +6,8 @@
 | :=      | Create or update a symbol in the immediate environment | cell that was assigned
 | set     | Update an existing symbol in current or parent environment  | cell that was assigned
 | drop    | Drop a symbol from current or parent environment | nil
-| try     | Attempt to execute a list and catch/ handle exceptions | last cell yielded from executed list
+| try     | Attempt to execute a list and handle any built in exceptions | last cell yielded from executed list
+| throw   | Throw an exception that can be caught by `try` or will result in a runtime halt | na
 | assert  | Assert a given condition to be true or throw an error | nil
 
 | @ commands | description | returns
@@ -52,6 +53,8 @@
 **..** - Indicating a continuation without specifed end
 
 **STR** - An explicit `string` value expected
+
+**RD** - Any raw data member (`string, integer, double`) 
 
 Example:
 
@@ -122,7 +125,24 @@ lists, and execute each member.
 ( try < () [*] S > < () [*] S > )
 ```
 
+### Throw
+
+Keyword: `throw`
+
+| arg1 |
+|----  |
+| cell to execute and throw string value of
+
+Note: Whatever is returned from the execution of arg1 will be forcefully converted to a string for the given
+exception. If the result can not be turned into a string it will throw a cell_access_exception instead.
+
+```
+( throw < [*] () S RD > )
+```
+
 ### Assert
+
+Keyword: `assert`
 
 | arg1 | arg2 |
 |----  |----
@@ -139,6 +159,8 @@ lists, and execute each member.
 
 ### Toggle Debug
 
+Keyword: `@debug`
+
 | arg1 |
 |----  |
 | integer value 1 or 0 |
@@ -149,6 +171,8 @@ lists, and execute each member.
 
 ### Debug Printing
 
+Keyword: `dbg-out`
+
 A variable number of arguments accepted with the minimum being 1
 
 ```
@@ -156,6 +180,8 @@ A variable number of arguments accepted with the minimum being 1
 ```
 
 ### Debug Variable
+
+Keyword: `dbg-var`
 
 A variable number of arguments accepted with the minimum being 1
 

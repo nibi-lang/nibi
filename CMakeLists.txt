@@ -51,6 +51,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/at_commands.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/comparison.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/excepts.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/list.cpp
