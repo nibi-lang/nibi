@@ -36,6 +36,10 @@
 (at my_list 0)
 |x| 
 
+
+(:= list (<|> "." 100))
+
+
 (:= s (stol "This is a string that will become a list!"))
 
 ```

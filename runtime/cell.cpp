@@ -89,10 +89,11 @@ cell_c::~cell_c() {
 cell_c *cell_c::clone() {
 
   // Allocate a new cell
-  cell_c *new_cell = global_runtime->get_runtime_memory().allocate(this->type);
+  cell_c *new_cell = new cell_c(this->type);
 
   // Copy the data
   new_cell->locator = this->locator;
+  new_cell->mark_as_in_use(true);
 
   switch (this->type) {
   case cell_type_e::NIL:
@@ -122,6 +123,7 @@ cell_c *cell_c::clone() {
     break;
   }
 
+  global_runtime->get_runtime_memory().take_ownership(new_cell);
   return new_cell;
 }
 

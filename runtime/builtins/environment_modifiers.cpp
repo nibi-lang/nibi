@@ -40,13 +40,9 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   target_assignment_value = target_assignment_value->clone();
 
-  // If the environment is a global environment, then we must check to
-  // ensure we don't overwrite a variable that is in use without first
-  // indicating its not in use.
-  // If we abandon a cell by overwriting it, then the cell will mark
-  // itself as not in use when this environment is destroyed and the
-  // gc asks it to check its status (canary)
-  if (env.is_global_env()) {
+  // Ensure that the user doesn't attempt to overwrite an existing
+  // item without freeing it frist
+  {
     auto &current_env_map = env.get_map();
     if (current_env_map.find(target_variable_name) != current_env_map.end()) {
       current_env_map[target_variable_name]->mark_as_in_use(false);

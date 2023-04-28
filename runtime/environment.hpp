@@ -11,9 +11,8 @@
 
 //! \brief The environment object that will be used to store
 //!        and manage the cells that are used in different scopes
-class env_c : private cell_canary_if {
+class env_c {
 public:
-  env_c() = delete;
   ~env_c();
 
   //! \brief Create an environment object with parameters

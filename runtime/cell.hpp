@@ -95,17 +95,6 @@ struct symbol_s {
   std::string data;
 };
 
-//! \brief A canary interface for something that manages if a cell is
-//!        in use. This is used to detect memory leaks.
-//! \note The idea is that a cell is given a canary and if the canary
-//!       is a nullptr then the thing that owned it has been destroyed
-//!       and the cell is orphaned, needing to be destroyed as well.
-class cell_canary_if {
-public:
-  cell_canary_if() = default;
-  virtual ~cell_canary_if() = default;
-};
-
 //! \brief An exception that is thrown when a cell is accessed
 //!        in a way that does not correspond to its type
 class cell_access_exception_c : public std::exception {
@@ -187,24 +176,11 @@ public:
   cell_c &operator=(const cell_c &other) = delete;
   cell_c &operator=(cell_c &&other) = delete;
 
-  //! \brief Set the cell's canary
-  //! \param canary The canary to set
-  void set_canary(cell_canary_if *canary) { canary_ = canary; }
-
-  //! \brief From markable_if, check to ensure cell
-  //!        is orphaned.
-  void verify_marked_status() override {
-    if (canary_ == nullptr) {
-      this->mark_as_in_use(false);
-    }
-  }
-
   //! \brief Destroy the cell
   //! \note If the cell contains a list, the list have each
   //!       of its members marked to be collected
   ~cell_c();
 
-  //! \brief Clone the current cell
   cell_c *clone();
 
   cell_type_e type{cell_type_e::NIL};
@@ -278,12 +254,4 @@ public:
   bool is_numeric() const {
     return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
   }
-
-private:
-  // Canary to ensure the cell is not orphaned. If the canary is null,
-  // then the cell is orphaned and should be collected so it will mark
-  // itself as not in use.
-  // This is just a "double check" to ensure that the cell gets collected
-  // if a user overwrites something.
-  cell_canary_if *canary_{nullptr};
 };

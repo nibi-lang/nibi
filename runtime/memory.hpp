@@ -13,6 +13,8 @@
 #include <exception>
 #include <forward_list>
 
+#include <iostream>
+
 namespace memory {
 
 //! \brief An interface for objects that can be marked as in use
@@ -29,17 +31,8 @@ public:
   //! \brief Check if this object is marked as in use
   bool is_marked() const { return marked_; }
 
-  //! \brief If the object is marked as in use, then this method will be
-  //!        called so the object can check to see if it is still
-  //!        in use.
-  //! \note This is called by the controller_c when it sweeps and the
-  //!       object indicates that it is marked as in use, to verify
-  //!       that it is still in use. This is to prevent memory leaks.
-  //!                         "trust but verify"
-  virtual void verify_marked_status() = 0;
-
 private:
-  bool marked_{false};
+  bool marked_{true};
 };
 
 //! \brief A controller for allocating and deallocating memory
@@ -47,7 +40,7 @@ private:
 template <typename T> class controller_c {
 public:
   static constexpr std::size_t MINIMUM_ALLOCATIONS_BEFORE_SWEEP = 8;
-  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 64;
+  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 10;
 
   //! \brief Construct a new controller object
   controller_c(){};
@@ -98,6 +91,8 @@ public:
     return item;
   }
 
+  void take_ownership(markable_if *item) { markables_.push_front(item); }
+
 private:
   std::forward_list<markable_if *> markables_;
   std::size_t allocations_trigger{0};
@@ -111,10 +106,6 @@ private:
         item = nullptr;
         return true;
       }
-
-      // Since the item is marked, we need to ask it to check its status
-      // and maybe unmark itself
-      item->verify_marked_status();
       return false;
     });
   }

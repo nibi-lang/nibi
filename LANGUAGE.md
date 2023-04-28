@@ -23,10 +23,11 @@
 
 | list commands | description | returns
 |----   |---- |----
-| >|    | Push value to front of list | modified list cell
-| |<    | Push value to back of list  | modified list cell
+| >\|    | Push value to front of list | modified list cell
+| \|<    | Push value to back of list  | modified list cell
 | iter  | Iterate over a list         | iterated list
 | at    | Retrieve an index into a list | cell at given index
+| <\|>  | Spawn a list of a given size with a given value | new list
 
 | arithmetic | description | returns
 |---- |---- |----
@@ -262,6 +263,18 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
 
 ```
 ( |< < () [] S RD > [] )
+```
+
+### Spawn list
+
+keyword: `<|>`
+
+| arg1 | arg2 |
+|----  |----
+| value to default all elements to| size of the list that must resolve to integer >0
+
+```
+( <|> < () S RD [] > < () I > )
 ```
 
 ### Iterate
