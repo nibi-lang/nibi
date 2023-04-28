@@ -6,12 +6,12 @@
 runtime_c *global_runtime{nullptr};
 
 bool global_runtime_init(env_c &env, source_manager_c &source_manager,
-                         cell_memory_manager_t &instruction_memory) {
+                         cell_memory_manager_t &cell_memory) {
   if (global_runtime) {
     return true;
   }
 
-  global_runtime = new runtime_c(env, source_manager, instruction_memory);
+  global_runtime = new runtime_c(env, source_manager, cell_memory);
 
   if (!global_runtime) {
     return false;
@@ -28,9 +28,9 @@ void global_runtime_destroy() {
 }
 
 runtime_c::runtime_c(env_c &env, source_manager_c &source_manager,
-                     cell_memory_manager_t &instruction_memory)
+                     cell_memory_manager_t &cell_memory)
     : global_env_(env), source_manager_(source_manager),
-      instruction_memory_(instruction_memory) {}
+      cell_memory_(cell_memory) {}
 
 void runtime_c::on_list(cell_c *list_cell) {
   try {

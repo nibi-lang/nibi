@@ -74,14 +74,16 @@ const char *cell_type_to_string(const cell_type_e type) {
 cell_c::~cell_c() {
   if (this->type == cell_type_e::LIST) {
     auto &info = this->as_list_info();
-    for (auto &cell : info.list) {
+    for (auto* cell : info.list) {
       /*
         By marking this as not in use it will be
         recycled by the memory manager on the next
         pass. This means that deletions will
         be performed in a batched manner.
       */
-      cell->mark_as_in_use(false);
+     if (cell) {
+        cell->mark_as_in_use(false);
+     }
     }
   }
 }
@@ -89,11 +91,12 @@ cell_c::~cell_c() {
 cell_c *cell_c::clone() {
 
   // Allocate a new cell
-  cell_c *new_cell = new cell_c(this->type);
+  cell_c *new_cell = global_runtime->get_runtime_memory().allocate_no_sweep(
+      this->type
+  );
 
   // Copy the data
   new_cell->locator = this->locator;
-  new_cell->mark_as_in_use(true);
 
   switch (this->type) {
   case cell_type_e::NIL:
