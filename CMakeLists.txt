@@ -44,6 +44,7 @@ endif()
 
 set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/builtins.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/lambdas.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/environment_modifiers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/asserts.cpp

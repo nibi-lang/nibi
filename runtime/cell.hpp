@@ -7,9 +7,9 @@
 #include <exception>
 #include <functional>
 #include <list>
+#include <memory>
+#include <optional>
 #include <string>
-
-#include <iostream>
 
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
@@ -71,12 +71,18 @@ extern bool global_cells_initialize();
 //! \brief Destroy the global cells
 extern void global_cells_destroy();
 
+struct lambda_info_s {
+  std::vector<std::string> arg_names;
+  cell_c *body{nullptr};
+};
+
 //! \brief Function wrapper that holds the function
 //!        pointer, the name, and the type of the function
 struct function_info_s {
   std::string name;
   cell_fn_t fn;
   function_type_e type;
+  std::optional<lambda_info_s> lambda{std::nullopt};
   function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
   function_info_s(std::string name, cell_fn_t fn, function_type_e type)
       : name(name), fn(fn), type(type) {}

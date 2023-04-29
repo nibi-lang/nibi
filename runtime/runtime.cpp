@@ -113,9 +113,9 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
   }
   case cell_type_e::SYMBOL: {
     // Load the symbol from the environment
-    auto *loaded_cell = env.get(cell->as_string());
+    auto *loaded_cell = env.get(cell->as_symbol());
     if (!loaded_cell) {
-      throw exception_c("Symbol not found in environment: " + cell->as_string(),
+      throw exception_c("Symbol not found in environment: " + cell->as_symbol(),
                         cell->locator);
       return nullptr;
     }
@@ -144,24 +144,4 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
   }
   }
   return nullptr;
-}
-
-// --------------------------------------------------------
-//  Lambda Execution taking the form of builtin functions
-// --------------------------------------------------------
-
-cell_c *execute_suspected_lambda(cell_list_t &list, env_c &env) {
-
-  /*
-      NOTE:
-
-        When we build a lambda in an instruction we need to encode it with
-        as a function_info_s with the type set to LAMBDA_FUNCTION.
-        and the function pointer set to this function
-
-  */
-
-  std::cout << "TODO: Execute suspected lambda >>>" << list.size() << std::endl;
-
-  return global_cell_nil;
 }

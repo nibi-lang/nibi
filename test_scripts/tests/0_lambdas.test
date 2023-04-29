@@ -1,0 +1,36 @@
+
+(fn set_to_ten [x] (set x 10))
+(fn set_to_two [x] [
+  (set x 1)
+  (set x (+ x 1))
+])
+
+(:= target_0 0)
+
+(assert (eq 10 (set_to_ten target_0)) "Could not update target")
+(assert (eq 2 (set_to_two target_0)) "Could not update target")
+
+(fn shadow [x] [
+
+  # Directly set the thing like above
+  (set x 100)
+
+
+  #
+  #   WARNING: As of the time of this message i suspect `:=`
+  #            may actually clean out the external var by marking
+  #            as not in use... GC isn't stable yet
+  #
+
+
+  # By using "assign" we shadow the var and won't be able to update it anymore 
+  # as we overwrote the env with it entirely 
+  (:= x 1024)
+
+  (set x 200)
+])
+
+(:= var 0)
+(shadow var)
+
+(assert (eq 100 var) "Var was not as expected")

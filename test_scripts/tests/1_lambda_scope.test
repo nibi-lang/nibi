@@ -1,0 +1,8 @@
+
+
+(fn x [] [
+  (:= t 40)
+])
+
+# Should throw 
+(drop t)

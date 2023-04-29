@@ -63,6 +63,8 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "STRING";
   case cell_type_e::FUNCTION:
     return "FUNCTION";
+  case cell_type_e::SYMBOL:
+    return "SYMBOL";
   case cell_type_e::LIST:
     return "LIST";
   case cell_type_e::REFERENCE:
@@ -74,16 +76,16 @@ const char *cell_type_to_string(const cell_type_e type) {
 cell_c::~cell_c() {
   if (this->type == cell_type_e::LIST) {
     auto &info = this->as_list_info();
-    for (auto* cell : info.list) {
+    for (auto *cell : info.list) {
       /*
         By marking this as not in use it will be
         recycled by the memory manager on the next
         pass. This means that deletions will
         be performed in a batched manner.
       */
-     if (cell) {
+      if (cell) {
         cell->mark_as_in_use(false);
-     }
+      }
     }
   }
 }
@@ -91,9 +93,8 @@ cell_c::~cell_c() {
 cell_c *cell_c::clone() {
 
   // Allocate a new cell
-  cell_c *new_cell = global_runtime->get_runtime_memory().allocate_no_sweep(
-      this->type
-  );
+  cell_c *new_cell =
+      global_runtime->get_runtime_memory().allocate_no_sweep(this->type);
 
   // Copy the data
   new_cell->locator = this->locator;
@@ -108,6 +109,8 @@ cell_c *cell_c::clone() {
   case cell_type_e::DOUBLE:
     new_cell->data = this->as_double();
     break;
+  case cell_type_e::SYMBOL:
+    [[fallthrough]];
   case cell_type_e::STRING:
     new_cell->data = this->as_string();
     break;
@@ -123,6 +126,7 @@ cell_c *cell_c::clone() {
     for (auto &cell : linf.list) {
       other.list.push_back(cell->clone());
     }
+    other.type = linf.type;
     break;
   }
 

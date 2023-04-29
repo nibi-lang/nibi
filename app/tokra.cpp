@@ -6,11 +6,11 @@
 #include "common/input.hpp"
 #include "common/list.hpp"
 #include "common/source.hpp"
+#include "profile/config.hpp"
 #include "runtime/environment.hpp"
 #include "runtime/runtime.hpp"
 #include <runtime/cell.hpp>
 #include <runtime/memory.hpp>
-#include "profile/config.hpp"
 
 namespace {
 
@@ -25,17 +25,19 @@ env_c *program_global_env{nullptr};
 source_manager_c *source_manager{nullptr};
 } // namespace
 
-
 #if PROFILE_ALLOCATOR
 void display_allocator_stats() {
-  auto total_allocs = cell_memory->num_std_allocations +
-                      cell_memory->num_no_sweep_allocations;
+  auto total_allocs =
+      cell_memory->num_std_allocations + cell_memory->num_no_sweep_allocations;
 
   std::cout << "[ MEMORY PROFILE ]" << std::endl;
-  std::cout << cell_memory->num_std_allocations << " standard allocations" << std::endl;
-  std::cout << cell_memory->num_no_sweep_allocations << " no-sweep allocations" << std::endl;
-  std::cout << total_allocs  << " total allocations" << std::endl;
-  std::cout << cell_memory->num_ownderships_taken << " ownerships assumed" << std::endl;
+  std::cout << cell_memory->num_std_allocations << " standard allocations"
+            << std::endl;
+  std::cout << cell_memory->num_no_sweep_allocations << " no-sweep allocations"
+            << std::endl;
+  std::cout << total_allocs << " total allocations" << std::endl;
+  std::cout << cell_memory->num_ownderships_taken << " ownerships assumed"
+            << std::endl;
   std::cout << cell_memory->num_sweeps << " total sweeps" << std::endl;
   std::cout << cell_memory->num_frees << " frees from sweeps" << std::endl;
 

@@ -12,6 +12,13 @@ namespace builtins {
 //!        corresponding builtin function.
 std::unordered_map<std::string, function_info_s> &get_builtin_symbols_map();
 
+//! \brief A function similar to the builtins that
+//!        will load a lambda function and execute it
+//!        using the global runtime object
+//! \param list The list containing the lambda function and args
+//! \param env The environment that will be used during execution
+extern cell_c *execute_suspected_lambda(cell_list_t &list, env_c &env);
+
 // @ commands
 
 extern cell_c *builtin_fn_at_debug(cell_list_t &list, env_c &env);
@@ -27,6 +34,7 @@ extern cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_env_set(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_env_fn(cell_list_t &list, env_c &env);
 
 // Exception throwing and handling functions
 

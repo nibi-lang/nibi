@@ -7,6 +7,16 @@
 #include "cpp_macros.hpp"
 
 #include <iterator>
+
+#define PROTECT_OVERWRITE(___name)                                             \
+  {                                                                            \
+    auto &current_env_map = env.get_map();                                     \
+    if (current_env_map.find(___name) != current_env_map.end()) {              \
+      current_env_map[___name]->mark_as_in_use(false);                         \
+      current_env_map.erase(___name);                                          \
+    }                                                                          \
+  }
+
 namespace builtins {
 
 cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
@@ -42,13 +52,7 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   // Ensure that the user doesn't attempt to overwrite an existing
   // item without freeing it frist
-  {
-    auto &current_env_map = env.get_map();
-    if (current_env_map.find(target_variable_name) != current_env_map.end()) {
-      current_env_map[target_variable_name]->mark_as_in_use(false);
-      current_env_map.erase(target_variable_name);
-    }
-  }
+  PROTECT_OVERWRITE(target_variable_name)
 
   env.set(target_variable_name, *target_assignment_value);
 
@@ -90,6 +94,67 @@ cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env) {
                                    (*it)->locator);
     }
   })
+  return global_cell_nil;
+}
+
+cell_c *builtin_fn_env_fn(cell_list_t &list, env_c &env) {
+
+  LIST_ENFORCE_SIZE("fn", ==, 4)
+
+  auto it = list.begin();
+
+  std::advance(it, 1);
+
+  auto target_function_name = (*it)->as_symbol();
+
+  // Ensure that the user doesn't attempt to overwrite an existing
+  // item without freeing it frist
+  PROTECT_OVERWRITE(target_function_name)
+
+  std::advance(it, 1);
+
+  auto &function_argument_list = (*it)->as_list_info();
+
+  if (function_argument_list.type != list_types_e::DATA) {
+    throw runtime_c::exception_c(
+        "Expected data list `[]` for function arguments", (*it)->locator);
+  }
+
+  lambda_info_s lambda_info;
+
+  lambda_info.arg_names.reserve(function_argument_list.list.size());
+
+  /*
+      Here we COULD check to ensure all parameter names are unique,
+      but that would take MORE time than letting stupid choices
+      lead to stupid ourcomes
+  */
+
+  for (auto &&arg : function_argument_list.list) {
+    lambda_info.arg_names.push_back(arg->as_symbol());
+  }
+
+  std::advance(it, 1);
+  lambda_info.body = (*it)->clone();
+  if (lambda_info.body->type != cell_type_e::LIST) {
+    throw runtime_c::exception_c("Expected list for function body",
+                                 lambda_info.body->locator);
+  }
+
+  function_info_s function_info(target_function_name, execute_suspected_lambda,
+                                function_type_e::LAMBDA_FUNCTION);
+
+  function_info.lambda = {lambda_info};
+
+  auto *fn_cell = global_runtime->get_runtime_memory().allocate(function_info);
+
+  // Ensure that the user doesn't attempt to overwrite an existing
+  // item without freeing it frist
+  PROTECT_OVERWRITE(target_function_name)
+
+  // Set the variable
+  env.set(target_function_name, *fn_cell);
+
   return global_cell_nil;
 }
 
