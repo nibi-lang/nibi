@@ -48,6 +48,7 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
   auto *ins_to_exec_per_item = (*it);
 
   cell_c *idx = global_runtime->get_runtime_memory().allocate((int64_t)0);
+  idx->mark_as_in_use(true);
 
   // here we use the map directly so we don't accidently create drop the
   // items we are iterating - so we need to manually clean up
@@ -97,6 +98,31 @@ cell_c *builtin_fn_list_at(cell_list_t &list, env_c &env) {
   std::advance(it, actual_idx_val);
 
   return (*it);
+}
+
+cell_c *builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
+  LIST_ENFORCE_SIZE("<|>", ==, 3)
+
+  auto *list_size = list_get_nth_arg(2, list, env);
+
+  if (list_size->as_integer() < 0) {
+    auto it = list.begin();
+    std::advance(it, 2);
+    throw runtime_c::exception_c("Cannot spawn a list with a negative size",
+                                 (*it)->locator);
+  }
+
+  auto *target_value = list_get_nth_arg(1, list, env);
+  target_value->mark_as_in_use(true);
+
+  cell_list_t new_list;
+  for (uint64_t i = 0; i < list_size->as_integer(); i++) {
+    new_list.push_back(target_value->clone());
+  }
+
+  // Create the list and return it
+  return global_runtime->get_runtime_memory().allocate(
+      list_info_s{list_types_e::DATA, new_list});
 }
 
 } // namespace builtins

@@ -39,6 +39,7 @@ extern cell_c *builtin_fn_list_push_front(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_list_push_back(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env);
 extern cell_c *builtin_fn_list_at(cell_list_t &list, env_c &env);
+extern cell_c *builtin_fn_list_spawn(cell_list_t &list, env_c &env);
 
 // Common functions
 

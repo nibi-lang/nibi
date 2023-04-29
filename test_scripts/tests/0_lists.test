@@ -71,3 +71,8 @@
 (assert (eq 22 (at [0 1 2 3 4 22 6 7 8] 5)) "Nope")
 
 (assert (eq 22 (at [0 1 2 3 4 22 6 7 8] (+ 3 1 1))) "Nope")
+
+# List spawning!
+
+(assert (eq 100 (len (:= large_list (<|> "." 100)))) "Nope")
+(assert (eq 100 (len (:= large_list (<|> "." (* 10 10))))) "Nope")

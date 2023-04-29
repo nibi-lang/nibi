@@ -77,6 +77,8 @@ static function_info_s builtin_list_push_front_inf = {
     ">|", builtin_fn_list_push_front, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_list_push_back_inf = {
     "|<", builtin_fn_list_push_back, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_list_spawn_inf = {
+    "<|>", builtin_fn_list_spawn, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_list_iter_inf = {
     "iter", builtin_fn_list_iter, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_list_at_inf = {
@@ -108,6 +110,7 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"assert", builtin_assert_inf},
     {">|", builtin_list_push_front_inf},
     {"|<", builtin_list_push_back_inf},
+    {"<|>", builtin_list_spawn_inf},
     {"iter", builtin_list_iter_inf},
     {"at", builtin_list_at_inf},
     {"len", builtin_common_len_inf},

@@ -181,7 +181,6 @@ public:
   //!       of its members marked to be collected
   ~cell_c();
 
-  //! \brief Clone the current cell
   cell_c *clone();
 
   cell_type_e type{cell_type_e::NIL};
@@ -256,6 +255,3 @@ public:
     return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
   }
 };
-
-static inline int64_t cell_to_integer(cell_c *c) { return c->to_integer(); }
-static inline double cell_to_double(cell_c *c) { return c->to_double(); }

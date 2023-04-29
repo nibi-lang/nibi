@@ -59,6 +59,8 @@ void env_c::set(std::string name, cell_c &cell) {
   if (!env) {
     env = this;
   }
+
+  // Store the cell
   env->cell_map_[name] = &cell;
 }
 

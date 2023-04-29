@@ -23,10 +23,11 @@
 
 | list commands | description | returns
 |----   |---- |----
-| >|    | Push value to front of list | modified list cell
-| |<    | Push value to back of list  | modified list cell
+| >\|    | Push value to front of list | modified list cell
+| \|<    | Push value to back of list  | modified list cell
 | iter  | Iterate over a list         | iterated list
 | at    | Retrieve an index into a list | cell at given index
+| <\|>  | Spawn a list of a given size with a given value | new list
 
 | arithmetic | description | returns
 |---- |---- |----
@@ -91,6 +92,10 @@ Keyword: `:=`
 | arg1 | arg2 |
 |----  |----
 | symbol to designate | symbol or list that will yield the value to set
+
+```
+  Note: Variables starting with `$` will not be allowed. 
+```
 
 ```
 ( := S < () S > )
@@ -260,6 +265,18 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
 ( |< < () [] S RD > [] )
 ```
 
+### Spawn list
+
+keyword: `<|>`
+
+| arg1 | arg2 |
+|----  |----
+| value to default all elements to| size of the list that must resolve to integer >0
+
+```
+( <|> < () S RD [] > < () I > )
+```
+
 ### Iterate
 
 keyword: `iter`
@@ -277,8 +294,9 @@ $idx - The index that $it exists within the given list (0-indexed)
 These variables will exist for the duration of the execution of arg2 over the list,
 and then removed post-iteration
 
-warning: any variable with the same name in the current environment that would
-         conflict with these temporary variables will be overwritten. 
+While `$` variables are not able to be `:=` assigned, they can be updated using `set`
+so iterated values can be updated in place
+
 ```
 
 ```

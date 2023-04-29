@@ -10,34 +10,15 @@
   when its ready
 */
 
-/*
-      NOTE:
-
-      TODO:
-
-
-      Right now we can still have leaks. if someone does (dbg-out (len(
-   my_list)) a new integer will be made, displayed, and NEVER stored so it can't
-   be marked as not in use.
-
-
-      Need to default things to being marked as not in use, and then mark them
-   as in use when they are stored in a variable.
-
-      To ensure sweep doesn't immediately delete the object, we need to
-      have a "sweep count" and ensure that a cell is checked twice and confirmed
-      as not in use before deleting it.
-
-
-*/
-
 #include <exception>
 #include <forward_list>
+#include "profile/config.hpp"
 
 namespace memory {
 
 //! \brief An interface for objects that can be marked as in use
-//! \note Items are marked as in use by default
+//! \note Items are marked NOT in use by default, and must be marked as in use
+//!       within the number of allocations before sweep assigned to controller_c
 class markable_if {
 public:
   virtual ~markable_if() {}
@@ -57,34 +38,35 @@ private:
 //! \note  `T` must be declared as <MY_TYPE> not <MY_TYPE*>
 template <typename T> class controller_c {
 public:
-  static constexpr std::size_t MINIMUM_ALLOCATIONS_BEFORE_SWEEP = 8;
-  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 64;
+  static constexpr std::size_t DEFAULT_ALLOCATIONS_BEFORE_SWEEP = 250;
 
   //! \brief Construct a new controller object
   controller_c(){};
-
-  //! \brief Construct a new controller object with custom allocs before sweep
-  //! \param allocs_trigger The number of allocations before a sweep is
-  //! triggered
-  //! \note If this is less than MINIMUM_ALLOCATIONS_BEFORE_SWEEP, it will be
-  //! set to MINIMUM_ALLOCATIONS_BEFORE_SWEEP
-  controller_c(const std::size_t allocs_trigger)
-      : allocations_before_sweep(allocs_trigger) {
-    // Ensure there is an arbitrary minimum enforced
-    if (allocations_before_sweep < MINIMUM_ALLOCATIONS_BEFORE_SWEEP) {
-      allocations_before_sweep = MINIMUM_ALLOCATIONS_BEFORE_SWEEP;
-    }
-  };
 
   //! \brief Destroy the controller object
   //! \note This will destroy all marked and unmarked objects
   //!       that were allocated by this controller
   ~controller_c() {
     for (auto *item : markables_) {
-      if (item)
+      if (item) {
         delete item;
+        item = nullptr;
+      }
     }
   }
+
+#if PROFILE_ALLOCATOR
+    void flush() {
+      for (auto *item : markables_) {
+        if (item) {
+          delete item;
+          item = nullptr;
+          ++num_items_flushed;
+        }
+      }
+      markables_.clear();
+    }
+#endif
 
   //! \brief Allocate a new object
   //! \param args The arguments to pass to the constructor
@@ -102,20 +84,71 @@ public:
       // we want to reset the trigger
       allocations_trigger = 0;
     }
-
+#if PROFILE_ALLOCATOR
+    ++num_std_allocations;
+#endif
     auto *item = new T(std::forward<Args>(args)...);
     markables_.push_front(item);
     return item;
   }
 
+  //! \brief Allocate a new object without triggering a sweep
+  //! \param args The arguments to pass to the constructor
+  //! \return A pointer to the newly allocated object
+  //! \note This method should only be used for objects that are
+  //!       allocated in bulk and will be handed back to the allocator
+  //!       via `take_ownership`
+  template <typename... Args> T *allocate_no_sweep(Args &&...args) {
+#if PROFILE_ALLOCATOR
+    ++num_no_sweep_allocations;
+#endif
+    // This is trivial but we want to ensure we can change how cells are 
+    // allocated and deallocated without changing the interface
+    return new T(std::forward<Args>(args)...);
+  }
+
+  //! \brief Take ownership of an object
+  //! \param item The item to take ownership of
+  //! \note Once this is called on an item, the controller will
+  //!       assume ownership of the item and will delete it when
+  //!       it is no longer in use
+  void take_ownership(markable_if *item) {
+#if PROFILE_ALLOCATOR
+    ++num_ownderships_taken;
+#endif
+    markables_.push_front(item); 
+  }
+
+#if PROFILE_ALLOCATOR
+  std::size_t num_std_allocations{0};
+  std::size_t num_no_sweep_allocations{0};
+  std::size_t num_frees{0};
+  std::size_t num_sweeps{0};
+  std::size_t num_ownderships_taken{0};
+  std::size_t num_items_flushed{0};
+#endif
+
 private:
   std::forward_list<markable_if *> markables_;
   std::size_t allocations_trigger{0};
   std::size_t allocations_before_sweep{DEFAULT_ALLOCATIONS_BEFORE_SWEEP};
+
   void sweep() {
+#if PROFILE_ALLOCATOR
+    ++num_sweeps;
+    markables_.remove_if([this](markable_if *item) {
+#else 
+    // If we aren't profiling we don't want to capture `this` 
     markables_.remove_if([](markable_if *item) {
+#endif
+      // Check if the item is marked, and if it is, delete it
+      // and return true to remove it from the list
       if (!item->is_marked()) {
+#if PROFILE_ALLOCATOR
+    ++num_frees;
+#endif
         delete item;
+        item = nullptr;
         return true;
       }
       return false;

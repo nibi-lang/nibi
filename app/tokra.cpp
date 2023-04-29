@@ -10,14 +10,12 @@
 #include "runtime/runtime.hpp"
 #include <runtime/cell.hpp>
 #include <runtime/memory.hpp>
+#include "profile/config.hpp"
 
 namespace {
-// The number of instructions that can be executed before
-// the instruction memory is swept to free up cells
-constexpr std::size_t INSTRUCTIONS_ALLOWED_BEFORE_SWEEP = 50;
 
 // Instruction manager used by all list builders
-cell_memory_manager_t *instruction_memory{nullptr};
+cell_memory_manager_t *cell_memory{nullptr};
 
 // The object that will be used as the top level env
 env_c *program_global_env{nullptr};
@@ -27,17 +25,47 @@ env_c *program_global_env{nullptr};
 source_manager_c *source_manager{nullptr};
 } // namespace
 
+
+#if PROFILE_ALLOCATOR
+void display_allocator_stats() {
+  auto total_allocs = cell_memory->num_std_allocations +
+                      cell_memory->num_no_sweep_allocations;
+
+  std::cout << "[ MEMORY PROFILE ]" << std::endl;
+  std::cout << cell_memory->num_std_allocations << " standard allocations" << std::endl;
+  std::cout << cell_memory->num_no_sweep_allocations << " no-sweep allocations" << std::endl;
+  std::cout << total_allocs  << " total allocations" << std::endl;
+  std::cout << cell_memory->num_ownderships_taken << " ownerships assumed" << std::endl;
+  std::cout << cell_memory->num_sweeps << " total sweeps" << std::endl;
+  std::cout << cell_memory->num_frees << " frees from sweeps" << std::endl;
+
+  // Flush the memory of all cells (mimic destructor)
+  cell_memory->flush();
+
+  std::cout << cell_memory->num_items_flushed << " items flushed" << std::endl;
+
+  // Calculate all freed items to ensure that there were no leaks
+  auto total_frees = cell_memory->num_frees + cell_memory->num_items_flushed;
+  std::cout << "Lost nodes: " << total_allocs - total_frees << std::endl;
+  std::cout << "[ END MEMORY PROFILE ]\n" << std::endl;
+}
+#endif
+
 void teardown() {
   global_runtime_destroy();
   global_cells_destroy();
   delete source_manager;
   delete program_global_env;
-  delete instruction_memory;
+
+#if PROFILE_ALLOCATOR
+  display_allocator_stats();
+#endif
+
+  delete cell_memory;
 }
 
 void setup() {
-  instruction_memory =
-      new cell_memory_manager_t(INSTRUCTIONS_ALLOWED_BEFORE_SWEEP);
+  cell_memory = new cell_memory_manager_t();
   program_global_env = new env_c(nullptr);
   source_manager = new source_manager_c();
 
@@ -50,7 +78,7 @@ void setup() {
 
   // Initialize the global runtime object
   if (!global_runtime_init(*program_global_env, *source_manager,
-                           *instruction_memory)) {
+                           *cell_memory)) {
     std::cerr << "Failed to initialize global runtime" << std::endl;
     teardown();
     exit(1);
@@ -61,7 +89,7 @@ void run_from_file(const std::string &file_name) {
 
   // List builder that will build lists from parsed tokens
   // and pass lists to a runtime
-  list_builder_c list_builder(*instruction_memory, *global_runtime);
+  list_builder_c list_builder(*cell_memory, *global_runtime);
 
   // File reader that reads file and kicks off parser/ scanner
   // that will send tokens to the list builder
