@@ -10,9 +10,9 @@
   when its ready
 */
 
+#include "profile/config.hpp"
 #include <exception>
 #include <forward_list>
-#include "profile/config.hpp"
 
 namespace memory {
 
@@ -56,16 +56,16 @@ public:
   }
 
 #if PROFILE_ALLOCATOR
-    void flush() {
-      for (auto *item : markables_) {
-        if (item) {
-          delete item;
-          item = nullptr;
-          ++num_items_flushed;
-        }
+  void flush() {
+    for (auto *item : markables_) {
+      if (item) {
+        delete item;
+        item = nullptr;
+        ++num_items_flushed;
       }
-      markables_.clear();
     }
+    markables_.clear();
+  }
 #endif
 
   //! \brief Allocate a new object
@@ -102,7 +102,7 @@ public:
 #if PROFILE_ALLOCATOR
     ++num_no_sweep_allocations;
 #endif
-    // This is trivial but we want to ensure we can change how cells are 
+    // This is trivial but we want to ensure we can change how cells are
     // allocated and deallocated without changing the interface
     return new T(std::forward<Args>(args)...);
   }
@@ -116,7 +116,7 @@ public:
 #if PROFILE_ALLOCATOR
     ++num_ownderships_taken;
 #endif
-    markables_.push_front(item); 
+    markables_.push_front(item);
   }
 
 #if PROFILE_ALLOCATOR
@@ -137,15 +137,15 @@ private:
 #if PROFILE_ALLOCATOR
     ++num_sweeps;
     markables_.remove_if([this](markable_if *item) {
-#else 
-    // If we aren't profiling we don't want to capture `this` 
+#else
+    // If we aren't profiling we don't want to capture `this`
     markables_.remove_if([](markable_if *item) {
 #endif
       // Check if the item is marked, and if it is, delete it
       // and return true to remove it from the list
       if (!item->is_marked()) {
 #if PROFILE_ALLOCATOR
-    ++num_frees;
+        ++num_frees;
 #endif
         delete item;
         item = nullptr;

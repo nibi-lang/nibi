@@ -13,15 +13,6 @@ env_c::~env_c() {
   }
 }
 
-env_c::env_c(cell_list_t &parameter_list, env_c *parent_env)
-    : parent_env_(parent_env) {
-
-  // If a parent environment is provided, register this environment
-  if (parent_env_) {
-    parent_env_->register_child(*this);
-  }
-}
-
 env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {
 
   // If a parent environment is provided, register this environment

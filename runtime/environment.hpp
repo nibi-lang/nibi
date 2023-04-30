@@ -15,12 +15,6 @@ class env_c {
 public:
   ~env_c();
 
-  //! \brief Create an environment object with parameters
-  //!        to load into the environment
-  //! \param parameter_list The list of parameters
-  //! \param parent_env The parent environment (optional)
-  env_c(cell_list_t &parameter_list, env_c *parent_env = nullptr);
-
   //! \brief Create an environment object without parameters
   //! \param parent_env The parent environment (optional)
   env_c(env_c *parent_env = nullptr);

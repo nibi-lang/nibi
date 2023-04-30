@@ -22,7 +22,6 @@
 // you should pass 3
 #define LIST_ENFORCE_SIZE(___cmd, ___op, ___size)                              \
   if (!(list.size() ___op ___size)) {                                          \
-    static_assert(___size > 0, "LIST_ENFORCE_SIZE must be > 0");               \
     global_runtime->halt_with_error(                                           \
         error_c(list.front()->locator,                                         \
                 std::string(___cmd) + " instruction expects " +                \
