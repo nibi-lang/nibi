@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cell.hpp"
-#include "memory"
 
 #include <string>
 
@@ -31,12 +30,12 @@ public:
   //! \note Use this function to get a cell from the environment
   //!       that needs to be updated if we want to ensure it exists
   //!       in the environment or in the parent
-  cell_c *get(std::string name);
+  cell_ptr get(std::string name);
 
   //! \brief Set a cell in the environment
   //! \param name The name of the cell
   //! \param cell The cell to set
-  void set(std::string name, cell_c &cell);
+  void set(std::string name, cell_ptr &cell);
 
   //! \brief Drop a cell from the environment, or parent environment(s)
   //! \param name The name of the cell
@@ -49,7 +48,7 @@ public:
   //! \note This is meant for custom temporary cell placement
   //!       If there is a method to do what you are trying to do,
   //!       use it lest you break something or cause a memory leak
-  std::unordered_map<std::string, cell_c *> &get_map() { return cell_map_; }
+  std::unordered_map<std::string, cell_ptr> &get_map() { return cell_map_; }
 
   //! \brief Check if the environment is a global environment
   //! \return True if the environment is a global environment
@@ -65,5 +64,5 @@ private:
 
   env_c *parent_env_{nullptr};
   env_c *child_env_{nullptr};
-  std::unordered_map<std::string, cell_c *> cell_map_;
+  std::unordered_map<std::string, cell_ptr> cell_map_;
 };

@@ -10,25 +10,25 @@
   {                                                                            \
     switch (target_type) {                                                     \
     case cell_type_e::INTEGER: {                                               \
-      auto *r = global_runtime->get_runtime_memory().allocate(                 \
+      auto r = std::make_shared<cell_c>(                                       \
           (int64_t)(lhs.as_integer() ___op rhs.as_integer()));                 \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::DOUBLE: {                                                \
-      auto *r = global_runtime->get_runtime_memory().allocate(                 \
+      auto r = std::make_shared<cell_c>(                                       \
           (int64_t)(lhs.as_double() ___op rhs.as_double()));                   \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::STRING: {                                                \
-      auto *r = global_runtime->get_runtime_memory().allocate(                 \
+      auto r = std::make_shared<cell_c>(                                       \
           (int64_t)(lhs.as_string() ___op rhs.to_string()));                   \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     default: {                                                                 \
-      auto *r = global_runtime->get_runtime_memory().allocate(                 \
+      auto r = std::make_shared<cell_c>(                                       \
           (int64_t)(lhs.to_string() ___op rhs.to_string()));                   \
       r->locator = locator;                                                    \
       return r;                                                                \
@@ -40,13 +40,13 @@
   {                                                                            \
     switch (target_type) {                                                     \
     case cell_type_e::INTEGER: {                                               \
-      auto *r = global_runtime->get_runtime_memory().allocate(                 \
+      auto r = std::make_shared<cell_c>(                                       \
           (int64_t)(lhs.as_integer() ___op rhs.as_integer()));                 \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::DOUBLE: {                                                \
-      auto *r = global_runtime->get_runtime_memory().allocate(                 \
+      auto r = std::make_shared<cell_c>(                                       \
           (int64_t)(lhs.as_double() ___op rhs.as_double()));                   \
       r->locator = locator;                                                    \
       return r;                                                                \
@@ -71,8 +71,8 @@ enum class op_e {
   GTE,
 };
 
-cell_c *perform_op(locator_ptr locator, op_e op, cell_c &lhs, cell_c &rhs,
-                   bool enforce_numeric = true) {
+cell_ptr perform_op(locator_ptr locator, op_e op, cell_c &lhs, cell_c &rhs,
+                    bool enforce_numeric = true) {
   if (enforce_numeric) {
     if (!lhs.is_numeric()) {
       throw runtime_c::exception_c(
@@ -108,37 +108,37 @@ cell_c *perform_op(locator_ptr locator, op_e op, cell_c &lhs, cell_c &rhs,
 }
 } // namespace
 
-cell_c *builtin_fn_comparison_eq(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_eq(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("eq", ==, 3)
   return perform_op(list.front()->locator, op_e::EQ,
                     *list_get_nth_arg(1, list, env),
                     *list_get_nth_arg(2, list, env), false);
 }
-cell_c *builtin_fn_comparison_neq(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_neq(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("neq", ==, 3)
   return perform_op(list.front()->locator, op_e::NEQ,
                     *list_get_nth_arg(1, list, env),
                     *list_get_nth_arg(2, list, env), false);
 }
-cell_c *builtin_fn_comparison_lt(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_lt(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("<", ==, 3)
   return perform_op(list.front()->locator, op_e::LT,
                     *list_get_nth_arg(1, list, env),
                     *list_get_nth_arg(2, list, env));
 }
-cell_c *builtin_fn_comparison_gt(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_gt(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE(">", ==, 3)
   return perform_op(list.front()->locator, op_e::GT,
                     *list_get_nth_arg(1, list, env),
                     *list_get_nth_arg(2, list, env));
 }
-cell_c *builtin_fn_comparison_lte(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_lte(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("<=", ==, 3)
   return perform_op(list.front()->locator, op_e::LTE,
                     *list_get_nth_arg(1, list, env),
                     *list_get_nth_arg(2, list, env));
 }
-cell_c *builtin_fn_comparison_gte(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_gte(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE(">=", ==, 3)
   return perform_op(list.front()->locator, op_e::GTE,
                     *list_get_nth_arg(1, list, env),

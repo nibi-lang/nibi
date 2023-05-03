@@ -8,18 +8,9 @@
 
 #include <iterator>
 
-#define PROTECT_OVERWRITE(___name)                                             \
-  {                                                                            \
-    auto &current_env_map = env.get_map();                                     \
-    if (current_env_map.find(___name) != current_env_map.end()) {              \
-      current_env_map[___name]->mark_as_in_use(false);                         \
-      current_env_map.erase(___name);                                          \
-    }                                                                          \
-  }
-
 namespace builtins {
 
-cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE(":=", ==, 3)
 
@@ -42,7 +33,7 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
         (*it)->locator);
   }
 
-  auto *target_assignment_value =
+  auto target_assignment_value =
       global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
   // Explicitly clone the value as we might be reading from
@@ -50,21 +41,17 @@ cell_c *builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   target_assignment_value = target_assignment_value->clone();
 
-  // Ensure that the user doesn't attempt to overwrite an existing
-  // item without freeing it frist
-  PROTECT_OVERWRITE(target_variable_name)
-
-  env.set(target_variable_name, *target_assignment_value);
+  env.set(target_variable_name, target_assignment_value);
 
   // Return a pointer to the new cell so assignments can be chained
   return target_assignment_value;
 }
 
-cell_c *builtin_fn_env_set(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_set(cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("set", ==, 3)
 
-  auto *target_assignment_cell =
+  auto target_assignment_cell =
       global_runtime->execute_cell(list_get_nth_arg(1, list, env), env);
 
   if (target_assignment_cell == global_cell_nil ||
@@ -76,7 +63,7 @@ cell_c *builtin_fn_env_set(cell_list_t &list, env_c &env) {
         list.front()->locator);
   }
 
-  auto *target_assignment_value =
+  auto target_assignment_value =
       global_runtime->execute_cell(list_get_nth_arg(2, list, env), env);
 
   // Then update that cell directly
@@ -85,7 +72,7 @@ cell_c *builtin_fn_env_set(cell_list_t &list, env_c &env) {
   return target_assignment_cell;
 }
 
-cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_drop(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("drop", >=, 2)
   LIST_ITER_SKIP_N(1, {
     if (!env.drop((*it)->as_symbol())) {
@@ -97,7 +84,7 @@ cell_c *builtin_fn_env_drop(cell_list_t &list, env_c &env) {
   return global_cell_nil;
 }
 
-cell_c *builtin_fn_env_fn(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("fn", ==, 4)
 
@@ -106,10 +93,6 @@ cell_c *builtin_fn_env_fn(cell_list_t &list, env_c &env) {
   std::advance(it, 1);
 
   auto target_function_name = (*it)->as_symbol();
-
-  // Ensure that the user doesn't attempt to overwrite an existing
-  // item without freeing it frist
-  PROTECT_OVERWRITE(target_function_name)
 
   std::advance(it, 1);
 
@@ -146,14 +129,10 @@ cell_c *builtin_fn_env_fn(cell_list_t &list, env_c &env) {
 
   function_info.lambda = {lambda_info};
 
-  auto *fn_cell = global_runtime->get_runtime_memory().allocate(function_info);
-
-  // Ensure that the user doesn't attempt to overwrite an existing
-  // item without freeing it frist
-  PROTECT_OVERWRITE(target_function_name)
+  auto fn_cell = std::make_shared<cell_c>(function_info);
 
   // Set the variable
-  env.set(target_function_name, *fn_cell);
+  env.set(target_function_name, fn_cell);
 
   return global_cell_nil;
 }

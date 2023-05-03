@@ -7,9 +7,9 @@
 
 namespace builtins {
 
-cell_c *builtin_fn_check_nil(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_check_nil(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("nil?", ==, 2)
-  auto *first_arg = list_get_nth_arg(1, list, env);
+  auto first_arg = list_get_nth_arg(1, list, env);
   if (first_arg->type == cell_type_e::NIL) {
     return global_cell_true;
   }

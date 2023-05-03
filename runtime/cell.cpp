@@ -16,31 +16,28 @@ const char *function_type_to_string(function_type_e type) {
 }
 } // namespace
 
-cell_c *global_cell_nil{nullptr};
-cell_c *global_cell_true{nullptr};
-cell_c *global_cell_false{nullptr};
+cell_ptr global_cell_nil{nullptr};
+cell_ptr global_cell_true{nullptr};
+cell_ptr global_cell_false{nullptr};
 
 void global_cells_destroy() {
   if (global_cell_nil) {
-    delete global_cell_nil;
     global_cell_nil = nullptr;
   }
 
   if (global_cell_true) {
-    delete global_cell_true;
     global_cell_true = nullptr;
   }
 
   if (global_cell_false) {
-    delete global_cell_false;
     global_cell_false = nullptr;
   }
 }
 
 bool global_cells_initialize() {
-  global_cell_nil = new cell_c(cell_type_e::NIL);
-  global_cell_true = new cell_c((int64_t)1);
-  global_cell_false = new cell_c((int64_t)0);
+  global_cell_nil = std::make_shared<cell_c>(cell_type_e::NIL);
+  global_cell_true = std::make_shared<cell_c>((int64_t)1);
+  global_cell_false = std::make_shared<cell_c>((int64_t)0);
 
   if (global_cell_true && global_cell_false && global_cell_nil) {
     return true;
@@ -73,35 +70,18 @@ const char *cell_type_to_string(const cell_type_e type) {
   return "UNKNOWN";
 }
 
-cell_c::~cell_c() {
-  if (this->type == cell_type_e::LIST) {
-    auto &info = this->as_list_info();
-    for (auto *cell : info.list) {
-      /*
-        By marking this as not in use it will be
-        recycled by the memory manager on the next
-        pass. This means that deletions will
-        be performed in a batched manner.
-      */
-      if (cell) {
-        cell->mark_as_in_use(false);
-      }
-    }
-  }
-}
+cell_c::~cell_c() {}
 
-cell_c *cell_c::clone() {
+cell_ptr cell_c::clone() {
 
   // Allocate a new cell
-  cell_c *new_cell =
-      global_runtime->get_runtime_memory().allocate_no_sweep(this->type);
+  cell_ptr new_cell = std::make_shared<cell_c>(this->type);
 
   // Copy the data
   new_cell->locator = this->locator;
 
   switch (this->type) {
   case cell_type_e::NIL:
-    new_cell->mark_as_in_use(false);
     return global_cell_nil;
   case cell_type_e::INTEGER:
     new_cell->data = this->as_integer();
@@ -129,8 +109,6 @@ cell_c *cell_c::clone() {
     other.type = linf.type;
     break;
   }
-
-  global_runtime->get_runtime_memory().take_ownership(new_cell);
   return new_cell;
 }
 
@@ -180,9 +158,9 @@ list_info_s &cell_c::as_list_info() {
   }
 }
 
-cell_c *cell_c::to_referenced_cell() {
+cell_ptr cell_c::to_referenced_cell() {
   try {
-    return std::any_cast<cell_c *>(this->data);
+    return std::any_cast<cell_ptr>(this->data);
   } catch (const std::exception &e) {
     throw cell_access_exception_c("Cell is not a reference to another cell",
                                   this->locator);
@@ -219,7 +197,7 @@ std::string cell_c::to_string() {
   case cell_type_e::STRING:
     return this->as_string();
   case cell_type_e::REFERENCE: {
-    auto *cell = this->to_referenced_cell();
+    auto cell = this->to_referenced_cell();
     if (!cell)
       return "nil";
     else
@@ -249,7 +227,7 @@ std::string cell_c::to_string() {
     switch (list_info.type) {
     case list_types_e::INSTRUCTION: {
       result += "(";
-      for (auto *cell : list_info.list) {
+      for (auto cell : list_info.list) {
         result += cell->to_string() + " ";
       }
       if (result.size() > 1)
@@ -259,7 +237,7 @@ std::string cell_c::to_string() {
     }
     case list_types_e::DATA: {
       result += "[";
-      for (auto *cell : list_info.list) {
+      for (auto cell : list_info.list) {
         result += cell->to_string() + " ";
       }
       if (result.size() > 1)

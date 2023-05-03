@@ -6,11 +6,6 @@ env_c::~env_c() {
   if (parent_env_) {
     parent_env_->remove_child();
   }
-
-  // Mark all cells in the environment as not being in use
-  for (auto &[name, cell] : cell_map_) {
-    cell->mark_as_in_use(false);
-  }
 }
 
 env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {
@@ -37,33 +32,30 @@ env_c *env_c::get_env(std::string name) {
   return nullptr;
 }
 
-cell_c *env_c::get(std::string name) {
-  auto *env = get_env(name);
+cell_ptr env_c::get(std::string name) {
+  auto env = get_env(name);
   if (!env) {
     return nullptr;
   }
   return env->cell_map_[name];
 }
 
-void env_c::set(std::string name, cell_c &cell) {
-  auto *env = get_env(name);
+void env_c::set(std::string name, cell_ptr &cell) {
+  auto env = get_env(name);
   if (!env) {
     env = this;
   }
 
   // Store the cell
-  env->cell_map_[name] = &cell;
+  env->cell_map_[name] = cell;
 }
 
 bool env_c::drop(std::string name) {
 
-  auto *env = get_env(name);
+  auto env = get_env(name);
   if (!env) {
     return false;
   }
-
-  // Immediately mark the cell as not in use
-  env->cell_map_[name]->mark_as_in_use(false);
 
   // Remove the cell from the environment
   env->cell_map_.erase(name);

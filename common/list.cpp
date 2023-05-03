@@ -25,13 +25,10 @@ namespace {
 class parser_c {
 public:
   parser_c() = delete;
-  parser_c(cell_memory_manager_t &ins_memory,
-           std::function<void(error_c error)> on_error)
-      : ins_memory_(ins_memory), on_error_(on_error) {}
-  cell_c *parse(std::vector<token_c> &tokens, cell_c *current_cell = nullptr);
+  parser_c(std::function<void(error_c error)> on_error) : on_error_(on_error) {}
+  cell_ptr parse(std::vector<token_c> &tokens, cell_ptr current_cell = nullptr);
 
 private:
-  cell_memory_manager_t &ins_memory_;
   std::function<void(error_c error)> on_error_;
   std::unordered_map<std::string, function_info_s> &builtins_{
       builtins::get_builtin_symbols_map()};
@@ -39,8 +36,7 @@ private:
 
 } // namespace
 
-list_builder_c::list_builder_c(cell_memory_manager_t &ins_mem, list_cb_if &cb)
-    : ins_memory_(ins_mem), cb_(cb) {}
+list_builder_c::list_builder_c(list_cb_if &cb) : cb_(cb) {}
 
 void list_builder_c::on_error(error_c error) {
   // TODO: add error to list and allow up-to a certain number of errors
@@ -82,10 +78,9 @@ void list_builder_c::on_token(token_c token, bool end_list) {
   if (end_list) {
 
     // We have a full list, so we need to parse it
-    auto new_list =
-        parser_c(ins_memory_, std::bind(&list_builder_c::on_error, this,
-                                        std::placeholders::_1))
-            .parse(tokens_);
+    auto new_list = parser_c(std::bind(&list_builder_c::on_error, this,
+                                       std::placeholders::_1))
+                        .parse(tokens_);
 
     // if the list is not empty, then we need to send it to the callback
     // an empty lists means an error was found, and the error was already
@@ -99,7 +94,7 @@ void list_builder_c::on_token(token_c token, bool end_list) {
   }
 }
 
-cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
+cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
 
   if (tokens.empty()) {
     return nullptr;
@@ -116,9 +111,8 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
     [[fallthrough]];
   }
   case token_e::L_PAREN: {
-    auto *new_list = ins_memory_.allocate(cell_type_e::LIST);
+    auto new_list = std::make_shared<cell_c>(cell_type_e::LIST);
     new_list->locator = current_token.get_locator();
-    new_list->mark_as_in_use(true);
 
     if (current_token.get_token() == token_e::L_PAREN) {
       new_list->as_list_info().type = list_types_e::INSTRUCTION;
@@ -153,8 +147,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
     // If the symbol isn't in the map, its an identifier
     if (builtins_.find(symbol_raw) == builtins_.end()) {
-      auto *cell = ins_memory_.allocate(symbol_s{symbol_raw});
-      cell->mark_as_in_use(true);
+      auto cell = std::make_shared<cell_c>(symbol_s{symbol_raw});
       cell->locator = current_token.get_locator();
 
       PARSER_ADD_CELL
@@ -174,8 +167,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
         needing to check against all builtins (map)
         to confirm its okay to use
     */
-    auto *cell = ins_memory_.allocate(builtins_[symbol_raw]);
-    cell->mark_as_in_use(true);
+    auto cell = std::make_shared<cell_c>(builtins_[symbol_raw]);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -195,8 +187,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
       return nullptr;
     }
 
-    auto *cell = ins_memory_.allocate((int64_t)value_actual);
-    cell->mark_as_in_use(true);
+    auto cell = std::make_shared<cell_c>((int64_t)value_actual);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -216,8 +207,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
       return nullptr;
     }
 
-    auto *cell = ins_memory_.allocate((double)value_actual);
-    cell->mark_as_in_use(true);
+    auto cell = std::make_shared<cell_c>((double)value_actual);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -225,8 +215,7 @@ cell_c *parser_c::parse(std::vector<token_c> &tokens, cell_c *current_list) {
 
   case token_e::RAW_STRING: {
     PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
-    auto *cell = ins_memory_.allocate(current_token.get_data());
-    cell->mark_as_in_use(true);
+    auto cell = std::make_shared<cell_c>(current_token.get_data());
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL

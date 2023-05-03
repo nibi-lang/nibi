@@ -10,13 +10,13 @@ namespace builtins {
 //  Lambda Execution taking the form of builtin functions
 // --------------------------------------------------------
 
-cell_c *execute_suspected_lambda(cell_list_t &list, env_c &env) {
+cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   auto it = list.begin();
 
   auto target_symbol = (*it)->as_symbol();
 
-  auto *target_cell = env.get(target_symbol);
+  auto target_cell = env.get(target_symbol);
 
   if (!target_cell) {
     throw runtime_c::exception_c("Symbol not found in environment: " +
@@ -47,7 +47,7 @@ cell_c *execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   auto &body = lambda_info.body->as_list_info();
 
-  cell_c *result =
+  cell_ptr result =
       global_runtime->execute_cell(lambda_info.body, lambda_env, true);
 
   // Because we have pointers to parametrs stored we don't want the environment

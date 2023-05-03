@@ -13,7 +13,7 @@
   auto it = list.begin();                                                      \
   std::advance(it, ___n);                                                      \
   for (; it != list.end(); ++it) {                                             \
-    cell_c *arg = global_runtime->execute_cell(*it, env);                      \
+    cell_ptr arg = global_runtime->execute_cell(*it, env);                     \
     ___loop_body                                                               \
   }
 
@@ -35,8 +35,8 @@
 //! \warning This function does not check to ensure that the list is long enough
 //!          to contain the nth argument.  It is the responsibility of the
 //!          caller
-static inline cell_c *list_get_nth_arg(std::size_t n, cell_list_t &list,
-                                       env_c &env) {
+static inline cell_ptr list_get_nth_arg(std::size_t n, cell_list_t &list,
+                                        env_c &env) {
   auto it = list.begin();
   std::advance(it, n);
   return global_runtime->execute_cell(*it, env);

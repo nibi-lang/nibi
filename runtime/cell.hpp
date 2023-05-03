@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common/source.hpp"
-#include "memory.hpp"
 #include <any>
 #include <cstdint>
 #include <exception>
@@ -46,23 +45,22 @@ enum class list_types_e {
 class env_c;
 class cell_c;
 
+using cell_ptr = std::shared_ptr<cell_c>;
+
 //! \brief A list of cells
-using cell_list_t = std::list<cell_c *>;
+using cell_list_t = std::list<cell_ptr>;
 
 //! \brief A function that takes a list of cells and an environment
-using cell_fn_t = std::function<cell_c *(cell_list_t &, env_c &)>;
-
-//! \brief A cell specific allocator
-using cell_memory_manager_t = memory::controller_c<cell_c>;
+using cell_fn_t = std::function<cell_ptr(cell_list_t &, env_c &)>;
 
 //! \brief A global cell representing nil
-extern cell_c *global_cell_nil;
+extern cell_ptr global_cell_nil;
 
 //! \brief A global cell representing true
-extern cell_c *global_cell_true;
+extern cell_ptr global_cell_true;
 
 //! \brief A global cell representing false
-extern cell_c *global_cell_false;
+extern cell_ptr global_cell_false;
 
 //! \brief Initialize the global cells
 //! \return True if the initialization was successful
@@ -73,7 +71,7 @@ extern void global_cells_destroy();
 
 struct lambda_info_s {
   std::vector<std::string> arg_names;
-  cell_c *body{nullptr};
+  cell_ptr body{nullptr};
 };
 
 //! \brief Function wrapper that holds the function
@@ -136,7 +134,7 @@ public:
 };
 
 //! \brief A cell
-class cell_c final : public memory::markable_if {
+class cell_c {
 public:
   //! \brief Create a cell with a given type
   cell_c(cell_type_e type) : type(type) {
@@ -172,7 +170,7 @@ public:
   cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL), data(data.data) {}
   cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
-  cell_c(cell_c *data) : type(cell_type_e::REFERENCE), data(data) {}
+  cell_c(cell_ptr data) : type(cell_type_e::REFERENCE), data(data) {}
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
 
@@ -187,7 +185,7 @@ public:
   //!       of its members marked to be collected
   ~cell_c();
 
-  cell_c *clone();
+  cell_ptr clone();
 
   cell_type_e type{cell_type_e::NIL};
   std::any data{0};
@@ -246,7 +244,7 @@ public:
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not a reference type
-  cell_c *to_referenced_cell();
+  cell_ptr to_referenced_cell();
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an aberrant type
