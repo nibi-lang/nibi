@@ -34,7 +34,7 @@ void add_debug_info(std::string &result, cell_c &cell_value, cell_c &processed,
 }
 } // namespace
 
-cell_c *builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
   if (!global_runtime->is_debug_enabled()) {
     return global_cell_false;
   }
@@ -44,7 +44,7 @@ cell_c *builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
   return global_cell_nil;
 }
 
-cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
   if (!global_runtime->is_debug_enabled()) {
     return global_cell_nil;
   }
@@ -54,7 +54,7 @@ cell_c *builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
   return global_cell_nil;
 }
 
-cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   if (!global_runtime->is_debug_enabled()) {
     return global_cell_nil;
@@ -64,7 +64,7 @@ cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   auto origin = list.begin();
 
-  auto *dbg_cell = (*origin);
+  auto dbg_cell = (*origin);
 
   std::string result;
 
@@ -92,7 +92,7 @@ cell_c *builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
     add_debug_info(result, *arg, *(*it), "\t");
   });
 
-  return global_runtime->get_runtime_memory().allocate(result);
+  return std::make_shared<cell_c>(result);
 }
 
 } // namespace builtins

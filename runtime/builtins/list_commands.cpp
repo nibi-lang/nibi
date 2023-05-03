@@ -7,12 +7,12 @@
 
 namespace builtins {
 
-cell_c *builtin_fn_list_push_front(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_push_front(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE(">|", ==, 3)
 
-  auto *value_to_push = list_get_nth_arg(1, list, env);
+  auto value_to_push = list_get_nth_arg(1, list, env);
 
-  auto *list_to_push_to = list_get_nth_arg(2, list, env);
+  auto list_to_push_to = list_get_nth_arg(2, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
@@ -22,12 +22,12 @@ cell_c *builtin_fn_list_push_front(cell_list_t &list, env_c &env) {
   return list_to_push_to;
 }
 
-cell_c *builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("|<", ==, 3)
 
-  auto *value_to_push = list_get_nth_arg(1, list, env);
+  auto value_to_push = list_get_nth_arg(1, list, env);
 
-  auto *list_to_push_to = list_get_nth_arg(2, list, env);
+  auto list_to_push_to = list_get_nth_arg(2, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
@@ -37,18 +37,17 @@ cell_c *builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
   return list_to_push_to;
 }
 
-cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env) {
 
-  auto *list_to_iterate = list_get_nth_arg(1, list, env);
+  auto list_to_iterate = list_get_nth_arg(1, list, env);
 
   auto &list_info = list_to_iterate->as_list_info();
 
   auto it = list.begin();
   std::advance(it, 2);
-  auto *ins_to_exec_per_item = (*it);
+  auto ins_to_exec_per_item = (*it);
 
-  cell_c *idx = global_runtime->get_runtime_memory().allocate((int64_t)0);
-  idx->mark_as_in_use(true);
+  cell_ptr idx = ALLOCATE_CELL((int64_t)0);
 
   // here we use the map directly so we don't accidently create drop the
   // items we are iterating - so we need to manually clean up
@@ -56,7 +55,7 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
 
   current_env_map["$idx"] = idx;
 
-  for (auto *cell : list_info.list) {
+  for (auto cell : list_info.list) {
 
     // $it will just point to the element, not copy it
     current_env_map["$it"] = cell;
@@ -69,7 +68,6 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
   }
 
   // Clean up the index
-  idx->mark_as_in_use(false);
   current_env_map.erase("$idx");
 
   // We don't need to clean up $it, as it is just a pointer to the element
@@ -79,12 +77,12 @@ cell_c *builtin_fn_list_iter(cell_list_t &list, env_c &env) {
   return list_to_iterate;
 }
 
-cell_c *builtin_fn_list_at(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_at(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("at", ==, 3)
 
-  auto *requested_idx = list_get_nth_arg(2, list, env);
+  auto requested_idx = list_get_nth_arg(2, list, env);
 
-  auto *target_list = list_get_nth_arg(1, list, env);
+  auto target_list = list_get_nth_arg(1, list, env);
 
   auto &list_info = target_list->as_list_info();
 
@@ -100,10 +98,10 @@ cell_c *builtin_fn_list_at(cell_list_t &list, env_c &env) {
   return (*it);
 }
 
-cell_c *builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("<|>", ==, 3)
 
-  auto *list_size = list_get_nth_arg(2, list, env);
+  auto list_size = list_get_nth_arg(2, list, env);
 
   if (list_size->as_integer() < 0) {
     auto it = list.begin();
@@ -112,8 +110,7 @@ cell_c *builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
                                  (*it)->locator);
   }
 
-  auto *target_value = list_get_nth_arg(1, list, env);
-  target_value->mark_as_in_use(true);
+  auto target_value = list_get_nth_arg(1, list, env);
 
   cell_list_t new_list;
   for (uint64_t i = 0; i < list_size->as_integer(); i++) {
@@ -121,8 +118,7 @@ cell_c *builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
   }
 
   // Create the list and return it
-  return global_runtime->get_runtime_memory().allocate(
-      list_info_s{list_types_e::DATA, new_list});
+  return std::make_shared<cell_c>(list_info_s{list_types_e::DATA, new_list});
 }
 
 } // namespace builtins

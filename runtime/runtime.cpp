@@ -5,13 +5,12 @@
 
 runtime_c *global_runtime{nullptr};
 
-bool global_runtime_init(env_c &env, source_manager_c &source_manager,
-                         cell_memory_manager_t &cell_memory) {
+bool global_runtime_init(env_c &env, source_manager_c &source_manager) {
   if (global_runtime) {
     return true;
   }
 
-  global_runtime = new runtime_c(env, source_manager, cell_memory);
+  global_runtime = new runtime_c(env, source_manager);
 
   if (!global_runtime) {
     return false;
@@ -27,12 +26,10 @@ void global_runtime_destroy() {
   }
 }
 
-runtime_c::runtime_c(env_c &env, source_manager_c &source_manager,
-                     cell_memory_manager_t &cell_memory)
-    : global_env_(env), source_manager_(source_manager),
-      cell_memory_(cell_memory) {}
+runtime_c::runtime_c(env_c &env, source_manager_c &source_manager)
+    : global_env_(env), source_manager_(source_manager) {}
 
-void runtime_c::on_list(cell_c *list_cell) {
+void runtime_c::on_list(cell_ptr list_cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
@@ -42,8 +39,6 @@ void runtime_c::on_list(cell_c *list_cell) {
   } catch (cell_access_exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   }
-
-  list_cell->mark_as_in_use(false);
 }
 
 void runtime_c::halt_with_error(error_c error) {
@@ -65,8 +60,8 @@ void runtime_c::halt_with_error(error_c error) {
   std::exit(1);
 }
 
-cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
-                                bool process_data_list) {
+cell_ptr runtime_c::execute_cell(cell_ptr cell, env_c &env,
+                                 bool process_data_list) {
 
   switch (cell->type) {
   case cell_type_e::LIST: {
@@ -75,7 +70,7 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
     // If its a known data list just return the list
     if (list_info.type == list_types_e::DATA) {
       if (process_data_list) {
-        cell_c *last_result = global_cell_nil;
+        cell_ptr last_result = global_cell_nil;
         for (auto &list_cell : list_info.list) {
           last_result = execute_cell(list_cell, env);
         }
@@ -91,7 +86,7 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
 
     // All lists' first item should be a function of some sort,
     // so we recurse to either load
-    auto *operation = list_info.list.front();
+    auto operation = list_info.list.front();
     if (operation->type == cell_type_e::SYMBOL) {
 
       // If the operation is a symbol then we need to
@@ -113,7 +108,7 @@ cell_c *runtime_c::execute_cell(cell_c *cell, env_c &env,
   }
   case cell_type_e::SYMBOL: {
     // Load the symbol from the environment
-    auto *loaded_cell = env.get(cell->as_symbol());
+    auto loaded_cell = env.get(cell->as_symbol());
     if (!loaded_cell) {
       throw exception_c("Symbol not found in environment: " + cell->as_symbol(),
                         cell->locator);

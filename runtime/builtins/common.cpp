@@ -8,19 +8,17 @@
 
 namespace builtins {
 
-cell_c *builtin_fn_common_len(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("len", ==, 2)
 
-  auto *target_list = list_get_nth_arg(1, list, env);
+  auto target_list = list_get_nth_arg(1, list, env);
 
   if (target_list->type != cell_type_e::LIST) {
-    return global_runtime->get_runtime_memory().allocate(
-        (int64_t)(target_list->to_string().size()));
+    return std::make_shared<cell_c>((int64_t)(target_list->to_string().size()));
   }
 
   auto &list_info = target_list->as_list_info();
-  return global_runtime->get_runtime_memory().allocate(
-      (int64_t)list_info.list.size());
+  return std::make_shared<cell_c>((int64_t)list_info.list.size());
 }
 
 } // namespace builtins
