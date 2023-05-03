@@ -28,31 +28,20 @@ namespace builtins {
     global_runtime->halt_with_error(error_c(first_arg->locator, msg));         \
     break;                                                                     \
   }                                                                            \
-  }
-
-cell_ptr builtin_fn_arithmetic_add(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE("+", >=, 2)
-  PERFORM_OPERATION(list_perform_add)
+  }                                                                            \
   return global_cell_nil;
-}
 
-cell_ptr builtin_fn_arithmetic_sub(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE("-", >=, 2)
-  PERFORM_OPERATION(list_perform_sub)
-  return global_cell_nil;
-}
+cell_ptr builtin_fn_arithmetic_add(cell_list_t &list, env_c &env){
+    LIST_ENFORCE_SIZE("+", >=, 2) PERFORM_OPERATION(list_perform_add)}
 
-cell_ptr builtin_fn_arithmetic_div(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE("/", >=, 2)
-  PERFORM_OPERATION(list_perform_div)
-  return global_cell_nil;
-}
+cell_ptr builtin_fn_arithmetic_sub(cell_list_t &list, env_c &env){
+    LIST_ENFORCE_SIZE("-", >=, 2) PERFORM_OPERATION(list_perform_sub)}
 
-cell_ptr builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE("*", >=, 2)
-  PERFORM_OPERATION(list_perform_mul)
-  return global_cell_nil;
-}
+cell_ptr builtin_fn_arithmetic_div(cell_list_t &list, env_c &env){
+    LIST_ENFORCE_SIZE("/", >=, 2) PERFORM_OPERATION(list_perform_div)}
+
+cell_ptr builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env){
+    LIST_ENFORCE_SIZE("*", >=, 2) PERFORM_OPERATION(list_perform_mul)}
 
 cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("%", >=, 2)
@@ -67,7 +56,6 @@ cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
 cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("**", >=, 2)
   PERFORM_OPERATION(list_perform_pow)
-  return global_cell_nil;
 }
 
 } // namespace builtins

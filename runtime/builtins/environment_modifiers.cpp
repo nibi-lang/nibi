@@ -129,7 +129,7 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
 
   function_info.lambda = {lambda_info};
 
-  auto fn_cell = std::make_shared<cell_c>(function_info);
+  auto fn_cell = ALLOCATE_CELL(function_info);
 
   // Set the variable
   env.set(target_function_name, fn_cell);

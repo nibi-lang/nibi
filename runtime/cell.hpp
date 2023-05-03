@@ -45,7 +45,12 @@ enum class list_types_e {
 class env_c;
 class cell_c;
 
+//! \brief A cell pointer type
 using cell_ptr = std::shared_ptr<cell_c>;
+
+// Macro to allocate cell so if we change memory management later
+// we can do so here easily
+#define ALLOCATE_CELL(...) std::make_shared<cell_c>(__VA_ARGS__)
 
 //! \brief A list of cells
 using cell_list_t = std::list<cell_ptr>;

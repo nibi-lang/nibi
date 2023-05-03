@@ -12,7 +12,7 @@ namespace builtins {
 namespace {
 cell_ptr handle_thrown_error_in_try(std::string message, cell_ptr recover_cell,
                                     env_c &env) {
-  auto e_cell = std::make_shared<cell_c>(message);
+  auto e_cell = ALLOCATE_CELL(message);
   env.set("$e", e_cell);
   auto result = global_runtime->execute_cell(recover_cell, env, true);
   env.drop("$e");

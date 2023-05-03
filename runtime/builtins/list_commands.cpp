@@ -47,7 +47,7 @@ cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env) {
   std::advance(it, 2);
   auto ins_to_exec_per_item = (*it);
 
-  cell_ptr idx = std::make_shared<cell_c>((int64_t)0);
+  cell_ptr idx = ALLOCATE_CELL((int64_t)0);
 
   // here we use the map directly so we don't accidently create drop the
   // items we are iterating - so we need to manually clean up

@@ -35,9 +35,9 @@ void global_cells_destroy() {
 }
 
 bool global_cells_initialize() {
-  global_cell_nil = std::make_shared<cell_c>(cell_type_e::NIL);
-  global_cell_true = std::make_shared<cell_c>((int64_t)1);
-  global_cell_false = std::make_shared<cell_c>((int64_t)0);
+  global_cell_nil = ALLOCATE_CELL(cell_type_e::NIL);
+  global_cell_true = ALLOCATE_CELL((int64_t)1);
+  global_cell_false = ALLOCATE_CELL((int64_t)0);
 
   if (global_cell_true && global_cell_false && global_cell_nil) {
     return true;
@@ -75,7 +75,7 @@ cell_c::~cell_c() {}
 cell_ptr cell_c::clone() {
 
   // Allocate a new cell
-  cell_ptr new_cell = std::make_shared<cell_c>(this->type);
+  cell_ptr new_cell = ALLOCATE_CELL(this->type);
 
   // Copy the data
   new_cell->locator = this->locator;

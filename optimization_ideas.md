@@ -1,14 +1,10 @@
-# Memory Allocation
+# "compiling"
 
-- Give each env its own memory allocator so that way only the active environment scans 
-its nodes for activity rather than the whole program. Then export the members to the parent 
-memory manager if items are returned - need a way to locate the cell in memory though so
-we can export it to a new manager.
+We _could_ do a "bytecode" (encoded instructions) that dump to some file. The purpose would be to
+slice into the _builtins_ map that the runtime executes and instead of having functions that execute the code
+it could just run over all of the checks (making sure length is correct, types correct, etc) and then when
+we run the actual instruction set later we can bypass the checks to go faster
 
-- A "free cell queue" might be a good idea to pull cells from instead of performing allocations
-upon request. would need an upper limit on it. Would also need more functionality in the language
-than at the time of writing this to perform a memory profile test benefits.
+This could be done without rewriting `runtime` by simply telling the `list_builder` to retrieve
+a different `builtins` map that the runtime will pipe calls to that do the checks and emit the bytecode somewhere. 
 
-- Assignments right now using `:=` rely on canning the current environment to ensure we don't trample a cell and clean it up before setting it. We could skip this if we give the cell a pointer to a `canary` of some sort (env etc) that way if they do trample it, the memory allocator could query the cell to ask it if its CERTAIN that its in use, and if its canary is gone it should set itself as not in use. Then we would only have to scan environments for existing items in global environments (because it wont go away so the canary wont die).
-
-- Maybe just redo it to : https://en.wikipedia.org/wiki/Tracing_garbage_collection
