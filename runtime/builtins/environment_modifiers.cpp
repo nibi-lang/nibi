@@ -39,7 +39,7 @@ cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
   // Explicitly clone the value as we might be reading from
   // an instruction that will be mutated later
 
-  target_assignment_value = target_assignment_value->clone();
+  target_assignment_value = target_assignment_value;
 
   env.set(target_variable_name, target_assignment_value);
 
@@ -118,7 +118,7 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
   }
 
   std::advance(it, 1);
-  lambda_info.body = (*it)->clone();
+  lambda_info.body = (*it);
   if (lambda_info.body->type != cell_type_e::LIST) {
     throw runtime_c::exception_c("Expected list for function body",
                                  lambda_info.body->locator);
