@@ -9,7 +9,7 @@ find_package (Threads REQUIRED)
 
 add_executable(unit_tests
         ${COMPILER_SOURCES}
-        tokra_stub.cpp
+        nibi_stub.cpp
         main.cpp)
 
 target_link_libraries(unit_tests

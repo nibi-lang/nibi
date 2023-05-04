@@ -63,6 +63,12 @@ void runtime_c::halt_with_error(error_c error) {
 cell_ptr runtime_c::execute_cell(cell_ptr cell, env_c &env,
                                  bool process_data_list) {
 
+  if (yield_value_) { 
+    auto value = yield_value_;
+    yield_value_ = nullptr;
+    return value;
+  }
+
   switch (cell->type) {
   case cell_type_e::LIST: {
     auto &list_info = cell->as_list_info();

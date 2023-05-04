@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-project(tokra)
+project(nibi)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -48,7 +48,6 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/environment_modifiers.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/asserts.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/checks.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/at_commands.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/list_commands.cpp
@@ -63,7 +62,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/cell.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/environment.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/runtime/runtime.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/app/tokra.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/app/app.cpp
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

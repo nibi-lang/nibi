@@ -6,18 +6,18 @@
 
 # Implementations
 
-`:=` Assignment operator
-cell clone method so we can do a deep copy from cell to cell
-`true!` as the first and base assertion so we can make scripted tests
-`false!` ^^ 
-
-
-
-- Lists are being populated, and _some_ builtins are mapped but not implemented. need to impl them and add other builtins
-
-
-
 Keyword `ref` should be used to _not_ clone an item, and assume any (:= a b) is an indication to clone b into new symbol a
+
+modify iterators to take in a value to map the $it value to and get rid of `$` as it
+makes it so we can't nest!
+
+looping
+
+if / else
+
+matching?
+
+cell map ? 
 
 
 

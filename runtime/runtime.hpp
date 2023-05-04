@@ -58,6 +58,12 @@ public:
   //! \post Debug mode will be set to param value
   void set_debug_enabled(bool debug_enabled) { debug_enabled_ = debug_enabled; }
 
+  //! \brief Stop recursing on the current instruction and return a value
+  void yield_process_with_value(cell_ptr value) { yield_value_ = value; }
+
+  //! \brief Get the yield valueq
+  cell_ptr get_yield_value() const { return yield_value_; }
+
 private:
   bool debug_enabled_{false};
 
@@ -67,6 +73,9 @@ private:
 
   // Source manager used to track imported files
   source_manager_c &source_manager_;
+
+  // The yield value
+  cell_ptr yield_value_{nullptr};
 };
 
 //! \brief The global runtime object that will be used to execute the code

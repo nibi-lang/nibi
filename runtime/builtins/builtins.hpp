@@ -52,19 +52,7 @@ extern cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env);
 // Common functions
 
 extern cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env);
-
-// Checking functions
-
-extern cell_ptr builtin_fn_check_nil(cell_list_t &list, env_c &env);
-// check is true (true?)
-// check is true (false?)
-// check exists (exists?)
-// check is nil (nil?)
-// check is int (int?)
-// check is real (real?)
-// check is string (string?)
-// check is list (list?)
-// check is function (fn?)
+extern cell_ptr builtin_fn_common_yield(cell_list_t &list, env_c &env);
 
 // Assertions
 

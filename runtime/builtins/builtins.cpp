@@ -48,10 +48,6 @@ static function_info_s builtin_throw_inf = {
 static function_info_s builtin_assert_inf = {
     "assert", builtin_fn_assert_true, function_type_e::BUILTIN_CPP_FUNCTION};
 
-// checks
-static function_info_s builtin_is_nil_inf = {
-    "nil?", builtin_fn_check_nil, function_type_e::BUILTIN_CPP_FUNCTION};
-
 // dbg
 static function_info_s builtin_dbg_dbg_inf = {
     "dbg", builtin_fn_debug_dbg_dbg, function_type_e::BUILTIN_CPP_FUNCTION};
@@ -89,6 +85,8 @@ static function_info_s builtin_list_at_inf = {
 // common functions
 static function_info_s builtin_common_len_inf = {
     "len", builtin_fn_common_len, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_yield_inf = {
+    "<-", builtin_fn_common_yield, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
@@ -117,7 +115,7 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"iter", builtin_list_iter_inf},
     {"at", builtin_list_at_inf},
     {"len", builtin_common_len_inf},
-    {"nil?", builtin_is_nil_inf},
+    {"<-", builtin_common_yield_inf},
     {"dbg-var", builtin_dbg_var_inf},
     {"dbg-out", builtin_dbg_out_inf},
     {"dbg", builtin_dbg_dbg_inf},

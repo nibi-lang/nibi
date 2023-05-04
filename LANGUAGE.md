@@ -10,6 +10,7 @@
 | throw   | Throw an exception that can be caught by `try` or will result in a runtime halt | na
 | assert  | Assert a given condition to be true or throw an error | nil
 | len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
+| <-      | Return the value of a cell, yielding whatever execution may be happening | variable
 
 | @ commands | description | returns
 |----       |----          |----
@@ -140,6 +141,18 @@ Note: If the item is not a list it will be converted to a string and the length 
 
 ```
 ( len < RD S () [] > )
+```
+
+### Return item
+
+Keyword: `<-`
+
+| arg1
+|----
+| Item to return
+
+```
+( <- < RD S () [] > )
 ```
 
 ### Try
@@ -281,26 +294,16 @@ keyword: `<|>`
 
 keyword: `iter`
 
-| arg1            | arg2 |
-|----             |----
-| list to iterate | instruction(s) to execute per item
+| arg1            | arg2                        | arg3 |
+|----             |----                         |----
+| list to iterate | symbol name to map value to | instruction(s) to execute per item
+
+The symbol used in argument two will shadow any existing variable of the same name 
+and map to whatever the value is of the list being iterated. At the end of the 
+instruction, the symbol will be removed.
 
 ```
-Temporary values created:
-
-$it  - The current item being iterated over
-$idx - The index that $it exists within the given list (0-indexed)
-
-These variables will exist for the duration of the execution of arg2 over the list,
-and then removed post-iteration
-
-While `$` variables are not able to be `:=` assigned, they can be updated using `set`
-so iterated values can be updated in place
-
-```
-
-```
-( iter < [] S > < () [*] > )
+( iter < [] S > S < () [*] > )
 ```
 
 ### At

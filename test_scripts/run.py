@@ -6,7 +6,7 @@ import subprocess
 import threading
 import time
 
-binary = "tokra"
+binary = "nibi"
 if len(sys.argv) == 2:
    binary = sys.argv[1]
 

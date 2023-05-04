@@ -39,39 +39,32 @@ cell_ptr builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
 
 cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env) {
 
+  LIST_ENFORCE_SIZE("iter", ==, 4)
+
   auto list_to_iterate = list_get_nth_arg(1, list, env);
 
   auto &list_info = list_to_iterate->as_list_info();
 
   auto it = list.begin();
+
   std::advance(it, 2);
+  auto symbol_to_bind = (*it)->as_symbol();
+
+  std::advance(it, 1);
   auto ins_to_exec_per_item = (*it);
 
-  cell_ptr idx = ALLOCATE_CELL((int64_t)0);
+  auto iter_env = env_c(&env);
 
-  // here we use the map directly so we don't accidently create drop the
-  // items we are iterating - so we need to manually clean up
-  auto &current_env_map = env.get_map();
-
-  current_env_map["$idx"] = idx;
+  auto &current_env_map = iter_env.get_map();
 
   for (auto cell : list_info.list) {
 
     // $it will just point to the element, not copy it
-    current_env_map["$it"] = cell;
+    current_env_map[symbol_to_bind] = cell;
 
     // Execute the instructions, allowing [] to execute multiple instructions
-    global_runtime->execute_cell(ins_to_exec_per_item, env, true);
-
-    // Increment the index
-    (idx->as_integer())++;
+    global_runtime->execute_cell(ins_to_exec_per_item, iter_env, true);
   }
-
-  // Clean up the index
-  current_env_map.erase("$idx");
-
-  // We don't need to clean up $it, as it is just a pointer to the element
-  current_env_map.erase("$it");
 
   // Return the list we iterated
   return list_to_iterate;
