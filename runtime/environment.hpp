@@ -15,8 +15,10 @@ public:
   ~env_c();
 
   //! \brief Create an environment object without parameters
-  //! \param parent_env The parent environment (optional)
-  env_c(env_c *parent_env = nullptr);
+  //! \param parent_env The parent environment to use for searching 
+  //!        upper level scopes
+  env_c(env_c *parent_env);
+
   //! \brief Get the env that a cell is in
   //! \param name The name of the cell
   //! \return The env if it exists in this environment or
@@ -45,24 +47,12 @@ public:
 
   //! \brief Get the map of cells in the environment
   //! \return The map of cells in the environment
-  //! \note This is meant for custom temporary cell placement
-  //!       If there is a method to do what you are trying to do,
-  //!       use it lest you break something or cause a memory leak
+  //! \note This is meant for quick cell creation and
+  //!       retrieval for specific environments
   std::unordered_map<std::string, cell_ptr> &get_map() { return cell_map_; }
 
-  //! \brief Check if the environment is a global environment
-  //! \return True if the environment is a global environment
-  bool is_global_env() { return !parent_env_; }
-
 private:
-  //! Called by env with parents, used to register child environment
-  //! \param child_env The child environment
-  void register_child(env_c &child_env);
-
-  //! \brief Called by child environment to unregister itself
-  void remove_child() { child_env_ = nullptr; };
 
   env_c *parent_env_{nullptr};
-  env_c *child_env_{nullptr};
   std::unordered_map<std::string, cell_ptr> cell_map_;
 };

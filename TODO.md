@@ -19,8 +19,23 @@ matching?
 
 cell map ? 
 
+------------------------
+
+(object x
+  (fn __init__ () [])
+
+  (:= member_data 0)
+  (fn member_method () [
+
+  ])
+)
+
+(:= item (x))
+
+(item.member_method )
 
 
+------------------------
 
 ### Custom interfaces/ types - Later Potential implementations
 
