@@ -126,7 +126,7 @@ private:
 };
 
 //! \brief A cell type that can be used to store data
-//!        in the runtime from an external dynamic library
+//!        in the interpreter from an external dynamic library
 //!
 //!       This is a callback interface that the external library
 class aberrant_cell_if {

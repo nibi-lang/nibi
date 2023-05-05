@@ -1,47 +1,47 @@
-#include "runtime.hpp"
+#include "interpreter.hpp"
 
 #include "libnibi/rang.hpp"
 #include <iostream>
 
-runtime_c *global_runtime{nullptr};
+interpreter_c *global_interpreter{nullptr};
 
-bool global_runtime_init(env_c &env, source_manager_c &source_manager) {
-  if (global_runtime) {
+bool global_interpreter_init(env_c &env, source_manager_c &source_manager) {
+  if (global_interpreter) {
     return true;
   }
 
-  global_runtime = new runtime_c(env, source_manager);
+  global_interpreter = new interpreter_c(env, source_manager);
 
-  if (!global_runtime) {
+  if (!global_interpreter) {
     return false;
   }
 
   return true;
 }
 
-void global_runtime_destroy() {
-  if (global_runtime) {
-    delete global_runtime;
-    global_runtime = nullptr;
+void global_interpreter_destroy() {
+  if (global_interpreter) {
+    delete global_interpreter;
+    global_interpreter = nullptr;
   }
 }
 
-runtime_c::runtime_c(env_c &env, source_manager_c &source_manager)
+interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
     : global_env_(env), source_manager_(source_manager) {}
 
-void runtime_c::on_list(cell_ptr list_cell) {
+void interpreter_c::on_list(cell_ptr list_cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
     execute_cell(list_cell, global_env_);
-  } catch (runtime_c::exception_c &error) {
+  } catch (interpreter_c::exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   }
 }
 
-void runtime_c::halt_with_error(error_c error) {
+void interpreter_c::halt_with_error(error_c error) {
 
   /*
       TODO:
@@ -60,7 +60,7 @@ void runtime_c::halt_with_error(error_c error) {
   std::exit(1);
 }
 
-cell_ptr runtime_c::execute_cell(cell_ptr cell, env_c &env,
+cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
                                  bool process_data_list) {
 
   if (yield_value_) {

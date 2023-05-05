@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "runtime/builtins/builtins.hpp"
+#include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
 namespace builtins {

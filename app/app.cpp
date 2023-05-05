@@ -8,7 +8,7 @@
 #include "libnibi/source.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
-#include "runtime/runtime.hpp"
+#include "interpreter/interpreter.hpp"
 
 namespace {
 
@@ -21,7 +21,7 @@ source_manager_c *source_manager{nullptr};
 } // namespace
 
 void teardown() {
-  global_runtime_destroy();
+  global_interpreter_destroy();
   global_cells_destroy();
   delete source_manager;
   delete program_global_env;
@@ -38,9 +38,9 @@ void setup() {
     exit(1);
   }
 
-  // Initialize the global runtime object
-  if (!global_runtime_init(*program_global_env, *source_manager)) {
-    std::cerr << "Failed to initialize global runtime" << std::endl;
+  // Initialize the global interpreter object
+  if (!global_interpreter_init(*program_global_env, *source_manager)) {
+    std::cerr << "Failed to initialize global interpreter" << std::endl;
     teardown();
     exit(1);
   }
@@ -49,8 +49,8 @@ void setup() {
 void run_from_file(const std::string &file_name) {
 
   // List builder that will build lists from parsed tokens
-  // and pass lists to a runtime
-  list_builder_c list_builder(*global_runtime);
+  // and pass lists to a interpreter
+  list_builder_c list_builder(*global_interpreter);
 
   // File reader that reads file and kicks off parser/ scanner
   // that will send tokens to the list builder

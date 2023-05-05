@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 
-#include "runtime/builtins/builtins.hpp"
+#include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
-#include "runtime/runtime.hpp"
+#include "interpreter/interpreter.hpp"
 
 #include "cpp_macros.hpp"
 
@@ -35,17 +35,17 @@ void add_debug_info(std::string &result, cell_c &cell_value, cell_c &processed,
 } // namespace
 
 cell_ptr builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
-  if (!global_runtime->is_debug_enabled()) {
+  if (!global_interpreter->is_debug_enabled()) {
     return global_cell_false;
   }
   LIST_ENFORCE_SIZE("dbg", >, 1)
   LIST_ITER_AND_LOAD_SKIP_N(1,
-                            { global_runtime->execute_cell(arg, env, true); });
+                            { global_interpreter->execute_cell(arg, env, true); });
   return global_cell_nil;
 }
 
 cell_ptr builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
-  if (!global_runtime->is_debug_enabled()) {
+  if (!global_interpreter->is_debug_enabled()) {
     return global_cell_nil;
   }
 
@@ -56,7 +56,7 @@ cell_ptr builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
 
 cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
-  if (!global_runtime->is_debug_enabled()) {
+  if (!global_interpreter->is_debug_enabled()) {
     return global_cell_nil;
   }
 

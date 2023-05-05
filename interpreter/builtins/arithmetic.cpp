@@ -1,10 +1,10 @@
 #include <iostream>
 
 #include "arithmetic_helpers.hpp"
-#include "runtime/builtins/builtins.hpp"
-#include "runtime/builtins/cpp_macros.hpp"
+#include "interpreter/builtins/builtins.hpp"
+#include "interpreter/builtins/cpp_macros.hpp"
 #include "libnibi/cell.hpp"
-#include "runtime/runtime.hpp"
+#include "interpreter/interpreter.hpp"
 
 namespace builtins {
 
@@ -25,7 +25,7 @@ namespace builtins {
   default: {                                                                   \
     std::string msg = "Incorrect argument type for arithmetic function: ";     \
     msg += cell_type_to_string(first_arg->type);                               \
-    global_runtime->halt_with_error(error_c(first_arg->locator, msg));         \
+    global_interpreter->halt_with_error(error_c(first_arg->locator, msg));         \
     break;                                                                     \
   }                                                                            \
   }                                                                            \

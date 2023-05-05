@@ -30,7 +30,7 @@ static inline T list_perform_div(T base_value,
   LIST_ITER_AND_LOAD_SKIP_N(2, {
     auto r = conversion_method(arg);
     if (r == 0) {
-      throw runtime_c::exception_c("Division by zero", arg->locator);
+      throw interpreter_c::exception_c("Division by zero", arg->locator);
       return accumulate;
     }
     accumulate /= r;

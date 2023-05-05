@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "runtime/builtins/builtins.hpp"
+#include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
-#include "runtime/builtins/cpp_macros.hpp"
+#include "interpreter/builtins/cpp_macros.hpp"
 
 namespace builtins {
 
@@ -63,7 +63,7 @@ cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env) {
     current_env_map[symbol_to_bind] = cell;
 
     // Execute the instructions, allowing [] to execute multiple instructions
-    global_runtime->execute_cell(ins_to_exec_per_item, iter_env, true);
+    global_interpreter->execute_cell(ins_to_exec_per_item, iter_env, true);
   }
 
   // Return the list we iterated
@@ -99,7 +99,7 @@ cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
   if (list_size->as_integer() < 0) {
     auto it = list.begin();
     std::advance(it, 2);
-    throw runtime_c::exception_c("Cannot spawn a list with a negative size",
+    throw interpreter_c::exception_c("Cannot spawn a list with a negative size",
                                  (*it)->locator);
   }
 

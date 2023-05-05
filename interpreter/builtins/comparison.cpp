@@ -1,10 +1,10 @@
 #include <iostream>
 
 #include "arithmetic_helpers.hpp"
-#include "runtime/builtins/builtins.hpp"
-#include "runtime/builtins/cpp_macros.hpp"
+#include "interpreter/builtins/builtins.hpp"
+#include "interpreter/builtins/cpp_macros.hpp"
 #include "libnibi/cell.hpp"
-#include "runtime/runtime.hpp"
+#include "interpreter/interpreter.hpp"
 
 #define PERFORM_OP_ALLOW_STRING(___op)                                         \
   {                                                                            \
@@ -52,7 +52,7 @@
       return r;                                                                \
     }                                                                          \
     default:                                                                   \
-      throw runtime_c::exception_c(                                            \
+      throw interpreter_c::exception_c(                                            \
           "Expected numeric value, got " +                                     \
               std::string(cell_type_to_string(lhs.type)),                      \
           lhs.locator);                                                        \
@@ -77,13 +77,13 @@ cell_ptr perform_op(locator_ptr locator, op_e op, cell_c &lhs, cell_c &rhs,
                     bool enforce_numeric = true) {
   if (enforce_numeric) {
     if (!lhs.is_numeric()) {
-      throw runtime_c::exception_c(
+      throw interpreter_c::exception_c(
           "Expected numeric value, got " +
               std::string(cell_type_to_string(lhs.type)),
           lhs.locator);
     }
     if (!rhs.is_numeric()) {
-      throw runtime_c::exception_c(
+      throw interpreter_c::exception_c(
           "Expected numeric value, got " +
               std::string(cell_type_to_string(rhs.type)),
           rhs.locator);
@@ -110,7 +110,7 @@ cell_ptr perform_op(locator_ptr locator, op_e op, cell_c &lhs, cell_c &rhs,
     PERFORM_OP_NO_STRING(||)
   }
 
-  throw runtime_c::exception_c("Unknown comparison operator", lhs.locator);
+  throw interpreter_c::exception_c("Unknown comparison operator", lhs.locator);
 }
 } // namespace
 
@@ -169,7 +169,7 @@ cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env) {
   auto it = list.begin();
   std::advance(it, 1);
 
-  auto item_to_negate = global_runtime->execute_cell(*it, env, true);
+  auto item_to_negate = global_interpreter->execute_cell(*it, env, true);
 
   auto value = item_to_negate->as_integer();
 

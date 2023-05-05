@@ -1,6 +1,6 @@
 #pragma once
 
-#include "runtime/runtime.hpp"
+#include "interpreter/interpreter.hpp"
 #include <iterator>
 
 #define LIST_ITER_SKIP_N(___n, ___loop_body)                                   \
@@ -13,7 +13,7 @@
   auto it = list.begin();                                                      \
   std::advance(it, ___n);                                                      \
   for (; it != list.end(); ++it) {                                             \
-    cell_ptr arg = global_runtime->execute_cell(*it, env);                     \
+    cell_ptr arg = global_interpreter->execute_cell(*it, env);                     \
     ___loop_body                                                               \
   }
 
@@ -22,7 +22,7 @@
 // you should pass 3
 #define LIST_ENFORCE_SIZE(___cmd, ___op, ___size)                              \
   if (!(list.size() ___op ___size)) {                                          \
-    global_runtime->halt_with_error(                                           \
+    global_interpreter->halt_with_error(                                           \
         error_c(list.front()->locator,                                         \
                 std::string(___cmd) + " instruction expects " +                \
                     std::to_string(___size - 1) + " parameters, got " +        \
@@ -39,5 +39,5 @@ static inline cell_ptr list_get_nth_arg(std::size_t n, cell_list_t &list,
                                         env_c &env) {
   auto it = list.begin();
   std::advance(it, n);
-  return global_runtime->execute_cell(*it, env);
+  return global_interpreter->execute_cell(*it, env);
 }

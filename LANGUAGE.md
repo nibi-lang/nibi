@@ -7,7 +7,7 @@
 | set     | Update an existing symbol in current or parent environment  | cell that was assigned
 | drop    | Drop a symbol from current or parent environment | nil
 | try     | Attempt to execute a list and handle any built in exceptions | last cell yielded from executed list
-| throw   | Throw an exception that can be caught by `try` or will result in a runtime halt | na
+| throw   | Throw an exception that can be caught by `try` or will result in a interpreter halt | na
 | assert  | Assert a given condition to be true or throw an error | nil
 | len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
 | <-      | Return the value of a cell, yielding whatever execution may be happening | variable

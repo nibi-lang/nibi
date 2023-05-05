@@ -19,7 +19,7 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
   auto target_cell = env.get(target_symbol);
 
   if (!target_cell) {
-    throw runtime_c::exception_c("Symbol not found in environment: " +
+    throw interpreter_c::exception_c("Symbol not found in environment: " +
                                      (*it)->as_symbol(),
                                  (*it)->locator);
     return nullptr;
@@ -28,7 +28,7 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
   auto &fn_info = target_cell->as_function_info();
 
   if (fn_info.type != function_type_e::LAMBDA_FUNCTION) {
-    throw runtime_c::exception_c("Expected lambda function", (*it)->locator);
+    throw interpreter_c::exception_c("Expected lambda function", (*it)->locator);
   }
 
   auto &lambda_info = *fn_info.lambda;
@@ -42,13 +42,13 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   for (auto &&arg_name : lambda_info.arg_names) {
     std::advance(it, 1);
-    map[arg_name] = global_runtime->execute_cell((*it), env);
+    map[arg_name] = global_interpreter->execute_cell((*it), env);
   }
 
   auto &body = lambda_info.body->as_list_info();
 
   cell_ptr result =
-      global_runtime->execute_cell(lambda_info.body, lambda_env, true);
+      global_interpreter->execute_cell(lambda_info.body, lambda_env, true);
 
   // Because we have pointers to parametrs stored we don't want the environment
   // to free them, so we manually remove them here before
