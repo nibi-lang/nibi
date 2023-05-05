@@ -1,6 +1,6 @@
 #pragma once
 
-#include "source.hpp"
+#include "libnibi/source.hpp"
 #include <memory>
 
 enum class token_e {

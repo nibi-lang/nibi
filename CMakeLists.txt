@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 
-project(tokra)
+project(nibi)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -42,34 +42,36 @@ if(WITH_ASAN)
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
+add_subdirectory(libnibi)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 set(APP_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/builtins.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/lambdas.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/arithmetic.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/environment_modifiers.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/asserts.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/checks.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/debug.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/at_commands.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/list_commands.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/comparison.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/common.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/builtins/excepts.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/builtins.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/lambdas.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/arithmetic.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/environment_modifiers.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/asserts.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/debug.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/at_commands.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/list_commands.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/comparison.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/common.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/excepts.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/list.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/token.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/source.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/cell.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/environment.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/runtime/runtime.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/app/tokra.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/interpreter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/app/app.cpp
 )
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME}
         ${APP_SOURCES})
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC  
+  libnibi)
 
 #
 # Tests

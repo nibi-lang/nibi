@@ -1,10 +1,10 @@
 #pragma once
 
 #include "input.hpp"
-#include "source.hpp"
 #include "token.hpp"
 
-#include "runtime/cell.hpp"
+#include "libnibi/cell.hpp"
+#include "libnibi/source.hpp"
 #include <optional>
 #include <vector>
 

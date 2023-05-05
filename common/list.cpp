@@ -5,7 +5,7 @@
 
 #include "common/error.hpp"
 
-#include "runtime/builtins/builtins.hpp"
+#include "interpreter/builtins/builtins.hpp"
 
 #include <unordered_map>
 

@@ -13,46 +13,30 @@
 
 (assert (eq "[10 20 30 [30 20 10]]" (|< y x)) "No dice")
 
-(:= indicies [])
 (:= values [])
 
 # Iterate over y and collect the values and indicies that
 # exist to check later
-(iter y [
-  (|< $idx indicies)
-  (|< $it  values)
+(iter y temp_iter_val [
+  (|< temp_iter_val values)
 ])
-
-# Ensure that the temp variables have been removed
 
 (:= did_drop 0)
 (try [
-  (drop $idx)
+  (drop temp_iter_val)
   (set did_drop 1)
 ] [ 
   # Expected
 ])
 
-(assert (eq 0 did_drop) "$idx wasnt cleaned")
-
-(try [
-  (drop $it)
-  (set did_drop 1)
-] [ 
-  # Expected
-])
-
-(assert (eq 0 did_drop) "$it wasnt cleaned")
-
-# Check that the values are what we expected 
+(assert (eq 0 did_drop) "temp_iter_val wasnt cleaned")
 
 (assert (eq y values) "No dice")
-(assert (eq "[0 1 2]" indicies) "No dice")
 
 (:= temp [1 2 3])
 
 # Note: to update you have to use `set`
-(iter temp (set $it (+ 1 $it)))
+(iter temp temp_iter_val (set temp_iter_val (+ 1 temp_iter_val)))
 
 (assert (eq "[2 3 4]" temp) "No dice")
 

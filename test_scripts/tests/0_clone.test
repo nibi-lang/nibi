@@ -1,0 +1,39 @@
+# Sanity Check
+
+(:= base 20)
+(:= x base)
+(set x 40)
+
+(assert (eq 40 x) "Assignment failure")
+(assert (eq 20 base) "Base cell updated")
+
+# Function that modifies a value given 
+# as all functions pass parameters by reference
+
+(fn modifier [x] (set x 42))
+
+(:= var 0)
+
+(modifier var)
+
+(assert (eq var 42) "Modifier sanity check failure - item not updated")
+
+# Reset var and ensure its reset
+
+(set var 0)
+
+(assert (eq var 0) "set failure")
+
+# Clone the variable and modify the clone, 
+# ensuring that the base value is chill
+
+(modifier (clone var))
+
+(assert (eq var 0) "cloned value referenced base value")
+
+# Variations
+
+(assert (eq "[1 2 3]" (clone [1 2 3])) "no dice")
+(assert (eq 420 (clone 420)) "no dice")
+(assert (eq "test" (clone "test")) "no dice")
+(assert (eq 69 (clone (clone 69))) "no dice")

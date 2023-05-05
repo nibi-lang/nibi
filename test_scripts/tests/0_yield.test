@@ -1,0 +1,9 @@
+
+(fn evaluate_item [x] [
+  (<- (+ x 10))
+  (throw "OH NO!")
+])
+
+(assert (eq 20 (evaluate_item 10)) "No dice")
+
+(assert (eq 256 (<- (+ 200 50 6))) "No dice")

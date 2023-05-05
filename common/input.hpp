@@ -1,7 +1,7 @@
 #pragma once
 
 #include "error.hpp"
-#include "source.hpp"
+#include "libnibi/source.hpp"
 #include "token.hpp"
 #include <optional>
 #include <string_view>

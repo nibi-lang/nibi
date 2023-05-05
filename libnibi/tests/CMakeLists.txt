@@ -7,12 +7,12 @@ include_directories(
 
 find_package (Threads REQUIRED)
 
-add_executable(unit_tests
+add_executable(lib_nibi_unit_tests
         ${COMPILER_SOURCES}
-        nibi_stub.cpp
+        libnibi_stub.cpp
         main.cpp)
 
-target_link_libraries(unit_tests
+target_link_libraries(lib_nibi_unit_tests
   ${CPPUTEST_LDFLAGS})
 
-add_custom_command(TARGET unit_tests COMMAND ./unit_tests POST_BUILD)
+add_custom_command(TARGET lib_nibi_unit_tests COMMAND ./lib_nibi_unit_tests POST_BUILD)
