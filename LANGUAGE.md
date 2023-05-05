@@ -54,6 +54,7 @@
 | >=  | Greater than or equal to | returns numerical 1 or 0 representing true / false
 | and | Logical and | returns numerical 1 or 0 representing true / false
 | or  | Logical or | returns numerical 1 or 0 representing true / false
+| not | Logical not | returns numerical 1 or 0 representing true / false
 
 # Notation
 
