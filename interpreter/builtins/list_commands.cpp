@@ -103,40 +103,12 @@ cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
                                      (*it)->locator);
   }
 
-  auto target_value = list_get_nth_arg(1, list, env);
-
-  cell_list_t new_list;
-  for (uint64_t i = 0; i < list_size->as_integer(); i++) {
-    new_list.push_back(target_value->clone());
-  }
-
   // Create the list and return it
-  return ALLOCATE_CELL(list_info_s{list_types_e::DATA, new_list});
-}
-
-cell_ptr builtin_fn_list_sat(cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE("sat", ==, 4)
-
-  auto target_list = list_get_nth_arg(1, list, env);
-
-  auto requested_idx = list_get_nth_arg(2, list, env);
-
-  auto new_value = list_get_nth_arg(2, list, env);
-
-  auto &list_info = target_list->as_list_info();
-
-  auto actual_idx_val = requested_idx->as_integer();
-
-  if (actual_idx_val < 0 || actual_idx_val >= list_info.list.size()) {
-    throw std::runtime_error("Index OOB for given list");
-  }
-
-  auto it = list_info.list.begin();
-  std::advance(it, actual_idx_val);
-
-  (*it) = new_value->clone();
-
-  return (*it);
+  return ALLOCATE_CELL(list_info_s{
+    list_types_e::DATA, 
+    cell_list_t(
+      list_size->as_integer(), 
+      list_get_nth_arg(1, list, env)->clone())});
 }
 
 } // namespace builtins

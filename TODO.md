@@ -6,14 +6,22 @@
 
 # Implementations
 
-Keyword `ref` should be used to _not_ clone an item, and assume any (:= a b) is an indication to clone b into new symbol a
 
-modify iterators to take in a value to map the $it value to and get rid of `$` as it
-makes it so we can't nest!
+- Remove REFERENCE cells ... no need
 
-matching?
+- Add the following bitwise instructions:
 
-cell map ? 
+```
+  and or xor not 
+
+  - Perhaps prefix with `bw-` and then modify 
+    lsh and rsh to be bw-lsh and bw-rsh for categorization sake (need to update 4sieve)
+
+```
+
+
+
+
 
 ------------------------
 

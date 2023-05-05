@@ -6,7 +6,7 @@
     (? (not (at flags value))[
       (set count (+ count 1))
       (loop (:= multiple (* 2 value)) (< multiple max) (set multiple (+ value multiple)) [
-        (sat flags multiple 1)
+        (set (at flags multiple) 1)
       ])
     ])
   ])

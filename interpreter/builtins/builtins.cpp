@@ -93,8 +93,6 @@ static function_info_s builtin_list_iter_inf = {
     "iter", builtin_fn_list_iter, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_list_at_inf = {
     "at", builtin_fn_list_at, function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_list_sat_inf = {
-    "sat", builtin_fn_list_sat, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // common functions
 static function_info_s builtin_common_len_inf = {
@@ -141,7 +139,6 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"<|>", builtin_list_spawn_inf},
      {"iter", builtin_list_iter_inf},
      {"at", builtin_list_at_inf},
-     {"sat", builtin_list_sat_inf},
      {"len", builtin_common_len_inf},
      {"<-", builtin_common_yield_inf},
      {"loop", builtin_common_loop_inf},

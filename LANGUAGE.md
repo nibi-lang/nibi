@@ -57,6 +57,11 @@
 | or  | Logical or | returns numerical 1 or 0 representing true / false
 | not | Logical not | returns numerical 1 or 0 representing true / false
 
+| bitwise | description | returns
+|---- |---- |----
+| lsh  | left shift | resulting value  
+| rsh  | right shift | resulting value
+
 # Notation
 
 **S** - A symbol (non keyword)
@@ -76,6 +81,8 @@
 **I** - An explicit `integer` value
 
 **RD** - Any raw data member (`string, integer, double`) 
+
+**NU** - A numerical value (`integer, double`)
 
 Example:
 
@@ -442,4 +449,32 @@ the remaining comparisons require that the arguments are numerical types (intege
 
 ```
 ( op < S () > < S () > )
+```
+
+----
+
+## Bitwise Instructions
+
+### Left Shift
+
+keyword: `lsh`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( lsh <() NU> <() NU> )
+```
+
+### Right Shift
+
+keyword: `rsh`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( rsh <() NU> <() NU> )
 ```
