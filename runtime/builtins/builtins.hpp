@@ -53,6 +53,8 @@ extern cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env);
 
 extern cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_common_yield(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_common_if(cell_list_t &list, env_c &env);
 
 // Assertions
 
@@ -75,5 +77,8 @@ extern cell_ptr builtin_fn_comparison_lt(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_comparison_gt(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_comparison_lte(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_comparison_gte(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_comparison_and(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_comparison_or(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env);
 
 } // namespace builtins

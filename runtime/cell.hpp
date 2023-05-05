@@ -31,7 +31,7 @@ extern const char *cell_type_to_string(const cell_type_e type);
 //! \brief The type of a function that a cell holds
 enum class function_type_e {
   UNSET,                // Function type is not set
-  BUILTIN_CPP_FUNCTION, // Function implemented in C++ 
+  BUILTIN_CPP_FUNCTION, // Function implemented in C++
   EXTERNAL_FUNCTION,    // Function imported from shared lib
   LAMBDA_FUNCTION       // Function defined in source code by user
 };

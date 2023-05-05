@@ -111,7 +111,7 @@ cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
   }
 
   // Create the list and return it
-  return std::make_shared<cell_c>(list_info_s{list_types_e::DATA, new_list});
+  return ALLOCATE_CELL(list_info_s{list_types_e::DATA, new_list});
 }
 
 } // namespace builtins

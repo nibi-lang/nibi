@@ -92,7 +92,7 @@ cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
     add_debug_info(result, *arg, *(*it), "\t");
   });
 
-  return std::make_shared<cell_c>(result);
+  return ALLOCATE_CELL(result);
 }
 
 } // namespace builtins

@@ -63,7 +63,7 @@ void runtime_c::halt_with_error(error_c error) {
 cell_ptr runtime_c::execute_cell(cell_ptr cell, env_c &env,
                                  bool process_data_list) {
 
-  if (yield_value_) { 
+  if (yield_value_) {
     auto value = yield_value_;
     yield_value_ = nullptr;
     return value;
@@ -87,8 +87,9 @@ cell_ptr runtime_c::execute_cell(cell_ptr cell, env_c &env,
       return cell;
     }
 
-    // The list builder doesn't allow us to get empty lists
-    // so we can assume that the list is not empty
+    if (list_info.list.empty()) {
+      return ALLOCATE_CELL(cell_type_e::NIL);
+    }
 
     // All lists' first item should be a function of some sort,
     // so we recurse to either load

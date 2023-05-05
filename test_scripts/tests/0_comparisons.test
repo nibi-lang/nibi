@@ -11,3 +11,11 @@
 (assert (<= b c) "Scripted tests - 0_comparisons.test")
 (assert (>= c d) "Scripted tests - 0_comparisons.test")
 (assert (<= d c) "Scripted tests - 0_comparisons.test")
+
+(assert (and 1 1) "Scripted tests - 0_comparisons.test")
+(assert (not (and 1 0)) "Scripted tests - 0_comparisons.test")
+(assert (not (and 0 1)) "Scripted tests - 0_comparisons.test")
+
+(assert (or  1 0) "Scripted tests - 0_comparisons.test")
+(assert (or  0 1) "Scripted tests - 0_comparisons.test")
+(assert (or  1 1) "Scripted tests - 0_comparisons.test")

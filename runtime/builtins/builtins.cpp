@@ -69,6 +69,12 @@ static function_info_s builtin_comparison_lte_inf = {
     "<=", builtin_fn_comparison_lte, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_comparison_gte_inf = {
     ">=", builtin_fn_comparison_gte, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_and_inf = {
+    "and", builtin_fn_comparison_and, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_or_inf = {
+    "or", builtin_fn_comparison_or, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_comparison_not_inf = {
+    "not", builtin_fn_comparison_not, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // lists
 static function_info_s builtin_list_push_front_inf = {
@@ -87,6 +93,10 @@ static function_info_s builtin_common_len_inf = {
     "len", builtin_fn_common_len, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_common_yield_inf = {
     "<-", builtin_fn_common_yield, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_loop_inf = {
+    "loop", builtin_fn_common_loop, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_if_inf = {
+    "?", builtin_fn_common_if, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
@@ -96,6 +106,9 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {">", builtin_comparison_gt_inf},
     {"<=", builtin_comparison_lte_inf},
     {">=", builtin_comparison_gte_inf},
+    {"and", builtin_comparison_and_inf},
+    {"or", builtin_comparison_or_inf},
+    {"not", builtin_comparison_not_inf},
     {"+", builtin_add_inf},
     {"-", builtin_sub_inf},
     {"/", builtin_div_inf},
@@ -116,6 +129,8 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"at", builtin_list_at_inf},
     {"len", builtin_common_len_inf},
     {"<-", builtin_common_yield_inf},
+    {"loop", builtin_common_loop_inf},
+    {"?", builtin_common_if_inf},
     {"dbg-var", builtin_dbg_var_inf},
     {"dbg-out", builtin_dbg_out_inf},
     {"dbg", builtin_dbg_dbg_inf},

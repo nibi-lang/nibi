@@ -11,6 +11,8 @@
 | assert  | Assert a given condition to be true or throw an error | nil
 | len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
 | <-      | Return the value of a cell, yielding whatever execution may be happening | variable
+| ?       | If statement | variable
+| loop    | A loop | variable
 
 | @ commands | description | returns
 |----       |----          |----
@@ -153,6 +155,36 @@ Keyword: `<-`
 
 ```
 ( <- < RD S () [] > )
+```
+### If / Else
+
+Keyword: `?`
+
+| arg1               | arg2                    | arg3 (optional)
+|----                |----                     |----
+| Condition to check | Body to execute if true | Body to execute if false
+
+```
+( ? <() RD [*]> <() RD [*]> )
+```
+
+### Loop
+
+Keyword: `?`
+
+| arg1          | arg2               | arg3           | arg4
+|----           |----                |----            |----
+| Pre condition | Condition to check | Post condition | Body
+
+Pre condition will be executed prior to the loop
+
+Post condition will take place at the end of each loop
+
+Anything declared within the loop will be scoped to the loop. This goes for anything done in 
+the pre condition
+
+```
+( loop <()> <()> <()> <() [*]> )
 ```
 
 ### Try

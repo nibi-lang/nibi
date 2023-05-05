@@ -12,13 +12,13 @@ namespace builtins {
   auto first_arg = list_get_nth_arg(1, list, env);                             \
   switch (first_arg->type) {                                                   \
   case cell_type_e::INTEGER: {                                                 \
-    return std::make_shared<cell_c>(___op_fn<int64_t>(                         \
+    return ALLOCATE_CELL(___op_fn<int64_t>(                                    \
         first_arg->to_integer(),                                               \
         [](cell_ptr arg) -> int64_t { return arg->to_integer(); }, list,       \
         env));                                                                 \
   }                                                                            \
   case cell_type_e::DOUBLE: {                                                  \
-    return std::make_shared<cell_c>(___op_fn<double>(                          \
+    return ALLOCATE_CELL(___op_fn<double>(                                     \
         first_arg->to_double(),                                                \
         [](cell_ptr arg) -> double { return arg->to_double(); }, list, env));  \
   }                                                                            \
@@ -50,7 +50,7 @@ cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
 
   LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->as_integer(); })
 
-  return std::make_shared<cell_c>(accumulate);
+  return ALLOCATE_CELL(accumulate);
 }
 
 cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env) {

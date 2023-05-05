@@ -15,7 +15,7 @@ public:
   ~env_c();
 
   //! \brief Create an environment object without parameters
-  //! \param parent_env The parent environment to use for searching 
+  //! \param parent_env The parent environment to use for searching
   //!        upper level scopes
   env_c(env_c *parent_env);
 
@@ -52,7 +52,6 @@ public:
   std::unordered_map<std::string, cell_ptr> &get_map() { return cell_map_; }
 
 private:
-
   env_c *parent_env_{nullptr};
   std::unordered_map<std::string, cell_ptr> cell_map_;
 };
