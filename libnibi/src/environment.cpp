@@ -1,4 +1,4 @@
-#include "environment.hpp"
+#include "libnibi/environment.hpp"
 
 env_c::~env_c() {}
 

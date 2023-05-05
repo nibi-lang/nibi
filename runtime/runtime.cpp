@@ -1,6 +1,6 @@
 #include "runtime.hpp"
 
-#include "common/rang.hpp"
+#include "libnibi/rang.hpp"
 #include <iostream>
 
 runtime_c *global_runtime{nullptr};

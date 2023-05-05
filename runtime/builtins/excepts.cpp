@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "runtime/builtins/builtins.hpp"
-#include "runtime/cell.hpp"
+#include "libnibi/cell.hpp"
 #include "runtime/runtime.hpp"
 
 #include "cpp_macros.hpp"

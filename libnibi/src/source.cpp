@@ -1,6 +1,6 @@
-#include "source.hpp"
+#include "libnibi/source.hpp"
+#include "libnibi/rang.hpp"
 
-#include "rang.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>

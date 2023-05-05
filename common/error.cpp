@@ -1,7 +1,7 @@
 #include "error.hpp"
 #include <iostream>
 
-#include "rang.hpp"
+#include "libnibi/rang.hpp"
 
 void error_c::draw_error(bool markup) const {
 

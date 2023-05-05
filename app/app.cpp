@@ -5,9 +5,9 @@
 #include "common/error.hpp"
 #include "common/input.hpp"
 #include "common/list.hpp"
-#include "common/source.hpp"
-#include "runtime/cell.hpp"
-#include "runtime/environment.hpp"
+#include "libnibi/source.hpp"
+#include "libnibi/cell.hpp"
+#include "libnibi/environment.hpp"
 #include "runtime/runtime.hpp"
 
 namespace {

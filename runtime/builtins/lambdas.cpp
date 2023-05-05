@@ -1,6 +1,6 @@
 #include "builtins.hpp"
-#include "runtime/cell.hpp"
-#include "runtime/environment.hpp"
+#include "libnibi/cell.hpp"
+#include "libnibi/environment.hpp"
 
 #include "cpp_macros.hpp"
 

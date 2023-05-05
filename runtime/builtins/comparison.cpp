@@ -3,7 +3,7 @@
 #include "arithmetic_helpers.hpp"
 #include "runtime/builtins/builtins.hpp"
 #include "runtime/builtins/cpp_macros.hpp"
-#include "runtime/cell.hpp"
+#include "libnibi/cell.hpp"
 #include "runtime/runtime.hpp"
 
 #define PERFORM_OP_ALLOW_STRING(___op)                                         \

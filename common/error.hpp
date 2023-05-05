@@ -1,6 +1,6 @@
 #pragma once
 
-#include "source.hpp"
+#include "libnibi/source.hpp"
 
 //! \brief An error that can be reported to the user.
 class error_c {

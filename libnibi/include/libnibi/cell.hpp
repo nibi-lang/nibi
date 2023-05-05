@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/source.hpp"
+#include "libnibi/source.hpp"
 #include <any>
 #include <cstdint>
 #include <exception>

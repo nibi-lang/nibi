@@ -1,5 +1,5 @@
-#include "cell.hpp"
-#include "runtime/runtime.hpp"
+#include "libnibi/cell.hpp"
+
 namespace {
 const char *function_type_to_string(function_type_e type) {
   switch (type) {
