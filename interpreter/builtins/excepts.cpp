@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "interpreter/builtins/builtins.hpp"
-#include "libnibi/cell.hpp"
 #include "interpreter/interpreter.hpp"
+#include "libnibi/cell.hpp"
 
 #include "cpp_macros.hpp"
 
@@ -55,7 +55,7 @@ cell_ptr builtin_fn_except_try(cell_list_t &list, env_c &env) {
   } catch (cell_access_exception_c &e) {
     return handle_thrown_error_in_try(e.what(), recover_cell, env);
   }
-  return global_cell_nil;
+  return ALLOCATE_CELL(cell_type_e::NIL);
 }
 
 cell_ptr builtin_fn_except_throw(cell_list_t &list, env_c &env) {

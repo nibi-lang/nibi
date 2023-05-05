@@ -3,6 +3,10 @@
 #include "libnibi/rang.hpp"
 #include <iostream>
 
+#if PROFILE_INTERPRETER
+#include <chrono>
+#endif
+
 interpreter_c *global_interpreter{nullptr};
 
 bool global_interpreter_init(env_c &env, source_manager_c &source_manager) {
@@ -28,6 +32,23 @@ void global_interpreter_destroy() {
 
 interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
     : global_env_(env), source_manager_(source_manager) {}
+
+interpreter_c::~interpreter_c() {
+#if PROFILE_INTERPRETER
+
+  for (auto [fn, data] : fn_call_data_) {
+    if (data.calls == 0) {
+      data.calls = 1;
+    }
+    std::cout << fn << " called " << data.calls << " times, took " << data.time
+              << " micro seconds" << std::endl;
+    std::cout << "Average time: " << (data.time / data.calls)
+              << " micro seconds" << std::endl;
+    std::cout << "----------------" << std::endl;
+  }
+
+#endif
+}
 
 void interpreter_c::on_list(cell_ptr list_cell) {
   try {
@@ -61,7 +82,7 @@ void interpreter_c::halt_with_error(error_c error) {
 }
 
 cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
-                                 bool process_data_list) {
+                                     bool process_data_list) {
 
   if (yield_value_) {
     return yield_value_;
@@ -74,7 +95,7 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
     // If its a known data list just return the list
     if (list_info.type == list_types_e::DATA) {
       if (process_data_list) {
-        cell_ptr last_result = global_cell_nil;
+        cell_ptr last_result = ALLOCATE_CELL(cell_type_e::NIL);
         for (auto &list_cell : list_info.list) {
           last_result = execute_cell(list_cell, env);
           if (this->is_yielding()) {
@@ -110,9 +131,29 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
       return nullptr;
     }
 
+#if PROFILE_INTERPRETER
+
+    auto fn_info = operation->as_function_info();
+
+    if (fn_call_data_.find(fn_info.name) == fn_call_data_.end()) {
+      fn_call_data_[fn_info.name] = {0, 0};
+    }
+    auto start = std::chrono::high_resolution_clock::now();
+    auto value = fn_info.fn(list_info.list, env);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(end - start)
+            .count();
+    auto &t = fn_call_data_[fn_info.name];
+    t.time += duration;
+    t.calls++;
+
+    return value;
+#else
     // All functions point to a `cell_fn_t`, even lambda functions
     // so we can just call the function and return the result
     return operation->as_function_info().fn(list_info.list, env);
+#endif
   }
   case cell_type_e::SYMBOL: {
     // Load the symbol from the environment

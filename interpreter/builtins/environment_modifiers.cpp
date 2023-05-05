@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "interpreter/builtins/builtins.hpp"
-#include "libnibi/cell.hpp"
 #include "interpreter/interpreter.hpp"
+#include "libnibi/cell.hpp"
 
 #include "cpp_macros.hpp"
 
@@ -19,7 +19,7 @@ cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   if ((*it)->type != cell_type_e::SYMBOL) {
     throw interpreter_c::exception_c("Expected symbol as first argument to :=",
-                                 (*it)->locator);
+                                     (*it)->locator);
   }
 
   auto &target_variable_name = (*it)->as_string();
@@ -51,19 +51,8 @@ cell_ptr builtin_fn_env_set(cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("set", ==, 3)
 
-  auto it = list.begin();
-
   auto target_assignment_cell =
       global_interpreter->execute_cell(list_get_nth_arg(1, list, env), env);
-
-  if (target_assignment_cell == global_cell_nil ||
-      target_assignment_cell == global_cell_true ||
-      target_assignment_cell == global_cell_false) {
-    throw interpreter_c::exception_c(
-        "Resulting cell invalid for `set` operation: " +
-            target_assignment_cell->to_string(),
-        list.front()->locator);
-  }
 
   auto target_assignment_value =
       global_interpreter->execute_cell(list_get_nth_arg(2, list, env), env);
@@ -79,11 +68,11 @@ cell_ptr builtin_fn_env_drop(cell_list_t &list, env_c &env) {
   LIST_ITER_SKIP_N(1, {
     if (!env.drop((*it)->as_symbol())) {
       throw interpreter_c::exception_c("Could not find symbol with name :" +
-                                       (*it)->as_symbol(),
-                                   (*it)->locator);
+                                           (*it)->as_symbol(),
+                                       (*it)->locator);
     }
   })
-  return global_cell_nil;
+  return ALLOCATE_CELL((int64_t)0);
 }
 
 cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
@@ -123,7 +112,7 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
   lambda_info.body = (*it);
   if (lambda_info.body->type != cell_type_e::LIST) {
     throw interpreter_c::exception_c("Expected list for function body",
-                                 lambda_info.body->locator);
+                                     lambda_info.body->locator);
   }
 
   function_info_s function_info(target_function_name, execute_suspected_lambda,
@@ -136,7 +125,7 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
   // Set the variable
   env.set(target_function_name, fn_cell);
 
-  return global_cell_nil;
+  return ALLOCATE_CELL((int64_t)0);
 }
 
 } // namespace builtins

@@ -3,8 +3,8 @@
 #include "arithmetic_helpers.hpp"
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/builtins/cpp_macros.hpp"
-#include "libnibi/cell.hpp"
 #include "interpreter/interpreter.hpp"
+#include "libnibi/cell.hpp"
 
 namespace builtins {
 
@@ -25,11 +25,11 @@ namespace builtins {
   default: {                                                                   \
     std::string msg = "Incorrect argument type for arithmetic function: ";     \
     msg += cell_type_to_string(first_arg->type);                               \
-    global_interpreter->halt_with_error(error_c(first_arg->locator, msg));         \
+    global_interpreter->halt_with_error(error_c(first_arg->locator, msg));     \
     break;                                                                     \
   }                                                                            \
   }                                                                            \
-  return global_cell_nil;
+  return ALLOCATE_CELL(cell_type_e::NIL);
 
 cell_ptr builtin_fn_arithmetic_add(cell_list_t &list, env_c &env){
     LIST_ENFORCE_SIZE("+", >=, 2) PERFORM_OPERATION(list_perform_add)}

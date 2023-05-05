@@ -93,6 +93,8 @@ static function_info_s builtin_list_iter_inf = {
     "iter", builtin_fn_list_iter, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_list_at_inf = {
     "at", builtin_fn_list_at, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_list_sat_inf = {
+    "sat", builtin_fn_list_sat, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // common functions
 static function_info_s builtin_common_len_inf = {
@@ -111,50 +113,52 @@ static function_info_s builtin_common_putln_inf = {
     "putln", builtin_fn_common_putln, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
-static std::unordered_map<std::string, function_info_s> keyword_map = {
-    {"eq", builtin_comparison_eq_inf},
-    {"neq", builtin_comparison_neq_inf},
-    {"<", builtin_comparison_lt_inf},
-    {">", builtin_comparison_gt_inf},
-    {"<=", builtin_comparison_lte_inf},
-    {">=", builtin_comparison_gte_inf},
-    {"and", builtin_comparison_and_inf},
-    {"or", builtin_comparison_or_inf},
-    {"not", builtin_comparison_not_inf},
-    {"+", builtin_add_inf},
-    {"-", builtin_sub_inf},
-    {"/", builtin_div_inf},
-    {"*", builtin_mul_inf},
-    {"%", builtin_mod_inf},
-    {"**", builtin_pow_inf},
-    {":=", builtin_assignment_inf},
-    {"set", builtin_set_inf},
-    {"fn", builtin_fn_inf},
-    {"drop", builtin_drop_inf},
-    {"try", builtin_try_inf},
-    {"throw", builtin_throw_inf},
-    {"assert", builtin_assert_inf},
-    {">|", builtin_list_push_front_inf},
-    {"|<", builtin_list_push_back_inf},
-    {"<|>", builtin_list_spawn_inf},
-    {"iter", builtin_list_iter_inf},
-    {"at", builtin_list_at_inf},
-    {"len", builtin_common_len_inf},
-    {"<-", builtin_common_yield_inf},
-    {"loop", builtin_common_loop_inf},
-    {"?", builtin_common_if_inf},
-    {"clone", builtin_common_clone_inf},
-    {"put", builtin_common_put_inf},
-    {"putln", builtin_common_putln_inf},
-    {"lsh", builtin_bitwise_lsh_inf},
-    {"rsh", builtin_bitwise_rsh_inf},
-    {"dbg-var", builtin_dbg_var_inf},
-    {"dbg-out", builtin_dbg_out_inf},
-    {"dbg", builtin_dbg_dbg_inf},
-    {"@debug", builtin_at_debug_inf}};
+static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
+    {{"eq", builtin_comparison_eq_inf},
+     {"neq", builtin_comparison_neq_inf},
+     {"<", builtin_comparison_lt_inf},
+     {">", builtin_comparison_gt_inf},
+     {"<=", builtin_comparison_lte_inf},
+     {">=", builtin_comparison_gte_inf},
+     {"and", builtin_comparison_and_inf},
+     {"or", builtin_comparison_or_inf},
+     {"not", builtin_comparison_not_inf},
+     {"+", builtin_add_inf},
+     {"-", builtin_sub_inf},
+     {"/", builtin_div_inf},
+     {"*", builtin_mul_inf},
+     {"%", builtin_mod_inf},
+     {"**", builtin_pow_inf},
+     {":=", builtin_assignment_inf},
+     {"set", builtin_set_inf},
+     {"fn", builtin_fn_inf},
+     {"drop", builtin_drop_inf},
+     {"try", builtin_try_inf},
+     {"throw", builtin_throw_inf},
+     {"assert", builtin_assert_inf},
+     {">|", builtin_list_push_front_inf},
+     {"|<", builtin_list_push_back_inf},
+     {"<|>", builtin_list_spawn_inf},
+     {"iter", builtin_list_iter_inf},
+     {"at", builtin_list_at_inf},
+     {"sat", builtin_list_sat_inf},
+     {"len", builtin_common_len_inf},
+     {"<-", builtin_common_yield_inf},
+     {"loop", builtin_common_loop_inf},
+     {"?", builtin_common_if_inf},
+     {"clone", builtin_common_clone_inf},
+     {"put", builtin_common_put_inf},
+     {"putln", builtin_common_putln_inf},
+     {"lsh", builtin_bitwise_lsh_inf},
+     {"rsh", builtin_bitwise_rsh_inf},
+     {"dbg-var", builtin_dbg_var_inf},
+     {"dbg-out", builtin_dbg_out_inf},
+     {"dbg", builtin_dbg_dbg_inf},
+     {"@debug", builtin_at_debug_inf}};
 
 // Retrieve the map of symbols to function info structs
-std::unordered_map<std::string, function_info_s> &get_builtin_symbols_map() {
+phmap::parallel_node_hash_map<std::string, function_info_s> &
+get_builtin_symbols_map() {
   return keyword_map;
 }
 

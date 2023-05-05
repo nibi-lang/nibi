@@ -5,12 +5,14 @@
 
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
+#include "libnibi/parallel_hashmap/phmap.hpp"
 
 namespace builtins {
 
 //! \brief Retrieve a reference to a map that ties symbols to their
 //!        corresponding builtin function.
-std::unordered_map<std::string, function_info_s> &get_builtin_symbols_map();
+phmap::parallel_node_hash_map<std::string, function_info_s> &
+get_builtin_symbols_map();
 
 //! \brief A function similar to the builtins that
 //!        will load a lambda function and execute it
@@ -48,6 +50,7 @@ extern cell_ptr builtin_fn_list_push_back(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_list_at(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_list_sat(cell_list_t &list, env_c &env);
 
 // Common functions
 

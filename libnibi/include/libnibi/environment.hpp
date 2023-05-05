@@ -4,9 +4,7 @@
 
 #include <string>
 
-// Todo: replace with phmap::parallel_node_hash_map
-//       it can be a drop-in replacement for unordered_map
-#include <unordered_map>
+#include "parallel_hashmap/phmap.hpp"
 
 //! \brief The environment object that will be used to store
 //!        and manage the cells that are used in different scopes
@@ -50,9 +48,11 @@ public:
   //! \return The map of cells in the environment
   //! \note This is meant for quick cell creation and
   //!       retrieval for specific environments
-  std::unordered_map<std::string, cell_ptr> &get_map() { return cell_map_; }
+  phmap::parallel_node_hash_map<std::string, cell_ptr> &get_map() {
+    return cell_map_;
+  }
 
 private:
   env_c *parent_env_{nullptr};
-  std::unordered_map<std::string, cell_ptr> cell_map_;
+  phmap::parallel_node_hash_map<std::string, cell_ptr> cell_map_;
 };

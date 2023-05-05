@@ -30,7 +30,7 @@ public:
 
 private:
   std::function<void(error_c error)> on_error_;
-  std::unordered_map<std::string, function_info_s> &builtins_{
+  phmap::parallel_node_hash_map<std::string, function_info_s> &builtins_{
       builtins::get_builtin_symbols_map()};
 };
 

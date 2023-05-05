@@ -3,8 +3,8 @@
 #include "arithmetic_helpers.hpp"
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/builtins/cpp_macros.hpp"
-#include "libnibi/cell.hpp"
 #include "interpreter/interpreter.hpp"
+#include "libnibi/cell.hpp"
 
 #define PERFORM_OP_ALLOW_STRING(___op)                                         \
   {                                                                            \
@@ -52,7 +52,7 @@
       return r;                                                                \
     }                                                                          \
     default:                                                                   \
-      throw interpreter_c::exception_c(                                            \
+      throw interpreter_c::exception_c(                                        \
           "Expected numeric value, got " +                                     \
               std::string(cell_type_to_string(lhs.type)),                      \
           lhs.locator);                                                        \

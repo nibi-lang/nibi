@@ -16,38 +16,6 @@ const char *function_type_to_string(function_type_e type) {
 }
 } // namespace
 
-cell_ptr global_cell_nil{nullptr};
-cell_ptr global_cell_true{nullptr};
-cell_ptr global_cell_false{nullptr};
-
-void global_cells_destroy() {
-  if (global_cell_nil) {
-    global_cell_nil = nullptr;
-  }
-
-  if (global_cell_true) {
-    global_cell_true = nullptr;
-  }
-
-  if (global_cell_false) {
-    global_cell_false = nullptr;
-  }
-}
-
-bool global_cells_initialize() {
-  global_cell_nil = ALLOCATE_CELL(cell_type_e::NIL);
-  global_cell_true = ALLOCATE_CELL((int64_t)1);
-  global_cell_false = ALLOCATE_CELL((int64_t)0);
-
-  if (global_cell_true && global_cell_false && global_cell_nil) {
-    return true;
-  }
-
-  // If we get here, something went wrong so we need to clean up
-  global_cells_destroy();
-  return false;
-}
-
 const char *cell_type_to_string(const cell_type_e type) {
   switch (type) {
   case cell_type_e::NIL:
@@ -82,7 +50,7 @@ cell_ptr cell_c::clone() {
 
   switch (this->type) {
   case cell_type_e::NIL:
-    return global_cell_nil;
+    return ALLOCATE_CELL(cell_type_e::NIL);
   case cell_type_e::INTEGER:
     new_cell->data = this->as_integer();
     break;
@@ -132,7 +100,7 @@ int64_t &cell_c::as_integer() {
   }
 }
 
-double cell_c::to_double() { 
+double cell_c::to_double() {
   if (this->type == cell_type_e::INTEGER) {
     return (double)this->as_integer();
   }
