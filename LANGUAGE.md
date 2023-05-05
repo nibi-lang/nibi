@@ -16,6 +16,7 @@
 | clone   | clone a variable | variable
 | put     | Output a string representation of N cells | 0
 | putln   | put, but with a following newline         | 0
+| fn      | Define a function | variable
 
 | @ commands | description | returns
 |----       |----          |----
@@ -225,6 +226,24 @@ Variable number of arguments supported, `0+`
 ```
 ( putln <RD [] () S> ... )
 ```
+
+### Function
+
+Keyword: `fn`
+
+Functions do not implicitly capture anything from the environment.
+Everything must be passed to, or defined in the given function.
+
+All cells passed to a function will be done so by reference so they can
+modify any given item.
+
+To pass a an explicit copy use `clone` when calling the function on
+the parameters to clone.
+
+```
+( fn <S> <[]> <() [*]> )
+```
+
 
 ### Try
 

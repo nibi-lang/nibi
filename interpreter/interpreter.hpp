@@ -59,7 +59,10 @@ public:
   void set_debug_enabled(bool debug_enabled) { debug_enabled_ = debug_enabled; }
 
   //! \brief Stop recursing on the current instruction and return a value
-  void yield_process_with_value(cell_ptr value) { yield_value_ = value; }
+  void set_yield_value(cell_ptr value) { yield_value_ = value; }
+
+  //! \brief Check if the interpreter is yielding a value 
+  bool is_yielding() const { return yield_value_ != nullptr; }
 
   //! \brief Get the yield valueq
   cell_ptr get_yield_value() const { return yield_value_; }

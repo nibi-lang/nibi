@@ -51,6 +51,8 @@ cell_ptr builtin_fn_env_set(cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("set", ==, 3)
 
+  auto it = list.begin();
+
   auto target_assignment_cell =
       global_interpreter->execute_cell(list_get_nth_arg(1, list, env), env);
 

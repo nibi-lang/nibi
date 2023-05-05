@@ -7,3 +7,17 @@
 (assert (eq 20 (evaluate_item 10)) "No dice")
 
 (assert (eq 256 (<- (+ 200 50 6))) "No dice")
+
+# Check nested yields
+
+(fn check_nest [x] [
+  (loop (:= k 0) (< k x) (set k (+ k 1)) [
+    (? (eq 0 k) (<- k))
+    (putln "You shouldn't see this")
+  ])
+  (<- x)
+])
+
+
+(assert (neq 5 (check_nest 5)) "Failed to return from nest")
+

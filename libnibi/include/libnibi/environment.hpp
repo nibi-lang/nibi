@@ -12,6 +12,7 @@
 //!        and manage the cells that are used in different scopes
 class env_c {
 public:
+  env_c() = default;
   ~env_c();
 
   //! \brief Create an environment object without parameters

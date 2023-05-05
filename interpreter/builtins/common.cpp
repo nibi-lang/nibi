@@ -34,18 +34,22 @@ cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
 }
 
 cell_ptr builtin_fn_common_yield(cell_list_t &list, env_c &env) {
+
+  if (list.size() == 1) {
+    global_interpreter->set_yield_value(ALLOCATE_CELL((int64_t)0));
+    return global_interpreter->get_yield_value();
+  }
+
   LIST_ENFORCE_SIZE("<-", ==, 2)
 
   auto target = list_get_nth_arg(1, list, env);
-  global_interpreter->yield_process_with_value(target);
+  global_interpreter->set_yield_value(target);
   return target;
 }
 
 cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env) {
   // (loop (pre) (cond) (post) (body))
   LIST_ENFORCE_SIZE("loop", ==, 5)
-
-  std::cout << "loop" << std::endl;
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -74,6 +78,10 @@ cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env) {
     }
 
     result = global_interpreter->execute_cell(body, loop_env, true);
+
+    if (global_interpreter->is_yielding()) {
+      return global_interpreter->get_yield_value();
+    }
 
     global_interpreter->execute_cell(post_condition, loop_env);
   }
@@ -115,9 +123,6 @@ cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env) {
   std::advance(it, 1);
 
   while(it != list.end()) {
-    if (it != list.begin()) {
-      std::cout << " ";
-    }
     std::cout << global_interpreter->execute_cell((*it), env)->to_string();
     std::advance(it, 1);
   }

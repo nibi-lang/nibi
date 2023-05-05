@@ -117,7 +117,12 @@ void cell_c::update_data_and_type_to(cell_c &other) {
   this->data = other.data;
 }
 
-int64_t cell_c::to_integer() { return this->as_integer(); }
+int64_t cell_c::to_integer() {
+  if (this->type == cell_type_e::DOUBLE) {
+    return (int64_t)this->as_double();
+  }
+  return this->as_integer();
+}
 
 int64_t &cell_c::as_integer() {
   try {
@@ -127,7 +132,12 @@ int64_t &cell_c::as_integer() {
   }
 }
 
-double cell_c::to_double() { return this->as_double(); }
+double cell_c::to_double() { 
+  if (this->type == cell_type_e::INTEGER) {
+    return (double)this->as_integer();
+  }
+  return this->as_double();
+}
 
 double &cell_c::as_double() {
   try {

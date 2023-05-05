@@ -64,9 +64,7 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
                                  bool process_data_list) {
 
   if (yield_value_) {
-    auto value = yield_value_;
-    yield_value_ = nullptr;
-    return value;
+    return yield_value_;
   }
 
   switch (cell->type) {
@@ -79,6 +77,9 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
         cell_ptr last_result = global_cell_nil;
         for (auto &list_cell : list_info.list) {
           last_result = execute_cell(list_cell, env);
+          if (this->is_yielding()) {
+            return yield_value_;
+          }
         }
         return last_result;
       }
