@@ -1,0 +1,19 @@
+
+
+(fn nsieve [max] [
+  (:= count 0)
+  (:= flags (<|> 0 max))
+  (loop (:= value 2) (< value max) (set value (+ value 1)) [
+    (? (not (at flags value))[
+      (set count (+ count 1))
+      (loop (:= multiple (* 2 value)) (< multiple max) (set multiple (+ value multiple)) [
+        (set (at flags multiple) 1)
+        (putln value " " multiple)
+      ])
+    ])
+  ])
+  (putln "primes up to " max " : " count)
+])
+
+(loop (:= i 0) (< i 3) (set i (+ i 1))
+  (nsieve (lsh 10000 (- 2 i))))

@@ -72,6 +72,11 @@ extern cell_ptr builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env);
 
+// Bitwise functions
+
+extern cell_ptr builtin_fn_bitwise_lsh(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_rsh(cell_list_t &list, env_c &env);
+
 // Comparison functions
 
 extern cell_ptr builtin_fn_comparison_eq(cell_list_t &list, env_c &env);

@@ -28,6 +28,12 @@ static function_info_s builtin_mod_inf = {
 static function_info_s builtin_pow_inf = {
     "**", builtin_fn_arithmetic_pow, function_type_e::BUILTIN_CPP_FUNCTION};
 
+// bitwise
+static function_info_s builtin_bitwise_lsh_inf = {
+    "lsh", builtin_fn_bitwise_lsh, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_bitwise_rsh_inf = {
+    "rsh", builtin_fn_bitwise_rsh, function_type_e::BUILTIN_CPP_FUNCTION};
+
 // environment
 static function_info_s builtin_assignment_inf = {
     ":=", builtin_fn_env_assignment, function_type_e::BUILTIN_CPP_FUNCTION};
@@ -140,6 +146,8 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"clone", builtin_common_clone_inf},
     {"put", builtin_common_put_inf},
     {"putln", builtin_common_putln_inf},
+    {"lsh", builtin_bitwise_lsh_inf},
+    {"rsh", builtin_bitwise_rsh_inf},
     {"dbg-var", builtin_dbg_var_inf},
     {"dbg-out", builtin_dbg_out_inf},
     {"dbg", builtin_dbg_dbg_inf},
