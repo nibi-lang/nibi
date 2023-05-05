@@ -39,7 +39,7 @@ cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
   // Explicitly clone the value as we might be reading from
   // an instruction that will be mutated later
 
-  target_assignment_value = target_assignment_value;
+  target_assignment_value = target_assignment_value->clone();
 
   env.set(target_variable_name, target_assignment_value);
 

@@ -97,6 +97,12 @@ static function_info_s builtin_common_loop_inf = {
     "loop", builtin_fn_common_loop, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_common_if_inf = {
     "?", builtin_fn_common_if, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_clone_inf = {
+    "clone", builtin_fn_common_clone, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_put_inf = {
+    "put", builtin_fn_common_put, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_putln_inf = {
+    "putln", builtin_fn_common_putln, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
 static std::unordered_map<std::string, function_info_s> keyword_map = {
@@ -131,6 +137,9 @@ static std::unordered_map<std::string, function_info_s> keyword_map = {
     {"<-", builtin_common_yield_inf},
     {"loop", builtin_common_loop_inf},
     {"?", builtin_common_if_inf},
+    {"clone", builtin_common_clone_inf},
+    {"put", builtin_common_put_inf},
+    {"putln", builtin_common_putln_inf},
     {"dbg-var", builtin_dbg_var_inf},
     {"dbg-out", builtin_dbg_out_inf},
     {"dbg", builtin_dbg_dbg_inf},

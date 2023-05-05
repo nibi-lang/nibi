@@ -13,6 +13,9 @@
 | <-      | Return the value of a cell, yielding whatever execution may be happening | variable
 | ?       | If statement | variable
 | loop    | A loop | variable
+| clone   | clone a variable | variable
+| put     | Output a string representation of N cells | 0
+| putln   | put, but with a following newline         | 0
 
 | @ commands | description | returns
 |----       |----          |----
@@ -156,6 +159,7 @@ Keyword: `<-`
 ```
 ( <- < RD S () [] > )
 ```
+
 ### If / Else
 
 Keyword: `?`
@@ -185,6 +189,38 @@ the pre condition
 
 ```
 ( loop <()> <()> <()> <() [*]> )
+```
+
+### Clone
+
+Keyword: `clone`
+
+| arg1
+|----
+| Item to clone
+
+```
+( clone <RD [] () S> )
+```
+
+### Put
+
+Keyword: `put`
+
+Variable number of arguments supported, at least 1 required
+
+```
+( put <RD [] () S> ... )
+```
+
+### Putln
+
+Keyword: `putln`
+
+Variable number of arguments supported, `0+`
+
+```
+( putln <RD [] () S> ... )
 ```
 
 ### Try

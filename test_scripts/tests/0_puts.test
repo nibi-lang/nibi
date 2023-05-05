@@ -1,0 +1,4 @@
+(:= x "Yeeeeew")
+(assert (eq 0 (putln "This is a test!")) "no dice")
+(assert (eq 0 (put [1 2 [9 [ x ] 9] 4 5])) "no dice")
+(assert (eq 0 (putln)) "no dice")

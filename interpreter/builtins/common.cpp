@@ -8,6 +8,18 @@
 
 namespace builtins {
 
+cell_ptr builtin_fn_common_clone(cell_list_t &list, env_c &env) {
+
+  LIST_ENFORCE_SIZE("clone", ==, 2)
+
+  auto it = list.begin();
+  std::advance(it, 1);
+
+  auto loaded_cell = global_interpreter->execute_cell(*it, env);
+
+  return loaded_cell->clone();
+}
+
 cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("len", ==, 2)
 
@@ -94,6 +106,35 @@ cell_ptr builtin_fn_common_if(cell_list_t &list, env_c &env) {
   }
 
   return ALLOCATE_CELL((int64_t)0);
+}
+
+cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env) {
+  LIST_ENFORCE_SIZE("put", >=, 2)
+
+  auto it = list.begin();
+  std::advance(it, 1);
+
+  while(it != list.end()) {
+    if (it != list.begin()) {
+      std::cout << " ";
+    }
+    std::cout << global_interpreter->execute_cell((*it), env)->to_string();
+    std::advance(it, 1);
+  }
+  return ALLOCATE_CELL((int64_t)0);
+}
+
+cell_ptr builtin_fn_common_putln(cell_list_t &list, env_c &env) {
+
+  if (list.size() == 1) {
+    std::cout << std::endl;
+    return ALLOCATE_CELL((int64_t)0);
+  }
+
+  LIST_ENFORCE_SIZE("putln", >=, 2)
+  auto result = builtin_fn_common_put(list, env);
+  std::cout << std::endl;
+  return result;
 }
 
 } // namespace builtins
