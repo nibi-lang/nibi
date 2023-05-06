@@ -5,6 +5,10 @@
 
 # Implementations
 
+Consider trying out `https://github.com/faheel/BigInt` and run performance tests with it.
+It would be nice to not be limited in integer size.
+
+
 STD Lib:
 
 ```
