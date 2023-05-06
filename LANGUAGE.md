@@ -242,9 +242,6 @@ Variable number of arguments supported, `0+`
 
 Keyword: `fn`
 
-Functions do not implicitly capture anything from the environment.
-Everything must be passed to, or defined in the given function.
-
 All cells passed to a function will be done so by reference so they can
 modify any given item.
 

@@ -5,10 +5,6 @@
 
 # Implementations
 
-
-- Remove REFERENCE cells ... no need
-
-
 STD Lib:
 
 ```

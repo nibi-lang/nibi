@@ -32,8 +32,6 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "SYMBOL";
   case cell_type_e::LIST:
     return "LIST";
-  case cell_type_e::REFERENCE:
-    return "REFERENCE";
   }
   return "UNKNOWN";
 }
@@ -64,9 +62,6 @@ cell_ptr cell_c::clone() {
     break;
   case cell_type_e::FUNCTION:
     new_cell->data = this->as_function_info();
-    break;
-  case cell_type_e::REFERENCE:
-    new_cell->data = this->to_referenced_cell();
     break;
   case cell_type_e::LIST:
     auto &linf = this->as_list_info();
@@ -136,15 +131,6 @@ list_info_s &cell_c::as_list_info() {
   }
 }
 
-cell_ptr cell_c::to_referenced_cell() {
-  try {
-    return std::any_cast<cell_ptr>(this->data);
-  } catch (const std::exception &e) {
-    throw cell_access_exception_c("Cell is not a reference to another cell",
-                                  this->locator);
-  }
-}
-
 aberrant_cell_if *cell_c::as_aberrant() {
   try {
     return std::any_cast<aberrant_cell_if *>(this->data);
@@ -174,14 +160,6 @@ std::string cell_c::to_string() {
     [[fallthrough]];
   case cell_type_e::STRING:
     return this->as_string();
-  case cell_type_e::REFERENCE: {
-    auto cell = this->to_referenced_cell();
-    if (!cell)
-      return "nil";
-    else
-      return cell->to_string();
-    return cell->to_string();
-  }
   case cell_type_e::ABERRANT: {
     aberrant_cell_if *cell = this->as_aberrant();
     if (!cell)

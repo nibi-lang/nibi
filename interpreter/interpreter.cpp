@@ -167,9 +167,6 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
 
     return loaded_cell;
   }
-  case cell_type_e::REFERENCE: {
-    return cell->to_referenced_cell();
-  }
   case cell_type_e::ABERRANT:
     [[fallthrough]];
   case cell_type_e::INTEGER:

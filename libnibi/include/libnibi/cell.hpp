@@ -21,7 +21,6 @@ enum class cell_type_e {
   DOUBLE,
   STRING,
   LIST,
-  REFERENCE,
   ABERRANT,
   FUNCTION,
   SYMBOL,
@@ -134,8 +133,6 @@ public:
     case cell_type_e::NIL:
       [[fallthrough]];
     case cell_type_e::ABERRANT:
-      [[fallthrough]];
-    case cell_type_e::REFERENCE:
       data = nullptr;
     case cell_type_e::FUNCTION:
       data = function_info_s("", nullptr, function_type_e::UNSET);
@@ -161,7 +158,6 @@ public:
   cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL), data(data.data) {}
   cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
-  cell_c(cell_ptr data) : type(cell_type_e::REFERENCE), data(data) {}
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
 
@@ -232,10 +228,6 @@ public:
   //! \brief Get a reference to the cell value
   //! \throws cell_access_exception_c if the cell is not a list type
   cell_list_t &as_list();
-
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not a reference type
-  cell_ptr to_referenced_cell();
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an aberrant type
