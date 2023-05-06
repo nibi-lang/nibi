@@ -104,11 +104,10 @@ cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
   }
 
   // Create the list and return it
-  return ALLOCATE_CELL(list_info_s{
-    list_types_e::DATA, 
-    cell_list_t(
-      list_size->as_integer(), 
-      list_get_nth_arg(1, list, env)->clone())});
+  return ALLOCATE_CELL(
+      list_info_s{list_types_e::DATA,
+                  cell_list_t(list_size->as_integer(),
+                              list_get_nth_arg(1, list, env)->clone())});
 }
 
 } // namespace builtins

@@ -49,5 +49,4 @@ cell_ptr builtin_fn_bitwise_not(cell_list_t &list, env_c &env) {
   return ALLOCATE_CELL((int64_t)(~lhs));
 }
 
-
 } // namespace builtins
