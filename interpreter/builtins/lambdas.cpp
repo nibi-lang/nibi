@@ -38,7 +38,7 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   // Create an environment for the lambda
   // and populate it with the arguments
-  auto lambda_env = env_c();
+  auto lambda_env = env_c(env);
   auto &map = lambda_env.get_map();
 
   for (auto &&arg_name : lambda_info.arg_names) {

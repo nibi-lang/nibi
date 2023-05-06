@@ -2,24 +2,24 @@
 
 - Tokenizer : impl scanner_cb_if and ensure all tokens scanned correctly
 - List Parser : impl list_cb_if and ensure correct list building
-- GC / Mem : Test garbage collector
 
 # Implementations
 
 
 - Remove REFERENCE cells ... no need
 
-- Add the following bitwise instructions:
 
-```
-  and or xor not 
-
-  - Perhaps prefix with `bw-` and then modify 
-    lsh and rsh to be bw-lsh and bw-rsh for categorization sake (need to update 4sieve)
+STD Lib:
 
 ```
 
+First digit in arith determines expectations for numerical
 
+(fn to_double [x] [
+  (<- (+ 0.00 x))
+])
+
+```
 
 
 

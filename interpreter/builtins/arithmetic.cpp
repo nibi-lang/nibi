@@ -46,9 +46,9 @@ cell_ptr builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env){
 cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("%", >=, 2)
   auto first_arg = list_get_nth_arg(1, list, env);
-  int64_t accumulate{first_arg->as_integer()};
+  int64_t accumulate{first_arg->to_integer()};
 
-  LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->as_integer(); })
+  LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->to_integer(); })
 
   return ALLOCATE_CELL(accumulate);
 }

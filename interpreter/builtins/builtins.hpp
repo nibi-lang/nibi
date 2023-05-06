@@ -78,6 +78,10 @@ extern cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env);
 
 extern cell_ptr builtin_fn_bitwise_lsh(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_bitwise_rsh(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_and(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_or(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_xor(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_not(cell_list_t &list, env_c &env);
 
 // Comparison functions
 

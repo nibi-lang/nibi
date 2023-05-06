@@ -14,4 +14,4 @@
 ])
 
 (loop (:= i 0) (< i 3) (set i (+ i 1))
-  (nsieve (lsh 10000 (- 4 i))))
+  (nsieve (bw-lsh 10000 (- 4 i))))

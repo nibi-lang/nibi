@@ -30,9 +30,17 @@ static function_info_s builtin_pow_inf = {
 
 // bitwise
 static function_info_s builtin_bitwise_lsh_inf = {
-    "lsh", builtin_fn_bitwise_lsh, function_type_e::BUILTIN_CPP_FUNCTION};
+    "bw-lsh", builtin_fn_bitwise_lsh, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_bitwise_rsh_inf = {
-    "rsh", builtin_fn_bitwise_rsh, function_type_e::BUILTIN_CPP_FUNCTION};
+    "bw-rsh", builtin_fn_bitwise_rsh, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_bitwise_and_inf = {
+    "bw-and", builtin_fn_bitwise_and, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_bitwise_or_inf = {
+    "bw-or", builtin_fn_bitwise_or, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_bitwise_xor_inf = {
+    "bw-xor", builtin_fn_bitwise_xor, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_bitwise_not_inf = {
+    "bw-not", builtin_fn_bitwise_not, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // environment
 static function_info_s builtin_assignment_inf = {
@@ -146,8 +154,12 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"clone", builtin_common_clone_inf},
      {"put", builtin_common_put_inf},
      {"putln", builtin_common_putln_inf},
-     {"lsh", builtin_bitwise_lsh_inf},
-     {"rsh", builtin_bitwise_rsh_inf},
+     {"bw-lsh", builtin_bitwise_lsh_inf},
+     {"bw-rsh", builtin_bitwise_rsh_inf},
+     {"bw-and", builtin_bitwise_and_inf},
+     {"bw-or", builtin_bitwise_or_inf},
+     {"bw-xor", builtin_bitwise_xor_inf},
+     {"bw-not", builtin_bitwise_not_inf},
      {"dbg-var", builtin_dbg_var_inf},
      {"dbg-out", builtin_dbg_out_inf},
      {"dbg", builtin_dbg_dbg_inf},

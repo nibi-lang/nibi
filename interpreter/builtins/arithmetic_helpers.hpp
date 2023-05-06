@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cpp_macros.hpp"
-
+#include <iostream>
 #include <math.h>
 
 template <typename T>

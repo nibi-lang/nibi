@@ -26,3 +26,19 @@
 (shadow var)
 
 (assert (eq 100 var) "Var was not as expected")
+
+(:= c 0)
+(fn test [v] [
+  (loop (:= i 0) (< i 10) (set i (+ i 1))
+    (loop (:= j 0) (< j 10) (set j (+ j 1))
+      (loop (:= k 0) (< k 10) (set k (+ k 1))[
+        (set v (+ v i j k))
+        (set c (+ c i j k))
+      ])
+    )
+  )
+])
+
+(:= res 0)
+(test res)
+(assert (eq res c) "no dice")

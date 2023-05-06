@@ -58,9 +58,13 @@
 | not | Logical not | returns numerical 1 or 0 representing true / false
 
 | bitwise | description | returns
-|---- |---- |----
-| lsh  | left shift | resulting value  
-| rsh  | right shift | resulting value
+|----  |---- |----
+| bw-lsh  | left shift  | integer  
+| bw-rsh  | right shift | integer
+| bw-and  | bitwise and | integer
+| bw-or   | bitwise or  | integer
+| bw-xor  | bitwise xor | integer
+| bw-not  | bitwise not | integer
 
 # Notation
 
@@ -457,24 +461,69 @@ the remaining comparisons require that the arguments are numerical types (intege
 
 ### Left Shift
 
-keyword: `lsh`
+keyword: `bw-lsh`
 
 | arg1 | arg2 |
 |----  |----
 | value to shift | amount to shift
 
 ```
-( lsh <() NU> <() NU> )
+( bw-lsh <() NU> <() NU> )
 ```
 
 ### Right Shift
 
-keyword: `rsh`
+keyword: `bw-rsh`
 
 | arg1 | arg2 |
 |----  |----
 | value to shift | amount to shift
 
 ```
-( rsh <() NU> <() NU> )
+( bw-rsh <() NU> <() NU> )
+```
+### Bitwise AND
+
+keyword: `bw-and`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-and <() NU> <() NU> )
+```
+### Bitwise OR
+
+keyword: `bw-or`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-or <() NU> <() NU> )
+```
+
+### Bitwise XOR
+
+keyword: `bw-xor`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-xor <() NU> <() NU> )
+```
+### Bitwise NOT
+
+keyword: `bw-not`
+
+| arg1
+|----
+| value to not
+
+```
+( bw-not <() NU> )
 ```
