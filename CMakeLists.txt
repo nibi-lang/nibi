@@ -58,6 +58,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/bitwise.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/comparison.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/common.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/env_cell.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/excepts.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp

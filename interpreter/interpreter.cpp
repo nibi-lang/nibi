@@ -169,6 +169,8 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
   }
   case cell_type_e::ABERRANT:
     [[fallthrough]];
+  case cell_type_e::ENVIRONMENT:
+    [[fallthrough]];
   case cell_type_e::INTEGER:
     [[fallthrough]];
   case cell_type_e::DOUBLE:

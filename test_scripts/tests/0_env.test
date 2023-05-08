@@ -1,0 +1,8 @@
+
+
+(env some_env [
+
+  (:= x 3)
+])
+
+(putln some_env)

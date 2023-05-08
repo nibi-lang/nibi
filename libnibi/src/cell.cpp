@@ -148,6 +148,14 @@ function_info_s &cell_c::as_function_info() {
   }
 }
 
+environment_info_s &cell_c::as_environment_info() {
+  try {
+    return std::any_cast<environment_info_s &>(this->data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Cell is not an environment", this->locator);
+  }
+}
+
 std::string cell_c::to_string() {
   switch (this->type) {
   case cell_type_e::NIL:
@@ -173,6 +181,13 @@ std::string cell_c::to_string() {
     result += fn.name;
     result += ", type:";
     result += function_type_to_string(fn.type);
+    result += ">";
+    return result;
+  }
+  case cell_type_e::ENVIRONMENT: {
+    auto &env = this->as_environment_info();
+    std::string result = "<environment:";
+    result += env.name;
     result += ">";
     return result;
   }

@@ -24,6 +24,7 @@ enum class cell_type_e {
   ABERRANT,
   FUNCTION,
   SYMBOL,
+  ENVIRONMENT,
 };
 
 extern const char *cell_type_to_string(const cell_type_e type);
@@ -89,6 +90,12 @@ struct symbol_s {
   std::string data;
 };
 
+//! \brief Environment information that can be encoded into a cell
+struct environment_info_s {
+  std::string name;
+  env_c* env{nullptr};
+};
+
 //! \brief An exception that is thrown when a cell is accessed
 //!        in a way that does not correspond to its type
 class cell_access_exception_c : public std::exception {
@@ -134,6 +141,10 @@ public:
       [[fallthrough]];
     case cell_type_e::ABERRANT:
       data = nullptr;
+      break;
+    case cell_type_e::ENVIRONMENT:
+      data = environment_info_s{"", nullptr};
+      break;
     case cell_type_e::FUNCTION:
       data = function_info_s("", nullptr, function_type_e::UNSET);
       break;
@@ -160,6 +171,7 @@ public:
   cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
+  cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT), data(env) {}
 
   cell_c() = delete;
   cell_c(const cell_c &other) = delete;
@@ -233,9 +245,13 @@ public:
   //! \throws cell_access_exception_c if the cell is not an aberrant type
   aberrant_cell_if *as_aberrant();
 
-  //! \brief Get a copy of the cell value
+  //! \brief Get a reference of the cell value
   //! \throws cell_access_exception_c if the cell is not a function type
   function_info_s &as_function_info();
+
+  //! \brief Get a reference of the cell value
+  //! \throws cell_access_exception_c if the cell is not an environment type
+  environment_info_s &as_environment_info();
 
   //! \brief Check if a cell is a numeric type
   bool is_numeric() const {
