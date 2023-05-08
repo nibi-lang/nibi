@@ -85,6 +85,8 @@ private:
   // The yield value
   cell_ptr yield_value_{nullptr};
 
+  cell_ptr handle_list_cell(cell_ptr &cell, env_c &env, bool process_data_cell);
+
 #if PROFILE_INTERPRETER
   struct profile_info_s {
     int64_t calls{0};

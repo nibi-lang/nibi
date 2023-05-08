@@ -94,6 +94,20 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
       cb_.on_token(token_c(locator, token_e::R_BRACKET));
       break;
     }
+    case '{': {
+      tracker_.brace_count++;
+      cb_.on_token(token_c(locator, token_e::L_BRACE));
+      break;
+    }
+    case '}': {
+      if (tracker_.brace_count == 0) {
+        cb_.on_error(error_c(locator, "Unmatched closing brace"));
+        return false;
+      }
+      tracker_.brace_count--;
+      cb_.on_token(token_c(locator, token_e::R_BRACE));
+      break;
+    }
     case '"': {
       bool in_str{true};
       std::string value = "\"";
@@ -160,7 +174,8 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
       word += data[col];
       while (col + 1 < data.size() && !std::isspace(data[col + 1]) &&
              data[col + 1] != '(' && data[col + 1] != ')' &&
-             data[col + 1] != '[' && data[col + 1] != ']') {
+             data[col + 1] != '[' && data[col + 1] != ']' &&
+             data[col + 1] != '}' && data[col + 1] != '}') {
         word += data[col + 1];
         col++;
       }

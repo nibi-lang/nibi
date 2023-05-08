@@ -16,11 +16,7 @@ cell_ptr builtin_fn_envcell_env(cell_list_t &list, env_c &env) {
 
   auto env_name = (*it)->as_symbol();
 
-  environment_info_s new_env_info{
-    env_name, 
-    new env_c(env), 
-    
-    };
+  environment_info_s new_env_info{env_name, new env_c(env)};
 
   // The `priv` env to be populated within the cells env for 
   // local "private" things
@@ -29,7 +25,7 @@ cell_ptr builtin_fn_envcell_env(cell_list_t &list, env_c &env) {
 
   // Populate the env by executing their instructions
   std::advance(it, 1);
-  global_interpreter->execute_cell((*it), *new_env_info.env);
+  global_interpreter->execute_cell((*it), *new_env_info.env, true);
 
   // Create a cell that will hold the env we just built
   auto new_cell = ALLOCATE_CELL(new_env_info);

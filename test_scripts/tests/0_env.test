@@ -1,8 +1,10 @@
 
 
 (env some_env [
-
-  (:= x 3)
+  (:= x 99)
 ])
 
-(putln some_env)
+
+
+
+(putln {some_env x})

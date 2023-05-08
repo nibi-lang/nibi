@@ -9,6 +9,8 @@ enum class token_e {
   R_PAREN,
   L_BRACKET,
   R_BRACKET,
+  L_BRACE,
+  R_BRACE,
   RAW_INTEGER,
   RAW_FLOAT,
   RAW_STRING,

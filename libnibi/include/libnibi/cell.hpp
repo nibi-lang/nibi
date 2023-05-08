@@ -39,7 +39,8 @@ enum class function_type_e {
 
 enum class list_types_e {
   INSTRUCTION, // A single list of instruction (+ 1 2 3)
-  DATA         // A data list [1 2 3]
+  DATA,        // A data list [1 2 3]
+  ACCESS       // An access list {a b c} 
 };
 
 // Forward declarations
