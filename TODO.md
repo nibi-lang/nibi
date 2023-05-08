@@ -2,18 +2,26 @@
 
 - Tokenizer : impl scanner_cb_if and ensure all tokens scanned correctly
 - List Parser : impl list_cb_if and ensure correct list building
-- GC / Mem : Test garbage collector
 
 # Implementations
 
-Keyword `ref` should be used to _not_ clone an item, and assume any (:= a b) is an indication to clone b into new symbol a
+Consider trying out `https://github.com/faheel/BigInt` and run performance tests with it.
+It would be nice to not be limited in integer size.
 
-modify iterators to take in a value to map the $it value to and get rid of `$` as it
-makes it so we can't nest!
 
-matching?
+STD Lib:
 
-cell map ? 
+```
+
+First digit in arith determines expectations for numerical
+
+(fn to_double [x] [
+  (<- (+ 0.00 x))
+])
+
+```
+
+
 
 ------------------------
 

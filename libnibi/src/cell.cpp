@@ -16,38 +16,6 @@ const char *function_type_to_string(function_type_e type) {
 }
 } // namespace
 
-cell_ptr global_cell_nil{nullptr};
-cell_ptr global_cell_true{nullptr};
-cell_ptr global_cell_false{nullptr};
-
-void global_cells_destroy() {
-  if (global_cell_nil) {
-    global_cell_nil = nullptr;
-  }
-
-  if (global_cell_true) {
-    global_cell_true = nullptr;
-  }
-
-  if (global_cell_false) {
-    global_cell_false = nullptr;
-  }
-}
-
-bool global_cells_initialize() {
-  global_cell_nil = ALLOCATE_CELL(cell_type_e::NIL);
-  global_cell_true = ALLOCATE_CELL((int64_t)1);
-  global_cell_false = ALLOCATE_CELL((int64_t)0);
-
-  if (global_cell_true && global_cell_false && global_cell_nil) {
-    return true;
-  }
-
-  // If we get here, something went wrong so we need to clean up
-  global_cells_destroy();
-  return false;
-}
-
 const char *cell_type_to_string(const cell_type_e type) {
   switch (type) {
   case cell_type_e::NIL:
@@ -64,8 +32,6 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "SYMBOL";
   case cell_type_e::LIST:
     return "LIST";
-  case cell_type_e::REFERENCE:
-    return "REFERENCE";
   }
   return "UNKNOWN";
 }
@@ -82,7 +48,7 @@ cell_ptr cell_c::clone() {
 
   switch (this->type) {
   case cell_type_e::NIL:
-    return global_cell_nil;
+    return ALLOCATE_CELL(cell_type_e::NIL);
   case cell_type_e::INTEGER:
     new_cell->data = this->as_integer();
     break;
@@ -96,9 +62,6 @@ cell_ptr cell_c::clone() {
     break;
   case cell_type_e::FUNCTION:
     new_cell->data = this->as_function_info();
-    break;
-  case cell_type_e::REFERENCE:
-    new_cell->data = this->to_referenced_cell();
     break;
   case cell_type_e::LIST:
     auto &linf = this->as_list_info();
@@ -132,7 +95,7 @@ int64_t &cell_c::as_integer() {
   }
 }
 
-double cell_c::to_double() { 
+double cell_c::to_double() {
   if (this->type == cell_type_e::INTEGER) {
     return (double)this->as_integer();
   }
@@ -168,15 +131,6 @@ list_info_s &cell_c::as_list_info() {
   }
 }
 
-cell_ptr cell_c::to_referenced_cell() {
-  try {
-    return std::any_cast<cell_ptr>(this->data);
-  } catch (const std::exception &e) {
-    throw cell_access_exception_c("Cell is not a reference to another cell",
-                                  this->locator);
-  }
-}
-
 aberrant_cell_if *cell_c::as_aberrant() {
   try {
     return std::any_cast<aberrant_cell_if *>(this->data);
@@ -206,14 +160,6 @@ std::string cell_c::to_string() {
     [[fallthrough]];
   case cell_type_e::STRING:
     return this->as_string();
-  case cell_type_e::REFERENCE: {
-    auto cell = this->to_referenced_cell();
-    if (!cell)
-      return "nil";
-    else
-      return cell->to_string();
-    return cell->to_string();
-  }
   case cell_type_e::ABERRANT: {
     aberrant_cell_if *cell = this->as_aberrant();
     if (!cell)

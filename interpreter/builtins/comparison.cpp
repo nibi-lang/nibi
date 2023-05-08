@@ -3,21 +3,21 @@
 #include "arithmetic_helpers.hpp"
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/builtins/cpp_macros.hpp"
-#include "libnibi/cell.hpp"
 #include "interpreter/interpreter.hpp"
+#include "libnibi/cell.hpp"
 
 #define PERFORM_OP_ALLOW_STRING(___op)                                         \
   {                                                                            \
     switch (target_type) {                                                     \
     case cell_type_e::INTEGER: {                                               \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_integer() ___op rhs.as_integer()));   \
+          ALLOCATE_CELL((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::DOUBLE: {                                                \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_double() ___op rhs.as_double()));     \
+          ALLOCATE_CELL((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
@@ -41,18 +41,18 @@
     switch (target_type) {                                                     \
     case cell_type_e::INTEGER: {                                               \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_integer() ___op rhs.as_integer()));   \
+          ALLOCATE_CELL((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::DOUBLE: {                                                \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_double() ___op rhs.as_double()));     \
+          ALLOCATE_CELL((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     default:                                                                   \
-      throw interpreter_c::exception_c(                                            \
+      throw interpreter_c::exception_c(                                        \
           "Expected numeric value, got " +                                     \
               std::string(cell_type_to_string(lhs.type)),                      \
           lhs.locator);                                                        \

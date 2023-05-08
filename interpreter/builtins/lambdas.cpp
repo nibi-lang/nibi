@@ -20,15 +20,16 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   if (!target_cell) {
     throw interpreter_c::exception_c("Symbol not found in environment: " +
-                                     (*it)->as_symbol(),
-                                 (*it)->locator);
+                                         (*it)->as_symbol(),
+                                     (*it)->locator);
     return nullptr;
   }
 
   auto &fn_info = target_cell->as_function_info();
 
   if (fn_info.type != function_type_e::LAMBDA_FUNCTION) {
-    throw interpreter_c::exception_c("Expected lambda function", (*it)->locator);
+    throw interpreter_c::exception_c("Expected lambda function",
+                                     (*it)->locator);
   }
 
   auto &lambda_info = *fn_info.lambda;
@@ -37,7 +38,7 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   // Create an environment for the lambda
   // and populate it with the arguments
-  auto lambda_env = env_c();
+  auto lambda_env = env_c(env);
   auto &map = lambda_env.get_map();
 
   for (auto &&arg_name : lambda_info.arg_names) {

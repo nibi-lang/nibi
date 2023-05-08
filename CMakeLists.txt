@@ -55,6 +55,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/debug.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/at_commands.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/list_commands.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/bitwise.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/comparison.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/common.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/excepts.cpp

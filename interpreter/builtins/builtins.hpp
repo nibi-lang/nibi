@@ -5,12 +5,14 @@
 
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
+#include "libnibi/parallel_hashmap/phmap.hpp"
 
 namespace builtins {
 
 //! \brief Retrieve a reference to a map that ties symbols to their
 //!        corresponding builtin function.
-std::unordered_map<std::string, function_info_s> &get_builtin_symbols_map();
+phmap::parallel_node_hash_map<std::string, function_info_s> &
+get_builtin_symbols_map();
 
 //! \brief A function similar to the builtins that
 //!        will load a lambda function and execute it
@@ -71,6 +73,15 @@ extern cell_ptr builtin_fn_arithmetic_div(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env);
+
+// Bitwise functions
+
+extern cell_ptr builtin_fn_bitwise_lsh(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_rsh(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_and(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_or(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_xor(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_bitwise_not(cell_list_t &list, env_c &env);
 
 // Comparison functions
 

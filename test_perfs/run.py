@@ -15,14 +15,21 @@ if len(sys.argv) < 2:
 binary = sys.argv[1]
 
 print("\n<< BENCH >>\n")
+print("Binary: ", binary)
+print("N Executions per benchmark: ", runs_each)
 check_directory = os.getcwd()
 print("CWD : ", check_directory)
+
+print("\n------- BEGIN BENCHMARK -------\n")
 
 test_directories = [
   check_directory + ""
 ]
 
 def test_item(id, expected_result, item):
+
+   print("Running:", item)
+   print("Expecting return code: ", expected_result)
 
    cum_time = 0
    for x in range(0, runs_each):
@@ -33,14 +40,14 @@ def test_item(id, expected_result, item):
       cum_time += end - start
 
       if result.returncode != int(expected_result):
-         print("Error : Failed to execute")
+         print("FAIL: Incorrect return code received: ", result.returncode)
          exit(1)
 
    avg = cum_time / runs_each
    sec_avg = str(round(avg, 4)) + "s"
    ms_avg = str(round(avg * 1000, 4)) + "ms"
 
-   print(item, ">> averaged an execution time of ", sec_avg, "(", ms_avg, ")", " after ", str(runs_each), " executions")
+   print("Average execution time: ", sec_avg, "(", ms_avg, ")\n")
    return
 
 def retrieve_objects_from(directory):
@@ -80,4 +87,5 @@ total_time = run_time_end - run_time_start
 secs_ran = str(round(total_time, 4)) 
 mins_ran = str(round((total_time / 60), 4))
 
+print("\n-------- END BENCHMARK --------\n")
 print("Total time was ", secs_ran, " seconds (", mins_ran, " minutes)")

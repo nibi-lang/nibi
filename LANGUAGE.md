@@ -57,6 +57,15 @@
 | or  | Logical or | returns numerical 1 or 0 representing true / false
 | not | Logical not | returns numerical 1 or 0 representing true / false
 
+| bitwise | description | returns
+|----  |---- |----
+| bw-lsh  | left shift  | integer  
+| bw-rsh  | right shift | integer
+| bw-and  | bitwise and | integer
+| bw-or   | bitwise or  | integer
+| bw-xor  | bitwise xor | integer
+| bw-not  | bitwise not | integer
+
 # Notation
 
 **S** - A symbol (non keyword)
@@ -76,6 +85,8 @@
 **I** - An explicit `integer` value
 
 **RD** - Any raw data member (`string, integer, double`) 
+
+**NU** - A numerical value (`integer, double`)
 
 Example:
 
@@ -230,9 +241,6 @@ Variable number of arguments supported, `0+`
 ### Function
 
 Keyword: `fn`
-
-Functions do not implicitly capture anything from the environment.
-Everything must be passed to, or defined in the given function.
 
 All cells passed to a function will be done so by reference so they can
 modify any given item.
@@ -442,4 +450,77 @@ the remaining comparisons require that the arguments are numerical types (intege
 
 ```
 ( op < S () > < S () > )
+```
+
+----
+
+## Bitwise Instructions
+
+### Left Shift
+
+keyword: `bw-lsh`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-lsh <() NU> <() NU> )
+```
+
+### Right Shift
+
+keyword: `bw-rsh`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-rsh <() NU> <() NU> )
+```
+### Bitwise AND
+
+keyword: `bw-and`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-and <() NU> <() NU> )
+```
+### Bitwise OR
+
+keyword: `bw-or`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-or <() NU> <() NU> )
+```
+
+### Bitwise XOR
+
+keyword: `bw-xor`
+
+| arg1 | arg2 |
+|----  |----
+| value to shift | amount to shift
+
+```
+( bw-xor <() NU> <() NU> )
+```
+### Bitwise NOT
+
+keyword: `bw-not`
+
+| arg1
+|----
+| value to not
+
+```
+( bw-not <() NU> )
 ```

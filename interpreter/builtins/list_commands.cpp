@@ -100,18 +100,14 @@ cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
     auto it = list.begin();
     std::advance(it, 2);
     throw interpreter_c::exception_c("Cannot spawn a list with a negative size",
-                                 (*it)->locator);
-  }
-
-  auto target_value = list_get_nth_arg(1, list, env);
-
-  cell_list_t new_list;
-  for (uint64_t i = 0; i < list_size->as_integer(); i++) {
-    new_list.push_back(target_value->clone());
+                                     (*it)->locator);
   }
 
   // Create the list and return it
-  return ALLOCATE_CELL(list_info_s{list_types_e::DATA, new_list});
+  return ALLOCATE_CELL(
+      list_info_s{list_types_e::DATA,
+                  cell_list_t(list_size->as_integer(),
+                              list_get_nth_arg(1, list, env)->clone())});
 }
 
 } // namespace builtins

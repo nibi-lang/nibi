@@ -3,6 +3,7 @@
 #include "libnibi/source.hpp"
 #include <any>
 #include <cstdint>
+#include <deque>
 #include <exception>
 #include <functional>
 #include <list>
@@ -20,7 +21,6 @@ enum class cell_type_e {
   DOUBLE,
   STRING,
   LIST,
-  REFERENCE,
   ABERRANT,
   FUNCTION,
   SYMBOL,
@@ -53,27 +53,12 @@ using cell_ptr = std::shared_ptr<cell_c>;
 #define ALLOCATE_CELL(...) std::make_shared<cell_c>(__VA_ARGS__)
 
 //! \brief A list of cells
-using cell_list_t = std::list<cell_ptr>;
+using cell_list_t = std::deque<cell_ptr>;
 
 //! \brief A function that takes a list of cells and an environment
 using cell_fn_t = std::function<cell_ptr(cell_list_t &, env_c &)>;
 
-//! \brief A global cell representing nil
-extern cell_ptr global_cell_nil;
-
-//! \brief A global cell representing true
-extern cell_ptr global_cell_true;
-
-//! \brief A global cell representing false
-extern cell_ptr global_cell_false;
-
-//! \brief Initialize the global cells
-//! \return True if the initialization was successful
-extern bool global_cells_initialize();
-
-//! \brief Destroy the global cells
-extern void global_cells_destroy();
-
+//! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {
   std::vector<std::string> arg_names;
   cell_ptr body{nullptr};
@@ -148,8 +133,6 @@ public:
     case cell_type_e::NIL:
       [[fallthrough]];
     case cell_type_e::ABERRANT:
-      [[fallthrough]];
-    case cell_type_e::REFERENCE:
       data = nullptr;
     case cell_type_e::FUNCTION:
       data = function_info_s("", nullptr, function_type_e::UNSET);
@@ -175,7 +158,6 @@ public:
   cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL), data(data.data) {}
   cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
-  cell_c(cell_ptr data) : type(cell_type_e::REFERENCE), data(data) {}
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
 
@@ -246,10 +228,6 @@ public:
   //! \brief Get a reference to the cell value
   //! \throws cell_access_exception_c if the cell is not a list type
   cell_list_t &as_list();
-
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not a reference type
-  cell_ptr to_referenced_cell();
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an aberrant type

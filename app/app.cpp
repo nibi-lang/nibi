@@ -5,10 +5,10 @@
 #include "common/error.hpp"
 #include "common/input.hpp"
 #include "common/list.hpp"
-#include "libnibi/source.hpp"
+#include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
-#include "interpreter/interpreter.hpp"
+#include "libnibi/source.hpp"
 
 namespace {
 
@@ -22,7 +22,6 @@ source_manager_c *source_manager{nullptr};
 
 void teardown() {
   global_interpreter_destroy();
-  global_cells_destroy();
   delete source_manager;
   delete program_global_env;
 }
@@ -30,13 +29,6 @@ void teardown() {
 void setup() {
   program_global_env = new env_c(nullptr);
   source_manager = new source_manager_c();
-
-  // Initialize the global cells (true, false, nil, etc)
-  if (!global_cells_initialize()) {
-    std::cerr << "Failed to initialize global cells" << std::endl;
-    teardown();
-    exit(1);
-  }
 
   // Initialize the global interpreter object
   if (!global_interpreter_init(*program_global_env, *source_manager)) {

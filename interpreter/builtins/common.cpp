@@ -71,7 +71,8 @@ cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env) {
 
   cell_ptr result = ALLOCATE_CELL(cell_type_e::NIL);
   while (true) {
-    auto condition_result = global_interpreter->execute_cell(condition, loop_env);
+    auto condition_result =
+        global_interpreter->execute_cell(condition, loop_env);
 
     if (condition_result->to_integer() <= 0) {
       return result;
@@ -122,7 +123,7 @@ cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env) {
   auto it = list.begin();
   std::advance(it, 1);
 
-  while(it != list.end()) {
+  while (it != list.end()) {
     std::cout << global_interpreter->execute_cell((*it), env)->to_string();
     std::advance(it, 1);
   }
