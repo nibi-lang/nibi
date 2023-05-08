@@ -12,11 +12,7 @@
 class scanner_cb_if {
 public:
   //! \brief Enum to indicate the type of unclosed symbol if one exists
-  enum class unclosed_type_e {
-    PAREN,
-    BRACKET,
-    BRACE
-  };
+  enum class unclosed_type_e { PAREN, BRACKET, BRACE };
 
   //! \brief Called when a token is found.
   virtual void on_token(token_c token, bool end_list = false) = 0;

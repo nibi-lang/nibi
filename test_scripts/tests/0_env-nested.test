@@ -1,0 +1,41 @@
+
+(env outer-env [
+
+  (env inner-pub-env [
+    (:= inner_pub_x 0)
+    (:= _inner_priv_x 0)
+    (fn inner_update_priv [value] (set _inner_priv_x value))
+    (fn inner_get_priv [] (<- _inner_priv_x))
+  ])
+
+  (env _inner-priv-env [
+    (:= _inner_priv_x 0)
+    (fn inner_update_priv [value] (set _inner_priv_x value))
+    (fn inner_get_priv [] (<- _inner_priv_x))
+  ])
+
+  (fn outer_get_priv_env [] (<- _inner-priv-env))
+
+  (fn outer_update_inner_priv_x [value] [
+    ({_inner-priv-env inner_update_priv} value)
+  ])
+  (fn outer_access_inner_priv_x [] (<- ({_inner-priv-env inner_get_priv})))
+])
+
+({outer-env outer_update_inner_priv_x} 4092)
+
+(assert (eq ({outer-env outer_access_inner_priv_x}) 4092) "Unable to update nested item")
+
+(:= cloned_inner_env ({outer-env outer_get_priv_env}))
+
+(assert (eq 
+  ({outer-env outer_access_inner_priv_x})
+  ({cloned_inner_env inner_get_priv}))
+  "Inner env not cloned correctly"
+  )
+
+(assert (eq {outer-env inner-pub-env inner_pub_x} 0) "Unable to access public item?")
+
+(set {outer-env inner-pub-env inner_pub_x} 8192)
+
+(assert (eq {outer-env inner-pub-env inner_pub_x} 8192) "Unable to access public item?")

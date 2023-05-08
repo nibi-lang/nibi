@@ -24,15 +24,6 @@ cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
 
   auto &target_variable_name = (*it)->as_string();
 
-  // Ensure that the user doesn't attempt to overwrite a temporary variable
-
-  if (target_variable_name.starts_with('$')) {
-    throw interpreter_c::exception_c(
-        "Cannot assign to a variable that starts with a '$' as those are "
-        "reserved for temporary variables",
-        (*it)->locator);
-  }
-
   auto target_assignment_value =
       global_interpreter->execute_cell(list_get_nth_arg(2, list, env), env);
 
@@ -116,7 +107,7 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
   }
 
   function_info_s function_info(target_function_name, execute_suspected_lambda,
-                                function_type_e::LAMBDA_FUNCTION);
+                                function_type_e::LAMBDA_FUNCTION, &env);
 
   function_info.lambda = {lambda_info};
 

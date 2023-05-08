@@ -40,7 +40,7 @@ enum class function_type_e {
 enum class list_types_e {
   INSTRUCTION, // A single list of instruction (+ 1 2 3)
   DATA,        // A data list [1 2 3]
-  ACCESS       // An access list {a b c} 
+  ACCESS       // An access list {a b c}
 };
 
 // Forward declarations
@@ -73,9 +73,11 @@ struct function_info_s {
   cell_fn_t fn;
   function_type_e type;
   std::optional<lambda_info_s> lambda{std::nullopt};
+  env_c *operating_env{nullptr};
   function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
-  function_info_s(std::string name, cell_fn_t fn, function_type_e type)
-      : name(name), fn(fn), type(type) {}
+  function_info_s(std::string name, cell_fn_t fn, function_type_e type,
+                  env_c *env = nullptr)
+      : name(name), fn(fn), type(type), operating_env(env) {}
 };
 
 //! \brief List wrapper that holds list meta data
@@ -94,7 +96,7 @@ struct symbol_s {
 //! \brief Environment information that can be encoded into a cell
 struct environment_info_s {
   std::string name;
-  env_c* env{nullptr};
+  env_c *env{nullptr};
 };
 
 //! \brief An exception that is thrown when a cell is accessed

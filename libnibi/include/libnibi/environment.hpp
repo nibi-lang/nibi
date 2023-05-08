@@ -52,6 +52,8 @@ public:
     return cell_map_;
   }
 
+  env_c *get_parent_env() { return parent_env_; }
+
 private:
   env_c *parent_env_{nullptr};
   phmap::parallel_node_hash_map<std::string, cell_ptr> cell_map_;
