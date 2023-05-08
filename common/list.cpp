@@ -105,9 +105,11 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
   tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
 
   switch (current_token.get_token()) {
+  case token_e::L_BRACE:
+    [[fallthrough]];
   case token_e::L_BRACKET: {
     // Data lists must exist within an executable list ([ ... ]])
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected opening bracket")
+    PARSER_ENFORCE_CURRENT_CELL("Unexpected opening symbol `{ [`")
     [[fallthrough]];
   }
   case token_e::L_PAREN: {
@@ -119,6 +121,9 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
     }
     if (current_token.get_token() == token_e::L_BRACKET) {
       new_list->as_list_info().type = list_types_e::DATA;
+    }
+    if (current_token.get_token() == token_e::L_BRACE) {
+      new_list->as_list_info().type = list_types_e::ACCESS;
     }
 
     parse(tokens, new_list);
@@ -133,10 +138,12 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
   }
   case token_e::R_BRACKET:
     [[fallthrough]];
+  case token_e::R_BRACE:
+    [[fallthrough]];
   case token_e::R_PAREN: {
     if (!current_list) {
       on_error_(error_c(current_token.get_locator(),
-                        "Unexpected closing parenthesis"));
+                        "Unexpected closing symbol `} ] )`"));
     }
     return nullptr;
   }

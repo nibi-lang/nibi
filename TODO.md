@@ -21,6 +21,28 @@ First digit in arith determines expectations for numerical
 
 ```
 
+------------------------
+
+Importing and execution
+
+```
+
+- Launching cli against file pulls in file and executes. in the future may or may not convert to bytecode first
+
+- Launching cli against a directory, where an app.nibi will be read for application settings and information 
+  including include dirs, entry file, and test file listing so nibi -t dir/ can be ran and have all `.test` 
+  files executed in the order they are listed.
+
+
+(import "file.nibi" ... )
+
+Will import the files in the given order - populating the environment with whatever they contain in the top level
+
+using (import "some_dir") will attempt to load the item as a directory for grouping imports (lib.nibi) will
+be required in this case.
+
+```
+
 
 
 ------------------------

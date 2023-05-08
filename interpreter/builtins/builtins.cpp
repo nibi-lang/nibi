@@ -118,6 +118,10 @@ static function_info_s builtin_common_put_inf = {
 static function_info_s builtin_common_putln_inf = {
     "putln", builtin_fn_common_putln, function_type_e::BUILTIN_CPP_FUNCTION};
 
+// environment cell functions
+static function_info_s builtin_envcell_env_inf = {
+    "env", builtin_fn_envcell_env, function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
     {{"eq", builtin_comparison_eq_inf},
@@ -163,7 +167,8 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"dbg-var", builtin_dbg_var_inf},
      {"dbg-out", builtin_dbg_out_inf},
      {"dbg", builtin_dbg_dbg_inf},
-     {"@debug", builtin_at_debug_inf}};
+     {"@debug", builtin_at_debug_inf},
+     {"env", builtin_envcell_env_inf}};
 
 // Retrieve the map of symbols to function info structs
 phmap::parallel_node_hash_map<std::string, function_info_s> &

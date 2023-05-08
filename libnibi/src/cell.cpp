@@ -1,5 +1,7 @@
 #include "libnibi/cell.hpp"
 
+#include "libnibi/environment.hpp"
+
 namespace {
 const char *function_type_to_string(function_type_e type) {
   switch (type) {
@@ -36,7 +38,14 @@ const char *cell_type_to_string(const cell_type_e type) {
   return "UNKNOWN";
 }
 
-cell_c::~cell_c() {}
+cell_c::~cell_c() {
+  if (this->type == cell_type_e::ENVIRONMENT) {
+    auto &env_info = this->as_environment_info();
+    if (env_info.env != nullptr) {
+      delete env_info.env;
+    }
+  }
+}
 
 cell_ptr cell_c::clone() {
 
@@ -63,7 +72,7 @@ cell_ptr cell_c::clone() {
   case cell_type_e::FUNCTION:
     new_cell->data = this->as_function_info();
     break;
-  case cell_type_e::LIST:
+  case cell_type_e::LIST: {
     auto &linf = this->as_list_info();
     auto &other = new_cell->as_list_info();
     for (auto &cell : linf.list) {
@@ -71,6 +80,17 @@ cell_ptr cell_c::clone() {
     }
     other.type = linf.type;
     break;
+  }
+  case cell_type_e::ENVIRONMENT: {
+    auto &einf = this->as_environment_info();
+    auto &other = new_cell->as_environment_info();
+    other.env = new env_c(einf.env->get_parent_env());
+    for (auto &&[key, val] : einf.env->get_map()) {
+      auto cloned = val->clone();
+      other.env->set(key, cloned);
+    }
+    break;
+  }
   }
   return new_cell;
 }
@@ -148,6 +168,14 @@ function_info_s &cell_c::as_function_info() {
   }
 }
 
+environment_info_s &cell_c::as_environment_info() {
+  try {
+    return std::any_cast<environment_info_s &>(this->data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Cell is not an environment", this->locator);
+  }
+}
+
 std::string cell_c::to_string() {
   switch (this->type) {
   case cell_type_e::NIL:
@@ -176,6 +204,13 @@ std::string cell_c::to_string() {
     result += ">";
     return result;
   }
+  case cell_type_e::ENVIRONMENT: {
+    auto &env = this->as_environment_info();
+    std::string result = "<environment:";
+    result += env.name;
+    result += ">";
+    return result;
+  }
   case cell_type_e::LIST: {
     std::string result;
     auto &list_info = this->as_list_info();
@@ -199,6 +234,16 @@ std::string cell_c::to_string() {
       if (result.size() > 1)
         result.pop_back();
       result += "]";
+      break;
+    }
+    case list_types_e::ACCESS: {
+      result += "{";
+      for (auto cell : list_info.list) {
+        result += cell->to_string() + " ";
+      }
+      if (result.size() > 1)
+        result.pop_back();
+      result += "}";
       break;
     }
     }

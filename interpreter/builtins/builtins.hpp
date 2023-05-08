@@ -95,4 +95,9 @@ extern cell_ptr builtin_fn_comparison_and(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_comparison_or(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env);
 
+// Environment cell functions
+
+extern cell_ptr builtin_fn_envcell_env(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_envcell_create(cell_list_t &list, env_c &env);
+
 } // namespace builtins

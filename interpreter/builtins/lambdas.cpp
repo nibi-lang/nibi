@@ -4,6 +4,8 @@
 
 #include "cpp_macros.hpp"
 
+#include <iostream>
+
 namespace builtins {
 
 // --------------------------------------------------------
@@ -14,15 +16,18 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   auto it = list.begin();
 
-  auto target_symbol = (*it)->as_symbol();
+  cell_ptr target_cell = (*it);
 
-  auto target_cell = env.get(target_symbol);
-
-  if (!target_cell) {
-    throw interpreter_c::exception_c("Symbol not found in environment: " +
-                                         (*it)->as_symbol(),
-                                     (*it)->locator);
-    return nullptr;
+  // If the first argument is a symbol, then we need to look it up
+  if ((*it)->type == cell_type_e::SYMBOL) {
+    auto target_symbol = (*it)->as_symbol();
+    target_cell = env.get(target_symbol);
+    if (!target_cell) {
+      throw interpreter_c::exception_c("Symbol not found in environment: " +
+                                           (*it)->as_symbol(),
+                                       (*it)->locator);
+      return nullptr;
+    }
   }
 
   auto &fn_info = target_cell->as_function_info();
@@ -38,7 +43,7 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   // Create an environment for the lambda
   // and populate it with the arguments
-  auto lambda_env = env_c(env);
+  auto lambda_env = env_c(fn_info.operating_env);
   auto &map = lambda_env.get_map();
 
   for (auto &&arg_name : lambda_info.arg_names) {

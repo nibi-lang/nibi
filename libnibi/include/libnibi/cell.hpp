@@ -24,6 +24,7 @@ enum class cell_type_e {
   ABERRANT,
   FUNCTION,
   SYMBOL,
+  ENVIRONMENT,
 };
 
 extern const char *cell_type_to_string(const cell_type_e type);
@@ -38,7 +39,8 @@ enum class function_type_e {
 
 enum class list_types_e {
   INSTRUCTION, // A single list of instruction (+ 1 2 3)
-  DATA         // A data list [1 2 3]
+  DATA,        // A data list [1 2 3]
+  ACCESS       // An access list {a b c}
 };
 
 // Forward declarations
@@ -71,9 +73,11 @@ struct function_info_s {
   cell_fn_t fn;
   function_type_e type;
   std::optional<lambda_info_s> lambda{std::nullopt};
+  env_c *operating_env{nullptr};
   function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
-  function_info_s(std::string name, cell_fn_t fn, function_type_e type)
-      : name(name), fn(fn), type(type) {}
+  function_info_s(std::string name, cell_fn_t fn, function_type_e type,
+                  env_c *env = nullptr)
+      : name(name), fn(fn), type(type), operating_env(env) {}
 };
 
 //! \brief List wrapper that holds list meta data
@@ -87,6 +91,12 @@ struct list_info_s {
 // in the cell constructor
 struct symbol_s {
   std::string data;
+};
+
+//! \brief Environment information that can be encoded into a cell
+struct environment_info_s {
+  std::string name;
+  env_c *env{nullptr};
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -134,6 +144,10 @@ public:
       [[fallthrough]];
     case cell_type_e::ABERRANT:
       data = nullptr;
+      break;
+    case cell_type_e::ENVIRONMENT:
+      data = environment_info_s{"", nullptr};
+      break;
     case cell_type_e::FUNCTION:
       data = function_info_s("", nullptr, function_type_e::UNSET);
       break;
@@ -160,6 +174,7 @@ public:
   cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
+  cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT), data(env) {}
 
   cell_c() = delete;
   cell_c(const cell_c &other) = delete;
@@ -233,9 +248,13 @@ public:
   //! \throws cell_access_exception_c if the cell is not an aberrant type
   aberrant_cell_if *as_aberrant();
 
-  //! \brief Get a copy of the cell value
+  //! \brief Get a reference of the cell value
   //! \throws cell_access_exception_c if the cell is not a function type
   function_info_s &as_function_info();
+
+  //! \brief Get a reference of the cell value
+  //! \throws cell_access_exception_c if the cell is not an environment type
+  environment_info_s &as_environment_info();
 
   //! \brief Check if a cell is a numeric type
   bool is_numeric() const {
