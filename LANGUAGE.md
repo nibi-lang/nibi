@@ -594,3 +594,55 @@ keyword: `bw-not`
 ```
 ( bw-not <() NU> )
 ```
+
+# Modules
+
+```
+
+module_directory
+    |
+    |---- mod.nibi
+    |
+    |---- tests
+    |       |--- test-feature-0.nibi
+    |       |--- test-feature-1.nibi
+    |
+    |---- submodule_a
+    |       |
+    |       |---- mod.nibi
+    |       |
+    |       |---- tests
+    |             |
+    |             |---- test-sub-feature-0.nibi
+    |
+    file-0.nibi
+    file-1.nibi
+```
+
+### mod.nibi
+
+```
+(:= module_name "my_module")
+(:= authors ["Author 1"])
+(:= licenses ["MIT"])
+(:= submodules [
+  "submodule_a"
+])
+(:= entry_file "file-1.nibi")
+
+
+```
+
+### External functionality
+
+```
+
+(:= dylib "something.a")
+
+(@extern dylib (fn something [a b c] []))
+
+(@extern dylib (fn another_method [] []))
+
+```
+
+
