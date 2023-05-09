@@ -1,0 +1,90 @@
+# Special thanks to Malassi for posting this in TCS
+# Pulled from The Code Society: https://discord.com/servers/code-society-823178343943897088
+# originally on https://www.codewars.com/kata/515bb423de843ea99400000a
+
+(env math [
+  (fn force_double [x] (<- (+ 0.00 x)))
+  (fn force_integer [x] (<- (+ 0 x)))
+
+  (fn ceil [x] [
+    (:= x_dbl (force_double x))
+    (:= remains (% x_dbl 1.00))
+    (? (> remains 0.00) (<- (+ 1.00 (- x_dbl remains))))
+    (<- x_dbl)
+  ])
+
+  (fn floor [x] [
+    (:= x_dbl (force_double x))
+    (:= remains (% x_dbl 1.00))
+    (? (> remains 0.00) (<- (- x_dbl remains)))
+    (<- x_dbl)
+  ])
+])
+
+(env PaginationHelper [
+  (:= _data [])
+  (:= _data_len 0)
+  (:= _count 0)
+  (:= _total_pages 0)
+  (:= _last_page_size 0)
+
+  (fn _calculate_page_count [] [
+    (? (<= _count 0) (<- -1))
+    (? (>= _count _data_len) (<- 1))
+    (? (not (% _data_len _count)) [
+      (set _last_page_size _count)
+      (<- ({math force_integer} (/ _data_len _count)))
+    ])
+
+    (:= page_remainder (- (/ _data_len _count) 1.0))
+    (set _last_page_size (* page_remainder _count))
+    (<- ({math force_integer} ({math ceil} (/ _data_len _count))))
+  ])
+
+  (fn update_data [data count] [
+    (set _data data)
+    (set _data_len ({math force_double} (len data)))
+    (set _count ({math force_double} count))
+    (set _total_pages (_calculate_page_count))
+  ])
+
+  (fn page_count [] (<- _total_pages))
+  (fn item_count [] (<- (len _data)))
+
+  (fn page_item_count [x] [
+    (? (>= x _total_pages) (<- -1))
+    (:= idx (* x _count))
+    (? (< ( - _data_len idx) _count) (<- ({math force_integer} _last_page_size)))
+    (<- ({math force_integer} _count))
+  ])
+
+  (fn page_index [x] [
+    (? (> 0 x) (<- -1))
+    (? (>= x _data_len) (<- -1))
+    (:= page_to_idx_factor (/ ({math force_double} _total_pages) _data_len))
+    (<- ({math force_integer} ({math floor} (* ({math force_double} x) page_to_idx_factor))))
+  ])
+])
+
+({PaginationHelper update_data} ["a" "b" "c" "d" "e" "f"] 4)
+
+(assert (eq  2 ({PaginationHelper page_count})) "")
+(assert (eq  6 ({PaginationHelper item_count})) "")
+(assert (eq  4 ({PaginationHelper page_item_count} 0)) "")
+(assert (eq  2 ({PaginationHelper page_item_count} 1)) "")
+(assert (eq -1 ({PaginationHelper page_item_count} 2)) "")
+(assert (eq  1 ({PaginationHelper page_index} 5)) "")
+(assert (eq  0 ({PaginationHelper page_index} 2)) "")
+(assert (eq -1 ({PaginationHelper page_index} 20)) "")
+(assert (eq -1 ({PaginationHelper page_index} -10)) "")
+
+
+# (putln "Page count: " ({PaginationHelper page_count}))
+# (putln "Item count: " ({PaginationHelper item_count}))
+# (putln "Page item count of 0 : " ({PaginationHelper page_item_count} 0))
+# (putln "Page item count of 1 : " ({PaginationHelper page_item_count} 1))
+# (putln "Page item count of 2 : " ({PaginationHelper page_item_count} 2))
+# (putln "Page index of 5   : " ({PaginationHelper page_index} 5))
+# (putln "Page index of 2   : " ({PaginationHelper page_index} 2))
+# (putln "Page index of 20  : " ({PaginationHelper page_index} 20))
+# (putln "Page index of -10 : " ({PaginationHelper page_index} -10))

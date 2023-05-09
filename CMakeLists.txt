@@ -42,7 +42,8 @@ if(WITH_ASAN)
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
-add_subdirectory(libnibi)
+add_subdirectory(${PROJECT_SOURCE_DIR}/libnibi)
+include_directories(${PROJECT_SOURCE_DIR}/libnibi)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -82,3 +83,6 @@ target_link_libraries(${PROJECT_NAME}
 if(COMPILE_TESTS)
   add_subdirectory(tests)
 endif()
+
+install (TARGETS ${PROJECT_NAME}
+    DESTINATION bin)
