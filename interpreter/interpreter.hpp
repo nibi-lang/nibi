@@ -72,6 +72,9 @@ public:
   //! \brief Get the yield valueq
   cell_ptr get_yield_value() const { return yield_value_; }
 
+  //! \brief Get the source manager we are using
+  source_manager_c &get_source_manager() { return source_manager_; }
+
 private:
   bool debug_enabled_{false};
 
