@@ -95,6 +95,7 @@ int main(int argc, char **argv) {
 
     if (args[i] == "-t" || args[i] == "--test") {
       run_tests = true;
+      continue;
     }
 
     if (args[i] == "-i" || args[i] == "--include") {
@@ -103,8 +104,9 @@ int main(int argc, char **argv) {
         return 1;
       }
       std::stringstream ss(args[i + 1]);
-      while (std::getline(ss, args[i + 1], ':')) {
-        include_dirs.push_back(args[i + 1]);
+      std::string item;
+      while (std::getline(ss, item, ':')) {
+        include_dirs.push_back(item);
       }
       ++i;
       continue;
@@ -122,9 +124,9 @@ int main(int argc, char **argv) {
   }
 
   bool run_as_dir = false;
-  if (std::filesystem::is_directory(args[0])) {
+  if (std::filesystem::is_directory(unmatched[0])) {
     run_as_dir = true;
-  } else if (std::filesystem::is_regular_file(args[0])) {
+  } else if (std::filesystem::is_regular_file(unmatched[0])) {
     run_as_dir = false;
     if (run_tests) {
       std::cout
@@ -133,7 +135,7 @@ int main(int argc, char **argv) {
       return 1;
     }
   } else {
-    std::cout << "Invalid file or directory: " << args[0] << std::endl;
+    std::cout << "Invalid file or directory: " << unmatched[0] << std::endl;
     return 1;
   }
 
@@ -147,7 +149,7 @@ int main(int argc, char **argv) {
 
   setup(include_dirs);
 
-  (run_as_dir) ? run_from_dir(args[0], run_tests) : run_from_file(args[0]);
+  (run_as_dir) ? run_from_dir(unmatched[0], run_tests) : run_from_file(unmatched[0]);
 
   teardown();
 
