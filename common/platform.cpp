@@ -2,10 +2,11 @@
 
 platform_c *global_platform = nullptr;
 
-platform_c::platform_c(std::vector<std::filesystem::path> include_dirs) {
-  _include_dirs = include_dirs;
+platform_c::platform_c(std::vector<std::filesystem::path> &include_dirs,
+                       std::filesystem::path &launch_location)
+    : _include_dirs(include_dirs), _launch_location(launch_location) {
 
-  if (const char *home = std::getenv("SAUROS_HOME")) {
+  if (const char *home = std::getenv("NIBI_PATH")) {
     _nibi_path = {std::filesystem::path(home)};
   } else {
 
@@ -47,8 +48,6 @@ platform_c::platform_c(std::vector<std::filesystem::path> include_dirs) {
 #else
   // Unable to detect the home env
 #endif
-
-  _launch_location = std::filesystem::current_path();
   return;
 }
 
@@ -94,9 +93,10 @@ platform_c::locate_file(std::string &file_name) {
   return {std::nullopt};
 }
 
-bool global_platform_init(std::vector<std::filesystem::path> include_dirs) {
+bool global_platform_init(std::vector<std::filesystem::path> include_dirs,
+                          std::filesystem::path &launch_location) {
   if (!global_platform) {
-    global_platform = new platform_c(include_dirs);
+    global_platform = new platform_c(include_dirs, launch_location);
     return true;
   }
   return false;

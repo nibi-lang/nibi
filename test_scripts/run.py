@@ -43,7 +43,7 @@ def display_result(result_item):
 def test_item(id, expected_result, item):
    results = {}
    start = time.time()
-   result = subprocess.run([binary, "-i", "tests", item], stdout=subprocess.PIPE)
+   result = subprocess.run([binary, item], stdout=subprocess.PIPE)
    end = time.time()
    parser_status = True
 

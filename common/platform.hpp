@@ -14,7 +14,8 @@ public:
 
   //! \brief Constructor
   //! \param include_dirs Include directories
-  platform_c(std::vector<std::filesystem::path> include_dirs);
+  platform_c(std::vector<std::filesystem::path> &include_dirs,
+             std::filesystem::path &launch_location);
 
   //! \brief Retrieve the nibi home path
   //! \return The nibi home path iff it exists
@@ -39,6 +40,7 @@ private:
 extern platform_c *global_platform;
 
 extern bool
-global_platform_init(std::vector<std::filesystem::path> include_dirs);
+global_platform_init(std::vector<std::filesystem::path> include_dirs,
+                     std::filesystem::path &launch_location);
 
 extern bool global_platform_destroy();

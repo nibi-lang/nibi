@@ -13,6 +13,12 @@
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
 
+#define CALCULATE_EXECUTION_TIME 0
+
+#if CALCULATE_EXECUTION_TIME
+#include <chrono>
+#endif
+
 namespace {
 
 // The object that will be used as the top level env
@@ -30,12 +36,13 @@ void teardown() {
   delete program_global_env;
 }
 
-void setup(std::vector<std::filesystem::path> &include_dirs) {
+void setup(std::vector<std::filesystem::path> &include_dirs,
+           std::filesystem::path &launch_location) {
   program_global_env = new env_c(nullptr);
   source_manager = new source_manager_c();
 
   // Initialize the global platofrm object
-  if (!global_platform_init(include_dirs)) {
+  if (!global_platform_init(include_dirs, launch_location)) {
     std::cerr << "Failed to initialize global platform" << std::endl;
     teardown();
     exit(1);
@@ -81,6 +88,10 @@ void show_help() {
 }
 
 int main(int argc, char **argv) {
+
+#if CALCULATE_EXECUTION_TIME
+  auto app_start = std::chrono::high_resolution_clock::now();
+#endif
 
   bool run_tests{false};
   std::vector<std::string> unmatched;
@@ -147,11 +158,40 @@ int main(int argc, char **argv) {
     }
   }
 
-  setup(include_dirs);
+  std::filesystem::path entry_file_path(unmatched[0]);
+  entry_file_path = std::filesystem::canonical(entry_file_path);
 
-  (run_as_dir) ? run_from_dir(unmatched[0], run_tests) : run_from_file(unmatched[0]);
+  if (!run_as_dir && entry_file_path.has_parent_path()) {
+    entry_file_path = entry_file_path.parent_path();
+  }
+
+  setup(include_dirs, entry_file_path);
+
+#if CALCULATE_EXECUTION_TIME
+  auto start = std::chrono::high_resolution_clock::now();
+#endif
+
+  if (run_as_dir) {
+    run_from_dir(unmatched[0], run_tests);
+  } else {
+    run_from_file(unmatched[0]);
+  }
+
+#if CALCULATE_EXECUTION_TIME
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration =
+      std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  std::cout << "Execution time: " << duration.count() << "ms" << std::endl;
+#endif
 
   teardown();
+
+#if CALCULATE_EXECUTION_TIME
+  auto app_end = std::chrono::high_resolution_clock::now();
+  auto app_duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      app_end - app_start);
+  std::cout << "Total time: " << app_duration.count() << "ms" << std::endl;
+#endif
 
   return 0;
 }
