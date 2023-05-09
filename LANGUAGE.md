@@ -18,6 +18,7 @@
 | putln   | put, but with a following newline         | 0
 | fn      | Define a function | variable
 | env     | Define an environment | new env
+| import  | Import files | 0
 
 | @ commands | description | returns
 |----       |----          |----
@@ -299,6 +300,28 @@ Example:
 (assert (eq ({dummy_env public_accessor_private_data}) 2048) "Private data not updated")
 
 ```
+
+### Environment
+
+Keyword: `import`
+
+Import files into the current operating environment as-is.
+
+```
+( import <S ...> )
+```
+
+All symbols in an import must be a string type, and not presented in any type of list.
+
+The system will utilize any imports from `-i` or `--include` to look for files marked
+to be included that are not immediatly present. The search priority is as follows:
+
+1) The launch directory 
+
+2) Include dirs as they appeared in order from include flag
+
+3) The home directory under the directory `~/.nibi` iff the directory exists 
+
 
 ### Try
 
