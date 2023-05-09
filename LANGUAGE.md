@@ -18,6 +18,7 @@
 | putln   | put, but with a following newline         | 0
 | fn      | Define a function | variable
 | env     | Define an environment | new env
+| import  | Import files | 0
 
 | @ commands | description | returns
 |----       |----          |----
@@ -300,6 +301,28 @@ Example:
 
 ```
 
+### Environment
+
+Keyword: `import`
+
+Import files into the current operating environment as-is.
+
+```
+( import <S ...> )
+```
+
+All symbols in an import must be a string type, and not presented in any type of list.
+
+The system will utilize any imports from `-i` or `--include` to look for files marked
+to be included that are not immediatly present. The search priority is as follows:
+
+1) The launch directory 
+
+2) Include dirs as they appeared in order from include flag
+
+3) The home directory under the directory `~/.nibi` iff the directory exists 
+
+
 ### Try
 
 Keyword: `try`
@@ -571,3 +594,55 @@ keyword: `bw-not`
 ```
 ( bw-not <() NU> )
 ```
+
+# Modules
+
+```
+
+module_directory
+    |
+    |---- mod.nibi
+    |
+    |---- tests
+    |       |--- test-feature-0.nibi
+    |       |--- test-feature-1.nibi
+    |
+    |---- submodule_a
+    |       |
+    |       |---- mod.nibi
+    |       |
+    |       |---- tests
+    |             |
+    |             |---- test-sub-feature-0.nibi
+    |
+    file-0.nibi
+    file-1.nibi
+```
+
+### mod.nibi
+
+```
+(:= module_name "my_module")
+(:= authors ["Author 1"])
+(:= licenses ["MIT"])
+(:= submodules [
+  "submodule_a"
+])
+(:= entry_file "file-1.nibi")
+
+
+```
+
+### External functionality
+
+```
+
+(:= dylib "something.a")
+
+(@extern dylib (fn something [a b c] []))
+
+(@extern dylib (fn another_method [] []))
+
+```
+
+

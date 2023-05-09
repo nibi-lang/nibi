@@ -4,6 +4,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
+#include "common/platform.hpp"
 #include "interpreter/builtins/cpp_macros.hpp"
 
 namespace builtins {
@@ -143,4 +144,30 @@ cell_ptr builtin_fn_common_putln(cell_list_t &list, env_c &env) {
   return result;
 }
 
+cell_ptr builtin_fn_common_import(cell_list_t &list, env_c &env) {
+
+  LIST_ENFORCE_SIZE("import", >=, 2)
+
+  auto it = list.begin();
+  std::advance(it, 1);
+
+  auto &gsm = global_interpreter->get_source_manager();
+
+  list_builder_c list_builder(*global_interpreter);
+  file_reader_c file_reader(list_builder, gsm);
+
+  while (it != list.end()) {
+    auto target = (*it)->as_string();
+    auto item = global_platform->locate_file(target);
+    if (!item.has_value()) {
+      global_interpreter->halt_with_error(error_c(
+          (*it)->locator, "Could not locate file for import: " + target));
+    }
+    if (!gsm.exists((*item).string())) {
+      file_reader.read_file((*item).string());
+    }
+    std::advance(it, 1);
+  }
+  return ALLOCATE_CELL((int64_t)0);
+}
 } // namespace builtins

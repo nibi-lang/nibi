@@ -145,8 +145,8 @@ inline bool considered_private(cell_ptr &cell) {
   return false;
 }
 
-cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
-                                         bool process_data_list) {
+inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
+                                                bool process_data_list) {
 
   auto &list_info = cell->as_list_info();
 
@@ -177,21 +177,21 @@ cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
       if (result->type == cell_type_e::ENVIRONMENT) {
         current_env = result->as_environment_info().env;
         if (considered_private(result) && i != 0) {
-          halt_with_error(
-              error_c(cell->locator, "Private members can only be accessed "
-                                     "from the root of an access list"));
+          halt_with_error(error_c(cell->locator,
+                                  "Private members can only be accessed "
+                                  "from the root of an access list"));
         }
         std::advance(it, 1);
         continue;
       }
-      halt_with_error(
-          error_c(cell->locator, "Each member up-to the end of an access list "
-                                 "must be an environment"));
+      halt_with_error(error_c(cell->locator,
+                              "Each member up-to the end of an access list "
+                              "must be an environment"));
     }
     if (considered_private((*it))) {
-      halt_with_error(
-          error_c(cell->locator, "Private members can only be accessed from "
-                                 "the root of an access list"));
+      halt_with_error(error_c(cell->locator,
+                              "Private members can only be accessed from "
+                              "the root of an access list"));
     }
     return execute_cell(*it, *current_env);
   }

@@ -117,6 +117,8 @@ static function_info_s builtin_common_put_inf = {
     "put", builtin_fn_common_put, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_common_putln_inf = {
     "putln", builtin_fn_common_putln, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_import_inf = {
+    "import", builtin_fn_common_import, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // environment cell functions
 static function_info_s builtin_envcell_env_inf = {
@@ -158,6 +160,7 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"clone", builtin_common_clone_inf},
      {"put", builtin_common_put_inf},
      {"putln", builtin_common_putln_inf},
+     {"import", builtin_common_import_inf},
      {"bw-lsh", builtin_bitwise_lsh_inf},
      {"bw-rsh", builtin_bitwise_rsh_inf},
      {"bw-and", builtin_bitwise_and_inf},
