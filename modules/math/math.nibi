@@ -1,0 +1,22 @@
+
+(fn ceil [x] [
+  (:= x_dbl (+ 0.00 x))
+  (:= remains (% x_dbl 1.00))
+  (? (> remains 0.00) (<- (+ 1.00 (- x_dbl remains))))
+  (<- x_dbl)
+])
+
+(fn floor [x] [
+  (:= x_dbl (+ 0.00 x))
+  (:= remains (% x_dbl 1.00))
+  (? (> remains 0.00) (<- (- x_dbl remains)))
+  (<- x_dbl)
+])
+
+(fn ceil_all[x] [
+  (iter x i (set i (ceil i)))
+])
+
+(fn floor_all[x] [
+  (iter x i (set i (floor i)))
+])

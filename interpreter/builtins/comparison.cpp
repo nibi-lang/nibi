@@ -165,14 +165,10 @@ cell_ptr builtin_fn_comparison_or(cell_list_t &list, env_c &env) {
 
 cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("not", ==, 2)
-
   auto it = list.begin();
   std::advance(it, 1);
-
   auto item_to_negate = global_interpreter->execute_cell(*it, env, true);
-
-  auto value = item_to_negate->as_integer();
-
+  auto value = item_to_negate->to_integer();
   return ALLOCATE_CELL((int64_t)(!value));
 }
 

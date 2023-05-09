@@ -126,8 +126,13 @@ int main(int argc, char **argv) {
     unmatched.push_back(args[i]);
   }
 
+  if (unmatched.empty()) {
+    std::cerr << "No file or directory specified" << std::endl;
+    return 1;
+  }
+
   if (unmatched.size() > 1) {
-    std::cout << "Unmatched arguments:" << std::endl;
+    std::cerr << "Unmatched arguments:" << std::endl;
     for (auto &arg : unmatched) {
       std::cout << "  " << arg << std::endl;
     }

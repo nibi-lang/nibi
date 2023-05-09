@@ -6,6 +6,8 @@
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 
+#include <cmath>
+
 namespace builtins {
 
 #define PERFORM_OPERATION(___op_fn)                                            \
@@ -46,11 +48,16 @@ cell_ptr builtin_fn_arithmetic_mul(cell_list_t &list, env_c &env){
 cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("%", >=, 2)
   auto first_arg = list_get_nth_arg(1, list, env);
-  int64_t accumulate{first_arg->to_integer()};
-
-  LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->to_integer(); })
-
-  return ALLOCATE_CELL(accumulate);
+  if (first_arg->type == cell_type_e::DOUBLE) {
+    double accumulate{first_arg->to_double()};
+    LIST_ITER_AND_LOAD_SKIP_N(
+        2, { accumulate = std::fmod(accumulate, arg->to_double()); })
+    return ALLOCATE_CELL(accumulate);
+  } else {
+    int64_t accumulate{first_arg->to_integer()};
+    LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->to_integer(); })
+    return ALLOCATE_CELL(accumulate);
+  }
 }
 
 cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env) {
