@@ -96,9 +96,11 @@ private:
   // The yield value
   cell_ptr yield_value_{nullptr};
 
-  cell_ptr handle_list_cell(cell_ptr &cell, env_c &env, bool process_data_cell);
-
+  // Contain all loaded modules
   std::set<std::string> _loaded_modules;
+
+  // Handle a list cell
+  cell_ptr handle_list_cell(cell_ptr &cell, env_c &env, bool process_data_cell);
 
   void load_dylib(
     std::string& module_name,
