@@ -95,6 +95,31 @@ platform_c::locate_file(std::string &file_name) {
   return {std::nullopt};
 }
 
+std::optional<std::filesystem::path> 
+platform_c::locate_directory(std::string &directory_name) {
+  std::filesystem::path dir_path =
+      _launch_location / std::filesystem::path(directory_name);
+  if (std::filesystem::exists(dir_path) &&
+      std::filesystem::is_directory(dir_path)) {
+    return {dir_path};
+  }
+  for (auto &include_dir : _include_dirs) {
+    dir_path = include_dir / std::filesystem::path(directory_name);
+    if (std::filesystem::exists(dir_path) &&
+        std::filesystem::is_directory(dir_path)) {
+      return {dir_path};
+    }
+  }
+  if (_nibi_path.has_value()) {
+    dir_path = _nibi_path.value() / "modules" / std::filesystem::path(directory_name);
+    if (std::filesystem::exists(dir_path) &&
+        std::filesystem::is_directory(dir_path)) {
+      return {dir_path};
+    }
+  }
+  return {std::nullopt};
+}
+
 bool global_platform_init(std::vector<std::filesystem::path> include_dirs,
                           std::filesystem::path &launch_location) {
   if (!global_platform) {

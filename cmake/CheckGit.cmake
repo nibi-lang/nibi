@@ -8,7 +8,7 @@ execute_process(
    OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-add_custom_target(libnibi-check-git COMMAND ${CMAKE_COMMAND}
+add_custom_target(nibi-check-git COMMAND ${CMAKE_COMMAND}
    -DRUN_CHECK_GIT_VERSION=1
    -Dpre_configure_dir=${pre_configure_dir}
    -Dpost_configure_file=${post_configure_dir}
@@ -24,5 +24,5 @@ if (EXISTS ${PROJECT_BINARY_DIR}/git-state.txt)
    file(STRINGS ${PROJECT_BINARY_DIR}/git-state.txt CONTENT)
    LIST(GET CONTENT 0 var)
    set(build_hash "\"${var}\"")
-   add_compile_definitions(LIBNIBI_COMPILED_GIT_HASH=${build_hash})
+   add_compile_definitions(NIBI_BUILD_HASH=${build_hash})
 endif ()

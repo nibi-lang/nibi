@@ -12,6 +12,11 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
+#include "libnibi/version.hpp"
+
+#ifndef NIBI_BUILD_HASH
+#define NIBI_BUILD_HASH "unknown"
+#endif
 
 #define CALCULATE_EXECUTION_TIME 0
 
@@ -84,9 +89,15 @@ void show_help() {
   std::cout << "Usage: nibi [options] [file | directory]\n" << std::endl;
   std::cout << "Options:" << std::endl;
   std::cout << "  -h, --help          Show this help message" << std::endl;
+  std::cout << "  -v, --version       Show version info" << std::endl;
   std::cout << "  -t, --test          Run tests" << std::endl;
   std::cout << "  -i, --include       Add include directory (`:` delimited)"
             << std::endl;
+}
+
+void show_version() {
+  std::cout << "libnibi version: " << LIBNIBI_VERSION << std::endl;
+  std::cout << "application build hash: " << NIBI_BUILD_HASH << std::endl;
 }
 
 int main(int argc, char **argv) {
@@ -103,6 +114,11 @@ int main(int argc, char **argv) {
   for (std::size_t i = 0; i < args.size(); i++) {
     if (args[i] == "-h" || args[i] == "--help") {
       show_help();
+      return 0;
+    }
+
+    if (args[i] == "-v" || args[i] == "--version") {
+      show_version();
       return 0;
     }
 
