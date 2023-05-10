@@ -8,6 +8,7 @@
 
 #include <iterator>
 
+namespace nibi {
 namespace builtins {
 
 cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
@@ -63,7 +64,7 @@ cell_ptr builtin_fn_env_drop(cell_list_t &list, env_c &env) {
                                        (*it)->locator);
     }
   })
-  return ALLOCATE_CELL((int64_t)0);
+  return allocate_cell((int64_t)0);
 }
 
 cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
@@ -111,12 +112,13 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
 
   function_info.lambda = {lambda_info};
 
-  auto fn_cell = ALLOCATE_CELL(function_info);
+  auto fn_cell = allocate_cell(function_info);
 
   // Set the variable
   env.set(target_function_name, fn_cell);
 
-  return ALLOCATE_CELL((int64_t)0);
+  return allocate_cell((int64_t)0);
 }
 
 } // namespace builtins
+}

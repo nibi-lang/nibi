@@ -8,19 +8,21 @@
 
 #include <cmath>
 
+namespace nibi {
+
 namespace builtins {
 
 #define PERFORM_OPERATION(___op_fn)                                            \
   auto first_arg = list_get_nth_arg(1, list, env);                             \
   switch (first_arg->type) {                                                   \
   case cell_type_e::INTEGER: {                                                 \
-    return ALLOCATE_CELL(___op_fn<int64_t>(                                    \
+    return allocate_cell(___op_fn<int64_t>(                                    \
         first_arg->to_integer(),                                               \
         [](cell_ptr arg) -> int64_t { return arg->to_integer(); }, list,       \
         env));                                                                 \
   }                                                                            \
   case cell_type_e::DOUBLE: {                                                  \
-    return ALLOCATE_CELL(___op_fn<double>(                                     \
+    return allocate_cell(___op_fn<double>(                                     \
         first_arg->to_double(),                                                \
         [](cell_ptr arg) -> double { return arg->to_double(); }, list, env));  \
   }                                                                            \
@@ -31,7 +33,7 @@ namespace builtins {
     break;                                                                     \
   }                                                                            \
   }                                                                            \
-  return ALLOCATE_CELL(cell_type_e::NIL);
+  return allocate_cell(cell_type_e::NIL);
 
 cell_ptr builtin_fn_arithmetic_add(cell_list_t &list, env_c &env){
     LIST_ENFORCE_SIZE("+", >=, 2) PERFORM_OPERATION(list_perform_add)}
@@ -52,11 +54,11 @@ cell_ptr builtin_fn_arithmetic_mod(cell_list_t &list, env_c &env) {
     double accumulate{first_arg->to_double()};
     LIST_ITER_AND_LOAD_SKIP_N(
         2, { accumulate = std::fmod(accumulate, arg->to_double()); })
-    return ALLOCATE_CELL(accumulate);
+    return allocate_cell(accumulate);
   } else {
     int64_t accumulate{first_arg->to_integer()};
     LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->to_integer(); })
-    return ALLOCATE_CELL(accumulate);
+    return allocate_cell(accumulate);
   }
 }
 
@@ -66,3 +68,5 @@ cell_ptr builtin_fn_arithmetic_pow(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
+
+}

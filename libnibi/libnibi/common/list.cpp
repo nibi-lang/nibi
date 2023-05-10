@@ -9,6 +9,8 @@
 
 #include <unordered_map>
 
+namespace nibi {
+
 #define PARSER_ENFORCE_CURRENT_CELL(___message)                                \
   if (!current_list) {                                                         \
     on_error_(error_c(current_token.get_locator(), ___message));               \
@@ -113,7 +115,7 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
     [[fallthrough]];
   }
   case token_e::L_PAREN: {
-    auto new_list = ALLOCATE_CELL(cell_type_e::LIST);
+    auto new_list = allocate_cell(cell_type_e::LIST);
     new_list->locator = current_token.get_locator();
 
     if (current_token.get_token() == token_e::L_PAREN) {
@@ -154,7 +156,7 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
 
     // If the symbol isn't in the map, its an identifier
     if (builtins_.find(symbol_raw) == builtins_.end()) {
-      auto cell = ALLOCATE_CELL(symbol_s{symbol_raw});
+      auto cell = allocate_cell(symbol_s{symbol_raw});
       cell->locator = current_token.get_locator();
 
       PARSER_ADD_CELL
@@ -174,7 +176,7 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
         needing to check against all builtins (map)
         to confirm its okay to use
     */
-    auto cell = ALLOCATE_CELL(builtins_[symbol_raw]);
+    auto cell = allocate_cell(builtins_[symbol_raw]);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -194,7 +196,7 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
       return nullptr;
     }
 
-    auto cell = ALLOCATE_CELL((int64_t)value_actual);
+    auto cell = allocate_cell((int64_t)value_actual);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -214,7 +216,7 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
       return nullptr;
     }
 
-    auto cell = ALLOCATE_CELL((double)value_actual);
+    auto cell = allocate_cell((double)value_actual);
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
@@ -222,11 +224,12 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
 
   case token_e::RAW_STRING: {
     PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
-    auto cell = ALLOCATE_CELL(current_token.get_data());
+    auto cell = allocate_cell(current_token.get_data());
     cell->locator = current_token.get_locator();
 
     PARSER_ADD_CELL
   }
   }
   return nullptr;
+}
 }

@@ -3,6 +3,8 @@
 #include "libnibi/source.hpp"
 #include <memory>
 
+namespace nibi {
+
 enum class token_e {
   NIL,
   L_PAREN,
@@ -45,3 +47,5 @@ private:
 };
 
 extern const char *token_to_string(const token_c &token);
+
+}

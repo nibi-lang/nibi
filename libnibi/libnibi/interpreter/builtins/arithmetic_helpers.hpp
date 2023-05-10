@@ -4,6 +4,8 @@
 #include <iostream>
 #include <math.h>
 
+namespace nibi {
+
 template <typename T>
 static inline T list_perform_add(T base_value,
                                  std::function<T(cell_ptr)> conversion_method,
@@ -55,4 +57,6 @@ static inline T list_perform_pow(T base_value,
   LIST_ITER_AND_LOAD_SKIP_N(
       2, { accumulate = std::pow(accumulate, conversion_method(arg)); })
   return accumulate;
+}
+
 }

@@ -2,6 +2,7 @@
 
 #include "libnibi/environment.hpp"
 
+namespace nibi {
 namespace {
 const char *function_type_to_string(function_type_e type) {
   switch (type) {
@@ -50,14 +51,14 @@ cell_c::~cell_c() {
 cell_ptr cell_c::clone() {
 
   // Allocate a new cell
-  cell_ptr new_cell = ALLOCATE_CELL(this->type);
+  cell_ptr new_cell = allocate_cell(this->type);
 
   // Copy the data
   new_cell->locator = this->locator;
 
   switch (this->type) {
   case cell_type_e::NIL:
-    return ALLOCATE_CELL(cell_type_e::NIL);
+    return allocate_cell(cell_type_e::NIL);
   case cell_type_e::INTEGER:
     new_cell->data = this->as_integer();
     break;
@@ -274,4 +275,5 @@ std::string &cell_c::as_symbol() {
     throw cell_access_exception_c("Symbol cell does not contain a string",
                                   this->locator);
   }
+}
 }

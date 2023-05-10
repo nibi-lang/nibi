@@ -3,6 +3,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
+namespace nibi {
 namespace builtins {
 
 // All functions in cells are tagged wit their type, their symbol, and contain
@@ -180,3 +181,4 @@ get_builtin_symbols_map() {
 }
 
 } // namespace builtins
+}

@@ -1,5 +1,7 @@
 #include "platform.hpp"
 
+namespace nibi {
+
 platform_c *global_platform = nullptr;
 
 platform_c::platform_c(std::vector<std::filesystem::path> &include_dirs,
@@ -109,4 +111,6 @@ bool global_platform_destroy() {
     return true;
   }
   return false;
+}
+
 }

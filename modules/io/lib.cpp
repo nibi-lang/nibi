@@ -3,8 +3,8 @@
 #include <string>
 #include <iostream>
 
-cell_ptr get_str(cell_list_t &list, env_c &env) {
+nibi::cell_ptr get_str(nibi::cell_list_t &list, nibi::env_c &env) {
   std::string line;
   std::getline(std::cin, line);
-  return ALLOCATE_CELL(line);
+  return nibi::allocate_cell(line);
 }

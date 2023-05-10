@@ -7,12 +7,14 @@
 #include "cpp_macros.hpp"
 
 #include <iterator>
+
+namespace nibi {
 namespace builtins {
 
 namespace {
 cell_ptr handle_thrown_error_in_try(std::string message, cell_ptr recover_cell,
                                     env_c &env) {
-  auto e_cell = ALLOCATE_CELL(message);
+  auto e_cell = allocate_cell(message);
   env.set("$e", e_cell);
   auto result = global_interpreter->execute_cell(recover_cell, env, true);
   env.drop("$e");
@@ -55,7 +57,7 @@ cell_ptr builtin_fn_except_try(cell_list_t &list, env_c &env) {
   } catch (cell_access_exception_c &e) {
     return handle_thrown_error_in_try(e.what(), recover_cell, env);
   }
-  return ALLOCATE_CELL(cell_type_e::NIL);
+  return allocate_cell(cell_type_e::NIL);
 }
 
 cell_ptr builtin_fn_except_throw(cell_list_t &list, env_c &env) {
@@ -72,3 +74,4 @@ cell_ptr builtin_fn_except_throw(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
+}

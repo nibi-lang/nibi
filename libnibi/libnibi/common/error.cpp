@@ -3,6 +3,8 @@
 
 #include "libnibi/rang.hpp"
 
+namespace nibi {
+
 void error_c::draw_error(bool markup) const {
 
   if (!locator_ || !markup) {
@@ -16,4 +18,5 @@ void error_c::draw_error(bool markup) const {
   std::cout << rang::fg::cyan << "\nMessage: " << rang::fg::reset << message_
             << "\n"
             << std::endl;
+}
 }

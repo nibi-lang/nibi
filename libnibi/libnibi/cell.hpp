@@ -11,6 +11,7 @@
 #include <optional>
 #include <string>
 
+namespace nibi {
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
 //!       meant to be used by external libraries that
@@ -50,9 +51,9 @@ class cell_c;
 //! \brief A cell pointer type
 using cell_ptr = std::shared_ptr<cell_c>;
 
-// Macro to allocate cell so if we change memory management later
-// we can do so here easily
-#define ALLOCATE_CELL(...) std::make_shared<cell_c>(__VA_ARGS__)
+constexpr auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
+  return std::make_shared<nibi::cell_c>(args...);
+};
 
 //! \brief A list of cells
 using cell_list_t = std::deque<cell_ptr>;
@@ -261,3 +262,4 @@ public:
     return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
   }
 };
+}

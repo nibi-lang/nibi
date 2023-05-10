@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace nibi {
+
 //! \brief Platform class
 class platform_c {
 public:
@@ -44,3 +46,5 @@ global_platform_init(std::vector<std::filesystem::path> include_dirs,
                      std::filesystem::path &launch_location);
 
 extern bool global_platform_destroy();
+
+}

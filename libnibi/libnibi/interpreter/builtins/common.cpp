@@ -7,6 +7,7 @@
 #include "common/platform.hpp"
 #include "interpreter/builtins/cpp_macros.hpp"
 
+namespace nibi {
 namespace builtins {
 
 cell_ptr builtin_fn_common_clone(cell_list_t &list, env_c &env) {
@@ -27,17 +28,17 @@ cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
   auto target_list = list_get_nth_arg(1, list, env);
 
   if (target_list->type != cell_type_e::LIST) {
-    return ALLOCATE_CELL((int64_t)(target_list->to_string().size()));
+    return allocate_cell((int64_t)(target_list->to_string().size()));
   }
 
   auto &list_info = target_list->as_list_info();
-  return ALLOCATE_CELL((int64_t)list_info.list.size());
+  return allocate_cell((int64_t)list_info.list.size());
 }
 
 cell_ptr builtin_fn_common_yield(cell_list_t &list, env_c &env) {
 
   if (list.size() == 1) {
-    global_interpreter->set_yield_value(ALLOCATE_CELL((int64_t)0));
+    global_interpreter->set_yield_value(allocate_cell((int64_t)0));
     return global_interpreter->get_yield_value();
   }
 
@@ -70,7 +71,7 @@ cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env) {
 
   global_interpreter->execute_cell(pre_condition, loop_env);
 
-  cell_ptr result = ALLOCATE_CELL(cell_type_e::NIL);
+  cell_ptr result = allocate_cell(cell_type_e::NIL);
   while (true) {
     auto condition_result =
         global_interpreter->execute_cell(condition, loop_env);
@@ -115,7 +116,7 @@ cell_ptr builtin_fn_common_if(cell_list_t &list, env_c &env) {
     return global_interpreter->execute_cell((*it), if_env, true);
   }
 
-  return ALLOCATE_CELL((int64_t)0);
+  return allocate_cell((int64_t)0);
 }
 
 cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env) {
@@ -128,14 +129,14 @@ cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env) {
     std::cout << global_interpreter->execute_cell((*it), env)->to_string();
     std::advance(it, 1);
   }
-  return ALLOCATE_CELL((int64_t)0);
+  return allocate_cell((int64_t)0);
 }
 
 cell_ptr builtin_fn_common_putln(cell_list_t &list, env_c &env) {
 
   if (list.size() == 1) {
     std::cout << std::endl;
-    return ALLOCATE_CELL((int64_t)0);
+    return allocate_cell((int64_t)0);
   }
 
   LIST_ENFORCE_SIZE("putln", >=, 2)
@@ -168,6 +169,7 @@ cell_ptr builtin_fn_common_import(cell_list_t &list, env_c &env) {
     }
     std::advance(it, 1);
   }
-  return ALLOCATE_CELL((int64_t)0);
+  return allocate_cell((int64_t)0);
 }
 } // namespace builtins
+}

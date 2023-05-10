@@ -3,6 +3,8 @@
 #include "interpreter/interpreter.hpp"
 #include <iterator>
 
+namespace nibi {
+
 #define LIST_ITER_SKIP_N(___n, ___loop_body)                                   \
   auto it = list.begin();                                                      \
   std::advance(it, ___n);                                                      \
@@ -27,7 +29,7 @@
                 std::string(___cmd) + " instruction expects " +                \
                     std::to_string(___size - 1) + " parameters, got " +        \
                     std::to_string(list.size() - 1) + "."));                   \
-    return ALLOCATE_CELL(cell_type_e::NIL);                                    \
+    return allocate_cell(cell_type_e::NIL);                                    \
   }
 
 //! \brief Get the nth argument from a list of cells from an execution list,
@@ -40,4 +42,5 @@ static inline cell_ptr list_get_nth_arg(std::size_t n, cell_list_t &list,
   auto it = list.begin();
   std::advance(it, n);
   return global_interpreter->execute_cell(*it, env);
+}
 }

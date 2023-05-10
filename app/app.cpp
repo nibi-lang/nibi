@@ -19,6 +19,8 @@
 #include <chrono>
 #endif
 
+using namespace nibi;
+
 namespace {
 
 // The object that will be used as the top level env
