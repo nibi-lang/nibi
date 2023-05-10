@@ -41,11 +41,6 @@ if(WITH_ASAN)
   set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 endif()
 
-#
-#  Update version file
-#
-include("cmake/CheckGit.cmake")
-
 include(${PROJECT_SOURCE_DIR}/cmake/SetEnv.cmake)
 
 include_directories("libnibi")

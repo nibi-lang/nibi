@@ -1,6 +1,7 @@
 #include "interpreter.hpp"
 
 #include "libnibi/rang.hpp"
+#include "libnibi/common/platform.hpp"
 #include <iostream>
 
 #if PROFILE_INTERPRETER
@@ -246,4 +247,35 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   // so we return it as is
   return cell;
 }
+
+void interpreter_c::load_module(cell_ptr &module_name) {
+
+  std::cout << "use module: " << module_name->as_string() << std::endl;
+
+  std::string name = module_name->as_string();
+
+  // check if its already loaded
+  if (_loaded_modules.contains(name)) {
+    return;
+  }
+
+  auto opt_path = global_platform->locate_directory(name);
+
+  if (!opt_path.has_value()) {
+    halt_with_error(
+      error_c(module_name->locator, "Could not locate module: " + name)
+    );
+  }
+
+  // load the module
+
+  auto path = opt_path.value();
+
+
+
+  std::cout << "loading module at: " << path << std::endl;
+
+
+}
+
 }

@@ -169,7 +169,22 @@ cell_ptr builtin_fn_common_import(cell_list_t &list, env_c &env) {
     }
     std::advance(it, 1);
   }
-  return allocate_cell((int64_t)0);
+  return allocate_cell((int64_t)1);
 }
+
+cell_ptr builtin_fn_common_use(cell_list_t &list, env_c &env) {
+
+  LIST_ENFORCE_SIZE("use", >=, 2)
+
+  auto it = list.begin();
+  std::advance(it, 1);
+
+  while (it != list.end()) {;
+    global_interpreter->load_module((*it));
+    std::advance(it, 1);
+  }
+  return allocate_cell((int64_t)1);
+}
+
 } // namespace builtins
 }

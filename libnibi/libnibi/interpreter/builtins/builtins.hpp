@@ -62,6 +62,7 @@ extern cell_ptr builtin_fn_common_if(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_common_putln(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_common_import(cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_common_use(cell_list_t &list, env_c &env);
 
 // Assertions
 

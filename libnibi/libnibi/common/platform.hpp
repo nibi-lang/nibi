@@ -28,6 +28,11 @@ public:
   //! \return The file path iff it exists somewhere
   std::optional<std::filesystem::path> locate_file(std::string &file_name);
 
+  //! \brief Locate a directory
+  //! \param directory_name The directory name
+  //! \return The directory path iff it exists somewhere
+  std::optional<std::filesystem::path> locate_directory(std::string &directory_name);
+
   //! \brief Retrieve the platform string
   //! \return The platform string
   const char *get_platform_string() const;
