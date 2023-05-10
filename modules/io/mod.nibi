@@ -1,6 +1,4 @@
 
-(:= dylibs [
-  ["io.lib" [
-    "get_string"
-  ]]
+(:= dylib [
+  "get_str"
 ])
