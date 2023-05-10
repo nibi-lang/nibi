@@ -10,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "libnibi/RLL/rll_wrapper.hpp"
 
 namespace nibi {
 //! \brief The type of a cell
