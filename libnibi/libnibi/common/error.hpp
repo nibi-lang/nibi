@@ -2,6 +2,8 @@
 
 #include "libnibi/source.hpp"
 
+namespace nibi {
+
 //! \brief An error that can be reported to the user.
 class error_c {
 public:
@@ -30,3 +32,5 @@ private:
   locator_ptr locator_{nullptr};
   std::string message_{""};
 };
+
+}

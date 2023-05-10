@@ -7,6 +7,7 @@
 
 #include "cpp_macros.hpp"
 
+namespace nibi {
 namespace builtins {
 
 namespace {
@@ -41,23 +42,23 @@ cell_ptr builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("dbg", >, 1)
   LIST_ITER_AND_LOAD_SKIP_N(
       1, { global_interpreter->execute_cell(arg, env, true); });
-  return ALLOCATE_CELL(cell_type_e::NIL);
+  return allocate_cell(cell_type_e::NIL);
 }
 
 cell_ptr builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env) {
   if (!global_interpreter->is_debug_enabled()) {
-    return ALLOCATE_CELL(cell_type_e::NIL);
+    return allocate_cell(cell_type_e::NIL);
   }
 
   LIST_ENFORCE_SIZE("dbg-out", >, 1)
   LIST_ITER_AND_LOAD_SKIP_N(1, { std::cout << arg->to_string() << std::endl; });
-  return ALLOCATE_CELL(cell_type_e::NIL);
+  return allocate_cell(cell_type_e::NIL);
 }
 
 cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 
   if (!global_interpreter->is_debug_enabled()) {
-    return ALLOCATE_CELL(cell_type_e::NIL);
+    return allocate_cell(cell_type_e::NIL);
   }
 
   LIST_ENFORCE_SIZE("dbg-var", >, 1)
@@ -92,7 +93,8 @@ cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
     add_debug_info(result, *arg, *(*it), "\t");
   });
 
-  return ALLOCATE_CELL(result);
+  return allocate_cell(result);
 }
 
 } // namespace builtins
+}

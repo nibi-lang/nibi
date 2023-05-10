@@ -5,6 +5,7 @@
 #include <tuple>
 #include <unordered_map>
 
+namespace nibi {
 //! \brief A locator interface.
 //!       Used to locate errors in the source.
 class locator_if {
@@ -84,3 +85,4 @@ public:
 private:
   std::unordered_map<std::string, std::shared_ptr<source_origin_c>> sources_;
 };
+}

@@ -6,6 +6,7 @@
 
 #include "parallel_hashmap/phmap.hpp"
 
+namespace nibi {
 //! \brief The environment object that will be used to store
 //!        and manage the cells that are used in different scopes
 class env_c {
@@ -58,3 +59,4 @@ private:
   env_c *parent_env_{nullptr};
   phmap::parallel_node_hash_map<std::string, cell_ptr> cell_map_;
 };
+}

@@ -8,6 +8,8 @@
 #include <optional>
 #include <vector>
 
+namespace nibi {
+
 //! \brief A callback interface for the list builder
 class list_cb_if {
 public:
@@ -33,3 +35,4 @@ private:
   std::vector<token_c> tokens_;
   std::vector<error_c> errors_;
 };
+}

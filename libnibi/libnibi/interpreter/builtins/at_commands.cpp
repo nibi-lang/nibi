@@ -6,6 +6,8 @@
 
 #include "cpp_macros.hpp"
 
+namespace nibi {
+
 namespace builtins {
 
 /*
@@ -18,7 +20,8 @@ cell_ptr builtin_fn_at_debug(cell_list_t &list, env_c &env) {
     throw interpreter_c::exception_c("Expected integer value", value->locator);
   }
   global_interpreter->set_debug_enabled(value->as_integer() != 0);
-  return ALLOCATE_CELL((int64_t)0);
+  return allocate_cell((int64_t)0);
 }
 
 } // namespace builtins
+}

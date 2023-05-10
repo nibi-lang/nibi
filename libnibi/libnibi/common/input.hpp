@@ -7,6 +7,8 @@
 #include <string_view>
 #include <unordered_map>
 
+namespace nibi {
+
 //! \brief A callback interface for the scanner that
 //!        will be called when a token is found or an error occurs.
 class scanner_cb_if {
@@ -68,3 +70,5 @@ private:
   scanner_c scanner_;
   source_manager_c &sm_;
 };
+
+}

@@ -1,5 +1,6 @@
 #include "libnibi/environment.hpp"
 
+namespace nibi {
 env_c::~env_c() {}
 
 env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {}
@@ -46,4 +47,5 @@ bool env_c::drop(std::string name) {
   env->cell_map_.erase(name);
 
   return true;
+}
 }

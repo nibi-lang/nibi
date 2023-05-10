@@ -7,6 +7,7 @@
 #include "libnibi/environment.hpp"
 #include "libnibi/parallel_hashmap/phmap.hpp"
 
+namespace nibi {
 namespace builtins {
 
 //! \brief Retrieve a reference to a map that ties symbols to their
@@ -102,3 +103,4 @@ extern cell_ptr builtin_fn_envcell_env(cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_envcell_create(cell_list_t &list, env_c &env);
 
 } // namespace builtins
+}

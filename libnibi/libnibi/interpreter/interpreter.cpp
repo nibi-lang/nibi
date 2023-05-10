@@ -7,6 +7,8 @@
 #include <chrono>
 #endif
 
+namespace nibi {
+
 interpreter_c *global_interpreter{nullptr};
 
 bool global_interpreter_init(env_c &env, source_manager_c &source_manager) {
@@ -89,7 +91,7 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
   }
 
   if (!cell) {
-    return ALLOCATE_CELL(cell_type_e::NIL);
+    return allocate_cell(cell_type_e::NIL);
   }
 
   switch (cell->type) {
@@ -153,7 +155,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   switch (list_info.type) {
   case list_types_e::DATA: {
     if (process_data_list) {
-      cell_ptr last_result = ALLOCATE_CELL(cell_type_e::NIL);
+      cell_ptr last_result = allocate_cell(cell_type_e::NIL);
       for (auto &list_cell : list_info.list) {
         last_result = execute_cell(list_cell, env);
         if (this->is_yielding()) {
@@ -171,7 +173,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
     // and directing us through environments to a final cell value
     auto it = list_info.list.begin();
     auto *current_env = &env;
-    cell_ptr result = ALLOCATE_CELL(cell_type_e::NIL);
+    cell_ptr result = allocate_cell(cell_type_e::NIL);
     for (std::size_t i = 0; i < list_info.list.size() - 1; i++) {
       result = execute_cell(*it, *current_env);
       if (result->type == cell_type_e::ENVIRONMENT) {
@@ -243,4 +245,5 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   // If we get here then we have a list that is not a function
   // so we return it as is
   return cell;
+}
 }

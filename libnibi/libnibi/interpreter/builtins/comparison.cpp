@@ -6,30 +6,32 @@
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 
+namespace nibi {
+
 #define PERFORM_OP_ALLOW_STRING(___op)                                         \
   {                                                                            \
     switch (target_type) {                                                     \
     case cell_type_e::INTEGER: {                                               \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
+          allocate_cell((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::DOUBLE: {                                                \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
+          allocate_cell((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::STRING: {                                                \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_string() ___op rhs.to_string()));     \
+          allocate_cell((int64_t)(lhs.as_string() ___op rhs.to_string()));     \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     default: {                                                                 \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.to_string() ___op rhs.to_string()));     \
+          allocate_cell((int64_t)(lhs.to_string() ___op rhs.to_string()));     \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
@@ -41,13 +43,13 @@
     switch (target_type) {                                                     \
     case cell_type_e::INTEGER: {                                               \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
+          allocate_cell((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
     case cell_type_e::DOUBLE: {                                                \
       auto r =                                                                 \
-          ALLOCATE_CELL((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
+          allocate_cell((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
       r->locator = locator;                                                    \
       return r;                                                                \
     }                                                                          \
@@ -169,7 +171,8 @@ cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env) {
   std::advance(it, 1);
   auto item_to_negate = global_interpreter->execute_cell(*it, env, true);
   auto value = item_to_negate->to_integer();
-  return ALLOCATE_CELL((int64_t)(!value));
+  return allocate_cell((int64_t)(!value));
 }
 
 } // namespace builtins
+}

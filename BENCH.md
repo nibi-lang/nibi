@@ -21,3 +21,34 @@ mandelbrot.saur 0.4771s ( 477.0854ms )
 primality.saur  2.4532s ( 2453.189ms )
 4sieve.saur     2.1253s ( 2125.2623ms )
 ```
+
+```
+<< BENCH >>
+
+Binary:  ../build/nibi
+N Executions per benchmark:  50
+CWD :  /home/bosley/workspace/nibi/test_perfs
+
+------- BEGIN BENCHMARK -------
+
+Scanning directory :  /home/bosley/workspace/nibi/test_perfs
+
+Running: /home/bosley/workspace/nibi/test_perfs/mandelbrot.nibi
+Expecting return code:  0
+Average execution time:  0.1731s ( 173.108ms )
+
+Running: /home/bosley/workspace/nibi/test_perfs/primality.nibi
+Expecting return code:  0
+Average execution time:  2.1617s ( 2161.7256ms )
+
+Running: /home/bosley/workspace/nibi/test_perfs/4sieve.nibi
+Expecting return code:  0
+Average execution time:  2.4722s ( 2472.1891ms )
+
+Running: /home/bosley/workspace/nibi/test_perfs/leibniz.nibi
+Expecting return code:  0
+Average execution time:  0.2393s ( 239.2551ms )
+
+
+-------- END BENCHMARK --------
+```

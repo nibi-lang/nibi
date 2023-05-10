@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+namespace nibi {
 void draw_locator(locator_if &location) {
 
   std::cout << rang::fg::magenta << location.get_source_name()
@@ -85,4 +86,5 @@ void draw_locator(locator_if &location) {
     }
   }
   fs.close();
+}
 }

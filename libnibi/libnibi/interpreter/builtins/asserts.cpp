@@ -5,6 +5,8 @@
 
 #include "cpp_macros.hpp"
 
+namespace nibi {
+
 namespace builtins {
 
 cell_ptr builtin_fn_assert_true(cell_list_t &list, env_c &env) {
@@ -26,7 +28,9 @@ cell_ptr builtin_fn_assert_true(cell_list_t &list, env_c &env) {
     throw interpreter_c::exception_c(message->as_string(), value->locator);
   }
 
-  return ALLOCATE_CELL(cell_type_e::NIL);
+  return allocate_cell(cell_type_e::NIL);
 }
 
 } // namespace builtins
+
+}

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <regex>
 
+namespace nibi {
+
 static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
 
 std::optional<error_c> file_reader_c::read_file(std::string_view path) {
@@ -186,4 +188,6 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
     }
   }
   return true;
+}
+
 }

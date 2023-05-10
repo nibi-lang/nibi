@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+namespace nibi {
 namespace builtins {
 
 // --------------------------------------------------------
@@ -73,3 +74,4 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
+}

@@ -1,6 +1,8 @@
 #include "token.hpp"
 #include <iostream>
 
+namespace nibi {
+
 const char *token_to_string(const token_c &token) {
   switch (token.get_token()) {
   case token_e::L_PAREN:
@@ -27,4 +29,5 @@ const char *token_to_string(const token_c &token) {
     return "NIL";
   }
   return "<<<UNKNOWN>>>";
+}
 }
