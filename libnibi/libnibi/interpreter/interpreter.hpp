@@ -1,7 +1,7 @@
 #pragma once
 
-#include "common/error.hpp"
-#include "common/list.hpp"
+#include "libnibi/common/error.hpp"
+#include "libnibi/common/list.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"

@@ -48,25 +48,6 @@ include_directories(${PROJECT_SOURCE_DIR}/libnibi)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(APP_SOURCES
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/builtins.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/lambdas.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/arithmetic.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/environment_modifiers.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/asserts.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/debug.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/at_commands.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/list_commands.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/bitwise.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/comparison.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/common.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/env_cell.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/builtins/excepts.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/platform.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/error.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/input.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/list.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/common/token.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/interpreter/interpreter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/app/app.cpp
 )
 
