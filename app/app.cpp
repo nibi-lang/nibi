@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "common/error.hpp"
-#include "common/input.hpp"
-#include "common/list.hpp"
-#include "common/platform.hpp"
-#include "interpreter/interpreter.hpp"
+#include "libnibi/common/error.hpp"
+#include "libnibi/common/input.hpp"
+#include "libnibi/common/list.hpp"
+#include "libnibi/common/platform.hpp"
+#include "libnibi/interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"

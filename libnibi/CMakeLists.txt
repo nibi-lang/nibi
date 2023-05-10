@@ -71,6 +71,10 @@ set(HEADERS
    ${PROJECT_SOURCE_DIR}/libnibi/environment.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/rang.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/source.hpp
+   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.hpp
+   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/arithmetic_helpers.hpp
+   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/builtins.hpp
+   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/cpp_macros.hpp
    ${PARALLEL_HASHMAP_HEADERS}
 )
 
@@ -78,6 +82,25 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/environment.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/source.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/builtins.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/lambdas.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/arithmetic.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/environment_modifiers.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/asserts.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/debug.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/at_commands.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/list_commands.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/bitwise.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/comparison.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/common.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/env_cell.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/excepts.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/platform.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/error.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/input.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/list.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/token.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.cpp
 )
 
 set(SOURCES
