@@ -2,14 +2,6 @@
 # an `env` matching the name of the folder
 # that this file is contained in
 
-(:= source_list [
+(:= sources [
   "math.nibi"
 ])
-
-# (:= dylibs [
-#   ["math.a" [
-#     "some_func"
-#     "some_other_func"
-#     "_some_private_func"
-#   ]]
-# ])

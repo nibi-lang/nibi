@@ -271,11 +271,97 @@ void interpreter_c::load_module(cell_ptr &module_name) {
 
   auto path = opt_path.value();
 
-
-
   std::cout << "loading module at: " << path << std::endl;
 
+  auto module_file = path / "mod.nibi";
 
+  std::cout << "Looking for module file: " << module_file << std::endl;
+
+  if (!std::filesystem::exists(module_file)) {
+    halt_with_error(
+      error_c(module_name->locator, "Could not locate module file: " + module_file.string())
+    );
+  }
+
+  if (!std::filesystem::is_regular_file(module_file)) {
+    halt_with_error(
+      error_c(module_name->locator, "Module file is not a regular file: " + module_file.string())
+    );
+  }
+
+  env_c module_env;
+  source_manager_c module_source_manager;
+  interpreter_c module_interpreter(module_env, module_source_manager);
+  list_builder_c module_builder(module_interpreter);
+  file_reader_c module_reader(module_builder, module_source_manager);
+  module_reader.read_file(module_file.string());
+
+  // Env that everything will be dumped into and 
+  // then put into a cell
+  environment_info_s module_cell_env = {name, new env_c()};
+
+  bool loaded_something{false};
+
+  auto dylib = module_env.get("dylib");
+  if (nullptr != dylib) {
+    load_dylib(name, *module_cell_env.env, path, dylib);
+    loaded_something = true;
+  }
+
+  auto source_list = module_env.get("sources");
+  if (nullptr != source_list) {
+    load_source_list(name, *module_cell_env.env, path, source_list);
+    loaded_something = true;
+  }
+
+  if (!loaded_something) {
+    halt_with_error(
+      error_c(module_name->locator, "Module did not contain any loadable items")
+    );
+  }
+
+  auto new_env_cell = allocate_cell(module_cell_env);
+  global_env_.set(name, new_env_cell);
+}
+
+inline void interpreter_c::load_dylib(
+  std::string &name, 
+  env_c &module_env,
+  std::filesystem::path &module_path,
+  cell_ptr &dylib_cell) {
+
+  std::cout << "\nNeed to load dylib for module: " << name << std::endl;
+  std::cout << dylib_cell->to_string() << std::endl;
+}
+
+inline void interpreter_c::load_source_list(
+  std::string &name,
+  env_c &module_env,
+  std::filesystem::path &module_path,
+  cell_ptr &source_list) {
+
+  auto source_list_info = source_list->as_list_info();
+
+  // Create an interpreter/ builder/ reader that will dump 
+  // all the source into the module env
+  interpreter_c module_interpreter(module_env, source_manager_);
+  list_builder_c module_builder(module_interpreter);
+  file_reader_c module_reader(module_builder, source_manager_);
+
+  // Walk over each file given by the source list
+  // and read it into the module env by way of the new interpreter
+  for (auto& source_file : source_list_info.list) {
+    auto source_file_path = module_path / source_file->as_string();
+    if (!std::filesystem::is_regular_file(source_file_path)) {
+      halt_with_error(
+        error_c(source_file->locator, 
+          "File listed in module: " + 
+          name + 
+          " is not a regular file: " + source_file_path.string())
+      );
+    }
+    module_reader.read_file(source_file_path.string());
+  }
 }
 
 }
