@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+
+'''
+  This script is a do-it-all script for building and installing Nibi and its modules.
+  It also runs tests for Nibi, its modules, and it can run the benchmark / performance tests.
+'''
+
 import os
 import shutil
 import subprocess
@@ -8,7 +15,13 @@ parser.add_argument("-n", "--install_nibi", action="store_true")
 parser.add_argument("-m", "--install_modules", action="store_true")
 parser.add_argument("-d", "--debug", action="store_true")
 parser.add_argument("-t", "--test", action="store_true")
+parser.add_argument("-p", "--perf", action="store_true")
 args = parser.parse_args()
+
+if not any(vars(args).values()):
+  print("No arguments provided.\n")
+  parser.print_help()
+  exit(0)
 
 cwd = os.getcwd()
 
@@ -32,12 +45,17 @@ def program_exists(cmd):
   result = subprocess.run(["which", cmd], stdout=subprocess.PIPE)
   return result.returncode == 0
 
+def ensure_nibi_installed():
+  if not program_exists("nibi"):
+    print("Nibi is not installed yet. Please install it with -n and try again.")
+    exit(1)
+
 def execute_command(cmd):
   result = subprocess.run(cmd, stdout=subprocess.PIPE)
   if result.returncode != 0:
     print("Command failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
     exit(1)
-  #print("Command succeeded: " + str(cmd) + ".\n Output:\n " + result.stdout.decode("utf-8"))
+  return result.stdout.decode("utf-8")
 
 def build_and_install_nibi():
   print("Building and installing Nibi library and application")
@@ -126,16 +144,19 @@ def setup_tests():
 
 def run_tests():
   os.chdir("./test_scripts")
-  execute_command(["python3", "run_tests.py", "nibi"])
+  execute_command(["python3", "run.py", "nibi"])
+  os.chdir(cwd)
+
+def run_perfs():
+  os.chdir("./test_perfs")
+  print("Running performance tests... this may take a couple of minutes...")
+  result = execute_command(["python3", "run.py", "nibi"])
+  print(result)
   os.chdir(cwd)
 
 if not program_exists("cmake"):
   print("CMake is not installed. Please install it and try again.")
   exit(1)
-
-if not args.install_nibi and not args.install_modules:
-  print("No arguments provided. Exiting.")
-  exit(0)
 
 if args.install_nibi:
   build_and_install_nibi()
@@ -148,12 +169,16 @@ if args.install_modules:
   build_and_install_modules()
 
 if args.test:
-  if not program_exists("nibi"):
-    print("Nibi is not installed yet. Please install it with -n and try again.")
-    exit(1)
+  ensure_nibi_installed()
 
   # Ensure tests are setup
   setup_tests()
 
   # Run tests
   run_tests()
+
+if args.perf:
+  ensure_nibi_installed()
+
+  run_perfs()
+
