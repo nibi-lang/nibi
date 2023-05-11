@@ -183,17 +183,14 @@ public:
   cell_c(cell_c &&other) = delete;
   cell_c &operator=(const cell_c &other) = delete;
   cell_c &operator=(cell_c &&other) = delete;
-
-  //! \brief Destroy the cell
-  //! \note If the cell contains a list, the list have each
-  //!       of its members marked to be collected
-  ~cell_c();
-
-  cell_ptr clone();
+  virtual ~cell_c();
 
   cell_type_e type{cell_type_e::NIL};
   std::any data{0};
   locator_ptr locator{nullptr};
+
+  //! \brief Deep copy the cell
+  cell_ptr clone();
 
   //! \brief Update the cell data and type to match another cell
   //! \param other The other cell to match
@@ -259,7 +256,7 @@ public:
   environment_info_s &as_environment_info();
 
   //! \brief Check if a cell is a numeric type
-  bool is_numeric() const {
+  inline bool is_numeric() const {
     return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
   }
 };

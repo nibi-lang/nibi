@@ -6,9 +6,15 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--install_nibi", action="store_true")
 parser.add_argument("-m", "--install_modules", action="store_true")
+parser.add_argument("-d", "--debug", action="store_true")
 args = parser.parse_args()
 
 cwd = os.getcwd()
+
+build_type = "-DCMAKE_BUILD_TYPE=Release"
+
+if args.debug:
+  build_type = "-DCMAKE_BUILD_TYPE=Debug"
 
 NIBI_PATH = os.environ.get('NIBI_PATH')
 if NIBI_PATH is None:
@@ -35,7 +41,7 @@ def build_and_install_nibi():
     os.mkdir("./build")
 
   os.chdir("./build")
-  execute_command(["cmake", "..", "-DCMAKE_BUILD_TYPE=Release"])
+  execute_command(["cmake", "..", build_type])
   execute_command(["make", "-j4"])
   execute_command(["sudo", "make", "install"])
   print("SUCCESS")
@@ -54,7 +60,7 @@ def build_current_module(module):
     os.mkdir("./build")
 
   os.chdir("./build")
-  execute_command(["cmake", "..", "-DCMAKE_BUILD_TYPE=Release"])
+  execute_command(["cmake", "..", build_type])
   execute_command(["make", "-j4"])
 
   if not os.path.exists(module + ".lib"):

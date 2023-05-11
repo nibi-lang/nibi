@@ -3,14 +3,88 @@
 #include "libnibi/rang.hpp"
 #include "libnibi/common/platform.hpp"
 #include <iostream>
+#include <random>
 
 #if PROFILE_INTERPRETER
 #include <chrono>
 #endif
 
 namespace nibi {
+  interpreter_c *global_interpreter{nullptr};
+}
 
-interpreter_c *global_interpreter{nullptr};
+namespace {
+inline std::string generate_random_id(uint32_t length) {
+    static constexpr char POOL[] = "0123456789"
+                                    "~!@#$%^&*()_+"
+                                    "`-=<>,./?\"';:"
+                                    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                    "abcdefghijklmnopqrstuvwxyz";
+
+    static std::random_device dev;
+    static std::mt19937 rng(dev());
+
+    std::uniform_int_distribution<uint32_t> dist(0, sizeof(POOL) - 1);
+
+    // Used internally - don't let it happen
+    if (length == 0) {
+      length = 24;
+    }
+
+    std::string result;
+    for (auto i = 0; i < length; i++) {
+      result += POOL[dist(rng)];
+    }
+
+    return result;
+}
+
+}
+
+namespace nibi {
+
+// A module death callback
+using death_callback = std::function<void()>;
+
+// Aberrant cell used to maintain the lifetime of a loaded dynamic library
+// these cells are stored into the environment that are populated when
+// a module is loaded. If that module is later dropped, the cell will be
+// deleted and the callback will triggeer the removal from the interpreter's
+// loaded_modules_ set.
+class module_cell_c final : public aberrant_cell_if {
+  public:
+    module_cell_c() = delete;
+    module_cell_c(
+      death_callback cb, rll_ptr lib) : cb_(cb), lib_(lib) {}
+    ~module_cell_c(){
+      if (lib_) {
+        cb_();
+      }
+    }
+    virtual std::string represent_as_string() override {
+      return "EXTERNAL_MODULE";
+    }
+  private:
+    death_callback cb_;
+    rll_ptr lib_;
+};
+
+// Similar as above, but external imported files don't have an RLL in tow
+// so this is just a death callback cell
+class import_cell_c final : public aberrant_cell_if {
+  public:
+    import_cell_c() = delete;
+    import_cell_c(
+      death_callback cb) : cb_(cb) {}
+    ~import_cell_c(){
+        cb_();
+    }
+    virtual std::string represent_as_string() override {
+      return "EXTERNAL_IMPORT";
+    }
+  private:
+    death_callback cb_;
+};
 
 bool global_interpreter_init(env_c &env, source_manager_c &source_manager) {
   if (global_interpreter) {
@@ -112,7 +186,8 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
     return loaded_cell;
   }
   case cell_type_e::ABERRANT:
-    [[fallthrough]];
+    std::cout << "PROC ABERRANT" << std::endl;
+    break;
   case cell_type_e::ENVIRONMENT:
     [[fallthrough]];
   case cell_type_e::INTEGER:
@@ -324,14 +399,84 @@ void interpreter_c::load_module(cell_ptr &module_name) {
   global_env_.set(name, new_env_cell);
 }
 
+void interpreter_c::unload_module(std::string name) {
+  _loaded_modules.erase(name);
+}
+
 inline void interpreter_c::load_dylib(
   std::string &name, 
   env_c &module_env,
   std::filesystem::path &module_path,
-  cell_ptr &dylib_cell) {
+  cell_ptr &dylib_list) {
 
-  std::cout << "\nNeed to load dylib for module: " << name << std::endl;
-  std::cout << dylib_cell->to_string() << std::endl;
+  // Ensure that the library file is there 
+
+  std::string suspected_lib_file = name + ".lib";
+  std::filesystem::path lib_file = module_path / suspected_lib_file;
+
+  if (!std::filesystem::exists(lib_file)) {
+    halt_with_error(
+      error_c(dylib_list->locator, "Could not locate dylib file: " + lib_file.string())
+    );
+  }
+
+  if (!std::filesystem::is_regular_file(lib_file)) {
+    halt_with_error(
+      error_c(dylib_list->locator, "Dylib file is not a regular file: " + lib_file.string())
+    );
+  }
+
+  // Load the library with RLL
+
+  auto target_lib = allocate_rll();
+
+  try {
+    target_lib->load(lib_file.string());
+  } catch (rll_wrapper_c::library_loading_error_c &e) {
+    std::string err = "Could not load library: " + name + ".\nFailed with error: " + e.what();
+    halt_with_error(
+      error_c(dylib_list->locator, err)
+    );
+  }
+
+  // Validate all listed symbolsm and import them to the module environment
+
+  auto listed_functionality = dylib_list->as_list_info();
+
+  for (auto& func : listed_functionality.list) {
+    auto sym = func->to_string();
+    if (!target_lib->has_symbol(sym)) {
+      std::string err = "Could not locate symbol: " + sym + " in library: " + name;
+      halt_with_error(
+        error_c(func->locator, err)
+      );
+    }
+
+    auto target_cell = allocate_cell(function_info_s(
+      sym,
+      reinterpret_cast<cell_ptr (*)(cell_list_t &, env_c&)>(target_lib->get_symbol(sym)), 
+      function_type_e::EXTERNAL_FUNCTION,
+      &module_env));
+
+    module_env.set(sym, target_cell);
+  }
+
+  // Add the RLL to an aberrant cell and add that to the module env so it stays alive
+
+  // We construct it with a lambda that will callback to remove the item from the interpreter's
+  // way of managing what libs are already loaded
+  auto rll_cell = allocate_cell(
+    static_cast<aberrant_cell_if*>(new module_cell_c(
+    [this, name]() {
+      this->unload_module(name);
+    },
+    target_lib
+  )));
+
+  // We store in the environment so it stays alive as long as the module is loaded
+  // and is removed if the module is dropped by the user or otherwise made unreachable
+
+  module_env.set(generate_random_id(16) , rll_cell);
 }
 
 inline void interpreter_c::load_source_list(
@@ -362,6 +507,20 @@ inline void interpreter_c::load_source_list(
     }
     module_reader.read_file(source_file_path.string());
   }
+
+  // Create a death callback to remove the module from the interpreter's
+  // list of imported modules
+  auto import_cell = allocate_cell(
+    static_cast<aberrant_cell_if*>(new import_cell_c(
+    [this, name]() {
+      this->unload_module(name);
+    }
+  )));
+
+  // We store in the environment so it stays alive as long as the import is loaded
+  // and is removed if the import is dropped by the user or otherwise made unreachable
+
+  module_env.set(generate_random_id(16) , import_cell);
 }
 
 }
