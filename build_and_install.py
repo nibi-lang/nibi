@@ -7,6 +7,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--install_nibi", action="store_true")
 parser.add_argument("-m", "--install_modules", action="store_true")
 parser.add_argument("-d", "--debug", action="store_true")
+parser.add_argument("-t", "--test", action="store_true")
 args = parser.parse_args()
 
 cwd = os.getcwd()
@@ -26,6 +27,10 @@ print("NIBI_PATH is set to: " + NIBI_PATH)
 if not os.path.exists(NIBI_PATH):
   print("NIBI_PATH does not exist! Please create it and try again.")
   exit(1)
+
+def program_exists(cmd):
+  result = subprocess.run(["which", cmd], stdout=subprocess.PIPE)
+  return result.returncode == 0
 
 def execute_command(cmd):
   result = subprocess.run(cmd, stdout=subprocess.PIPE)
@@ -111,6 +116,22 @@ def build_and_install_modules():
     print("Building and installing module: " + module)
     install_module(module)
     print("\n")
+  os.chdir(cwd)
+
+def setup_tests():
+  # One of the tests requires a module to be built, but not installed
+  os.chdir("./test_scripts/tests/module")
+  build_current_module("module")
+  os.chdir(cwd)
+
+def run_tests():
+  os.chdir("./test_scripts")
+  execute_command(["python3", "run_tests.py", "nibi"])
+  os.chdir(cwd)
+
+if not program_exists("cmake"):
+  print("CMake is not installed. Please install it and try again.")
+  exit(1)
 
 if not args.install_nibi and not args.install_modules:
   print("No arguments provided. Exiting.")
@@ -125,3 +146,14 @@ if args.install_modules:
     exit(0)
   print("\n")
   build_and_install_modules()
+
+if args.test:
+  if not program_exists("nibi"):
+    print("Nibi is not installed yet. Please install it with -n and try again.")
+    exit(1)
+
+  # Ensure tests are setup
+  setup_tests()
+
+  # Run tests
+  run_tests()
