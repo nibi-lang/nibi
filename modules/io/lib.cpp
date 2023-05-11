@@ -1,8 +1,8 @@
 #include "lib.hpp"
 
-#include <string>
 #include <iostream>
 #include <memory>
+#include <string>
 
 nibi::cell_ptr get_str(nibi::cell_list_t &list, nibi::env_c &env) {
   std::string line;

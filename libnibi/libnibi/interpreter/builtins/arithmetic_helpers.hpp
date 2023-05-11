@@ -59,4 +59,4 @@ static inline T list_perform_pow(T base_value,
   return accumulate;
 }
 
-}
+} // namespace nibi

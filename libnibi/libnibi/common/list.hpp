@@ -35,4 +35,4 @@ private:
   std::vector<token_c> tokens_;
   std::vector<error_c> errors_;
 };
-}
+} // namespace nibi

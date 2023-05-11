@@ -31,7 +31,8 @@ public:
   //! \brief Locate a directory
   //! \param directory_name The directory name
   //! \return The directory path iff it exists somewhere
-  std::optional<std::filesystem::path> locate_directory(std::string &directory_name);
+  std::optional<std::filesystem::path>
+  locate_directory(std::string &directory_name);
 
   //! \brief Retrieve the platform string
   //! \return The platform string
@@ -52,4 +53,4 @@ global_platform_init(std::vector<std::filesystem::path> include_dirs,
 
 extern bool global_platform_destroy();
 
-}
+} // namespace nibi

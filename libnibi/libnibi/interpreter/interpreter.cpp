@@ -1,15 +1,15 @@
 #include "interpreter.hpp"
 
-#include "libnibi/rang.hpp"
 #include "libnibi/common/platform.hpp"
+#include "libnibi/rang.hpp"
 
 #if PROFILE_INTERPRETER
-#include <iostream>
 #include <chrono>
+#include <iostream>
 #endif
 
 namespace nibi {
-  interpreter_c *global_interpreter{nullptr};
+interpreter_c *global_interpreter{nullptr};
 }
 
 namespace nibi {
@@ -36,7 +36,8 @@ void global_interpreter_destroy() {
 }
 
 interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
-    : global_env_(env), source_manager_(source_manager), modules_(source_manager) {}
+    : global_env_(env), source_manager_(source_manager),
+      modules_(source_manager) {}
 
 interpreter_c::~interpreter_c() {
 #if PROFILE_INTERPRETER
@@ -255,4 +256,4 @@ void interpreter_c::load_module(cell_ptr &module_name) {
   modules_.load_module(module_name, global_env_);
 }
 
-}
+} // namespace nibi

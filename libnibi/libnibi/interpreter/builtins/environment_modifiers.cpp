@@ -121,4 +121,4 @@ cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
-}
+} // namespace nibi

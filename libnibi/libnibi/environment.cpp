@@ -48,4 +48,4 @@ bool env_c::drop(std::string name) {
 
   return true;
 }
-}
+} // namespace nibi

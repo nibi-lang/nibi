@@ -24,4 +24,4 @@ cell_ptr builtin_fn_at_debug(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
-}
+} // namespace nibi

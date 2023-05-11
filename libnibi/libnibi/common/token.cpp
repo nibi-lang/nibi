@@ -30,4 +30,4 @@ const char *token_to_string(const token_c &token) {
   }
   return "<<<UNKNOWN>>>";
 }
-}
+} // namespace nibi

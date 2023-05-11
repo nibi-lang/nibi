@@ -71,4 +71,4 @@ private:
   source_manager_c &sm_;
 };
 
-}
+} // namespace nibi

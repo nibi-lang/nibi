@@ -19,4 +19,4 @@ void error_c::draw_error(bool markup) const {
             << "\n"
             << std::endl;
 }
-}
+} // namespace nibi
