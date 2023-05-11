@@ -66,6 +66,7 @@ set(HEADERS
    ${PROJECT_SOURCE_DIR}/libnibi/environment.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/rang.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/source.hpp
+   ${PROJECT_SOURCE_DIR}/libnibi/modules.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/RLL/RLL.h
    ${PROJECT_SOURCE_DIR}/libnibi/RLL/rll_wrapper.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.hpp
@@ -79,6 +80,7 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/environment.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/source.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/modules.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/RLL/rll_wrapper.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/builtins.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/lambdas.cpp

@@ -13,6 +13,7 @@
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
 #include "libnibi/version.hpp"
+#include "libnibi/modules.hpp"
 
 #ifndef NIBI_BUILD_HASH
 #define NIBI_BUILD_HASH "unknown"
@@ -88,16 +89,61 @@ void run_from_dir(const std::string &file_name, const bool run_tests) {
 void show_help() {
   std::cout << "Usage: nibi [options] [file | directory]\n" << std::endl;
   std::cout << "Options:" << std::endl;
-  std::cout << "  -h, --help          Show this help message" << std::endl;
-  std::cout << "  -v, --version       Show version info" << std::endl;
-  std::cout << "  -t, --test          Run tests" << std::endl;
-  std::cout << "  -i, --include       Add include directory (`:` delimited)"
+  std::cout << "  -h, --help            Show this help message" << std::endl;
+  std::cout << "  -v, --version         Show version info" << std::endl;
+  std::cout << "  -m, --module <name>   Show module info" << std::endl;
+  std::cout << "  -t, --test            Run tests" << std::endl;
+  std::cout << "  -i, --include <dirs>  Add include directory (`:` delimited)"
             << std::endl;
 }
 
 void show_version() {
   std::cout << "libnibi version: " << LIBNIBI_VERSION << std::endl;
   std::cout << "application build hash: " << NIBI_BUILD_HASH << std::endl;
+}
+
+void show_module_info(std::string module_name) {
+
+    auto info = modules_c(*source_manager).get_module_info(module_name);
+
+    std::cout << "Description: " << std::endl;
+    if (info.description.has_value()) {
+      std::cout << "  " << info.description.value() << std::endl;
+    } else {
+      std::cout << "  <none listed>\n";
+    }
+
+    std::cout << "Version: " << std::endl;
+    if (info.version.has_value()) {
+      std::cout << "  " << info.version.value() << std::endl;
+    } else {
+      std::cout << "  <none listed>\n";
+    }
+
+    std::cout << "Authors: " << std::endl;
+    if (info.authors.has_value()) {
+      for(auto &author : info.authors.value()) {
+        std::cout << "  " << author << std::endl;
+      }
+    } else {
+      std::cout << "  <none listed>\n";
+    }
+
+    std::cout << "Licenses: " << std::endl;
+    if (info.licenses.has_value()) {
+      for(auto &license : info.licenses.value()) {
+        std::cout << "  " << license << std::endl;
+      }
+    } else {
+      std::cout << "<none listed>\n";
+    }
+
+    std::cout << "Tests files: " << std::endl;
+    if (info.test_files.has_value()) {
+      std::cout << "  " << info.test_files.value().size() << " files present" << std::endl;
+    } else {
+      std::cout << "  <none listed>\n";
+    }
 }
 
 int main(int argc, char **argv) {
@@ -139,6 +185,18 @@ int main(int argc, char **argv) {
       }
       ++i;
       continue;
+    }
+
+    if (args[i] == "-m" || args[i] == "--module") {
+      if (i + 1 >= args.size()) {
+        std::cout << "No module name specified" << std::endl;
+        return 1;
+      }
+      auto path = std::filesystem::current_path();
+      setup(include_dirs, path);
+      show_module_info(args[i + 1]);
+      teardown();
+      return 0;
     }
 
     unmatched.push_back(args[i]);

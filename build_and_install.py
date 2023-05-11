@@ -99,6 +99,10 @@ def install_module(module):
       print("Copying file: " + file)
       shutil.copyfile(file, target_dest + "/" + file)
 
+    if os.path.isdir(file) and file == "tests":
+      print("Copying tests: " + file)
+      shutil.copytree(file, target_dest + "/" + file)
+
   os.chdir(module_dir)
 
 def build_and_install_modules():
