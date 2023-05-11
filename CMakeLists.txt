@@ -57,7 +57,8 @@ add_executable(${PROJECT_NAME}
         ${APP_SOURCES})
 
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC  
+  PUBLIC
+  dl
   libnibi)
 
 #

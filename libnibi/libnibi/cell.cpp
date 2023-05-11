@@ -2,6 +2,8 @@
 
 #include "libnibi/environment.hpp"
 
+#include <iostream>
+
 namespace nibi {
 namespace {
 const char *function_type_to_string(function_type_e type) {
@@ -40,10 +42,24 @@ const char *cell_type_to_string(const cell_type_e type) {
 }
 
 cell_c::~cell_c() {
-  if (this->type == cell_type_e::ENVIRONMENT) {
-    auto &env_info = this->as_environment_info();
-    if (env_info.env != nullptr) {
-      delete env_info.env;
+  // Different types of cells may need to be manually cleaned up
+  switch(this->type) {
+    case cell_type_e::ENVIRONMENT:  {
+      auto &env_info = this->as_environment_info();
+      if (env_info.env != nullptr) {
+        delete env_info.env;
+      }
+      break;
+    }
+    case cell_type_e::ABERRANT: {
+      auto* aberrant = this->as_aberrant();
+      if (aberrant != nullptr) {
+        delete aberrant;
+      }
+      break;
+    }
+    default: {
+      break;
     }
   }
 }
@@ -90,6 +106,11 @@ cell_ptr cell_c::clone() {
       auto cloned = val->clone();
       other.env->set(key, cloned);
     }
+    break;
+  }
+  case cell_type_e::ABERRANT: {
+    std::cout << "CLONE ABERRANT" << std::endl;
+
     break;
   }
   }

@@ -5,7 +5,7 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
-
+#include "libnibi/RLL/rll_wrapper.hpp"
 #include <filesystem>
 #include <set>
 
@@ -84,6 +84,10 @@ public:
   void load_module(cell_ptr &module_name);
 
 private:
+
+  // Unload a module
+  void unload_module(std::string module_name);
+
   bool debug_enabled_{false};
 
   // The environment that will be used to store and execute
