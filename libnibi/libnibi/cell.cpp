@@ -43,24 +43,24 @@ const char *cell_type_to_string(const cell_type_e type) {
 
 cell_c::~cell_c() {
   // Different types of cells may need to be manually cleaned up
-  switch(this->type) {
-    case cell_type_e::ENVIRONMENT:  {
-      auto &env_info = this->as_environment_info();
-      if (env_info.env != nullptr) {
-        delete env_info.env;
-      }
-      break;
+  switch (this->type) {
+  case cell_type_e::ENVIRONMENT: {
+    auto &env_info = this->as_environment_info();
+    if (env_info.env != nullptr) {
+      delete env_info.env;
     }
-    case cell_type_e::ABERRANT: {
-      auto* aberrant = this->as_aberrant();
-      if (aberrant != nullptr) {
-        delete aberrant;
-      }
-      break;
+    break;
+  }
+  case cell_type_e::ABERRANT: {
+    auto *aberrant = this->as_aberrant();
+    if (aberrant != nullptr) {
+      delete aberrant;
     }
-    default: {
-      break;
-    }
+    break;
+  }
+  default: {
+    break;
+  }
   }
 }
 
@@ -297,4 +297,4 @@ std::string &cell_c::as_symbol() {
                                   this->locator);
   }
 }
-}
+} // namespace nibi

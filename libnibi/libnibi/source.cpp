@@ -87,4 +87,4 @@ void draw_locator(locator_if &location) {
   }
   fs.close();
 }
-}
+} // namespace nibi

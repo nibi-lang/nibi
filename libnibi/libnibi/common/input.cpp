@@ -190,4 +190,4 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
   return true;
 }
 
-}
+} // namespace nibi

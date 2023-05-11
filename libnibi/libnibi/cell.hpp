@@ -1,5 +1,6 @@
 #pragma once
 
+#include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/source.hpp"
 #include <any>
 #include <cstdint>
@@ -10,7 +11,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include "libnibi/RLL/rll_wrapper.hpp"
 
 namespace nibi {
 //! \brief The type of a cell
@@ -260,4 +260,4 @@ public:
     return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
   }
 };
-}
+} // namespace nibi

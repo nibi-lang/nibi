@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <libnibi/cell.hpp>
 #include <libnibi/environment.hpp>
 
@@ -14,5 +13,4 @@ extern "C" {
 
 API_EXPORT
 extern nibi::cell_ptr test(nibi::cell_list_t &list, nibi::env_c &env);
-
 }

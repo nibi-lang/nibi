@@ -74,4 +74,4 @@ cell_ptr builtin_fn_except_throw(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
-}
+} // namespace nibi

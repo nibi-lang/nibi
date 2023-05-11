@@ -232,4 +232,4 @@ cell_ptr parser_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
   }
   return nullptr;
 }
-}
+} // namespace nibi

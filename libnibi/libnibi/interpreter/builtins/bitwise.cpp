@@ -51,4 +51,4 @@ cell_ptr builtin_fn_bitwise_not(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
-}
+} // namespace nibi

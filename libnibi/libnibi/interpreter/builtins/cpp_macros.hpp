@@ -43,4 +43,4 @@ static inline cell_ptr list_get_nth_arg(std::size_t n, cell_list_t &list,
   std::advance(it, n);
   return global_interpreter->execute_cell(*it, env);
 }
-}
+} // namespace nibi

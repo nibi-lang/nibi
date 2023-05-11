@@ -1,12 +1,12 @@
 #pragma once
 
+#include "libnibi/RLL/rll_wrapper.hpp"
+#include "libnibi/cell.hpp"
 #include "libnibi/common/error.hpp"
 #include "libnibi/common/list.hpp"
-#include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
-#include "libnibi/source.hpp"
-#include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/modules.hpp"
+#include "libnibi/source.hpp"
 #include <filesystem>
 #include <set>
 
@@ -124,4 +124,4 @@ extern bool global_interpreter_init(env_c &env,
 //! \brief Destroy the global runtime object
 //! \note This function should be called before the program exits
 extern void global_interpreter_destroy();
-}
+} // namespace nibi

@@ -175,4 +175,4 @@ cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
-}
+} // namespace nibi

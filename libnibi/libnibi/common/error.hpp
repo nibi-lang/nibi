@@ -33,4 +33,4 @@ private:
   std::string message_{""};
 };
 
-}
+} // namespace nibi

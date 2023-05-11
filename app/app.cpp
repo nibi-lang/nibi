@@ -4,16 +4,16 @@
 #include <string>
 #include <vector>
 
+#include "libnibi/cell.hpp"
 #include "libnibi/common/error.hpp"
 #include "libnibi/common/input.hpp"
 #include "libnibi/common/list.hpp"
 #include "libnibi/common/platform.hpp"
-#include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
+#include "libnibi/interpreter/interpreter.hpp"
+#include "libnibi/modules.hpp"
 #include "libnibi/source.hpp"
 #include "libnibi/version.hpp"
-#include "libnibi/modules.hpp"
 
 #ifndef NIBI_BUILD_HASH
 #define NIBI_BUILD_HASH "unknown"
@@ -80,7 +80,6 @@ void run_from_file(const std::string &file_name) {
 
 void run_from_dir(const std::string &file_name) {
   std::cerr << "Running from directory not yet supported!" << std::endl;
-
 }
 
 void show_help() {
@@ -101,51 +100,53 @@ void show_version() {
 
 void show_module_info(std::string module_name) {
 
-    auto info = modules_c(*source_manager).get_module_info(module_name);
+  auto info = modules_c(*source_manager).get_module_info(module_name);
 
-    std::cout << "Description: " << std::endl;
-    if (info.description.has_value()) {
-      std::cout << "  " << info.description.value() << std::endl;
-    } else {
-      std::cout << "  <none listed>\n";
-    }
+  std::cout << "Description: " << std::endl;
+  if (info.description.has_value()) {
+    std::cout << "  " << info.description.value() << std::endl;
+  } else {
+    std::cout << "  <none listed>\n";
+  }
 
-    std::cout << "Version: " << std::endl;
-    if (info.version.has_value()) {
-      std::cout << "  " << info.version.value() << std::endl;
-    } else {
-      std::cout << "  <none listed>\n";
-    }
+  std::cout << "Version: " << std::endl;
+  if (info.version.has_value()) {
+    std::cout << "  " << info.version.value() << std::endl;
+  } else {
+    std::cout << "  <none listed>\n";
+  }
 
-    std::cout << "Authors: " << std::endl;
-    if (info.authors.has_value()) {
-      for(auto &author : info.authors.value()) {
-        std::cout << "  " << author << std::endl;
-      }
-    } else {
-      std::cout << "  <none listed>\n";
+  std::cout << "Authors: " << std::endl;
+  if (info.authors.has_value()) {
+    for (auto &author : info.authors.value()) {
+      std::cout << "  " << author << std::endl;
     }
+  } else {
+    std::cout << "  <none listed>\n";
+  }
 
-    std::cout << "Licenses: " << std::endl;
-    if (info.licenses.has_value()) {
-      for(auto &license : info.licenses.value()) {
-        std::cout << "  " << license << std::endl;
-      }
-    } else {
-      std::cout << "<none listed>\n";
+  std::cout << "Licenses: " << std::endl;
+  if (info.licenses.has_value()) {
+    for (auto &license : info.licenses.value()) {
+      std::cout << "  " << license << std::endl;
     }
+  } else {
+    std::cout << "<none listed>\n";
+  }
 
-    std::cout << "Tests files: " << std::endl;
-    if (info.test_files.has_value()) {
-      std::cout << "  " << info.test_files.value().size() << " files present" << std::endl;
-    } else {
-      std::cout << "  <none listed>\n";
-    }
+  std::cout << "Tests files: " << std::endl;
+  if (info.test_files.has_value()) {
+    std::cout << "  " << info.test_files.value().size() << " files present"
+              << std::endl;
+  } else {
+    std::cout << "  <none listed>\n";
+  }
 }
 
-void run_tests(std::string &dir, std::vector<std::filesystem::path> &include_dirs,
+void run_tests(std::string &dir,
+               std::vector<std::filesystem::path> &include_dirs,
                std::filesystem::path &launch_location) {
-  
+
   setup(include_dirs, launch_location);
   auto info = modules_c(*source_manager).get_module_info(dir);
   teardown();
@@ -153,7 +154,7 @@ void run_tests(std::string &dir, std::vector<std::filesystem::path> &include_dir
   if (!info.test_files.has_value()) {
     std::cout << "No test files found" << std::endl;
     return;
-  } 
+  }
 
   std::cout << "Tests files: " << info.test_files.value().size() << std::endl;
 

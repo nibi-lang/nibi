@@ -184,4 +184,4 @@ get_builtin_symbols_map() {
 }
 
 } // namespace builtins
-}
+} // namespace nibi

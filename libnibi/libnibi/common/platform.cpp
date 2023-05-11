@@ -95,7 +95,7 @@ platform_c::locate_file(std::string &file_name) {
   return {std::nullopt};
 }
 
-std::optional<std::filesystem::path> 
+std::optional<std::filesystem::path>
 platform_c::locate_directory(std::string &directory_name) {
   std::filesystem::path dir_path =
       _launch_location / std::filesystem::path(directory_name);
@@ -111,7 +111,8 @@ platform_c::locate_directory(std::string &directory_name) {
     }
   }
   if (_nibi_path.has_value()) {
-    dir_path = _nibi_path.value() / "modules" / std::filesystem::path(directory_name);
+    dir_path =
+        _nibi_path.value() / "modules" / std::filesystem::path(directory_name);
     if (std::filesystem::exists(dir_path) &&
         std::filesystem::is_directory(dir_path)) {
       return {dir_path};
@@ -138,4 +139,4 @@ bool global_platform_destroy() {
   return false;
 }
 
-}
+} // namespace nibi

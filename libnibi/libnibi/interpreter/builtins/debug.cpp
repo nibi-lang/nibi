@@ -97,4 +97,4 @@ cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env) {
 }
 
 } // namespace builtins
-}
+} // namespace nibi
