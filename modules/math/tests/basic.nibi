@@ -1,4 +1,5 @@
 (use "math")
 
+(putln ">> Testing math module")
 (assert (eq 3.00 ({math floor} 3.14)) "Floor failed")
 (assert (eq 4.00 ({math ceil} 3.14)) "Ceil failed")

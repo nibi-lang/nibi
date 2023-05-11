@@ -612,7 +612,7 @@ module
     file-1.nibi
 ```
 
-### mod.nibi
+## mod.nibi
 
 ```
 # These four settings are optional
@@ -640,3 +640,11 @@ module
 
 ```
 
+## Module tests 
+
+Tests can be ran on installed moduled via:
+
+`nibi -t <module_name>`
+
+This will iterate over all detected test files and execute them
+to ensure that the module is working correctly.

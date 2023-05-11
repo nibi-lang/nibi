@@ -78,12 +78,9 @@ void run_from_file(const std::string &file_name) {
   file_reader.read_file(file_name);
 }
 
-void run_from_dir(const std::string &file_name, const bool run_tests) {
+void run_from_dir(const std::string &file_name) {
   std::cerr << "Running from directory not yet supported!" << std::endl;
-  if (run_tests) {
-    std::cout << "Run tests!" << std::endl;
-    return;
-  }
+
 }
 
 void show_help() {
@@ -146,13 +143,41 @@ void show_module_info(std::string module_name) {
     }
 }
 
+void run_tests(std::string &dir, std::vector<std::filesystem::path> &include_dirs,
+               std::filesystem::path &launch_location) {
+  
+  setup(include_dirs, launch_location);
+  auto info = modules_c(*source_manager).get_module_info(dir);
+  teardown();
+
+  if (!info.test_files.has_value()) {
+    std::cout << "No test files found" << std::endl;
+    return;
+  } 
+
+  std::cout << "Tests files: " << info.test_files.value().size() << std::endl;
+
+  // Setup and tear down the environment for each test file
+  // to ensure that the environment is clean for each test
+  for (auto &test_file : info.test_files.value()) {
+
+    std::cout << "Running test file: " << test_file << std::endl;
+    setup(include_dirs, launch_location);
+    run_from_file(test_file);
+    teardown();
+    std::cout << "COMPLETE\n" << std::endl;
+  }
+
+  // if we get here, all tests passed
+  std::cout << "All tests passed!" << std::endl;
+}
+
 int main(int argc, char **argv) {
 
 #if CALCULATE_EXECUTION_TIME
   auto app_start = std::chrono::high_resolution_clock::now();
 #endif
 
-  bool run_tests{false};
   std::vector<std::string> unmatched;
   std::vector<std::filesystem::path> include_dirs;
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -169,8 +194,13 @@ int main(int argc, char **argv) {
     }
 
     if (args[i] == "-t" || args[i] == "--test") {
-      run_tests = true;
-      continue;
+      if (i + 1 >= args.size()) {
+        std::cout << "No module name specified to test" << std::endl;
+        return 1;
+      }
+      auto path = std::filesystem::current_path();
+      run_tests(args[i + 1], include_dirs, path);
+      return 0;
     }
 
     if (args[i] == "-i" || args[i] == "--include") {
@@ -220,12 +250,6 @@ int main(int argc, char **argv) {
     run_as_dir = true;
   } else if (std::filesystem::is_regular_file(unmatched[0])) {
     run_as_dir = false;
-    if (run_tests) {
-      std::cout
-          << "Running tests is only supported for directory-based applications"
-          << std::endl;
-      return 1;
-    }
   } else {
     std::cout << "Invalid file or directory: " << unmatched[0] << std::endl;
     return 1;
@@ -253,7 +277,7 @@ int main(int argc, char **argv) {
 #endif
 
   if (run_as_dir) {
-    run_from_dir(unmatched[0], run_tests);
+    run_from_dir(unmatched[0]);
   } else {
     run_from_file(unmatched[0]);
   }
