@@ -2,6 +2,13 @@
 # an `env` matching the name of the folder
 # that this file is contained in
 
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "Mathematics module")
+(:= licenses [
+  "MIT"
+])
+
 (:= sources [
   "math.nibi"
 ])

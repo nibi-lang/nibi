@@ -599,7 +599,7 @@ keyword: `bw-not`
 
 ```
 
-module_directory
+module
     |
     |---- mod.nibi
     |
@@ -607,14 +607,7 @@ module_directory
     |       |--- test-feature-0.nibi
     |       |--- test-feature-1.nibi
     |
-    |---- submodule_a
-    |       |
-    |       |---- mod.nibi
-    |       |
-    |       |---- tests
-    |             |
-    |             |---- test-sub-feature-0.nibi
-    |
+    module.lib
     file-0.nibi
     file-1.nibi
 ```
@@ -622,27 +615,28 @@ module_directory
 ### mod.nibi
 
 ```
-(:= module_name "my_module")
-(:= authors ["Author 1"])
-(:= licenses ["MIT"])
-(:= submodules [
-  "submodule_a"
+# These four settings are optional
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "User I/O extension module")
+(:= licenses [
+  "MIT"
 ])
-(:= entry_file "file-1.nibi")
 
+# Load source files directly into an 
+# environment
+(:= sources [
+  "file-0.nibi"
+  "file-1.nibi"
+])
+
+# If a dynamic library needs to be loaded
+# dylib can be set witha list of all functions
+# that the library offers
+# - Note: Dynamic libraries must take the name <module_name>.lib
+(:= dylib [
+  "get_str"
+])
 
 ```
-
-### External functionality
-
-```
-
-(:= dylib "something.a")
-
-(@extern dylib (fn something [a b c] []))
-
-(@extern dylib (fn another_method [] []))
-
-```
-
 

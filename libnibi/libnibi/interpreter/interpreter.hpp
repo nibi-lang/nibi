@@ -6,6 +6,7 @@
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
 #include "libnibi/RLL/rll_wrapper.hpp"
+#include "libnibi/modules.hpp"
 #include <filesystem>
 #include <set>
 
@@ -84,9 +85,7 @@ public:
   void load_module(cell_ptr &module_name);
 
 private:
-
-  // Unload a module
-  void unload_module(std::string module_name);
+  modules_c modules_;
 
   bool debug_enabled_{false};
 
@@ -100,23 +99,8 @@ private:
   // The yield value
   cell_ptr yield_value_{nullptr};
 
-  // Contain all loaded modules
-  std::set<std::string> _loaded_modules;
-
   // Handle a list cell
   cell_ptr handle_list_cell(cell_ptr &cell, env_c &env, bool process_data_cell);
-
-  void load_dylib(
-    std::string& module_name,
-    env_c &module_env,
-    std::filesystem::path &module_path,
-    cell_ptr &dylib_cell);
-
-  void load_source_list(
-    std::string& module_name, 
-    env_c &module_env,
-    std::filesystem::path &module_path,
-    cell_ptr &source_list_cell);
 
 #if PROFILE_INTERPRETER
   struct profile_info_s {
