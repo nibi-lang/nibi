@@ -1,0 +1,9 @@
+
+# This test requires that the module directory haas the module built, with the module.lib present
+# not having it will cause a failure
+
+# Also ensure that the lib is built with the same mode as what nibi was built with (build vs release)
+
+(use "module")
+
+(assert (eq 1 ({module test})) "no dice")

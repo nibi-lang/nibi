@@ -13,6 +13,6 @@
 extern "C" {
 
 API_EXPORT
-extern nibi::cell_ptr get_str(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr test(nibi::cell_list_t &list, nibi::env_c &env);
 
 }

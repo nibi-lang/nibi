@@ -4,8 +4,6 @@
 #include <iostream>
 #include <memory>
 
-nibi::cell_ptr get_str(nibi::cell_list_t &list, nibi::env_c &env) {
-  std::string line;
-  std::getline(std::cin, line);
-  return nibi::allocate_cell(line);
+nibi::cell_ptr test(nibi::cell_list_t &list, nibi::env_c &env) {
+  return nibi::allocate_cell((int64_t)1);
 }
