@@ -648,3 +648,17 @@ Tests can be ran on installed moduled via:
 
 This will iterate over all detected test files and execute them
 to ensure that the module is working correctly.
+
+## Notes on modules
+
+When a module is loaded, it is populated into its own environment cell.
+This means any variables with a prefixed `_` will be private to the module, 
+and accessing the module externally will be done via an accessor list `{}`.
+
+Since all files within a module will be gathered into the same environment 
+there is no need to `import` files internally, however, the environment will
+be populated in the order that they are listed in `mod.nibi` so top level 
+variables will only be aware of the things loaded before them. For function
+definitions this is not an issue, as functions are not evaluated until they
+are executed, but if any function is executed at the top-most level, and they
+attempt to access a yet-to-exist cell there will be a runtime error.
