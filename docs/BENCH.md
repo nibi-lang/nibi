@@ -1,6 +1,6 @@
 ## bosleyslab
 
-### 5-5-2023
+### 5-May-2023
 
 | test            | time (s)  | time (ms)
 |----             |----       |----
@@ -22,33 +22,18 @@ primality.saur  2.4532s ( 2453.189ms )
 4sieve.saur     2.1253s ( 2125.2623ms )
 ```
 
-```
-<< BENCH >>
+### 11-May-2023
 
-Binary:  ../build/nibi
-N Executions per benchmark:  50
-CWD :  /home/bosley/workspace/nibi/test_perfs
+More than minimal implementation completed. Now marks the start of being able to import
+files and modules. Tests running at the time of writing this - I suspect things will be 
+somewhat slower now that the interpreter has expanded. Optimization work will begin
+once directory execution and a few other things are complete.
 
-------- BEGIN BENCHMARK -------
+git hash: **816888e782f214d405c083a511d0b057bf2f1db4**
 
-Scanning directory :  /home/bosley/workspace/nibi/test_perfs
-
-Running: /home/bosley/workspace/nibi/test_perfs/mandelbrot.nibi
-Expecting return code:  0
-Average execution time:  0.1731s ( 173.108ms )
-
-Running: /home/bosley/workspace/nibi/test_perfs/primality.nibi
-Expecting return code:  0
-Average execution time:  2.1617s ( 2161.7256ms )
-
-Running: /home/bosley/workspace/nibi/test_perfs/4sieve.nibi
-Expecting return code:  0
-Average execution time:  2.4722s ( 2472.1891ms )
-
-Running: /home/bosley/workspace/nibi/test_perfs/leibniz.nibi
-Expecting return code:  0
-Average execution time:  0.2393s ( 239.2551ms )
-
-
--------- END BENCHMARK --------
-```
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1575    | 157.5134
+| primality.nibi  | 2.0588    | 2058.7793
+| 4sieve.nibi     | 2.3497    | 2349.7038
+| leibniz         | 0.1963    | 196.348
