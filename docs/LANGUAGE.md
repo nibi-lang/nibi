@@ -638,6 +638,17 @@ module
   "get_str"
 ])
 
+# optional list of files to execute in-order immediatly
+# following an import. These can be used to redefine 
+# access to the module, or run sanity checks before
+# continuing.
+# For instance we could export
+# {math ceil} as math::ceil so access lists aren't 
+# required for each call. 
+(:= post [
+  "export.nibi"
+])
+
 ```
 
 ## Module tests 
@@ -662,3 +673,8 @@ variables will only be aware of the things loaded before them. For function
 definitions this is not an issue, as functions are not evaluated until they
 are executed, but if any function is executed at the top-most level, and they
 attempt to access a yet-to-exist cell there will be a runtime error.
+
+## Module installation
+
+Modules can be anywhere within the nibi include directories, but a module isn't 
+considered installed until it exists in NIBI_PATH/modules.

@@ -27,7 +27,13 @@ First digit in arith determines expectations for numerical
  - Directory execution and tests with app.nibi
 ```
 
-## Routers/ Channels
+## Modules
+
+### Reflection
+
+Cell reflection, what more to say?
+
+### Routers/ Channels
 
 Potentially good for a module, a router or channel could be utilized to push
 state changes and data to multiple functions

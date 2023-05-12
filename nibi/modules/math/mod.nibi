@@ -12,3 +12,8 @@
 (:= sources [
   "math.nibi"
 ])
+
+# Executed after module is imported in-order
+(:= post [
+  "export.nibi"
+])

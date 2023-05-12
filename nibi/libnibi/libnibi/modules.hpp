@@ -56,6 +56,8 @@ private:
                         std::filesystem::path &module_path,
                         cell_ptr &source_list_cell);
 
+  void execute_post_import_actions(cell_ptr &post_list, std::filesystem::path &module_path);
+
   std::set<std::string> loaded_modules_;
   source_manager_c &source_manager_;
 };

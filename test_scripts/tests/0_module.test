@@ -7,3 +7,5 @@
 (use "module")
 
 (assert (eq 1 ({module test})) "no dice")
+
+(assert (eq 1 (exported::test)) "post-import symbol redefinition not completed")

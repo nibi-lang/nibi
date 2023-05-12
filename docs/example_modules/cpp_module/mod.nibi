@@ -1,0 +1,25 @@
+
+# Check out the simple example before continuing
+
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "A cpp example module!")
+(:= licenses [
+  "MIT"
+])
+
+# The existence of this variable indicates to nibi that we want to pull in 
+# a dynamic library, and load the listed symbols. 
+# The library must exist at the same level as this file (mod.nibi) 
+# with the name <module_name>.lib, so in this case `cpp_module.lib`
+
+# Check out the CMakeLists.txt file to see how we can build this!
+
+(:= dylib [
+  "example_function"
+])
+
+# Once the .lib is built and exists in the correct location, nibi can access 
+# this module if it is within the include dir or, better yet, in the NIBI_PATH/modules
+
+# For more advanced examples check out the modules directory under the top level nibi directory

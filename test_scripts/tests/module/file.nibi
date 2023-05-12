@@ -1,0 +1,5 @@
+
+
+(:= _private 42)
+
+(assert (eq 1 (test)) "unable to call cpp function internally!")

@@ -1,0 +1,6 @@
+
+# Ensure we can't access a private
+
+(use "module")
+
+(putln {module _private})

@@ -1,4 +1,12 @@
-
 (:= dylib [
   "test"
+])
+
+(:= sources [
+  "file.nibi"
+  "file1.nibi"
+])
+
+(:= post [
+  "post.nibi"
 ])
