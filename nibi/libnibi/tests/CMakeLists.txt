@@ -8,8 +8,8 @@ include_directories(
 find_package (Threads REQUIRED)
 
 add_executable(lib_nibi_unit_tests
-        ${COMPILER_SOURCES}
-        libnibi_stub.cpp
+        ${SOURCES}
+        input.cpp
         main.cpp)
 
 target_link_libraries(lib_nibi_unit_tests
