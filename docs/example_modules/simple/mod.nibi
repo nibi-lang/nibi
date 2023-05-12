@@ -22,5 +22,5 @@
 
 # Executed after module is imported in-order
 (:= post [
-  "export.nibi"
+  "post-import.nibi"
 ])
