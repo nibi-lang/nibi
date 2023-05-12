@@ -16,6 +16,7 @@ parser.add_argument("-m", "--install_modules", action="store_true")
 parser.add_argument("-d", "--debug", action="store_true")
 parser.add_argument("-t", "--test", action="store_true")
 parser.add_argument("-p", "--perf", action="store_true")
+parser.add_argument("-c", "--check-modules", action="store_true")
 args = parser.parse_args()
 
 if not any(vars(args).values()):
@@ -59,6 +60,7 @@ def execute_command(cmd):
 
 def build_and_install_nibi():
   print("Building and installing Nibi library and application")
+  os.chdir("./nibi")
 
   if not os.path.exists("./build"):
     os.mkdir("./build")
@@ -129,7 +131,7 @@ def install_module(module):
   os.chdir(module_dir)
 
 def build_and_install_modules():
-  os.chdir("./modules")
+  os.chdir("./nibi/modules")
   for module in os.listdir("."):
     print("Building and installing module: " + module)
     install_module(module)
@@ -144,7 +146,9 @@ def setup_tests():
 
 def run_tests():
   os.chdir("./test_scripts")
+  print("Running tests...")
   execute_command(["python3", "run.py", "nibi"])
+  print("SUCCESS")
   os.chdir(cwd)
 
 def run_perfs():
@@ -152,7 +156,29 @@ def run_perfs():
   print("Running performance tests... this may take a couple of minutes...")
   result = execute_command(["python3", "run.py", "nibi"])
   print(result)
+  print("SUCCESS")
   os.chdir(cwd)
+
+def check_modules():
+  os.chdir(NIBI_PATH)
+  if not os.path.exists("./modules"):
+    print("No modules to check. Exiting.")
+    exit(0)
+
+  os.chdir("./modules")
+
+  for module in os.listdir("./"):
+    print("Checking module: " + module)
+    print(execute_command(["nibi", "-m", module]))
+    print("\n<MODULE TESTS>\n")
+    print(execute_command(["nibi", "-t", module]))
+    print("\n------------\n")
+
+  os.chdir(cwd)
+
+if not program_exists("make"):
+  print("make is not installed. Please install it and try again.")
+  exit(1)
 
 if not program_exists("cmake"):
   print("CMake is not installed. Please install it and try again.")
@@ -162,7 +188,7 @@ if args.install_nibi:
   build_and_install_nibi()
 
 if args.install_modules:
-  if not os.path.exists("./modules"):
+  if not os.path.exists("./nibi/modules"):
     print("No modules found. Exiting.")
     exit(0)
   print("\n")
@@ -182,3 +208,6 @@ if args.perf:
 
   run_perfs()
 
+if args.check_modules:
+  ensure_nibi_installed()
+  check_modules()
