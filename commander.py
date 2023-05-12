@@ -11,12 +11,13 @@ import subprocess
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--install_nibi", action="store_true")
-parser.add_argument("-m", "--install_modules", action="store_true")
-parser.add_argument("-d", "--debug", action="store_true")
-parser.add_argument("-t", "--test", action="store_true")
-parser.add_argument("-p", "--perf", action="store_true")
-parser.add_argument("-c", "--check-modules", action="store_true")
+parser.add_argument("-n", "--install_nibi", action="store_true", help="Builds and installs Nibi library and application")
+parser.add_argument("-m", "--install_modules", action="store_true", help="Builds and installs Nibi modules")
+parser.add_argument("-d", "--debug", action="store_true", help="Builds Nibi and modules in debug mode")
+parser.add_argument("-t", "--test", action="store_true", help="Runs all tests for Nibi")
+parser.add_argument("-p", "--perf", action="store_true", help="Runs performance tests for Nibi")
+parser.add_argument("-c", "--check-modules", action="store_true", help="Details all modules installed, and runs their tests")
+parser.add_argument("-a", "--all_the_things", action="store_true", help="Installs Nibi, modules, runs tests, and runs performance tests")
 args = parser.parse_args()
 
 if not any(vars(args).values()):
@@ -184,17 +185,17 @@ if not program_exists("cmake"):
   print("CMake is not installed. Please install it and try again.")
   exit(1)
 
-if args.install_nibi:
+if args.install_nibi or args.all_the_things:
   build_and_install_nibi()
 
-if args.install_modules:
+if args.install_modules or args.all_the_things:
   if not os.path.exists("./nibi/modules"):
     print("No modules found. Exiting.")
     exit(0)
   print("\n")
   build_and_install_modules()
 
-if args.test:
+if args.test or args.all_the_things:
   ensure_nibi_installed()
 
   # Ensure tests are setup
@@ -203,11 +204,11 @@ if args.test:
   # Run tests
   run_tests()
 
-if args.perf:
+if args.perf or args.all_the_things:
   ensure_nibi_installed()
 
   run_perfs()
 
-if args.check_modules:
+if args.check_modules or args.all_the_things:
   ensure_nibi_installed()
   check_modules()
