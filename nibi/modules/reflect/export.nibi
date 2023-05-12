@@ -1,0 +1,7 @@
+(:= reflect::type {reflect type})
+(:= reflect::int? {reflect is_int})
+(:= reflect::double? {reflect is_double})
+(:= reflect::string? {reflect is_string})
+(:= reflect::list? {reflect is_list})
+(:= reflect::nil? {reflect is_nil})
+(:= reflect::numeric? {reflect is_numeric})
