@@ -236,20 +236,20 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   }
 }
 
-inline void modules_c::execute_post_import_actions(
-  cell_ptr &post_list,
-  std::filesystem::path &module_path) {
+inline void
+modules_c::execute_post_import_actions(cell_ptr &post_list,
+                                       std::filesystem::path &module_path) {
 
   auto post_list_info = post_list->as_list_info();
 
-  for(auto &item : post_list_info.list) {
+  for (auto &item : post_list_info.list) {
     auto file = module_path / item->as_string();
     if (!std::filesystem::exists(file)) {
       global_interpreter->halt_with_error(
-        error_c(post_list->locator,
-                "Could not locate post-import file: " + file.string()));
+          error_c(post_list->locator,
+                  "Could not locate post-import file: " + file.string()));
     }
-    
+
     list_builder_c export_builder(*global_interpreter);
     file_reader_c export_reader(export_builder, source_manager_);
     export_reader.read_file(file.string());
