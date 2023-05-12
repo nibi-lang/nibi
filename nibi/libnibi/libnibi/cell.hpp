@@ -215,9 +215,13 @@ public:
 
   //! \brief Attempt to convert whatever data type exists to a string
   //!        and return it
-  //! \throws cell_access_exception_c if the cell can not access data as its
+  //! \param quote_strings If true, quote strings
+  //! \param flatten_complex If true, flatten complex types to just their
+  //! symbols (env fn) \throws cell_access_exception_c if the cell can not
+  //! access data as its
   //!         listed type
-  std::string to_string();
+  std::string to_string(bool quote_strings = false,
+                        bool flatten_complex = false);
 
   //! \brief Get the string data as a reference
   //! \throws cell_access_exception_c if the cell is not a string type
