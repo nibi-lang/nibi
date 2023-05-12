@@ -201,7 +201,7 @@ environment_info_s &cell_c::as_environment_info() {
   }
 }
 
-std::string cell_c::to_string() {
+std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
   switch (this->type) {
   case cell_type_e::NIL:
     return "nil";
@@ -212,7 +212,10 @@ std::string cell_c::to_string() {
   case cell_type_e::SYMBOL:
     return this->as_string();
   case cell_type_e::STRING:
-    return "\"" + this->as_string() + "\"";
+    if (quote_strings) {
+      return "\"" + this->as_string() + "\"";
+    }
+    return this->as_string();
   case cell_type_e::ABERRANT: {
     aberrant_cell_if *cell = this->as_aberrant();
     if (!cell)
@@ -222,6 +225,9 @@ std::string cell_c::to_string() {
   }
   case cell_type_e::FUNCTION: {
     auto &fn = this->as_function_info();
+    if (flatten_complex) {
+      return fn.name;
+    }
     std::string result = "<function:";
     result += fn.name;
     result += ", type:";
@@ -231,6 +237,9 @@ std::string cell_c::to_string() {
   }
   case cell_type_e::ENVIRONMENT: {
     auto &env = this->as_environment_info();
+    if (flatten_complex) {
+      return env.name;
+    }
     std::string result = "<environment:";
     result += env.name;
     result += ">";
@@ -244,7 +253,7 @@ std::string cell_c::to_string() {
     case list_types_e::INSTRUCTION: {
       result += "(";
       for (auto cell : list_info.list) {
-        result += cell->to_string() + " ";
+        result += cell->to_string(quote_strings, flatten_complex) + " ";
       }
       if (result.size() > 1)
         result.pop_back();
@@ -254,7 +263,7 @@ std::string cell_c::to_string() {
     case list_types_e::DATA: {
       result += "[";
       for (auto cell : list_info.list) {
-        result += cell->to_string() + " ";
+        result += cell->to_string(quote_strings, flatten_complex) + " ";
       }
       if (result.size() > 1)
         result.pop_back();
@@ -264,7 +273,7 @@ std::string cell_c::to_string() {
     case list_types_e::ACCESS: {
       result += "{";
       for (auto cell : list_info.list) {
-        result += cell->to_string() + " ";
+        result += cell->to_string(quote_strings, flatten_complex) + " ";
       }
       if (result.size() > 1)
         result.pop_back();

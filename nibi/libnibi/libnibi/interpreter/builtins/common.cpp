@@ -28,7 +28,7 @@ cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
   auto target_list = list_get_nth_arg(1, list, env);
 
   if (target_list->type != cell_type_e::LIST) {
-    return allocate_cell((int64_t)(target_list->to_string().size()));
+    return allocate_cell((int64_t)(target_list->to_string(false).size()));
   }
 
   auto &list_info = target_list->as_list_info();

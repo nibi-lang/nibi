@@ -13,7 +13,7 @@ class receiver_c : public nibi::list_cb_if {
 public:
   receiver_c(std::string expected) : expected_{expected} {}
   void on_list(nibi::cell_ptr list_cell) override {
-    CHECK_EQUAL(expected_, list_cell->to_string());
+    CHECK_EQUAL(expected_, list_cell->to_string(true));
   }
 
 private:
