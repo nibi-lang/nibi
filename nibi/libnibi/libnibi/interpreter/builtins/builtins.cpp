@@ -11,10 +11,6 @@ namespace builtins {
 // functions so all cells point to the same instantiation of the function info
 // struct
 
-// @ commands
-static function_info_s builtin_at_debug_inf = {
-    "@debug", builtin_fn_at_debug, function_type_e::BUILTIN_CPP_FUNCTION};
-
 // arithmetic
 static function_info_s builtin_add_inf = {
     "+", builtin_fn_arithmetic_add, function_type_e::BUILTIN_CPP_FUNCTION};
@@ -62,14 +58,6 @@ static function_info_s builtin_throw_inf = {
 // asserts
 static function_info_s builtin_assert_inf = {
     "assert", builtin_fn_assert_true, function_type_e::BUILTIN_CPP_FUNCTION};
-
-// dbg
-static function_info_s builtin_dbg_dbg_inf = {
-    "dbg", builtin_fn_debug_dbg_dbg, function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_dbg_var_inf = {
-    "dbg-var", builtin_fn_debug_dbg_var, function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_dbg_out_inf = {
-    "dbg-out", builtin_fn_debug_dbg_out, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // comparison
 static function_info_s builtin_comparison_eq_inf = {
@@ -171,10 +159,6 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"bw-or", builtin_bitwise_or_inf},
      {"bw-xor", builtin_bitwise_xor_inf},
      {"bw-not", builtin_bitwise_not_inf},
-     {"dbg-var", builtin_dbg_var_inf},
-     {"dbg-out", builtin_dbg_out_inf},
-     {"dbg", builtin_dbg_dbg_inf},
-     {"@debug", builtin_at_debug_inf},
      {"env", builtin_envcell_env_inf}};
 
 // Retrieve the map of symbols to function info structs

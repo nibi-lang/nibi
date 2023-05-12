@@ -20,16 +20,6 @@
 | env     | Define an environment | new env
 | import  | Import files | 0
 
-| @ commands | description | returns
-|----       |----          |----
-| @debug    | Toggle debug on/off | nil 
-
-| debug commands | description | returns
-|----       |----          |----
-| dbg     | Execute cells iff debug enabled | nil 
-| dbg-out | Print given cells iff debug enabled | nil
-| dbg-var | Construct a string detailing information about given cells | string
-
 | list commands | description | returns
 |----   |---- |----
 | >\|    | Push value to front of list | modified list cell
@@ -367,43 +357,6 @@ Keyword: `assert`
 
 ```
 ( assert < () S > STR )
-```
-
------
-
-## Debug Instructions
-
-
-### Toggle Debug
-
-Keyword: `@debug`
-
-| arg1 |
-|----  |
-| integer value 1 or 0 |
-
-```
-( @debug < 1 0 > )
-```
-
-### Debug Printing
-
-Keyword: `dbg-out`
-
-A variable number of arguments accepted with the minimum being 1
-
-```
-( dbg-out < [] () S .. > .. )
-```
-
-### Debug Variable
-
-Keyword: `dbg-var`
-
-A variable number of arguments accepted with the minimum being 1
-
-```
-( dbg-var < S .. > .. )
 ```
 
 ----

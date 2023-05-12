@@ -4,5 +4,4 @@
 
 (drop x)
 
-(dbg-out "X should no longer exist and cause a throw")
 (drop x)

@@ -29,12 +29,6 @@ First digit in arith determines expectations for numerical
 
 ## Modules
 
-### Debug
-
-Remove the @debug and other dbg related commands, make it a module
-
-This will lessen the overall map size for keywords 
-
 ### Reflection
 
 Cell reflection, what more to say?

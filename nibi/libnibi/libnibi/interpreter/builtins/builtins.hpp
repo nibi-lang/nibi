@@ -22,16 +22,6 @@ get_builtin_symbols_map();
 //! \param env The environment that will be used during execution
 extern cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env);
 
-// @ commands
-
-extern cell_ptr builtin_fn_at_debug(cell_list_t &list, env_c &env);
-
-// Debug helper functions
-
-extern cell_ptr builtin_fn_debug_dbg_dbg(cell_list_t &list, env_c &env);
-extern cell_ptr builtin_fn_debug_dbg_var(cell_list_t &list, env_c &env);
-extern cell_ptr builtin_fn_debug_dbg_out(cell_list_t &list, env_c &env);
-
 // Environment modification functions
 
 extern cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env);

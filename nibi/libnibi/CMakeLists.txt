@@ -87,8 +87,6 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/arithmetic.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/environment_modifiers.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/asserts.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/debug.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/at_commands.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/list_commands.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/bitwise.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/comparison.cpp
