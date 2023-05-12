@@ -1,0 +1,26 @@
+# All files will be loaded and piled into
+# an `env` matching the name of the folder
+# that this file is contained in
+
+# These are optionals that can be used to describe 
+# and detail the module
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "Mathematics module")
+(:= licenses [
+  "MIT"
+])
+
+# All sources here will be iterated over in-order and
+# brought into an environment cell under the name of the module
+# - The name of the module is the directory containing 
+#   the module code. In this case "simple" is the name
+(:= sources [
+  "example-0.nibi"
+  "example-1.nibi"
+])
+
+# Executed after module is imported in-order
+(:= post [
+  "export.nibi"
+])

@@ -1,0 +1,9 @@
+
+# Export some symbols so access lists 
+# aren't needed for everything
+
+(:= math::ceil {math ceil})
+(:= math::floor {math floor})
+
+(:= math::ceil_list {math ceil_all})
+(:= math::floor_list {math floor_all})
