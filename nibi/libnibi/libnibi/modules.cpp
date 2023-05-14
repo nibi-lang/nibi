@@ -91,7 +91,7 @@ std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
   auto opt_path = global_platform->locate_directory(name);
 
   if (!opt_path.has_value()) {
-    global_interpreter->halt_with_error(
+    ci_.halt_with_error(
         error_c(module_name->locator, "Could not locate module: " + name));
   }
 
@@ -101,13 +101,13 @@ std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
   auto module_file = path / config::NIBI_MODULE_FILE_NAME;
 
   if (!std::filesystem::exists(module_file)) {
-    global_interpreter->halt_with_error(
+    ci_.halt_with_error(
         error_c(module_name->locator,
                 "Could not locate module file: " + module_file.string()));
   }
 
   if (!std::filesystem::is_regular_file(module_file)) {
-    global_interpreter->halt_with_error(
+    ci_.halt_with_error(
         error_c(module_name->locator,
                 "Module file is not a regular file: " + module_file.string()));
   }
@@ -223,8 +223,8 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   }
 
   if (!loaded_something) {
-    global_interpreter->halt_with_error(error_c(
-        module_name->locator, "Module did not contain any loadable items"));
+    ci_.halt_with_error(error_c(module_name->locator,
+                                "Module did not contain any loadable items"));
   }
 
   auto new_env_cell = allocate_cell(module_cell_env);
@@ -245,14 +245,18 @@ modules_c::execute_post_import_actions(cell_ptr &post_list,
   for (auto &item : post_list_info.list) {
     auto file = module_path / item->as_string();
     if (!std::filesystem::exists(file)) {
-      global_interpreter->halt_with_error(
+      ci_.halt_with_error(
           error_c(post_list->locator,
                   "Could not locate post-import file: " + file.string()));
     }
 
-    list_builder_c export_builder(*global_interpreter);
+    auto *cloned_ci = ci_.clone();
+
+    list_builder_c export_builder(*cloned_ci);
     file_reader_c export_reader(export_builder, source_manager_);
     export_reader.read_file(file.string());
+
+    delete cloned_ci;
   }
 }
 
@@ -266,13 +270,13 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
   std::filesystem::path lib_file = module_path / suspected_lib_file;
 
   if (!std::filesystem::exists(lib_file)) {
-    global_interpreter->halt_with_error(
+    ci_.halt_with_error(
         error_c(dylib_list->locator,
                 "Could not locate dylib file: " + lib_file.string()));
   }
 
   if (!std::filesystem::is_regular_file(lib_file)) {
-    global_interpreter->halt_with_error(
+    ci_.halt_with_error(
         error_c(dylib_list->locator,
                 "Dylib file is not a regular file: " + lib_file.string()));
   }
@@ -286,7 +290,7 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
   } catch (rll_wrapper_c::library_loading_error_c &e) {
     std::string err =
         "Could not load library: " + name + ".\nFailed with error: " + e.what();
-    global_interpreter->halt_with_error(error_c(dylib_list->locator, err));
+    ci_.halt_with_error(error_c(dylib_list->locator, err));
   }
 
   // Validate all listed symbolsm and import them to the module environment
@@ -298,14 +302,14 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
     if (!target_lib->has_symbol(sym)) {
       std::string err =
           "Could not locate symbol: " + sym + " in library: " + name;
-      global_interpreter->halt_with_error(error_c(func->locator, err));
+      ci_.halt_with_error(error_c(func->locator, err));
     }
 
-    auto target_cell = allocate_cell(
-        function_info_s(sym,
-                        reinterpret_cast<cell_ptr (*)(cell_list_t &, env_c &)>(
-                            target_lib->get_symbol(sym)),
-                        function_type_e::EXTERNAL_FUNCTION, &module_env));
+    auto target_cell = allocate_cell(function_info_s(
+        sym,
+        reinterpret_cast<cell_ptr (*)(interpreter_c & ci, cell_list_t &,
+                                      env_c &)>(target_lib->get_symbol(sym)),
+        function_type_e::EXTERNAL_FUNCTION, &module_env));
 
     module_env.set(sym, target_cell);
   }
@@ -343,7 +347,7 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
   for (auto &source_file : source_list_info.list) {
     auto source_file_path = module_path / source_file->as_string();
     if (!std::filesystem::is_regular_file(source_file_path)) {
-      global_interpreter->halt_with_error(
+      ci_.halt_with_error(
           error_c(source_file->locator,
                   "File listed in module: " + name +
                       " is not a regular file: " + source_file_path.string()));

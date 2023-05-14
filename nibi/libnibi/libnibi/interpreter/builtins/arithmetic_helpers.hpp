@@ -7,7 +7,7 @@
 namespace nibi {
 
 template <typename T>
-static inline T list_perform_add(T base_value,
+static inline T list_perform_add(T base_value, interpreter_c &ci,
                                  std::function<T(cell_ptr)> conversion_method,
                                  cell_list_t &list, env_c &env) {
   T accumulate{base_value};
@@ -16,7 +16,7 @@ static inline T list_perform_add(T base_value,
 }
 
 template <typename T>
-static inline T list_perform_sub(T base_value,
+static inline T list_perform_sub(T base_value, interpreter_c &ci,
                                  std::function<T(cell_ptr)> conversion_method,
                                  cell_list_t &list, env_c &env) {
   T accumulate{base_value};
@@ -25,7 +25,7 @@ static inline T list_perform_sub(T base_value,
 }
 
 template <typename T>
-static inline T list_perform_div(T base_value,
+static inline T list_perform_div(T base_value, interpreter_c &ci,
                                  std::function<T(cell_ptr)> conversion_method,
                                  cell_list_t &list, env_c &env) {
   T accumulate{base_value};
@@ -41,7 +41,7 @@ static inline T list_perform_div(T base_value,
 }
 
 template <typename T>
-static inline T list_perform_mul(T base_value,
+static inline T list_perform_mul(T base_value, interpreter_c &ci,
                                  std::function<T(cell_ptr)> conversion_method,
                                  cell_list_t &list, env_c &env) {
   T accumulate{base_value};
@@ -50,7 +50,7 @@ static inline T list_perform_mul(T base_value,
 }
 
 template <typename T>
-static inline T list_perform_pow(T base_value,
+static inline T list_perform_pow(T base_value, interpreter_c &ci,
                                  std::function<T(cell_ptr)> conversion_method,
                                  cell_list_t &list, env_c &env) {
   T accumulate{base_value};

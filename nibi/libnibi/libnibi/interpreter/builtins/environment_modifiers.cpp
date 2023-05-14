@@ -11,7 +11,8 @@
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
 
   LIST_ENFORCE_SIZE(":=", ==, 3)
 
@@ -26,7 +27,7 @@ cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
   auto &target_variable_name = (*it)->as_string();
 
   auto target_assignment_value =
-      global_interpreter->execute_cell(list_get_nth_arg(2, list, env), env);
+      ci.execute_cell(list_get_nth_arg(ci, 2, list, env), env);
 
   // Explicitly clone the value as we might be reading from
   // an instruction that will be mutated later
@@ -39,15 +40,15 @@ cell_ptr builtin_fn_env_assignment(cell_list_t &list, env_c &env) {
   return target_assignment_value;
 }
 
-cell_ptr builtin_fn_env_set(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("set", ==, 3)
 
   auto target_assignment_cell =
-      global_interpreter->execute_cell(list_get_nth_arg(1, list, env), env);
+      ci.execute_cell(list_get_nth_arg(ci, 1, list, env), env);
 
   auto target_assignment_value =
-      global_interpreter->execute_cell(list_get_nth_arg(2, list, env), env);
+      ci.execute_cell(list_get_nth_arg(ci, 2, list, env), env);
 
   // Then update that cell directly
   target_assignment_cell->update_data_and_type_to(*target_assignment_value);
@@ -55,7 +56,7 @@ cell_ptr builtin_fn_env_set(cell_list_t &list, env_c &env) {
   return target_assignment_cell;
 }
 
-cell_ptr builtin_fn_env_drop(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_drop(interpreter_c &ci, cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("drop", >=, 2)
   LIST_ITER_SKIP_N(1, {
     if (!env.drop((*it)->as_symbol())) {
@@ -67,7 +68,7 @@ cell_ptr builtin_fn_env_drop(cell_list_t &list, env_c &env) {
   return allocate_cell((int64_t)0);
 }
 
-cell_ptr builtin_fn_env_fn(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
   LIST_ENFORCE_SIZE("fn", ==, 4)
 

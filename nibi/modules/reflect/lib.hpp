@@ -12,23 +12,30 @@
 extern "C" {
 
 API_EXPORT
-extern nibi::cell_ptr type(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr type(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                           nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr is_numeric(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr is_numeric(nibi::interpreter_c &ci,
+                                 nibi::cell_list_t &list, nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr is_int(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr is_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                             nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr is_double(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr is_double(nibi::interpreter_c &ci,
+                                nibi::cell_list_t &list, nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr is_string(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr is_string(nibi::interpreter_c &ci,
+                                nibi::cell_list_t &list, nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr is_list(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr is_list(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                              nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr is_nil(nibi::cell_list_t &list, nibi::env_c &env);
+extern nibi::cell_ptr is_nil(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                             nibi::env_c &env);
 }

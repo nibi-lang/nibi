@@ -9,7 +9,8 @@ namespace nibi {
 
 namespace builtins {
 
-cell_ptr builtin_fn_envcell_env(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
+                                env_c &env) {
 
   LIST_ENFORCE_SIZE("env", ==, 3)
 
@@ -22,7 +23,7 @@ cell_ptr builtin_fn_envcell_env(cell_list_t &list, env_c &env) {
 
   // Populate the env by executing their instructions
   std::advance(it, 1);
-  global_interpreter->execute_cell((*it), *new_env_info.env, true);
+  ci.execute_cell((*it), *new_env_info.env, true);
 
   // Create a cell that will hold the env we just built
   auto new_cell = allocate_cell(new_env_info);

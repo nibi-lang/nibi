@@ -8,22 +8,24 @@
 
 #define CHECK_SIZE(op, n)                                                      \
   if (list.size() op n) {                                                      \
-    nibi::global_interpreter->halt_with_error(nibi::error_c(                   \
+    ci.halt_with_error(nibi::error_c(                                          \
         list.front()->locator,                                                 \
         "instruction expects " + std::to_string(n - 1) + " parameters, got " + \
             std::to_string(list.size() - 1) + "."));                           \
   }
 
-nibi::cell_ptr get_str(nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr get_str(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                       nibi::env_c &env) {
   std::string line;
   std::getline(std::cin, line);
   return nibi::allocate_cell(line);
 }
 
-nibi::cell_ptr type(nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr type(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                    nibi::env_c &env) {
   CHECK_SIZE(!=, 2)
 
-  auto resolved = nibi::global_interpreter->execute_cell(list[1], env);
+  auto resolved = ci.execute_cell(list[1], env);
   switch (resolved->type) {
   case nibi::cell_type_e::ABERRANT:
     return nibi::allocate_cell("aberrant");
@@ -48,39 +50,39 @@ nibi::cell_ptr type(nibi::cell_list_t &list, nibi::env_c &env) {
   }
 }
 
-nibi::cell_ptr is_numeric(nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr is_numeric(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                          nibi::env_c &env) {
   CHECK_SIZE(!=, 2)
   return nibi::allocate_cell(
-      (int64_t)nibi::global_interpreter->execute_cell(list[1], env)
-          ->is_numeric());
+      (int64_t)ci.execute_cell(list[1], env)->is_numeric());
 }
 
-nibi::cell_ptr is_int(nibi::cell_list_t &list, nibi::env_c &env) {
-  return nibi::allocate_cell(
-      (int64_t)(nibi::global_interpreter->execute_cell(list[1], env)->type ==
-                nibi::cell_type_e::INTEGER));
+nibi::cell_ptr is_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                      nibi::env_c &env) {
+  return nibi::allocate_cell((int64_t)(ci.execute_cell(list[1], env)->type ==
+                                       nibi::cell_type_e::INTEGER));
 }
 
-nibi::cell_ptr is_double(nibi::cell_list_t &list, nibi::env_c &env) {
-  return nibi::allocate_cell(
-      (int64_t)(nibi::global_interpreter->execute_cell(list[1], env)->type ==
-                nibi::cell_type_e::DOUBLE));
+nibi::cell_ptr is_double(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                         nibi::env_c &env) {
+  return nibi::allocate_cell((int64_t)(ci.execute_cell(list[1], env)->type ==
+                                       nibi::cell_type_e::DOUBLE));
 }
 
-nibi::cell_ptr is_string(nibi::cell_list_t &list, nibi::env_c &env) {
-  return nibi::allocate_cell(
-      (int64_t)(nibi::global_interpreter->execute_cell(list[1], env)->type ==
-                nibi::cell_type_e::STRING));
+nibi::cell_ptr is_string(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                         nibi::env_c &env) {
+  return nibi::allocate_cell((int64_t)(ci.execute_cell(list[1], env)->type ==
+                                       nibi::cell_type_e::STRING));
 }
 
-nibi::cell_ptr is_list(nibi::cell_list_t &list, nibi::env_c &env) {
-  return nibi::allocate_cell(
-      (int64_t)(nibi::global_interpreter->execute_cell(list[1], env)->type ==
-                nibi::cell_type_e::LIST));
+nibi::cell_ptr is_list(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                       nibi::env_c &env) {
+  return nibi::allocate_cell((int64_t)(ci.execute_cell(list[1], env)->type ==
+                                       nibi::cell_type_e::LIST));
 }
 
-nibi::cell_ptr is_nil(nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr is_nil(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                      nibi::env_c &env) {
   return nibi::allocate_cell(
-      (int64_t)(nibi::global_interpreter->execute_cell(list[1], env)->type ==
-                nibi::cell_type_e::NIL));
+      (int64_t)(ci.execute_cell(list[1], env)->type == nibi::cell_type_e::NIL));
 }

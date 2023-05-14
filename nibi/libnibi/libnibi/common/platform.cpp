@@ -1,12 +1,13 @@
 #include "platform.hpp"
 
+#include <iostream>
+
 namespace nibi {
 
 platform_c *global_platform = nullptr;
 
-platform_c::platform_c(std::vector<std::filesystem::path> &include_dirs,
-                       std::filesystem::path &launch_location)
-    : _include_dirs(include_dirs), _launch_location(launch_location) {
+platform_c::platform_c(std::vector<std::filesystem::path> &include_dirs)
+    : _include_dirs(include_dirs) {
 
   if (const char *home = std::getenv("NIBI_PATH")) {
     _nibi_path = {std::filesystem::path(home)};
@@ -72,8 +73,15 @@ const char *platform_c::get_platform_string() const {
 
 std::optional<std::filesystem::path>
 platform_c::locate_file(std::string &file_name) {
-  std::filesystem::path file_path =
-      _launch_location / std::filesystem::path(file_name);
+  std::filesystem::path file_path = file_name;
+  if (file_path.has_parent_path()) {
+    auto parent_path = file_path.parent_path();
+    if (std::filesystem::exists(parent_path) &&
+        std::filesystem::is_directory(parent_path)) {
+      auto pp = std::filesystem::canonical(parent_path);
+      add_include_dir(pp);
+    }
+  }
   if (std::filesystem::exists(file_path) &&
       std::filesystem::is_regular_file(file_path)) {
     return {file_path};
@@ -97,11 +105,14 @@ platform_c::locate_file(std::string &file_name) {
 
 std::optional<std::filesystem::path>
 platform_c::locate_directory(std::string &directory_name) {
-  std::filesystem::path dir_path =
-      _launch_location / std::filesystem::path(directory_name);
-  if (std::filesystem::exists(dir_path) &&
-      std::filesystem::is_directory(dir_path)) {
-    return {dir_path};
+  std::filesystem::path dir_path = std::filesystem::path(directory_name);
+  if (dir_path.has_parent_path()) {
+    auto parent_path = dir_path.parent_path();
+    if (std::filesystem::exists(parent_path) &&
+        std::filesystem::is_directory(parent_path)) {
+      auto pp = std::filesystem::canonical(parent_path);
+      add_include_dir(pp);
+    }
   }
   for (auto &include_dir : _include_dirs) {
     dir_path = include_dir / std::filesystem::path(directory_name);
@@ -121,10 +132,18 @@ platform_c::locate_directory(std::string &directory_name) {
   return {std::nullopt};
 }
 
-bool global_platform_init(std::vector<std::filesystem::path> include_dirs,
-                          std::filesystem::path &launch_location) {
+void platform_c::add_include_dir(std::filesystem::path &include_dir) {
+  for (auto &dir : _include_dirs) {
+    if (dir == include_dir) {
+      return;
+    }
+  }
+  _include_dirs.push_back(include_dir);
+}
+
+bool global_platform_init(std::vector<std::filesystem::path> include_dirs) {
   if (!global_platform) {
-    global_platform = new platform_c(include_dirs, launch_location);
+    global_platform = new platform_c(include_dirs);
     return true;
   }
   return false;

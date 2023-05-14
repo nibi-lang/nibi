@@ -13,7 +13,8 @@ namespace builtins {
 //  Lambda Execution taking the form of builtin functions
 // --------------------------------------------------------
 
-cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
+cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
+                                  env_c &env) {
 
   auto it = list.begin();
 
@@ -49,13 +50,12 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
 
   for (auto &&arg_name : lambda_info.arg_names) {
     std::advance(it, 1);
-    map[arg_name] = global_interpreter->execute_cell((*it), env);
+    map[arg_name] = ci.execute_cell((*it), env);
   }
 
   auto &body = lambda_info.body->as_list_info();
 
-  cell_ptr result =
-      global_interpreter->execute_cell(lambda_info.body, lambda_env, true);
+  cell_ptr result = ci.execute_cell(lambda_info.body, lambda_env, true);
 
   // Because we have pointers to parametrs stored we don't want the environment
   // to free them, so we manually remove them here before
@@ -65,8 +65,8 @@ cell_ptr execute_suspected_lambda(cell_list_t &list, env_c &env) {
   }
 
   // We are out of the function, so we can reset the yield value
-  if (global_interpreter->is_yielding()) {
-    global_interpreter->set_yield_value(nullptr);
+  if (ci.is_yielding()) {
+    ci.set_yield_value(nullptr);
   }
 
   // Return a copy of the result

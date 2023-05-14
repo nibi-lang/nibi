@@ -48,6 +48,7 @@ enum class list_types_e {
 // Forward declarations
 class env_c;
 class cell_c;
+class interpreter_c;
 
 //! \brief A cell pointer type
 using cell_ptr = std::shared_ptr<cell_c>;
@@ -60,7 +61,8 @@ constexpr auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
 using cell_list_t = std::deque<cell_ptr>;
 
 //! \brief A function that takes a list of cells and an environment
-using cell_fn_t = std::function<cell_ptr(cell_list_t &, env_c &)>;
+using cell_fn_t =
+    std::function<cell_ptr(interpreter_c &ci, cell_list_t &, env_c &)>;
 
 //! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {
