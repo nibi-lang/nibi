@@ -6,8 +6,9 @@ namespace nibi {
 
 platform_c *global_platform = nullptr;
 
-platform_c::platform_c(std::vector<std::filesystem::path> &include_dirs)
-    : _include_dirs(include_dirs) {
+platform_c::platform_c(std::vector<std::filesystem::path> &include_dirs,
+                       std::vector<std::string> &program_args)
+    : _include_dirs(include_dirs), _program_args(program_args) {
 
   if (const char *home = std::getenv("NIBI_PATH")) {
     _nibi_path = {std::filesystem::path(home)};
@@ -137,9 +138,14 @@ platform_c::locate_directory(std::string &directory_name) {
   return {std::nullopt};
 }
 
-bool global_platform_init(std::vector<std::filesystem::path> include_dirs) {
+const std::vector<std::string> platform_c::get_program_args() const {
+  return _program_args;
+}
+
+bool global_platform_init(std::vector<std::filesystem::path> include_dirs,
+                          std::vector<std::string> &program_args) {
   if (!global_platform) {
-    global_platform = new platform_c(include_dirs);
+    global_platform = new platform_c(include_dirs, program_args);
     return true;
   }
   return false;

@@ -29,7 +29,7 @@ using namespace nibi;
 
 namespace {
 
-// The top level interpreter that will be used to run the 
+// The top level interpreter that will be used to run the
 // entry file given to the program
 interpreter_c *top_level_interpreter{nullptr};
 
@@ -39,6 +39,10 @@ env_c *program_global_env{nullptr};
 // Source input manager used to ensure that files are only read once
 // and to generate locators for cells
 source_manager_c *source_manager{nullptr};
+
+// Program arguments
+std::vector<std::string> *args{nullptr};
+
 } // namespace
 
 void teardown() {
@@ -55,7 +59,7 @@ void setup(std::vector<std::filesystem::path> &include_dirs) {
       new interpreter_c(*program_global_env, *source_manager);
 
   // Initialize the global platofrm object
-  if (!global_platform_init(include_dirs)) {
+  if (!global_platform_init(include_dirs, *args)) {
     std::cerr << "Failed to initialize global platform" << std::endl;
     teardown();
     exit(1);
@@ -180,35 +184,35 @@ int main(int argc, char **argv) {
 
   std::vector<std::string> unmatched;
   std::vector<std::filesystem::path> include_dirs;
-  std::vector<std::string> args(argv + 1, argv + argc);
+  args = new std::vector<std::string>(argv + 1, argv + argc);
 
-  for (std::size_t i = 0; i < args.size(); i++) {
-    if (args[i] == "-h" || args[i] == "--help") {
+  for (std::size_t i = 0; i < (*args).size(); i++) {
+    if ((*args)[i] == "-h" || (*args)[i] == "--help") {
       show_help();
       return 0;
     }
 
-    if (args[i] == "-v" || args[i] == "--version") {
+    if ((*args)[i] == "-v" || (*args)[i] == "--version") {
       show_version();
       return 0;
     }
 
-    if (args[i] == "-t" || args[i] == "--test") {
-      if (i + 1 >= args.size()) {
+    if ((*args)[i] == "-t" || (*args)[i] == "--test") {
+      if (i + 1 >= (*args).size()) {
         std::cout << "No module name specified to test" << std::endl;
         return 1;
       }
       include_dirs.push_back(std::filesystem::current_path());
-      run_tests(args[i + 1], include_dirs);
+      run_tests((*args)[i + 1], include_dirs);
       return 0;
     }
 
-    if (args[i] == "-i" || args[i] == "--include") {
-      if (i + 1 >= args.size()) {
+    if ((*args)[i] == "-i" || (*args)[i] == "--include") {
+      if (i + 1 >= (*args).size()) {
         std::cout << "No include directory specified" << std::endl;
         return 1;
       }
-      std::stringstream ss(args[i + 1]);
+      std::stringstream ss((*args)[i + 1]);
       std::string item;
       while (std::getline(ss, item, ':')) {
         include_dirs.push_back(item);
@@ -217,19 +221,19 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    if (args[i] == "-m" || args[i] == "--module") {
-      if (i + 1 >= args.size()) {
+    if ((*args)[i] == "-m" || (*args)[i] == "--module") {
+      if (i + 1 >= (*args).size()) {
         std::cout << "No module name specified" << std::endl;
         return 1;
       }
       include_dirs.push_back(std::filesystem::current_path());
       setup(include_dirs);
-      show_module_info(args[i + 1]);
+      show_module_info((*args)[i + 1]);
       teardown();
       return 0;
     }
 
-    unmatched.push_back(args[i]);
+    unmatched.push_back((*args)[i]);
   }
 
   if (unmatched.empty()) {
@@ -300,5 +304,6 @@ int main(int argc, char **argv) {
   std::cout << "Total time: " << app_duration.count() << "ms" << std::endl;
 #endif
 
+  delete args;
   return 0;
 }
