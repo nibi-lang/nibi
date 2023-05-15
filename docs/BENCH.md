@@ -37,3 +37,19 @@ git hash: **816888e782f214d405c083a511d0b057bf2f1db4**
 | primality.nibi  | 2.0588    | 2058.7793
 | 4sieve.nibi     | 2.3497    | 2349.7038
 | leibniz         | 0.1963    | 196.348
+
+### 15-May-2023
+
+Removed global interpreter, and updated everything to take a reference to the interpreter. Some other 
+changes here too but not to anything to do with processing (scripts/ modules/ etc). I believe the 
+slight speed increase came from not having to jump to the heap to get the processor everytime
+that a symbol needed to be processed.
+
+git hash: **7b735129eb0e8ca15cee09ffe68d298bb57247d2**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1524s | 152.3795ms  |
+| primality.nibi  | 1.7912s | 1791.2477ms |
+| 4sieve.nibi     | 1.9994s | 1999.4224ms |
+| leibniz.nibi    | 0.1703s | 170.2986ms  |
