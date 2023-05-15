@@ -1,0 +1,2 @@
+# Check to make sure imports are relative to imported file(s)
+(import "d.nibi")

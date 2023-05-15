@@ -3,3 +3,5 @@
 (assert ( eq {a value} 42) "Unable to load from import a")
 
 (assert ( eq b 1024) "Unable to load from import b")
+
+(assert (eq d 2048) "Failed to bring in relative import")

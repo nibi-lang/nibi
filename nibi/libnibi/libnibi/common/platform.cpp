@@ -72,10 +72,11 @@ const char *platform_c::get_platform_string() const {
 }
 
 std::optional<std::filesystem::path>
-platform_c::locate_file(std::filesystem::path &file_path, std::filesystem::path &imported_from) {
+platform_c::locate_file(std::filesystem::path &file_path,
+                        std::filesystem::path &imported_from) {
 
-  // Check the path that the import came from to see if it has a parent directory.
-  // if it does, then we should check that directory first.
+  // Check the path that the import came from to see if it has a parent
+  // directory. if it does, then we should check that directory first.
   if (imported_from.has_parent_path()) {
     auto parent_path = imported_from.parent_path();
     if (std::filesystem::exists(parent_path) &&
@@ -88,7 +89,8 @@ platform_c::locate_file(std::filesystem::path &file_path, std::filesystem::path 
       }
     }
   }
-  // If its not in the parent directory, or if there is no parent then we check it as-is
+  // If its not in the parent directory, or if there is no parent then we check
+  // it as-is
   if (std::filesystem::exists(file_path) &&
       std::filesystem::is_regular_file(file_path)) {
     return {file_path};

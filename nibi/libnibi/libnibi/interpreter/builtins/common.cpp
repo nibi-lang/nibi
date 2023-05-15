@@ -166,13 +166,24 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
   file_reader_c file_reader(list_builder, gsm);
 
   while (it != list.end()) {
+    // Get the source file from the `import` keyword so we can ensure that
+    // the file can be searched relative to the location of the file being
+    // executed at the moment
+    auto from =
+        std::filesystem::path((*list.begin())->locator->get_source_name());
+
+    // Retrieve the file name to import
     auto target = std::filesystem::path((*it)->as_string());
-    auto from = std::filesystem::path((*list.begin())->locator->get_source_name());
+
+    // Locate the item
     auto item = global_platform->locate_file(target, from);
     if (!item.has_value()) {
-      ci.halt_with_error(error_c(
-          (*it)->locator, "Could not locate file for import: " + target.string()));
+      ci.halt_with_error(
+          error_c((*it)->locator,
+                  "Could not locate file for import: " + target.string()));
     }
+
+    // Check that the item hasn't already been imported
     if (!gsm.exists((*item).string())) {
       file_reader.read_file((*item).string());
     }
@@ -190,7 +201,6 @@ cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
   std::advance(it, 1);
 
   while (it != list.end()) {
-    ;
     ci.load_module((*it));
     std::advance(it, 1);
   }

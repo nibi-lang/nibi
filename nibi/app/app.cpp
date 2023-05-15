@@ -29,6 +29,8 @@ using namespace nibi;
 
 namespace {
 
+// The top level interpreter that will be used to run the 
+// entry file given to the program
 interpreter_c *top_level_interpreter{nullptr};
 
 // The object that will be used as the top level env

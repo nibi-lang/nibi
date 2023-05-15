@@ -25,7 +25,9 @@ public:
   //! \brief Locate a file
   //! \param file_name The file name
   //! \return The file path iff it exists somewhere
-  std::optional<std::filesystem::path> locate_file(std::filesystem::path &file_name, std::filesystem::path &imported_from);
+  std::optional<std::filesystem::path>
+  locate_file(std::filesystem::path &file_name,
+              std::filesystem::path &imported_from);
 
   //! \brief Locate a directory
   //! \param directory_name The directory name
