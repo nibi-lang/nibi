@@ -72,29 +72,40 @@ const char *platform_c::get_platform_string() const {
 }
 
 std::optional<std::filesystem::path>
-platform_c::locate_file(std::string &file_name) {
-  std::filesystem::path file_path = file_name;
-  if (file_path.has_parent_path()) {
-    auto parent_path = file_path.parent_path();
+platform_c::locate_file(std::filesystem::path &file_path, std::filesystem::path &imported_from) {
+
+  // Check the path that the import came from to see if it has a parent directory.
+  // if it does, then we should check that directory first.
+  if (imported_from.has_parent_path()) {
+    auto parent_path = imported_from.parent_path();
     if (std::filesystem::exists(parent_path) &&
         std::filesystem::is_directory(parent_path)) {
-      auto pp = std::filesystem::canonical(parent_path);
-      add_include_dir(pp);
+      auto relative_path = std::filesystem::canonical(parent_path);
+      auto first_path = relative_path / file_path;
+      if (std::filesystem::exists(first_path) &&
+          std::filesystem::is_regular_file(first_path)) {
+        return {first_path};
+      }
     }
   }
+  // If its not in the parent directory, or if there is no parent then we check it as-is
   if (std::filesystem::exists(file_path) &&
       std::filesystem::is_regular_file(file_path)) {
     return {file_path};
   }
+
+  // If we still haven't found it, then we check the include directories
   for (auto &include_dir : _include_dirs) {
-    file_path = include_dir / std::filesystem::path(file_name);
+    file_path = include_dir / file_path;
     if (std::filesystem::exists(file_path) &&
         std::filesystem::is_regular_file(file_path)) {
       return {file_path};
     }
   }
+
+  // If we still haven't found it, then we check the nibi path
   if (_nibi_path.has_value()) {
-    file_path = _nibi_path.value() / std::filesystem::path(file_name);
+    file_path = _nibi_path.value() / file_path;
     if (std::filesystem::exists(file_path) &&
         std::filesystem::is_regular_file(file_path)) {
       return {file_path};
@@ -106,14 +117,6 @@ platform_c::locate_file(std::string &file_name) {
 std::optional<std::filesystem::path>
 platform_c::locate_directory(std::string &directory_name) {
   std::filesystem::path dir_path = std::filesystem::path(directory_name);
-  if (dir_path.has_parent_path()) {
-    auto parent_path = dir_path.parent_path();
-    if (std::filesystem::exists(parent_path) &&
-        std::filesystem::is_directory(parent_path)) {
-      auto pp = std::filesystem::canonical(parent_path);
-      add_include_dir(pp);
-    }
-  }
   for (auto &include_dir : _include_dirs) {
     dir_path = include_dir / std::filesystem::path(directory_name);
     if (std::filesystem::exists(dir_path) &&
@@ -130,15 +133,6 @@ platform_c::locate_directory(std::string &directory_name) {
     }
   }
   return {std::nullopt};
-}
-
-void platform_c::add_include_dir(std::filesystem::path &include_dir) {
-  for (auto &dir : _include_dirs) {
-    if (dir == include_dir) {
-      return;
-    }
-  }
-  _include_dirs.push_back(include_dir);
 }
 
 bool global_platform_init(std::vector<std::filesystem::path> include_dirs) {

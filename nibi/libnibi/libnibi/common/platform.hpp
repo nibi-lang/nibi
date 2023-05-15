@@ -25,7 +25,7 @@ public:
   //! \brief Locate a file
   //! \param file_name The file name
   //! \return The file path iff it exists somewhere
-  std::optional<std::filesystem::path> locate_file(std::string &file_name);
+  std::optional<std::filesystem::path> locate_file(std::filesystem::path &file_name, std::filesystem::path &imported_from);
 
   //! \brief Locate a directory
   //! \param directory_name The directory name
@@ -41,8 +41,6 @@ private:
   platform_e _platform{platform_e::UNKNOWN};
   std::vector<std::filesystem::path> _include_dirs;
   std::optional<std::filesystem::path> _nibi_path{std::nullopt};
-
-  void add_include_dir(std::filesystem::path &include_dir);
 };
 
 extern platform_c *global_platform;

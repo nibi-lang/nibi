@@ -162,23 +162,22 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 
   auto &gsm = ci.get_source_manager();
 
-  auto *interpreter = ci.clone();
-  list_builder_c list_builder(*interpreter);
+  list_builder_c list_builder(ci);
   file_reader_c file_reader(list_builder, gsm);
 
   while (it != list.end()) {
-    auto target = (*it)->as_string();
-    auto item = global_platform->locate_file(target);
+    auto target = std::filesystem::path((*it)->as_string());
+    auto from = std::filesystem::path((*list.begin())->locator->get_source_name());
+    auto item = global_platform->locate_file(target, from);
     if (!item.has_value()) {
       ci.halt_with_error(error_c(
-          (*it)->locator, "Could not locate file for import: " + target));
+          (*it)->locator, "Could not locate file for import: " + target.string()));
     }
     if (!gsm.exists((*item).string())) {
       file_reader.read_file((*item).string());
     }
     std::advance(it, 1);
   }
-  delete interpreter;
   return allocate_cell((int64_t)1);
 }
 

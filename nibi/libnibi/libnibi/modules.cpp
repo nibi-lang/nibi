@@ -250,13 +250,9 @@ modules_c::execute_post_import_actions(cell_ptr &post_list,
                   "Could not locate post-import file: " + file.string()));
     }
 
-    auto *cloned_ci = ci_.clone();
-
-    list_builder_c export_builder(*cloned_ci);
+    list_builder_c export_builder(ci_);
     file_reader_c export_reader(export_builder, source_manager_);
     export_reader.read_file(file.string());
-
-    delete cloned_ci;
   }
 }
 

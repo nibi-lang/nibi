@@ -73,11 +73,6 @@ public:
 
   source_manager_c &get_source_manager() { return source_manager_; }
 
-  //! \brief Clone the interpreter
-  interpreter_c *clone() {
-    return new interpreter_c(interpreter_env, source_manager_);
-  }
-
   //! \brief Load a module
   //! \param module_name The name of the module to load
   void load_module(cell_ptr &module_name);
