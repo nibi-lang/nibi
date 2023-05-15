@@ -22,19 +22,15 @@ print("CWD : ", check_directory)
 
 print("\n------- BEGIN BENCHMARK -------\n")
 
-test_directories = [
-  check_directory + ""
-]
-
 def test_item(id, expected_result, item):
 
-   print("Running:", item)
+   print("Running:", item["path"])
    print("Expecting return code: ", expected_result)
 
    cum_time = 0
    for x in range(0, runs_each):
       start = time.time()
-      result = subprocess.run([binary, item], stdout=subprocess.PIPE)
+      result = subprocess.run([binary, item["path"]], stdout=subprocess.PIPE)
       end = time.time()
 
       cum_time += end - start
@@ -46,9 +42,11 @@ def test_item(id, expected_result, item):
    avg = cum_time / runs_each
    sec_avg = str(round(avg, 4)) + "s"
    ms_avg = str(round(avg * 1000, 4)) + "ms"
+   item["sec"] = sec_avg
+   item["ms"] = ms_avg
 
    print("Average execution time: ", sec_avg, "(", ms_avg, ")\n")
-   return
+   return item
 
 def retrieve_objects_from(directory):
    os.chdir(directory)
@@ -61,23 +59,23 @@ def retrieve_objects_from(directory):
       results.append(result)
    return results
 
-def build_exec_list(dirs):
-   exec_list = []
-   for dir in dirs:
-      print("Scanning directory : ", dir)
-      exec_list.append(retrieve_objects_from(dir))
-   print("")
-   return exec_list
+def generate_table(results):
+   print('''
+| test            | time (s)  | time (ms)
+|----             |----       |----''')
+   for item in results:
+     print('|', item["name"], '|', item["sec"], '|', item["ms"], '|')
 
 def task(id, jobs):
+   results = []
    for item in jobs:
-      test_item(id, 0, item["path"])
+      results.append(test_item(id, 0, item))
+   return results
 
 def run():
-   exec_list = build_exec_list(test_directories)
+   exec_list = retrieve_objects_from(check_directory)
    os.chdir(check_directory)
-   for item in exec_list:
-      task(0, item)
+   generate_table(task(0, exec_list))
 
 run_time_start = time.time()
 run()

@@ -8,12 +8,13 @@
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_list_push_front(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_push_front(interpreter_c &ci, cell_list_t &list,
+                                    env_c &env) {
   LIST_ENFORCE_SIZE(">|", ==, 3)
 
-  auto value_to_push = list_get_nth_arg(1, list, env);
+  auto value_to_push = list_get_nth_arg(ci, 1, list, env);
 
-  auto list_to_push_to = list_get_nth_arg(2, list, env);
+  auto list_to_push_to = list_get_nth_arg(ci, 2, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
@@ -23,12 +24,13 @@ cell_ptr builtin_fn_list_push_front(cell_list_t &list, env_c &env) {
   return list_to_push_to;
 }
 
-cell_ptr builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
   LIST_ENFORCE_SIZE("|<", ==, 3)
 
-  auto value_to_push = list_get_nth_arg(1, list, env);
+  auto value_to_push = list_get_nth_arg(ci, 1, list, env);
 
-  auto list_to_push_to = list_get_nth_arg(2, list, env);
+  auto list_to_push_to = list_get_nth_arg(ci, 2, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
@@ -38,11 +40,12 @@ cell_ptr builtin_fn_list_push_back(cell_list_t &list, env_c &env) {
   return list_to_push_to;
 }
 
-cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_iter(interpreter_c &ci, cell_list_t &list,
+                              env_c &env) {
 
   LIST_ENFORCE_SIZE("iter", ==, 4)
 
-  auto list_to_iterate = list_get_nth_arg(1, list, env);
+  auto list_to_iterate = list_get_nth_arg(ci, 1, list, env);
 
   auto &list_info = list_to_iterate->as_list_info();
 
@@ -64,19 +67,19 @@ cell_ptr builtin_fn_list_iter(cell_list_t &list, env_c &env) {
     current_env_map[symbol_to_bind] = cell;
 
     // Execute the instructions, allowing [] to execute multiple instructions
-    global_interpreter->execute_cell(ins_to_exec_per_item, iter_env, true);
+    ci.execute_cell(ins_to_exec_per_item, iter_env, true);
   }
 
   // Return the list we iterated
   return list_to_iterate;
 }
 
-cell_ptr builtin_fn_list_at(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_at(interpreter_c &ci, cell_list_t &list, env_c &env) {
   LIST_ENFORCE_SIZE("at", ==, 3)
 
-  auto requested_idx = list_get_nth_arg(2, list, env);
+  auto requested_idx = list_get_nth_arg(ci, 2, list, env);
 
-  auto target_list = list_get_nth_arg(1, list, env);
+  auto target_list = list_get_nth_arg(ci, 1, list, env);
 
   auto &list_info = target_list->as_list_info();
 
@@ -92,10 +95,11 @@ cell_ptr builtin_fn_list_at(cell_list_t &list, env_c &env) {
   return (*it);
 }
 
-cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
+                               env_c &env) {
   LIST_ENFORCE_SIZE("<|>", ==, 3)
 
-  auto list_size = list_get_nth_arg(2, list, env);
+  auto list_size = list_get_nth_arg(ci, 2, list, env);
 
   if (list_size->as_integer() < 0) {
     auto it = list.begin();
@@ -108,7 +112,7 @@ cell_ptr builtin_fn_list_spawn(cell_list_t &list, env_c &env) {
   return allocate_cell(
       list_info_s{list_types_e::DATA,
                   cell_list_t(list_size->as_integer(),
-                              list_get_nth_arg(1, list, env)->clone())});
+                              list_get_nth_arg(ci, 1, list, env)->clone())});
 }
 
 } // namespace builtins

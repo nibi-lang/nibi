@@ -1,0 +1,3 @@
+(:= sys::args {sys get_argv})
+(:= sys::platform {sys get_platform})
+(:= sys::stdin {sys get_stdin})

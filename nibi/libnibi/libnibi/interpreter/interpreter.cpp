@@ -9,35 +9,10 @@
 #endif
 
 namespace nibi {
-interpreter_c *global_interpreter{nullptr};
-}
-
-namespace nibi {
-
-bool global_interpreter_init(env_c &env, source_manager_c &source_manager) {
-  if (global_interpreter) {
-    return true;
-  }
-
-  global_interpreter = new interpreter_c(env, source_manager);
-
-  if (!global_interpreter) {
-    return false;
-  }
-
-  return true;
-}
-
-void global_interpreter_destroy() {
-  if (global_interpreter) {
-    delete global_interpreter;
-    global_interpreter = nullptr;
-  }
-}
 
 interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
-    : global_env_(env), source_manager_(source_manager),
-      modules_(source_manager) {}
+    : interpreter_env(env), source_manager_(source_manager),
+      modules_(source_manager, *this) {}
 
 interpreter_c::~interpreter_c() {
 #if PROFILE_INTERPRETER
@@ -60,7 +35,7 @@ void interpreter_c::on_list(cell_ptr list_cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
-    execute_cell(list_cell, global_env_);
+    execute_cell(list_cell, interpreter_env);
   } catch (interpreter_c::exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {
@@ -244,7 +219,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 #else
     // All functions point to a `cell_fn_t`, even lambda functions
     // so we can just call the function and return the result
-    return fn_info.fn(list_info.list, env);
+    return fn_info.fn(*this, list_info.list, env);
 #endif
   }
   }
@@ -255,7 +230,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 }
 
 void interpreter_c::load_module(cell_ptr &module_name) {
-  modules_.load_module(module_name, global_env_);
+  modules_.load_module(module_name, interpreter_env);
 }
 
 } // namespace nibi

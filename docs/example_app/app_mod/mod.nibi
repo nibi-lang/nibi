@@ -1,0 +1,10 @@
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "Application module")
+(:= licenses [
+  "MIT"
+])
+
+(:= sources [
+  "app.nibi"
+])

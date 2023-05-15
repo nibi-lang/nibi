@@ -24,8 +24,8 @@ public:
   };
 
   modules_c() = delete;
-  modules_c(source_manager_c &source_manager_c)
-      : source_manager_(source_manager_c) {}
+  modules_c(source_manager_c &source_manager_c, interpreter_c &ci)
+      : source_manager_(source_manager_c), ci_(ci) {}
 
   //! \brief Get information about a module
   //! \param module_name the name of the module
@@ -61,6 +61,7 @@ private:
 
   std::set<std::string> loaded_modules_;
   source_manager_c &source_manager_;
+  interpreter_c &ci_;
 };
 
 } // namespace nibi

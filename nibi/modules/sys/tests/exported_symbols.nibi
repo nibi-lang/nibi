@@ -1,0 +1,4 @@
+(use "sys")
+(putln (sys::args))
+(putln (sys::platform))
+(putln (sys::stdin))

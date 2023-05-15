@@ -1,0 +1,3 @@
+(use "app_mod")
+
+(putln {app_mod some_var})

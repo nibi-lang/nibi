@@ -6,26 +6,29 @@
 
 #include "common/platform.hpp"
 #include "interpreter/builtins/cpp_macros.hpp"
+#include "interpreter/interpreter.hpp"
 
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_common_clone(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
+                                 env_c &env) {
 
   LIST_ENFORCE_SIZE("clone", ==, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
 
-  auto loaded_cell = global_interpreter->execute_cell(*it, env);
+  auto loaded_cell = ci.execute_cell(*it, env);
 
   return loaded_cell->clone();
 }
 
-cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
+                               env_c &env) {
   LIST_ENFORCE_SIZE("len", ==, 2)
 
-  auto target_list = list_get_nth_arg(1, list, env);
+  auto target_list = list_get_nth_arg(ci, 1, list, env);
 
   if (target_list->type != cell_type_e::LIST) {
     return allocate_cell((int64_t)(target_list->to_string(false).size()));
@@ -35,21 +38,23 @@ cell_ptr builtin_fn_common_len(cell_list_t &list, env_c &env) {
   return allocate_cell((int64_t)list_info.list.size());
 }
 
-cell_ptr builtin_fn_common_yield(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
+                                 env_c &env) {
 
   if (list.size() == 1) {
-    global_interpreter->set_yield_value(allocate_cell((int64_t)0));
-    return global_interpreter->get_yield_value();
+    ci.set_yield_value(allocate_cell((int64_t)0));
+    return ci.get_yield_value();
   }
 
   LIST_ENFORCE_SIZE("<-", ==, 2)
 
-  auto target = list_get_nth_arg(1, list, env);
-  global_interpreter->set_yield_value(target);
+  auto target = list_get_nth_arg(ci, 1, list, env);
+  ci.set_yield_value(target);
   return target;
 }
 
-cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
+                                env_c &env) {
   // (loop (pre) (cond) (post) (body))
   LIST_ENFORCE_SIZE("loop", ==, 5)
 
@@ -69,30 +74,30 @@ cell_ptr builtin_fn_common_loop(cell_list_t &list, env_c &env) {
 
   auto loop_env = env_c(&env);
 
-  global_interpreter->execute_cell(pre_condition, loop_env);
+  ci.execute_cell(pre_condition, loop_env);
 
   cell_ptr result = allocate_cell(cell_type_e::NIL);
   while (true) {
-    auto condition_result =
-        global_interpreter->execute_cell(condition, loop_env);
+    auto condition_result = ci.execute_cell(condition, loop_env);
 
     if (condition_result->to_integer() <= 0) {
       return result;
     }
 
-    result = global_interpreter->execute_cell(body, loop_env, true);
+    result = ci.execute_cell(body, loop_env, true);
 
-    if (global_interpreter->is_yielding()) {
-      return global_interpreter->get_yield_value();
+    if (ci.is_yielding()) {
+      return ci.get_yield_value();
     }
 
-    global_interpreter->execute_cell(post_condition, loop_env);
+    ci.execute_cell(post_condition, loop_env);
   }
 
   return result;
 }
 
-cell_ptr builtin_fn_common_if(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
+                              env_c &env) {
   LIST_ENFORCE_SIZE("?", >=, 3)
 
   auto it = list.begin();
@@ -105,34 +110,36 @@ cell_ptr builtin_fn_common_if(cell_list_t &list, env_c &env) {
 
   auto if_env = env_c(&env);
 
-  auto condition_result = global_interpreter->execute_cell(condition, if_env);
+  auto condition_result = ci.execute_cell(condition, if_env);
 
   if (condition_result->as_integer() > 0) {
-    return global_interpreter->execute_cell(true_condition, if_env, true);
+    return ci.execute_cell(true_condition, if_env, true);
   }
 
   if (list.size() == 4) {
     std::advance(it, 1);
-    return global_interpreter->execute_cell((*it), if_env, true);
+    return ci.execute_cell((*it), if_env, true);
   }
 
   return allocate_cell((int64_t)0);
 }
 
-cell_ptr builtin_fn_common_put(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
+                               env_c &env) {
   LIST_ENFORCE_SIZE("put", >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
 
   while (it != list.end()) {
-    std::cout << global_interpreter->execute_cell((*it), env)->to_string();
+    std::cout << ci.execute_cell((*it), env)->to_string();
     std::advance(it, 1);
   }
   return allocate_cell((int64_t)0);
 }
 
-cell_ptr builtin_fn_common_putln(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
+                                 env_c &env) {
 
   if (list.size() == 1) {
     std::cout << std::endl;
@@ -140,30 +147,43 @@ cell_ptr builtin_fn_common_putln(cell_list_t &list, env_c &env) {
   }
 
   LIST_ENFORCE_SIZE("putln", >=, 2)
-  auto result = builtin_fn_common_put(list, env);
+  auto result = builtin_fn_common_put(ci, list, env);
   std::cout << std::endl;
   return result;
 }
 
-cell_ptr builtin_fn_common_import(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
+                                  env_c &env) {
 
   LIST_ENFORCE_SIZE("import", >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
 
-  auto &gsm = global_interpreter->get_source_manager();
+  auto &gsm = ci.get_source_manager();
 
-  list_builder_c list_builder(*global_interpreter);
+  list_builder_c list_builder(ci);
   file_reader_c file_reader(list_builder, gsm);
 
   while (it != list.end()) {
-    auto target = (*it)->as_string();
-    auto item = global_platform->locate_file(target);
+    // Get the source file from the `import` keyword so we can ensure that
+    // the file can be searched relative to the location of the file being
+    // executed at the moment
+    auto from =
+        std::filesystem::path((*list.begin())->locator->get_source_name());
+
+    // Retrieve the file name to import
+    auto target = std::filesystem::path((*it)->as_string());
+
+    // Locate the item
+    auto item = global_platform->locate_file(target, from);
     if (!item.has_value()) {
-      global_interpreter->halt_with_error(error_c(
-          (*it)->locator, "Could not locate file for import: " + target));
+      ci.halt_with_error(
+          error_c((*it)->locator,
+                  "Could not locate file for import: " + target.string()));
     }
+
+    // Check that the item hasn't already been imported
     if (!gsm.exists((*item).string())) {
       file_reader.read_file((*item).string());
     }
@@ -172,7 +192,8 @@ cell_ptr builtin_fn_common_import(cell_list_t &list, env_c &env) {
   return allocate_cell((int64_t)1);
 }
 
-cell_ptr builtin_fn_common_use(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
+                               env_c &env) {
 
   LIST_ENFORCE_SIZE("use", >=, 2)
 
@@ -180,8 +201,7 @@ cell_ptr builtin_fn_common_use(cell_list_t &list, env_c &env) {
   std::advance(it, 1);
 
   while (it != list.end()) {
-    ;
-    global_interpreter->load_module((*it));
+    ci.load_module((*it));
     std::advance(it, 1);
   }
   return allocate_cell((int64_t)1);

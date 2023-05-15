@@ -1,0 +1,4 @@
+(use "sys")
+(putln ({sys get_argv}))
+(putln ({sys get_platform}))
+(putln ({sys get_stdin}))

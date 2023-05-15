@@ -116,60 +116,69 @@ cell_ptr perform_op(locator_ptr locator, op_e op, cell_c &lhs, cell_c &rhs,
 }
 } // namespace
 
-cell_ptr builtin_fn_comparison_eq(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_eq(interpreter_c &ci, cell_list_t &list,
+                                  env_c &env) {
   LIST_ENFORCE_SIZE("eq", ==, 3)
   return perform_op(list.front()->locator, op_e::EQ,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env), false);
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env), false);
 }
-cell_ptr builtin_fn_comparison_neq(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_neq(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
   LIST_ENFORCE_SIZE("neq", ==, 3)
   return perform_op(list.front()->locator, op_e::NEQ,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env), false);
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env), false);
 }
-cell_ptr builtin_fn_comparison_lt(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_lt(interpreter_c &ci, cell_list_t &list,
+                                  env_c &env) {
   LIST_ENFORCE_SIZE("<", ==, 3)
   return perform_op(list.front()->locator, op_e::LT,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env));
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env));
 }
-cell_ptr builtin_fn_comparison_gt(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_gt(interpreter_c &ci, cell_list_t &list,
+                                  env_c &env) {
   LIST_ENFORCE_SIZE(">", ==, 3)
   return perform_op(list.front()->locator, op_e::GT,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env));
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env));
 }
-cell_ptr builtin_fn_comparison_lte(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_lte(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
   LIST_ENFORCE_SIZE("<=", ==, 3)
   return perform_op(list.front()->locator, op_e::LTE,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env));
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env));
 }
-cell_ptr builtin_fn_comparison_gte(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_gte(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
   LIST_ENFORCE_SIZE(">=", ==, 3)
   return perform_op(list.front()->locator, op_e::GTE,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env));
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env));
 }
-cell_ptr builtin_fn_comparison_and(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_and(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
   LIST_ENFORCE_SIZE("and", ==, 3)
   return perform_op(list.front()->locator, op_e::AND,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env));
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env));
 }
-cell_ptr builtin_fn_comparison_or(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_or(interpreter_c &ci, cell_list_t &list,
+                                  env_c &env) {
   LIST_ENFORCE_SIZE("or", ==, 3)
   return perform_op(list.front()->locator, op_e::OR,
-                    *list_get_nth_arg(1, list, env),
-                    *list_get_nth_arg(2, list, env));
+                    *list_get_nth_arg(ci, 1, list, env),
+                    *list_get_nth_arg(ci, 2, list, env));
 }
 
-cell_ptr builtin_fn_comparison_not(cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_comparison_not(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
   LIST_ENFORCE_SIZE("not", ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
-  auto item_to_negate = global_interpreter->execute_cell(*it, env, true);
+  auto item_to_negate = ci.execute_cell(*it, env, true);
   auto value = item_to_negate->to_integer();
   return allocate_cell((int64_t)(!value));
 }

@@ -631,3 +631,14 @@ attempt to access a yet-to-exist cell there will be a runtime error.
 
 Modules can be anywhere within the nibi include directories, but a module isn't 
 considered installed until it exists in NIBI_PATH/modules.
+
+# Applications
+
+Applications are any direectory with a `main.nibi` within it. The distinction between that
+and standard scripts is that applications can have a `tests` directory automatiocally discovered
+and executed similarly to modules (above) and are to be launched at the directory level as so:
+
+```
+nibi ~/path/to/app
+```
+
