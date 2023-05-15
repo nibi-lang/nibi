@@ -9,6 +9,7 @@
 #include "libnibi/common/input.hpp"
 #include "libnibi/common/list.hpp"
 #include "libnibi/common/platform.hpp"
+#include "libnibi/config.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
 #include "libnibi/modules.hpp"
@@ -81,7 +82,12 @@ void run_from_file(const std::string &file_name) {
 }
 
 void run_from_dir(const std::string &file_name) {
-  std::cerr << "Running from directory not yet supported!" << std::endl;
+  std::filesystem::path dir_path(file_name);
+  auto expected_file = dir_path / "main.nibi";
+  if (std::filesystem::exists(expected_file)) {
+    run_from_file(expected_file.string());
+    return;
+  }
 }
 
 void show_help() {
@@ -146,25 +152,17 @@ void show_module_info(std::string module_name) {
   }
 }
 
-void run_tests(std::string &dir,
-               std::vector<std::filesystem::path> &include_dirs) {
+inline void run_each_test(std::vector<std::filesystem::path> &files,
+                          std::vector<std::filesystem::path> &include_dirs) {
 
-  setup(include_dirs);
-  auto info =
-      modules_c(*source_manager, *top_level_interpreter).get_module_info(dir);
-  teardown();
-
-  if (!info.test_files.has_value()) {
+  if (files.size() == 0) {
     std::cout << "No test files found" << std::endl;
     return;
   }
 
-  std::cout << "Tests files: " << info.test_files.value().size() << std::endl;
+  std::cout << "Tests files: " << files.size() << std::endl;
 
-  // Setup and tear down the environment for each test file
-  // to ensure that the environment is clean for each test
-  for (auto &test_file : info.test_files.value()) {
-
+  for (auto &test_file : files) {
     std::cout << "Running test file: " << test_file << std::endl;
     setup(include_dirs);
     run_from_file(test_file);
@@ -174,6 +172,70 @@ void run_tests(std::string &dir,
 
   // if we get here, all tests passed
   std::cout << "All tests passed!" << std::endl;
+}
+
+void run_local_tests_dir(std::filesystem::path &dir,
+                         std::vector<std::filesystem::path> &include_dirs) {
+
+  auto test_dir = dir / "tests";
+
+  if (!std::filesystem::exists(test_dir)) {
+    std::cout << "No tests directory found" << std::endl;
+    return;
+  }
+  if (!std::filesystem::is_directory(test_dir)) {
+    std::cout << "Suspected directory `tests` exists but is not a directory"
+              << std::endl;
+    return;
+  }
+  auto file_list = std::vector<std::filesystem::path>();
+  for (auto &p : std::filesystem::directory_iterator(test_dir)) {
+    if (p.is_regular_file()) {
+      file_list.push_back(p.path());
+    }
+  }
+  return run_each_test(file_list, include_dirs);
+}
+
+void run_tests(std::string &dir,
+               std::vector<std::filesystem::path> &include_dirs) {
+
+  // Check if its an application first
+  {
+    auto fpd = std::filesystem::path(dir);
+    auto app_entry = fpd / nibi::config::NIBI_APP_ENTRY_FILE_NAME;
+    if (std::filesystem::exists(app_entry) &&
+        std::filesystem::is_regular_file(app_entry)) {
+      include_dirs.push_back(fpd);
+      return run_local_tests_dir(fpd, include_dirs);
+    }
+  }
+
+  // Check non-installed module
+  {
+    auto fpd = std::filesystem::canonical(std::filesystem::path(dir));
+    auto test_dir = fpd / nibi::config::NIBI_MODULE_FILE_NAME;
+    if (std::filesystem::exists(test_dir) &&
+        std::filesystem::is_regular_file(test_dir)) {
+      if (fpd.has_parent_path()) {
+        include_dirs.push_back(fpd.parent_path());
+      }
+      include_dirs.push_back(fpd);
+      return run_local_tests_dir(fpd, include_dirs);
+    }
+  }
+
+  // Check installed modules
+  {
+    setup(include_dirs);
+    auto info =
+        modules_c(*source_manager, *top_level_interpreter).get_module_info(dir);
+    teardown();
+
+    if (info.test_files.has_value()) {
+      return run_each_test(info.test_files.value(), include_dirs);
+    }
+  }
 }
 
 int main(int argc, char **argv) {

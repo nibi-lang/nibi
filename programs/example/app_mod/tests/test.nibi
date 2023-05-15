@@ -1,0 +1,3 @@
+(use "app_mod")
+
+(assert (eq 44 {app_mod some_var}) "nope")
