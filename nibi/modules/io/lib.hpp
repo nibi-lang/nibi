@@ -1,7 +1,6 @@
 #pragma once
 
-#include <libnibi/cell.hpp>
-#include <libnibi/environment.hpp>
+#include <libnibi/nibi.hpp>
 
 #ifdef WIN32
 #define API_EXPORT __declspec(dllexport)
@@ -13,5 +12,11 @@ extern "C" {
 
 API_EXPORT
 extern nibi::cell_ptr get_str(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                              nibi::env_c &env);
+API_EXPORT
+extern nibi::cell_ptr get_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                              nibi::env_c &env);
+API_EXPORT
+extern nibi::cell_ptr get_double(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                               nibi::env_c &env);
 }

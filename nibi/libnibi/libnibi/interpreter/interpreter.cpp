@@ -100,6 +100,8 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
     [[fallthrough]];
   case cell_type_e::FUNCTION:
     [[fallthrough]];
+  case cell_type_e::NIL:
+    [[fallthrough]];
   case cell_type_e::STRING: {
     // Raw variable types can be loaded directly
     return cell;
