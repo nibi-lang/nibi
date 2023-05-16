@@ -1,0 +1,18 @@
+(use "io")
+(use "random")
+
+(:= magic_number (random::range::int 0 100))
+
+(putln "We've generated a random number between 0 and 100!")
+(putln "Go ahead and guess until you get it right!")
+
+(:= num_guesses 1)
+(loop (:= i 0) (eq 0 i) (set num_guesses (+ 1 num_guesses)) [
+   (:= guess (io::prompt "guess: " io::get::int))
+   (? (eq magic_number guess) [
+      (putln "Correct!")
+      (putln "You got the number correct in " num_guesses " guesses!")
+      (exit 0)
+   ])
+   (? (< magic_number guess) (putln "Lower!") (putln "Higher!"))
+])

@@ -213,7 +213,10 @@ void run_tests(std::string &dir,
 
   // Check non-installed module
   {
-    auto fpd = std::filesystem::canonical(std::filesystem::path(dir));
+    auto fpd = std::filesystem::path(dir);
+    try {
+     fpd = std::filesystem::canonical(fpd);
+    } catch (...) {}
     auto test_dir = fpd / nibi::config::NIBI_MODULE_FILE_NAME;
     if (std::filesystem::exists(test_dir) &&
         std::filesystem::is_regular_file(test_dir)) {

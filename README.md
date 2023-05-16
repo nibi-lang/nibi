@@ -36,6 +36,29 @@ For documentation on the language please see `docs/LANGUAGE.md`
 (leibniz 65536)
 ```
 
+### Magic number game
+
+```lisp
+(use "io")
+(use "random")
+
+(:= magic_number (random::range::int 0 100))
+
+(putln "We've generated a random number between 0 and 100!")
+(putln "Go ahead and guess until you get it right!")
+
+(:= num_guesses 1)
+(loop (:= i 0) (eq 0 i) (set num_guesses (+ 1 num_guesses)) [
+   (:= guess (io::prompt "guess: " io::get::int))
+   (? (eq magic_number guess) [
+      (putln "Correct!")
+      (putln "You got the number correct in " num_guesses " guesses!")
+      (exit 0)
+   ])
+   (? (< magic_number guess) (putln "Lower!") (putln "Higher!"))
+])
+```
+
 # Applications
 
 A Nibi application is any directory with a `main.nibi` located within it. From here, any `tests` directory will be associated with the application and any non-installed module described here

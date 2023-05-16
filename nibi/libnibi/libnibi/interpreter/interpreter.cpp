@@ -135,6 +135,9 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
                                                 bool process_data_list) {
 
   auto &list_info = cell->as_list_info();
+  if (list_info.list.empty()) {
+    return allocate_cell(cell_type_e::NIL);
+  }
 
   switch (list_info.type) {
   case list_types_e::DATA: {

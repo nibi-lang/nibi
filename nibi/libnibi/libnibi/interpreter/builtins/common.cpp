@@ -207,5 +207,13 @@ cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
   return allocate_cell((int64_t)1);
 }
 
+cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
+                                env_c &env) {
+  LIST_ENFORCE_SIZE("exit", ==, 2)
+  auto it = list.begin();
+  std::advance(it, 1);
+  std::exit(ci.execute_cell((*it), env)->as_integer());
+}
+
 } // namespace builtins
 } // namespace nibi
