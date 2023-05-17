@@ -133,8 +133,6 @@ int64_t &cell_c::as_integer() {
   try {
     return std::any_cast<int64_t &>(this->data);
   } catch (const std::bad_any_cast &e) {
-    int *x{nullptr};
-    *x = 1;
     throw cell_access_exception_c(
         "Cell is not an integer: " + this->to_string(), this->locator);
   }

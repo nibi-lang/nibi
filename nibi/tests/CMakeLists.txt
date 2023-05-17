@@ -13,6 +13,7 @@ add_executable(unit_tests
         main.cpp)
 
 target_link_libraries(unit_tests
-  ${CPPUTEST_LDFLAGS})
+  ${CPPUTEST_LDFLAGS}
+  ${CMAKE_DL_LIBS})
 
 add_custom_command(TARGET unit_tests COMMAND ./unit_tests POST_BUILD)

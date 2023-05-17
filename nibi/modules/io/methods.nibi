@@ -1,0 +1,5 @@
+
+(fn prompt_for [prompt function] [
+  (put prompt)
+  (<- (function))
+])

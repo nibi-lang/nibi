@@ -2,9 +2,9 @@
 
 #include "arithmetic_helpers.hpp"
 #include "interpreter/builtins/builtins.hpp"
-#include "interpreter/builtins/cpp_macros.hpp"
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
+#include "list_helpers.hpp"
 
 #include <cmath>
 
@@ -37,39 +37,39 @@ namespace builtins {
 
 cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
                                    env_c &env){
-    LIST_ENFORCE_SIZE("+", >=, 2) PERFORM_OPERATION(list_perform_add)}
+    NIBI_LIST_ENFORCE_SIZE("+", >=, 2) PERFORM_OPERATION(list_perform_add)}
 
 cell_ptr
     builtin_fn_arithmetic_sub(interpreter_c &ci, cell_list_t &list, env_c &env){
-        LIST_ENFORCE_SIZE("-", >=, 2) PERFORM_OPERATION(list_perform_sub)}
+        NIBI_LIST_ENFORCE_SIZE("-", >=, 2) PERFORM_OPERATION(list_perform_sub)}
 
 cell_ptr
     builtin_fn_arithmetic_div(interpreter_c &ci, cell_list_t &list, env_c &env){
-        LIST_ENFORCE_SIZE("/", >=, 2) PERFORM_OPERATION(list_perform_div)}
+        NIBI_LIST_ENFORCE_SIZE("/", >=, 2) PERFORM_OPERATION(list_perform_div)}
 
 cell_ptr
     builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list, env_c &env){
-        LIST_ENFORCE_SIZE("*", >=, 2) PERFORM_OPERATION(list_perform_mul)}
+        NIBI_LIST_ENFORCE_SIZE("*", >=, 2) PERFORM_OPERATION(list_perform_mul)}
 
 cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  LIST_ENFORCE_SIZE("%", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE("%", >=, 2)
   auto first_arg = list_get_nth_arg(ci, 1, list, env);
   if (first_arg->type == cell_type_e::DOUBLE) {
     double accumulate{first_arg->to_double()};
-    LIST_ITER_AND_LOAD_SKIP_N(
+    NIBI_LIST_ITER_AND_LOAD_SKIP_N(
         2, { accumulate = std::fmod(accumulate, arg->to_double()); })
     return allocate_cell(accumulate);
   } else {
     int64_t accumulate{first_arg->to_integer()};
-    LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->to_integer(); })
+    NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate %= arg->to_integer(); })
     return allocate_cell(accumulate);
   }
 }
 
 cell_ptr builtin_fn_arithmetic_pow(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  LIST_ENFORCE_SIZE("**", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE("**", >=, 2)
   PERFORM_OPERATION(list_perform_pow)
 }
 

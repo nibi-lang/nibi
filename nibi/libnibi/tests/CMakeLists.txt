@@ -13,6 +13,7 @@ add_executable(lib_nibi_unit_tests
         main.cpp)
 
 target_link_libraries(lib_nibi_unit_tests
-  ${CPPUTEST_LDFLAGS})
+  ${CPPUTEST_LDFLAGS}
+  ${CMAKE_DL_LIBS})
 
 add_custom_command(TARGET lib_nibi_unit_tests COMMAND ./lib_nibi_unit_tests POST_BUILD)

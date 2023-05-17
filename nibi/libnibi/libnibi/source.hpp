@@ -81,6 +81,7 @@ public:
   bool exists(const std::string &source_name) const {
     return sources_.find(source_name) != sources_.end();
   }
+  inline void clear() { sources_.clear(); }
 
 private:
   std::unordered_map<std::string, std::shared_ptr<source_origin_c>> sources_;

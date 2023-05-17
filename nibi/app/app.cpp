@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -30,52 +31,58 @@ using namespace nibi;
 
 namespace {
 
-// The top level interpreter that will be used to run the
-// entry file given to the program
-interpreter_c *top_level_interpreter{nullptr};
+class program_data_controller_c {
+public:
+  program_data_controller_c(std::vector<std::string> &args,
+                            std::vector<std::filesystem::path> &include_dirs)
+      : args_(args), include_dirs_(include_dirs),
+        interpreter_(env_, source_manager_) {
+    reinit_platform();
+  }
 
-// The object that will be used as the top level env
-env_c *program_global_env{nullptr};
+  void reset() {
+    source_manager_.clear();
+    env_.get_map().clear();
+    reinit_platform();
+  }
 
-// Source input manager used to ensure that files are only read once
-// and to generate locators for cells
-source_manager_c *source_manager{nullptr};
+  void add_include_dir(std::filesystem::path dir) {
+    include_dirs_.push_back(dir);
+  }
 
-// Program arguments
-std::vector<std::string> *args{nullptr};
+  env_c &get_env() { return env_; }
+  interpreter_c &get_interpreter() { return interpreter_; }
+  source_manager_c &get_source_manager() { return source_manager_; }
+
+private:
+  void reinit_platform() {
+    global_platform_destroy();
+    if (!global_platform_init(include_dirs_, args_)) {
+      std::cerr << "Failed to initialize global platform" << std::endl;
+      exit(1);
+    }
+  }
+
+  std::vector<std::filesystem::path> &include_dirs_;
+  std::vector<std::string> &args_;
+  env_c env_;
+  source_manager_c source_manager_;
+  interpreter_c interpreter_;
+};
+
+std::unique_ptr<program_data_controller_c> pdc{nullptr};
 
 } // namespace
 
-void teardown() {
-  delete top_level_interpreter;
-  global_platform_destroy();
-  delete source_manager;
-  delete program_global_env;
-}
-
-void setup(std::vector<std::filesystem::path> &include_dirs) {
-  program_global_env = new env_c(nullptr);
-  source_manager = new source_manager_c();
-  top_level_interpreter =
-      new interpreter_c(*program_global_env, *source_manager);
-
-  // Initialize the global platofrm object
-  if (!global_platform_init(include_dirs, *args)) {
-    std::cerr << "Failed to initialize global platform" << std::endl;
-    teardown();
-    exit(1);
-  }
-}
-
-void run_from_file(const std::string &file_name) {
+void run_from_file(std::filesystem::path file_name) {
 
   // List builder that will build lists from parsed tokens
   // and pass lists to a interpreter
-  list_builder_c list_builder(*top_level_interpreter);
+  list_builder_c list_builder(pdc->get_interpreter());
 
   // File reader that reads file and kicks off parser/ scanner
   // that will send tokens to the list builder
-  file_reader_c file_reader(list_builder, *source_manager);
+  file_reader_c file_reader(list_builder, pdc->get_source_manager());
 
   // Read the file and start the process
   file_reader.read_file(file_name);
@@ -83,9 +90,9 @@ void run_from_file(const std::string &file_name) {
 
 void run_from_dir(const std::string &file_name) {
   std::filesystem::path dir_path(file_name);
-  auto expected_file = dir_path / "main.nibi";
+  auto expected_file = dir_path / nibi::config::NIBI_APP_ENTRY_FILE_NAME;
   if (std::filesystem::exists(expected_file)) {
-    run_from_file(expected_file.string());
+    run_from_file(expected_file);
     return;
   }
 }
@@ -108,7 +115,7 @@ void show_version() {
 
 void show_module_info(std::string module_name) {
 
-  auto info = modules_c(*source_manager, *top_level_interpreter)
+  auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
                   .get_module_info(module_name);
 
   std::cout << "Description: " << std::endl;
@@ -152,8 +159,7 @@ void show_module_info(std::string module_name) {
   }
 }
 
-inline void run_each_test(std::vector<std::filesystem::path> &files,
-                          std::vector<std::filesystem::path> &include_dirs) {
+void run_each_test(std::vector<std::filesystem::path> &files) {
 
   if (files.size() == 0) {
     std::cout << "No test files found" << std::endl;
@@ -164,9 +170,9 @@ inline void run_each_test(std::vector<std::filesystem::path> &files,
 
   for (auto &test_file : files) {
     std::cout << "Running test file: " << test_file << std::endl;
-    setup(include_dirs);
     run_from_file(test_file);
-    teardown();
+    pdc->reset();
+
     std::cout << "COMPLETE\n" << std::endl;
   }
 
@@ -174,10 +180,9 @@ inline void run_each_test(std::vector<std::filesystem::path> &files,
   std::cout << "All tests passed!" << std::endl;
 }
 
-void run_local_tests_dir(std::filesystem::path &dir,
-                         std::vector<std::filesystem::path> &include_dirs) {
+void run_local_tests_dir(std::filesystem::path &dir) {
 
-  auto test_dir = dir / "tests";
+  auto test_dir = dir / nibi::config::NIBI_MODULE_TEST_DIR;
 
   if (!std::filesystem::exists(test_dir)) {
     std::cout << "No tests directory found" << std::endl;
@@ -194,11 +199,10 @@ void run_local_tests_dir(std::filesystem::path &dir,
       file_list.push_back(p.path());
     }
   }
-  return run_each_test(file_list, include_dirs);
+  return run_each_test(file_list);
 }
 
-void run_tests(std::string &dir,
-               std::vector<std::filesystem::path> &include_dirs) {
+void run_tests(std::string &dir) {
 
   // Check if its an application first
   {
@@ -206,34 +210,37 @@ void run_tests(std::string &dir,
     auto app_entry = fpd / nibi::config::NIBI_APP_ENTRY_FILE_NAME;
     if (std::filesystem::exists(app_entry) &&
         std::filesystem::is_regular_file(app_entry)) {
-      include_dirs.push_back(fpd);
-      return run_local_tests_dir(fpd, include_dirs);
+      pdc->add_include_dir(fpd);
+      return run_local_tests_dir(fpd);
     }
   }
 
   // Check non-installed module
   {
-    auto fpd = std::filesystem::canonical(std::filesystem::path(dir));
+    auto fpd = std::filesystem::path(dir);
+    try {
+      fpd = std::filesystem::canonical(fpd);
+    } catch (...) {
+    }
     auto test_dir = fpd / nibi::config::NIBI_MODULE_FILE_NAME;
     if (std::filesystem::exists(test_dir) &&
         std::filesystem::is_regular_file(test_dir)) {
       if (fpd.has_parent_path()) {
-        include_dirs.push_back(fpd.parent_path());
+        pdc->add_include_dir(fpd.parent_path());
       }
-      include_dirs.push_back(fpd);
-      return run_local_tests_dir(fpd, include_dirs);
+      pdc->add_include_dir(fpd);
+      return run_local_tests_dir(fpd);
     }
   }
 
   // Check installed modules
   {
-    setup(include_dirs);
-    auto info =
-        modules_c(*source_manager, *top_level_interpreter).get_module_info(dir);
-    teardown();
+    auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
+                    .get_module_info(dir);
+    pdc->reset();
 
     if (info.test_files.has_value()) {
-      return run_each_test(info.test_files.value(), include_dirs);
+      return run_each_test(info.test_files.value());
     }
   }
 }
@@ -244,80 +251,87 @@ int main(int argc, char **argv) {
   auto app_start = std::chrono::high_resolution_clock::now();
 #endif
 
-  std::vector<std::string> unmatched;
+  std::vector<std::string> remaining_args;
   std::vector<std::filesystem::path> include_dirs;
-  args = new std::vector<std::string>(argv + 1, argv + argc);
+  std::vector<std::string> args =
+      std::vector<std::string>(argv + 1, argv + argc);
 
-  for (std::size_t i = 0; i < (*args).size(); i++) {
-    if ((*args)[i] == "-h" || (*args)[i] == "--help") {
+  pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
+
+  for (std::size_t i = 0; i < args.size(); i++) {
+    if (args[i] == "-h" || args[i] == "--help") {
       show_help();
       return 0;
     }
 
-    if ((*args)[i] == "-v" || (*args)[i] == "--version") {
+    if (args[i] == "-v" || args[i] == "--version") {
       show_version();
       return 0;
     }
 
-    if ((*args)[i] == "-t" || (*args)[i] == "--test") {
-      if (i + 1 >= (*args).size()) {
+    if (args[i] == "-t" || args[i] == "--test") {
+      if (i + 1 >= args.size()) {
         std::cout << "No module name specified to test" << std::endl;
         return 1;
       }
-      include_dirs.push_back(std::filesystem::current_path());
-      run_tests((*args)[i + 1], include_dirs);
+      pdc->add_include_dir(std::filesystem::current_path());
+      run_tests(args[i + 1]);
       return 0;
     }
 
-    if ((*args)[i] == "-i" || (*args)[i] == "--include") {
-      if (i + 1 >= (*args).size()) {
+    if (args[i] == "-i" || args[i] == "--include") {
+      if (i + 1 >= args.size()) {
         std::cout << "No include directory specified" << std::endl;
         return 1;
       }
-      std::stringstream ss((*args)[i + 1]);
+      std::stringstream ss(args[i + 1]);
       std::string item;
       while (std::getline(ss, item, ':')) {
-        include_dirs.push_back(item);
+        pdc->add_include_dir(item);
       }
       ++i;
       continue;
     }
 
-    if ((*args)[i] == "-m" || (*args)[i] == "--module") {
-      if (i + 1 >= (*args).size()) {
+    if (args[i] == "-m" || args[i] == "--module") {
+      if (i + 1 >= args.size()) {
         std::cout << "No module name specified" << std::endl;
         return 1;
       }
-      include_dirs.push_back(std::filesystem::current_path());
-      setup(include_dirs);
-      show_module_info((*args)[i + 1]);
-      teardown();
+      pdc->add_include_dir(std::filesystem::current_path());
+      show_module_info(args[i + 1]);
       return 0;
     }
 
-    unmatched.push_back((*args)[i]);
+    remaining_args.push_back(args[i]);
   }
 
-  if (unmatched.empty()) {
+  if (remaining_args.empty()) {
     std::cerr << "No file or directory specified" << std::endl;
     return 1;
   }
 
-  if (unmatched.size() > 1) {
-    std::cerr << "Unmatched arguments:" << std::endl;
-    for (auto &arg : unmatched) {
+  if (remaining_args.size() > 1) {
+    std::cerr << "Remaining arguments indicate unhandled options." << std::endl;
+    std::cerr << "Expected a single file or directory, but got the "
+              << std::endl;
+    std::cerr << "remaining arguments:" << std::endl;
+    for (auto &arg : remaining_args) {
       std::cout << "  " << arg << std::endl;
     }
     return 1;
   }
 
+  auto &launch_target = remaining_args[0];
+
   bool run_as_dir = false;
-  if (std::filesystem::is_directory(unmatched[0])) {
+  if (std::filesystem::is_directory(launch_target)) {
     run_as_dir = true;
-  } else if (std::filesystem::is_regular_file(unmatched[0])) {
+  } else if (std::filesystem::is_regular_file(launch_target)) {
     run_as_dir = false;
   } else {
-    std::cout << "Invalid file or directory: " << unmatched[0] << std::endl;
+    std::cout << "Invalid file or directory: " << remaining_args[0]
+              << std::endl;
     return 1;
   }
 
@@ -329,25 +343,23 @@ int main(int argc, char **argv) {
     }
   }
 
-  std::filesystem::path entry_file_path(unmatched[0]);
+  std::filesystem::path entry_file_path(launch_target);
   entry_file_path = std::filesystem::canonical(entry_file_path);
 
   if (!run_as_dir && entry_file_path.has_parent_path()) {
     entry_file_path = entry_file_path.parent_path();
   }
 
-  include_dirs.push_back(entry_file_path);
-
-  setup(include_dirs);
+  pdc->add_include_dir(entry_file_path);
 
 #if CALCULATE_EXECUTION_TIME
   auto start = std::chrono::high_resolution_clock::now();
 #endif
 
   if (run_as_dir) {
-    run_from_dir(unmatched[0]);
+    run_from_dir(launch_target);
   } else {
-    run_from_file(unmatched[0]);
+    run_from_file(launch_target);
   }
 
 #if CALCULATE_EXECUTION_TIME
@@ -356,16 +368,5 @@ int main(int argc, char **argv) {
       std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
   std::cout << "Execution time: " << duration.count() << "ms" << std::endl;
 #endif
-
-  teardown();
-
-#if CALCULATE_EXECUTION_TIME
-  auto app_end = std::chrono::high_resolution_clock::now();
-  auto app_duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-      app_end - app_start);
-  std::cout << "Total time: " << app_duration.count() << "ms" << std::endl;
-#endif
-
-  delete args;
   return 0;
 }

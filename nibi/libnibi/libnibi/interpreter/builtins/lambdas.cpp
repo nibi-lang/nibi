@@ -2,7 +2,7 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 
-#include "cpp_macros.hpp"
+#include "list_helpers.hpp"
 
 #include <iostream>
 
@@ -41,7 +41,8 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
   auto &lambda_info = *fn_info.lambda;
 
-  LIST_ENFORCE_SIZE((*it)->as_symbol(), ==, lambda_info.arg_names.size() + 1);
+  NIBI_LIST_ENFORCE_SIZE((*it)->as_symbol(), ==,
+                         lambda_info.arg_names.size() + 1);
 
   // Create an environment for the lambda
   // and populate it with the arguments

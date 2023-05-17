@@ -8,4 +8,14 @@
 
 (:= dylib [
   "get_str"
+  "get_int"
+  "get_double"
+])
+
+(:= sources [
+  "methods.nibi"
+])
+
+(:= post [
+  "export.nibi"
 ])

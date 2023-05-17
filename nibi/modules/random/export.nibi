@@ -1,0 +1,4 @@
+(:= random::int {random rand_int})
+(:= random::double {random rand_double})
+(:= random::range::int {random rand_range_int})
+(:= random::range::double {random rand_range_double})

@@ -100,6 +100,8 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
     [[fallthrough]];
   case cell_type_e::FUNCTION:
     [[fallthrough]];
+  case cell_type_e::NIL:
+    [[fallthrough]];
   case cell_type_e::STRING: {
     // Raw variable types can be loaded directly
     return cell;
@@ -133,6 +135,9 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
                                                 bool process_data_list) {
 
   auto &list_info = cell->as_list_info();
+  if (list_info.list.empty()) {
+    //  return cell;
+  }
 
   switch (list_info.type) {
   case list_types_e::DATA: {

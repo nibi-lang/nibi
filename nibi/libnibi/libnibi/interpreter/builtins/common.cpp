@@ -5,8 +5,8 @@
 #include "libnibi/cell.hpp"
 
 #include "common/platform.hpp"
-#include "interpreter/builtins/cpp_macros.hpp"
 #include "interpreter/interpreter.hpp"
+#include "list_helpers.hpp"
 
 namespace nibi {
 namespace builtins {
@@ -14,7 +14,7 @@ namespace builtins {
 cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
                                  env_c &env) {
 
-  LIST_ENFORCE_SIZE("clone", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE("clone", ==, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -26,7 +26,7 @@ cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
-  LIST_ENFORCE_SIZE("len", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE("len", ==, 2)
 
   auto target_list = list_get_nth_arg(ci, 1, list, env);
 
@@ -46,7 +46,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
     return ci.get_yield_value();
   }
 
-  LIST_ENFORCE_SIZE("<-", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE("<-", ==, 2)
 
   auto target = list_get_nth_arg(ci, 1, list, env);
   ci.set_yield_value(target);
@@ -56,7 +56,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
   // (loop (pre) (cond) (post) (body))
-  LIST_ENFORCE_SIZE("loop", ==, 5)
+  NIBI_LIST_ENFORCE_SIZE("loop", ==, 5)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -98,7 +98,7 @@ cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
-  LIST_ENFORCE_SIZE("?", >=, 3)
+  NIBI_LIST_ENFORCE_SIZE("?", >=, 3)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -126,7 +126,7 @@ cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
-  LIST_ENFORCE_SIZE("put", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE("put", >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -146,7 +146,7 @@ cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
     return allocate_cell((int64_t)0);
   }
 
-  LIST_ENFORCE_SIZE("putln", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE("putln", >=, 2)
   auto result = builtin_fn_common_put(ci, list, env);
   std::cout << std::endl;
   return result;
@@ -155,7 +155,7 @@ cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
 
-  LIST_ENFORCE_SIZE("import", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE("import", >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -195,7 +195,7 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
 
-  LIST_ENFORCE_SIZE("use", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE("use", >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -205,6 +205,14 @@ cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
     std::advance(it, 1);
   }
   return allocate_cell((int64_t)1);
+}
+
+cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
+                                env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("exit", ==, 2)
+  auto it = list.begin();
+  std::advance(it, 1);
+  std::exit(ci.execute_cell((*it), env)->as_integer());
 }
 
 } // namespace builtins

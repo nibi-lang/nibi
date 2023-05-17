@@ -19,6 +19,7 @@
 | fn      | Define a function | variable
 | env     | Define an environment | new env
 | import  | Import files | 0
+| exit    | Exit the program | N/A
 
 | list commands | description | returns
 |----   |---- |----
@@ -357,6 +358,18 @@ Keyword: `assert`
 
 ```
 ( assert < () S > STR )
+```
+
+### Exit
+
+Keyword: `exit`
+
+| arg1 |
+|----
+| Number to set as exit code - must be integer
+
+```
+( exit <NU S ()>)
 ```
 
 ----

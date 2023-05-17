@@ -194,6 +194,10 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
     return;
   }
 
+  // Mark as loaded immediately so that we don't try to load it again
+  // and cause a recursion issue
+  loaded_modules_.insert(name);
+
   auto path = get_module_path(module_name);
   auto module_file = path / config::NIBI_MODULE_FILE_NAME;
 

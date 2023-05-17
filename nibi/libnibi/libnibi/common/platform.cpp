@@ -142,7 +142,7 @@ const std::vector<std::string> platform_c::get_program_args() const {
   return _program_args;
 }
 
-bool global_platform_init(std::vector<std::filesystem::path> include_dirs,
+bool global_platform_init(std::vector<std::filesystem::path> &include_dirs,
                           std::vector<std::string> &program_args) {
   if (!global_platform) {
     global_platform = new platform_c(include_dirs, program_args);

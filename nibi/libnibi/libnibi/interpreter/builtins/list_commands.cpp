@@ -3,14 +3,14 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
-#include "interpreter/builtins/cpp_macros.hpp"
+#include "list_helpers.hpp"
 
 namespace nibi {
 namespace builtins {
 
 cell_ptr builtin_fn_list_push_front(interpreter_c &ci, cell_list_t &list,
                                     env_c &env) {
-  LIST_ENFORCE_SIZE(">|", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(">|", ==, 3)
 
   auto value_to_push = list_get_nth_arg(ci, 1, list, env);
 
@@ -26,7 +26,7 @@ cell_ptr builtin_fn_list_push_front(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  LIST_ENFORCE_SIZE("|<", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE("|<", ==, 3)
 
   auto value_to_push = list_get_nth_arg(ci, 1, list, env);
 
@@ -43,7 +43,7 @@ cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_list_iter(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
 
-  LIST_ENFORCE_SIZE("iter", ==, 4)
+  NIBI_LIST_ENFORCE_SIZE("iter", ==, 4)
 
   auto list_to_iterate = list_get_nth_arg(ci, 1, list, env);
 
@@ -75,7 +75,7 @@ cell_ptr builtin_fn_list_iter(interpreter_c &ci, cell_list_t &list,
 }
 
 cell_ptr builtin_fn_list_at(interpreter_c &ci, cell_list_t &list, env_c &env) {
-  LIST_ENFORCE_SIZE("at", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE("at", ==, 3)
 
   auto requested_idx = list_get_nth_arg(ci, 2, list, env);
 
@@ -97,7 +97,7 @@ cell_ptr builtin_fn_list_at(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
 cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
-  LIST_ENFORCE_SIZE("<|>", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE("<|>", ==, 3)
 
   auto list_size = list_get_nth_arg(ci, 2, list, env);
 

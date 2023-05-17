@@ -16,7 +16,7 @@ parser.add_argument("-m", "--install_modules", action="store_true", help="Builds
 parser.add_argument("-d", "--debug", action="store_true", help="Builds Nibi and modules in debug mode")
 parser.add_argument("-t", "--test", action="store_true", help="Runs all tests for Nibi")
 parser.add_argument("-p", "--perf", action="store_true", help="Runs performance tests for Nibi")
-parser.add_argument("-c", "--check-modules", action="store_true", help="Details all modules installed, and runs their tests")
+parser.add_argument("-c", "--check_modules", action="store_true", help="Details all modules installed, and runs their tests")
 parser.add_argument("-a", "--all_the_things", action="store_true", help="Installs Nibi, modules, runs tests, and runs performance tests")
 args = parser.parse_args()
 
@@ -55,7 +55,7 @@ def ensure_nibi_installed():
 def execute_command(cmd):
   result = subprocess.run(cmd, stdout=subprocess.PIPE)
   if result.returncode != 0:
-    print("Command failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
+    print("\nCommand failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
     exit(1)
   return result.stdout.decode("utf-8")
 
@@ -168,6 +168,9 @@ def check_modules():
 
   os.chdir("./modules")
 
+  modules = os.listdir("./")
+  print("\nFound ", len(modules), " installed modules.\n")
+
   for module in os.listdir("./"):
     print("Checking module: " + module)
     print(execute_command(["nibi", "-m", module]))
@@ -204,11 +207,11 @@ if args.test or args.all_the_things:
   # Run tests
   run_tests()
 
+if args.check_modules or args.all_the_things:
+  ensure_nibi_installed()
+  check_modules()
+
 if args.perf or args.all_the_things:
   ensure_nibi_installed()
 
   run_perfs()
-
-if args.check_modules or args.all_the_things:
-  ensure_nibi_installed()
-  check_modules()
