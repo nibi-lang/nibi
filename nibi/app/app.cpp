@@ -17,6 +17,8 @@
 #include "libnibi/source.hpp"
 #include "libnibi/version.hpp"
 
+#include "app/repl/repl.hpp"
+
 #ifndef NIBI_BUILD_HASH
 #define NIBI_BUILD_HASH "unknown"
 #endif
@@ -307,8 +309,8 @@ int main(int argc, char **argv) {
   }
 
   if (remaining_args.empty()) {
-    std::cerr << "No file or directory specified" << std::endl;
-    return 1;
+    app::start_repl(pdc->get_interpreter(), pdc->get_source_manager());
+    return 0;
   }
 
   if (remaining_args.size() > 1) {

@@ -35,7 +35,10 @@ void interpreter_c::on_list(cell_ptr list_cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
-    execute_cell(list_cell, interpreter_env);
+    auto result = execute_cell(list_cell, interpreter_env);
+    if (repl_mode_) {
+      std::cout << result->to_string() << std::endl;
+    }
   } catch (interpreter_c::exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {
@@ -56,9 +59,17 @@ void interpreter_c::halt_with_error(error_c error) {
       Once that is complete we will gracefully shutdown
 
   */
+
+  // We don't want to halt in repl mode. Just draw the error and keep truckin
+  if (repl_mode_) {
+    error.draw_error();
+    return;
+  }
+
   std::cout << rang::fg::red << "\n[ RUNTIME HALT ]\n"
             << rang::fg::reset << std::endl;
   error.draw_error();
+
   std::exit(1);
 }
 

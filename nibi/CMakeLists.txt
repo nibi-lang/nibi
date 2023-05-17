@@ -53,6 +53,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/app/app.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/app/repl/repl.cpp
 )
 
 add_executable(${PROJECT_NAME}
