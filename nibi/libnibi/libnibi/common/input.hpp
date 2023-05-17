@@ -3,6 +3,7 @@
 #include "error.hpp"
 #include "libnibi/source.hpp"
 #include "token.hpp"
+#include <filesystem>
 #include <optional>
 #include <string_view>
 #include <unordered_map>
@@ -64,7 +65,7 @@ public:
 
   //! \brief Read a file.
   //! \param path The path to the file.
-  std::optional<error_c> read_file(std::string_view path);
+  std::optional<error_c> read_file(std::filesystem::path path);
 
 private:
   scanner_c scanner_;

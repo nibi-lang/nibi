@@ -3,7 +3,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
-#include "cpp_macros.hpp"
+#include "list_helpers.hpp"
 
 namespace nibi {
 
@@ -12,7 +12,7 @@ namespace builtins {
 cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
 
-  LIST_ENFORCE_SIZE("env", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE("env", ==, 3)
 
   auto it = list.begin();
   std::advance(it, 1);

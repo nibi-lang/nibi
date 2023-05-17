@@ -72,7 +72,7 @@ set(HEADERS
    ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/arithmetic_helpers.hpp
    ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/builtins.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/cpp_macros.hpp
+   ${PROJECT_SOURCE_DIR}/libnibi/list_helpers.hpp
    ${PARALLEL_HASHMAP_HEADERS}
 )
 

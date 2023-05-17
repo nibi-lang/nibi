@@ -8,9 +8,9 @@ namespace nibi {
 
 static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
 
-std::optional<error_c> file_reader_c::read_file(std::string_view path) {
+std::optional<error_c>
+file_reader_c::read_file(std::filesystem::path file_path) {
   // Read the file and pass the contents to the scanner.
-  std::filesystem::path file_path(path);
 
   if (!std::filesystem::exists(file_path)) {
     return error_c("File does not exist");
@@ -19,7 +19,7 @@ std::optional<error_c> file_reader_c::read_file(std::string_view path) {
   scanner_.reset();
 
   std::ifstream ifs;
-  ifs.open(file_path, std::ios::in);
+  ifs.open(file_path);
   if (ifs.fail()) {
     return error_c("Failed to open file");
   }

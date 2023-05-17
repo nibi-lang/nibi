@@ -3,7 +3,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
-#include "cpp_macros.hpp"
+#include "list_helpers.hpp"
 
 namespace nibi {
 
@@ -12,7 +12,7 @@ namespace builtins {
 cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
 
-  LIST_ENFORCE_SIZE("assert", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE("assert", ==, 3)
 
   auto value = list_get_nth_arg(ci, 1, list, env);
   if (value->type != cell_type_e::INTEGER) {

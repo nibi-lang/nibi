@@ -1,4 +1,4 @@
 (use "random")
 
 (putln (random::int) " " (random::double))
-(putln (random::range_int 0 100) " " (random::range_double 0 100))
+(putln (random::range::int 0 100) " " (random::range::double 0 100))

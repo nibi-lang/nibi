@@ -27,7 +27,7 @@ nibi::cell_ptr get_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 }
 
 nibi::cell_ptr get_double(nibi::interpreter_c &ci, nibi::cell_list_t &list,
-                       nibi::env_c &env) {
+                          nibi::env_c &env) {
   std::string line;
   std::getline(std::cin, line);
   double val{0};

@@ -136,7 +136,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 
   auto &list_info = cell->as_list_info();
   if (list_info.list.empty()) {
-    return allocate_cell(cell_type_e::NIL);
+    //  return cell;
   }
 
   switch (list_info.type) {

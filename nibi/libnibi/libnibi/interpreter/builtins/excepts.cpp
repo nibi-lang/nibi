@@ -4,7 +4,7 @@
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 
-#include "cpp_macros.hpp"
+#include "list_helpers.hpp"
 
 #include <iterator>
 
@@ -39,7 +39,7 @@ cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
 
   */
 
-  LIST_ENFORCE_SIZE("try", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE("try", ==, 3)
 
   auto it = list.begin();
 
@@ -63,7 +63,7 @@ cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_except_throw(interpreter_c &ci, cell_list_t &list,
                                  env_c &env) {
-  LIST_ENFORCE_SIZE("throw", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE("throw", ==, 2)
 
   auto it = list.begin();
 

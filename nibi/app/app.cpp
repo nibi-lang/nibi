@@ -46,18 +46,37 @@ std::vector<std::string> *args{nullptr};
 
 } // namespace
 
+// Setup the objects that should only be setup one time
+void setup_once() {
+  if (!program_global_env) {
+    program_global_env = new env_c(nullptr);
+  }
+  if (!source_manager) {
+    source_manager = new source_manager_c();
+  }
+  if (!top_level_interpreter) {
+    top_level_interpreter =
+        new interpreter_c(*program_global_env, *source_manager);
+  }
+}
+
+// Final teardown of objects
 void teardown() {
   delete top_level_interpreter;
-  global_platform_destroy();
-  delete source_manager;
   delete program_global_env;
+  delete source_manager;
+  delete args;
+}
+
+// Reset everything to have a clear run of file(s)
+void reset() {
+  global_platform_destroy();
+  source_manager->clear();
+  program_global_env->get_map().clear();
 }
 
 void setup(std::vector<std::filesystem::path> &include_dirs) {
-  program_global_env = new env_c(nullptr);
-  source_manager = new source_manager_c();
-  top_level_interpreter =
-      new interpreter_c(*program_global_env, *source_manager);
+  setup_once();
 
   // Initialize the global platofrm object
   if (!global_platform_init(include_dirs, *args)) {
@@ -67,7 +86,7 @@ void setup(std::vector<std::filesystem::path> &include_dirs) {
   }
 }
 
-void run_from_file(const std::string &file_name) {
+void run_from_file(std::filesystem::path file_name) {
 
   // List builder that will build lists from parsed tokens
   // and pass lists to a interpreter
@@ -85,7 +104,7 @@ void run_from_dir(const std::string &file_name) {
   std::filesystem::path dir_path(file_name);
   auto expected_file = dir_path / "main.nibi";
   if (std::filesystem::exists(expected_file)) {
-    run_from_file(expected_file.string());
+    run_from_file(expected_file);
     return;
   }
 }
@@ -152,8 +171,8 @@ void show_module_info(std::string module_name) {
   }
 }
 
-inline void run_each_test(std::vector<std::filesystem::path> &files,
-                          std::vector<std::filesystem::path> &include_dirs) {
+void run_each_test(std::vector<std::filesystem::path> &files,
+                   std::vector<std::filesystem::path> &include_dirs) {
 
   if (files.size() == 0) {
     std::cout << "No test files found" << std::endl;
@@ -166,7 +185,8 @@ inline void run_each_test(std::vector<std::filesystem::path> &files,
     std::cout << "Running test file: " << test_file << std::endl;
     setup(include_dirs);
     run_from_file(test_file);
-    teardown();
+    reset();
+
     std::cout << "COMPLETE\n" << std::endl;
   }
 
@@ -215,8 +235,9 @@ void run_tests(std::string &dir,
   {
     auto fpd = std::filesystem::path(dir);
     try {
-     fpd = std::filesystem::canonical(fpd);
-    } catch (...) {}
+      fpd = std::filesystem::canonical(fpd);
+    } catch (...) {
+    }
     auto test_dir = fpd / nibi::config::NIBI_MODULE_FILE_NAME;
     if (std::filesystem::exists(test_dir) &&
         std::filesystem::is_regular_file(test_dir)) {
@@ -233,7 +254,7 @@ void run_tests(std::string &dir,
     setup(include_dirs);
     auto info =
         modules_c(*source_manager, *top_level_interpreter).get_module_info(dir);
-    teardown();
+    reset();
 
     if (info.test_files.has_value()) {
       return run_each_test(info.test_files.value(), include_dirs);
@@ -360,7 +381,7 @@ int main(int argc, char **argv) {
   std::cout << "Execution time: " << duration.count() << "ms" << std::endl;
 #endif
 
-  teardown();
+  reset();
 
 #if CALCULATE_EXECUTION_TIME
   auto app_end = std::chrono::high_resolution_clock::now();
@@ -368,7 +389,5 @@ int main(int argc, char **argv) {
       app_end - app_start);
   std::cout << "Total time: " << app_duration.count() << "ms" << std::endl;
 #endif
-
-  delete args;
   return 0;
 }
