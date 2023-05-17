@@ -251,7 +251,7 @@ int main(int argc, char **argv) {
   auto app_start = std::chrono::high_resolution_clock::now();
 #endif
 
-  std::vector<std::string> unmatched;
+  std::vector<std::string> remaining_args;
   std::vector<std::filesystem::path> include_dirs;
   std::vector<std::string> args =
       std::vector<std::string>(argv + 1, argv + argc);
@@ -303,29 +303,35 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-    unmatched.push_back(args[i]);
+    remaining_args.push_back(args[i]);
   }
 
-  if (unmatched.empty()) {
+  if (remaining_args.empty()) {
     std::cerr << "No file or directory specified" << std::endl;
     return 1;
   }
 
-  if (unmatched.size() > 1) {
-    std::cerr << "Unmatched arguments:" << std::endl;
-    for (auto &arg : unmatched) {
+  if (remaining_args.size() > 1) {
+    std::cerr << "Remaining arguments indicate unhandled options." << std::endl;
+    std::cerr << "Expected a single file or directory, but got the "
+              << std::endl;
+    std::cerr << "remaining arguments:" << std::endl;
+    for (auto &arg : remaining_args) {
       std::cout << "  " << arg << std::endl;
     }
     return 1;
   }
 
+  auto &launch_target = remaining_args[0];
+
   bool run_as_dir = false;
-  if (std::filesystem::is_directory(unmatched[0])) {
+  if (std::filesystem::is_directory(launch_target)) {
     run_as_dir = true;
-  } else if (std::filesystem::is_regular_file(unmatched[0])) {
+  } else if (std::filesystem::is_regular_file(launch_target)) {
     run_as_dir = false;
   } else {
-    std::cout << "Invalid file or directory: " << unmatched[0] << std::endl;
+    std::cout << "Invalid file or directory: " << remaining_args[0]
+              << std::endl;
     return 1;
   }
 
@@ -337,7 +343,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  std::filesystem::path entry_file_path(unmatched[0]);
+  std::filesystem::path entry_file_path(launch_target);
   entry_file_path = std::filesystem::canonical(entry_file_path);
 
   if (!run_as_dir && entry_file_path.has_parent_path()) {
@@ -351,9 +357,9 @@ int main(int argc, char **argv) {
 #endif
 
   if (run_as_dir) {
-    run_from_dir(unmatched[0]);
+    run_from_dir(launch_target);
   } else {
-    run_from_file(unmatched[0]);
+    run_from_file(launch_target);
   }
 
 #if CALCULATE_EXECUTION_TIME
