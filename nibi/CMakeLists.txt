@@ -4,10 +4,12 @@ project(nibi)
 
 set(CMAKE_CXX_STANDARD 20)
 
+set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
+
 #
 # Options
 #
-option(COMPILE_TESTS "Execute unit tests" ON)
+option(COMPILE_TESTS "Execute unit tests" OFF)
 option(WITH_ASAN     "Compile with ASAN" OFF)
 
 #
@@ -58,8 +60,8 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
-  dl
-  libnibi)
+  libnibi
+  ${CMAKE_DL_LIBS})
 
 #
 # Tests

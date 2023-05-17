@@ -1,0 +1,34 @@
+version: 2.1
+
+jobs:
+  build:
+    environment: 
+      NIBI_PATH: /tmp/nibi_path
+    docker:
+      - image: "debian:latest"
+    steps:
+      - checkout
+      - run:
+          name: Installing SUDO
+          command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
+      - run:
+          name: Install build tools and cpputest
+          command: 'bash ci_scripts/setup_ci.sh'
+      - run:
+          name: Construct NIBI_PATH
+          command: 'mkdir /tmp/nibi_path'
+      - run:
+          name: Build and install libnibi, and nibi
+          command: 'python3 commander.py -n'
+      - run:
+          name: ldconfig
+          command: 'sudo ldconfig'
+      - run:
+          name: Run NIBI script tests
+          command: 'python3 commander.py -t'
+      - run:
+          name: Build and install modules
+          command: 'python3 commander.py -m'
+      - run:
+          name: Check all modules
+          command: 'python3 commander.py -c'
