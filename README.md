@@ -1,5 +1,11 @@
 # Nibi
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/bosley/nibi/tree/main.svg?style=svg&circle-token=209b10db36b5ca69404370b19addef558e676ecf)](https://dl.circleci.com/status-badge/redirect/gh/bosley/nibi/tree/main)
+
+![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+
+## About
+
 The Nibi programming language! Nibi is a list processing language that is under heavy development.
 
 To get started, you can run `commander.py` to help build/ install Nibi and its default modules.
