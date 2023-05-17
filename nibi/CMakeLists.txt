@@ -9,7 +9,7 @@ set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 #
 # Options
 #
-option(COMPILE_TESTS "Execute unit tests" OFF)
+option(COMPILE_TESTS "Execute unit tests" ON)
 option(WITH_ASAN     "Compile with ASAN" OFF)
 
 #

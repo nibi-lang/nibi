@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 
-option(COMPILE_TESTS   "Execute unit tests" OFF)
+option(COMPILE_TESTS   "Execute unit tests" ON)
 option(WITH_ASAN       "Compile with ASAN" OFF)
 
 #
