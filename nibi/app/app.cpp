@@ -1,9 +1,9 @@
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "libnibi/cell.hpp"
 #include "libnibi/common/error.hpp"
@@ -33,48 +33,46 @@ namespace {
 
 class program_data_controller_c {
 public:
+  program_data_controller_c(std::vector<std::string> &args,
+                            std::vector<std::filesystem::path> &include_dirs)
+      : args_(args), include_dirs_(include_dirs),
+        interpreter_(env_, source_manager_) {
+    reinit_platform();
+  }
 
-   program_data_controller_c(std::vector<std::string> &args, std::vector<std::filesystem::path> &include_dirs)
-      : args_(args), include_dirs_(include_dirs), interpreter_(env_, source_manager_)
-   {
-      reinit_platform();
-   }
+  void reset() {
+    source_manager_.clear();
+    env_.get_map().clear();
+    reinit_platform();
+  }
 
-   void reset() {
-      source_manager_.clear();
-      env_.get_map().clear();
-      reinit_platform();
-   }
+  void add_include_dir(std::filesystem::path dir) {
+    include_dirs_.push_back(dir);
+  }
 
-   void add_include_dir(std::filesystem::path dir) {
-      include_dirs_.push_back(dir);
-   }
-
-   env_c &get_env() { return env_; }
-   interpreter_c &get_interpreter() { return interpreter_; }
-   source_manager_c &get_source_manager() { return source_manager_; }
+  env_c &get_env() { return env_; }
+  interpreter_c &get_interpreter() { return interpreter_; }
+  source_manager_c &get_source_manager() { return source_manager_; }
 
 private:
+  void reinit_platform() {
+    global_platform_destroy();
+    if (!global_platform_init(include_dirs_, args_)) {
+      std::cerr << "Failed to initialize global platform" << std::endl;
+      exit(1);
+    }
+  }
 
-   void reinit_platform() {
-      global_platform_destroy();
-      if (!global_platform_init(include_dirs_, args_)) {
-         std::cerr << "Failed to initialize global platform" << std::endl;
-         exit(1);
-      }
-   }
-
-   std::vector<std::filesystem::path> &include_dirs_;
-   std::vector<std::string> &args_;
-   env_c env_;
-   source_manager_c source_manager_;
-   interpreter_c interpreter_;
+  std::vector<std::filesystem::path> &include_dirs_;
+  std::vector<std::string> &args_;
+  env_c env_;
+  source_manager_c source_manager_;
+  interpreter_c interpreter_;
 };
 
 std::unique_ptr<program_data_controller_c> pdc{nullptr};
 
 } // namespace
-
 
 void run_from_file(std::filesystem::path file_name) {
 
@@ -92,7 +90,7 @@ void run_from_file(std::filesystem::path file_name) {
 
 void run_from_dir(const std::string &file_name) {
   std::filesystem::path dir_path(file_name);
-  auto expected_file = dir_path / "main.nibi";
+  auto expected_file = dir_path / nibi::config::NIBI_APP_ENTRY_FILE_NAME;
   if (std::filesystem::exists(expected_file)) {
     run_from_file(expected_file);
     return;
@@ -184,7 +182,7 @@ void run_each_test(std::vector<std::filesystem::path> &files) {
 
 void run_local_tests_dir(std::filesystem::path &dir) {
 
-  auto test_dir = dir / "tests";
+  auto test_dir = dir / nibi::config::NIBI_MODULE_TEST_DIR;
 
   if (!std::filesystem::exists(test_dir)) {
     std::cout << "No tests directory found" << std::endl;
@@ -237,8 +235,8 @@ void run_tests(std::string &dir) {
 
   // Check installed modules
   {
-    auto info =
-        modules_c(pdc->get_source_manager(), pdc->get_interpreter()).get_module_info(dir);
+    auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
+                    .get_module_info(dir);
     pdc->reset();
 
     if (info.test_files.has_value()) {
@@ -255,7 +253,8 @@ int main(int argc, char **argv) {
 
   std::vector<std::string> unmatched;
   std::vector<std::filesystem::path> include_dirs;
-  std::vector<std::string> args = std::vector<std::string>(argv + 1, argv + argc);
+  std::vector<std::string> args =
+      std::vector<std::string>(argv + 1, argv + argc);
 
   pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
 
