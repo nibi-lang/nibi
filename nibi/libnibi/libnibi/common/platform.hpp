@@ -46,7 +46,7 @@ public:
 
 private:
   platform_e _platform{platform_e::UNKNOWN};
-  std::vector<std::filesystem::path> _include_dirs;
+  std::vector<std::filesystem::path> &_include_dirs;
   std::vector<std::string> &_program_args;
   std::optional<std::filesystem::path> _nibi_path{std::nullopt};
 };
@@ -54,7 +54,7 @@ private:
 extern platform_c *global_platform;
 
 extern bool
-global_platform_init(std::vector<std::filesystem::path> include_dirs,
+global_platform_init(std::vector<std::filesystem::path> &include_dirs,
                      std::vector<std::string> &program_args);
 
 extern bool global_platform_destroy();
