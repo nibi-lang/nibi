@@ -118,7 +118,7 @@ cell_ptr builtin_fn_env_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
   // Set the variable
   env.set(target_function_name, fn_cell);
 
-  return allocate_cell((int64_t)0);
+  return fn_cell;
 }
 
 } // namespace builtins
