@@ -215,5 +215,37 @@ cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
   std::exit(ci.execute_cell((*it), env)->as_integer());
 }
 
+cell_ptr builtin_fn_common_quote(interpreter_c &ci, cell_list_t &list,
+                                 env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("quote", ==, 2)
+  auto it = list.begin();
+  std::advance(it, 1);
+  return allocate_cell((*it)->to_string(false, true));
+}
+
+cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
+                                env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("eval", ==, 2)
+  auto it = list.begin();
+  std::advance(it, 1);
+
+  auto sm = ci.get_source_manager();
+
+  auto so = sm.get_source(list[0]->locator->get_source_name());
+
+  interpreter_c eval_ci(env, sm);
+
+  list_builder_c list_builder(eval_ci);
+
+  scanner_c scanner(list_builder);
+
+  scanner.scan_line(so, ci.execute_cell((*it), env)->as_string(),
+                    (*it)->locator);
+
+  scanner.indicate_complete();
+
+  return eval_ci.get_last_result();
+}
+
 } // namespace builtins
 } // namespace nibi

@@ -22,6 +22,28 @@ using locator_ptr = std::shared_ptr<locator_if>;
 
 extern void draw_locator(locator_if &location);
 
+//! \brief A locator implementation.
+class locator_c final : public locator_if {
+public:
+  //! \brief Create the locator.
+  //! \param source The name of the source.
+  //! \param line The line of the source.
+  //! \param column The column of the source.
+  locator_c(const char *source, const size_t line, const size_t column)
+      : line_(line), column_(column), source_name_(source) {}
+  virtual std::tuple<size_t, size_t> get_line_column() const override {
+    return std::make_tuple(line_, column_);
+  }
+  virtual const size_t get_line() const override { return line_; }
+  virtual const size_t get_column() const override { return column_; }
+  virtual const char *get_source_name() const override { return source_name_; }
+
+private:
+  const size_t line_{0};
+  const size_t column_{0};
+  const char *source_name_{nullptr};
+};
+
 //! \brief A source origin. (File, string, etc.)
 //!        Used to create locators.
 class source_origin_c {
@@ -41,24 +63,6 @@ public:
   }
 
 private:
-  class locator_c final : public locator_if {
-  public:
-    locator_c(const char *source, const size_t line, const size_t column)
-        : line_(line), column_(column), source_name_(source) {}
-    virtual std::tuple<size_t, size_t> get_line_column() const override {
-      return std::make_tuple(line_, column_);
-    }
-    virtual const size_t get_line() const override { return line_; }
-    virtual const size_t get_column() const override { return column_; }
-    virtual const char *get_source_name() const override {
-      return source_name_;
-    }
-
-  private:
-    const size_t line_{0};
-    const size_t column_{0};
-    const char *source_name_{nullptr};
-  };
   const std::string source_name_;
 };
 

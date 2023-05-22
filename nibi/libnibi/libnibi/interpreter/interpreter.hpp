@@ -76,13 +76,20 @@ public:
   //! \brief Get the yield valueq
   cell_ptr get_yield_value() const { return yield_value_; }
 
+  //! \brief Get the source manager
   source_manager_c &get_source_manager() { return source_manager_; }
 
   //! \brief Load a module
   //! \param module_name The name of the module to load
   void load_module(cell_ptr &module_name);
 
+  //! \brief Get the last result of the interpreter
+  //! \return The last result
+  cell_ptr get_last_result() const { return last_result_; }
+
 private:
+  cell_ptr last_result_{nullptr};
+
   modules_c modules_;
 
   // The environment that will be used to store and execute
