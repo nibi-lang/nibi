@@ -12,7 +12,9 @@ namespace nibi {
 
 interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
     : interpreter_env(env), source_manager_(source_manager),
-      modules_(source_manager, *this) {}
+      modules_(source_manager, *this) {
+  last_result_ = allocate_cell(cell_type_e::NIL);
+}
 
 interpreter_c::~interpreter_c() {
 #if PROFILE_INTERPRETER
@@ -35,10 +37,7 @@ void interpreter_c::on_list(cell_ptr list_cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
-    auto result = execute_cell(list_cell, interpreter_env);
-    if (repl_mode_) {
-      std::cout << result->to_string() << std::endl;
-    }
+    last_result_ = execute_cell(list_cell, interpreter_env);
   } catch (interpreter_c::exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {

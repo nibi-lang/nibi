@@ -34,8 +34,13 @@ public:
   scanner_c(scanner_cb_if &cb);
 
   //! \brief Scan a string.
-  bool scan_line(std::shared_ptr<source_origin_c> origin,
-                 std::string_view data);
+  //! \param origin The source origin of the string.
+  //! \param data The string to scan.
+  //! \param loc_override The location to use to offset token locations.
+  //! \note The loc_override is meant for in-place evals
+  //! \return True if the scan was successful, false otherwise.
+  bool scan_line(std::shared_ptr<source_origin_c> origin, std::string_view data,
+                 locator_ptr loc_override = nullptr);
 
   //! \brief Reset the scanner.
   void reset();
