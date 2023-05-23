@@ -20,6 +20,8 @@
 | env     | Define an environment | new env
 | import  | Import files | 0
 | exit    | Exit the program | N/A
+| eval    | Evaluate a given string | variable
+| quote   | Quote a a list into a string | variable
 
 | list commands | description | returns
 |----   |---- |----
@@ -369,7 +371,31 @@ Keyword: `exit`
 | Number to set as exit code - must be integer
 
 ```
-( exit <NU S ()>)
+( exit < NU S () >)
+```
+
+### Eval
+
+Keyword: `eval`
+
+| arg1 |
+|----
+| String to evaluate
+
+```
+( eval < S STR > )
+```
+
+### Quote
+
+Keyword `quote`
+
+| arg1 |
+|----
+| Item to quote
+
+```
+( quote < S () [] {} RD > )
 ```
 
 ----
