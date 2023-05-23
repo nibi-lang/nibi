@@ -53,3 +53,18 @@ git hash: **7b735129eb0e8ca15cee09ffe68d298bb57247d2**
 | primality.nibi  | 1.7912s | 1791.2477ms |
 | 4sieve.nibi     | 1.9994s | 1999.4224ms |
 | leibniz.nibi    | 0.1703s | 170.2986ms  |
+
+### 22-May-2023
+
+Benchmark after adding eval and proc keywords - Didn't expect a change but wanted to
+ensure slight interpreter changes didn't cause a slag
+
+git hash: **c22ad54acc06c8651b73f3ebd3107a67c28fcfc4**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.181s  | 180.9553ms  |
+| primality.nibi  | 1.7365s | 1736.5445ms |
+| 4sieve.nibi     | 1.9878s | 1987.8231ms |
+| leibniz.nibi    | 0.185s  | 184.9674ms  |
+

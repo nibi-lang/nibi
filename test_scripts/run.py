@@ -60,7 +60,7 @@ def test_item(id, expected_result, item):
 
 def retrieve_objects_from(directory):
    os.chdir(directory)
-   items_in_dir = glob.glob("*.test")
+   items_in_dir = glob.glob("*.nibi")
    results = []
    for item in items_in_dir:
       result = {}
