@@ -151,7 +151,7 @@ void start_repl(nibi::interpreter_c &interpreter,
 
       scanner.scan_line(source_origin, *buffer);
 
-			std::cout << interpreter.get_last_result()->to_string() << std::endl;
+      std::cout << interpreter.get_last_result()->to_string() << std::endl;
 
       show_prompt = true;
 
