@@ -1,0 +1,8 @@
+(fn fib [n] [
+  (:= l (<|> 0 (+ n 1)))
+  (set (at l 1) 1)
+  (loop (:= i 2) (<= i n) (set i (+ i 1))
+    (set (at l i) (+ (at l (- i 1)) (at l (- i 2)))))
+])
+(putln (fib 50))
+

@@ -40,6 +40,40 @@ cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
   return list_to_push_to;
 }
 
+cell_ptr builtin_fn_list_pop_back(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("|>>", ==, 2)
+
+  auto target = list_get_nth_arg(ci, 1, list, env);
+
+  auto &list_info = target->as_list_info();
+
+  if (list_info.list.empty()) {
+    return target;
+  }
+
+  list_info.list.pop_back();
+
+  return target;
+}
+
+cell_ptr builtin_fn_list_pop_front(interpreter_c &ci, cell_list_t &list,
+                                   env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("<<|", ==, 2)
+
+  auto target = list_get_nth_arg(ci, 1, list, env);
+
+  auto &list_info = target->as_list_info();
+
+  if (list_info.list.empty()) {
+    return target;
+  }
+
+  list_info.list.pop_front();
+
+  return target;
+}
+
 cell_ptr builtin_fn_list_iter(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
 
