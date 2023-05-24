@@ -162,7 +162,6 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
       return last_result;
     }
 
-    // If we aren't processing it, just return the list
     break;
   }
   case list_types_e::ACCESS: {

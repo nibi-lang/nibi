@@ -92,10 +92,10 @@ cell_ptr cell_c::clone() {
   case cell_type_e::LIST: {
     auto &linf = this->as_list_info();
     auto &other = new_cell->as_list_info();
+    other.type = linf.type;
     for (auto &cell : linf.list) {
       other.list.push_back(cell->clone());
     }
-    other.type = linf.type;
     break;
   }
   case cell_type_e::ENVIRONMENT: {
