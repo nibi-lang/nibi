@@ -97,10 +97,8 @@ cell_ptr builtin_fn_list_iter(interpreter_c &ci, cell_list_t &list,
 
   for (auto cell : list_info.list) {
 
-    // $it will just point to the element, not copy it
-    current_env_map[symbol_to_bind] = cell;
+    current_env_map[symbol_to_bind] = ci.execute_cell(cell, iter_env);
 
-    // Execute the instructions, allowing [] to execute multiple instructions
     ci.execute_cell(ins_to_exec_per_item, iter_env, true);
   }
 
@@ -123,10 +121,7 @@ cell_ptr builtin_fn_list_at(interpreter_c &ci, cell_list_t &list, env_c &env) {
     throw std::runtime_error("Index OOB for given list");
   }
 
-  auto it = list_info.list.begin();
-  std::advance(it, actual_idx_val);
-
-  return (*it);
+  return list_get_nth_arg(ci, actual_idx_val, list_info.list, env);
 }
 
 cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
