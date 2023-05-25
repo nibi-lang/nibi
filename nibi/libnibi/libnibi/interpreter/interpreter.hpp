@@ -2,9 +2,8 @@
 
 #include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/cell.hpp"
-#include "libnibi/common/error.hpp"
-#include "libnibi/common/instruction_processor_if.hpp"
-#include "libnibi/common/list.hpp"
+#include "libnibi/error.hpp"
+#include "libnibi/interfaces/instruction_processor_if.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/modules.hpp"
 #include "libnibi/source.hpp"

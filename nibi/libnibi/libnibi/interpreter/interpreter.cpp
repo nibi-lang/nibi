@@ -1,6 +1,6 @@
 #include "interpreter.hpp"
 
-#include "libnibi/common/platform.hpp"
+#include "libnibi/platform.hpp"
 #include "libnibi/rang.hpp"
 
 #if PROFILE_INTERPRETER

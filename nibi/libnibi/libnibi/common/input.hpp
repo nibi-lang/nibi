@@ -1,6 +1,6 @@
 #pragma once
 
-#include "error.hpp"
+#include "libnibi/error.hpp"
 #include "libnibi/source.hpp"
 #include "token.hpp"
 #include <filesystem>

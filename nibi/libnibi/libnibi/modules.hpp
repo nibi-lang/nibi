@@ -6,6 +6,7 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
+#include "libnibi/common/list.hpp"
 
 #include <filesystem>
 #include <optional>

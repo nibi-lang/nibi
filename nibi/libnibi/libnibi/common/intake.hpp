@@ -1,8 +1,8 @@
 #pragma once
 
-#include "error.hpp"
+#include "libnibi/error.hpp"
 #include "libnibi/cell.hpp"
-#include "libnibi/common/instruction_processor_if.hpp"
+#include "libnibi/interfaces/instruction_processor_if.hpp"
 #include "libnibi/parallel_hashmap/phmap.hpp"
 #include "libnibi/source.hpp"
 #include "token.hpp"

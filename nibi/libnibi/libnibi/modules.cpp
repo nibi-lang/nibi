@@ -1,6 +1,6 @@
 #include "modules.hpp"
 #include "libnibi/RLL/rll_wrapper.hpp"
-#include "libnibi/common/platform.hpp"
+#include "libnibi/platform.hpp"
 #include "libnibi/config.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
 #include <random>

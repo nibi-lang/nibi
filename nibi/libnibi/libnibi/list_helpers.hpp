@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/error.hpp"
+#include "error.hpp"
 #include "interpreter/interpreter.hpp"
 #include <iterator>
 

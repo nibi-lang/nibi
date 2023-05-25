@@ -4,7 +4,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
-#include "common/platform.hpp"
+#include "platform.hpp"
 #include "interpreter/interpreter.hpp"
 #include "list_helpers.hpp"
 
