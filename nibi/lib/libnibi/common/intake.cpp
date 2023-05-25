@@ -16,7 +16,7 @@ static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
   current_cell_list.push_back(cell);                                           \
   return parse(tokens, current_list);
 
-intake_c::intake_c(instruction_processor_if &proc, error_cb_t error_cb,
+intake_c::intake_c(instruction_processor_if &proc, error_callback_f error_cb,
                    source_manager_c &sm, function_router_t router)
     : processor_(proc), error_cb_(error_cb), sm_(sm), symbol_router_(router) {}
 

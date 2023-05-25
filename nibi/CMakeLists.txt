@@ -46,8 +46,8 @@ endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/CheckGit.cmake)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/libnibi)
-include_directories(${PROJECT_SOURCE_DIR}/libnibi)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib)
+include_directories(${PROJECT_SOURCE_DIR}/lib)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 

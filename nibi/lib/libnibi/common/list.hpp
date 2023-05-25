@@ -3,8 +3,8 @@
 #include "input.hpp"
 #include "token.hpp"
 
-#include "libnibi/interfaces/instruction_processor_if.hpp"
 #include "libnibi/cell.hpp"
+#include "libnibi/interfaces/instruction_processor_if.hpp"
 #include "libnibi/source.hpp"
 #include <optional>
 #include <vector>

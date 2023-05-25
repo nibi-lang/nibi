@@ -1,10 +1,11 @@
 #pragma once
 
-#include "libnibi/error.hpp"
 #include "libnibi/cell.hpp"
+#include "libnibi/error.hpp"
 #include "libnibi/interfaces/instruction_processor_if.hpp"
 #include "libnibi/parallel_hashmap/phmap.hpp"
 #include "libnibi/source.hpp"
+#include "libnibi/types.hpp"
 #include "token.hpp"
 #include <functional>
 #include <istream>
@@ -16,23 +17,13 @@ namespace nibi {
 
 class intake_c {
 public:
-  //! \brief Error callback that will handle whatever error(s) the intake
-  //!        encounters.
-  using error_cb_t = std::function<void(nibi::error_c)>;
-
-  //! \brief Map that ties builtin symbols to the functions that implement them.
-  //! \note The idea is to pass builtins for interpretation,
-  //!       or to pass compilation methods for compilation.
-  using function_router_t =
-      phmap::parallel_node_hash_map<std::string, function_info_s> &;
-
   intake_c() = delete;
 
   //! \brief Construct the intake
   //! \param error_cb Callback to handle errors
   //! \param sm Source manager to use for source tracking
   //! \param router Map of symbols to their implementations
-  intake_c(instruction_processor_if &processor, error_cb_t error_cb,
+  intake_c(instruction_processor_if &processor, error_callback_f error_cb,
            source_manager_c &sm, function_router_t router);
 
   //! \brief Read from a stream
@@ -50,7 +41,7 @@ private:
 
   tracker_s tracker_;
   instruction_processor_if &processor_;
-  error_cb_t error_cb_;
+  error_callback_f error_cb_;
   source_manager_c &sm_;
   function_router_t symbol_router_;
   std::vector<token_c> tokens_;

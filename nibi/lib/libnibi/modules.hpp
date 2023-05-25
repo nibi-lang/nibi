@@ -4,9 +4,10 @@
 #include <vector>
 
 #include "libnibi/cell.hpp"
+#include "libnibi/common/list.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
-#include "libnibi/common/list.hpp"
+#include "libnibi/types.hpp"
 
 #include <filesystem>
 #include <optional>
@@ -16,14 +17,6 @@ namespace nibi {
 
 class modules_c {
 public:
-  struct module_info_s {
-    std::optional<std::vector<std::string>> authors{std::nullopt};
-    std::optional<std::vector<std::string>> licenses{std::nullopt};
-    std::optional<std::vector<std::filesystem::path>> test_files{std::nullopt};
-    std::optional<std::string> description{std::nullopt};
-    std::optional<std::string> version{std::nullopt};
-  };
-
   modules_c() = delete;
   modules_c(source_manager_c &source_manager_c, interpreter_c &ci)
       : source_manager_(source_manager_c), ci_(ci) {}

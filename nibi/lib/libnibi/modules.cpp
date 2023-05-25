@@ -1,8 +1,8 @@
 #include "modules.hpp"
 #include "libnibi/RLL/rll_wrapper.hpp"
-#include "libnibi/platform.hpp"
 #include "libnibi/config.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
+#include "libnibi/platform.hpp"
 #include <random>
 
 /*
@@ -114,7 +114,7 @@ std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
   return path;
 }
 
-modules_c::module_info_s modules_c::get_module_info(std::string &module_name) {
+module_info_s modules_c::get_module_info(std::string &module_name) {
 
   cell_ptr mns = allocate_cell(module_name);
 

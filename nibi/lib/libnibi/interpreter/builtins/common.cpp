@@ -4,9 +4,9 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
 
-#include "platform.hpp"
 #include "interpreter/interpreter.hpp"
 #include "list_helpers.hpp"
+#include "platform.hpp"
 
 namespace nibi {
 namespace builtins {

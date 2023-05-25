@@ -177,10 +177,7 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"env", builtin_envcell_env_inf}};
 
 // Retrieve the map of symbols to function info structs
-phmap::parallel_node_hash_map<std::string, function_info_s> &
-get_builtin_symbols_map() {
-  return keyword_map;
-}
+function_router_t get_builtin_symbols_map() { return keyword_map; }
 
 } // namespace builtins
 } // namespace nibi

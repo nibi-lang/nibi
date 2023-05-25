@@ -6,14 +6,14 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/parallel_hashmap/phmap.hpp"
+#include "libnibi/types.hpp"
 
 namespace nibi {
 namespace builtins {
 
 //! \brief Retrieve a reference to a map that ties symbols to their
 //!        corresponding builtin function.
-phmap::parallel_node_hash_map<std::string, function_info_s> &
-get_builtin_symbols_map();
+function_router_t get_builtin_symbols_map();
 
 //! \brief A function similar to the builtins that
 //!        will load a lambda function and execute it

@@ -18,9 +18,12 @@
 #include "libnibi/interpreter/interpreter.hpp"
 #include "libnibi/modules.hpp"
 #include "libnibi/source.hpp"
+#include "libnibi/types.hpp"
 #include "libnibi/version.hpp"
 
 #include "app/repl/repl.hpp"
+
+#include "libnibi/nibi_factory.hpp"
 
 #ifndef NIBI_BUILD_HASH
 #define NIBI_BUILD_HASH "unknown"
@@ -60,7 +63,7 @@ public:
   env_c &get_env() { return env_; }
   interpreter_c &get_interpreter() { return interpreter_; }
   source_manager_c &get_source_manager() { return source_manager_; }
-  nibi::intake_c::function_router_t get_interpreter_symbol_router() {
+  nibi::function_router_t get_interpreter_symbol_router() {
     return interpreter_symbol_router_;
   }
 
@@ -78,7 +81,7 @@ private:
   env_c env_;
   source_manager_c source_manager_;
   interpreter_c interpreter_;
-  nibi::intake_c::function_router_t interpreter_symbol_router_{
+  nibi::function_router_t interpreter_symbol_router_{
       nibi::builtins::get_builtin_symbols_map()};
 };
 
@@ -86,33 +89,17 @@ std::unique_ptr<program_data_controller_c> pdc{nullptr};
 
 } // namespace
 
+void error_callback_function(nibi::error_c error) {
+
+  error.draw();
+  std::exit(1);
+}
+
 void run_from_file(std::filesystem::path file_name) {
-
-  if (!std::filesystem::exists(file_name)) {
-    std::cerr << "File does not exist: " << file_name << std::endl;
-    std::exit(1);
-  }
-
-  std::ifstream ifs;
-  ifs.open(file_name);
-  if (ifs.fail()) {
-    std::cerr << "Failed to open file: " << file_name << std::endl;
-    std::exit(1);
-  }
-
-  static auto error_callback = [&](error_c err) {
-    if (ifs.is_open()) {
-      ifs.close();
-    }
-    err.draw();
-    std::exit(1);
-  };
-
-  nibi::intake_c intake(pdc->get_interpreter(), error_callback,
-                        pdc->get_source_manager(),
-                        pdc->get_interpreter_symbol_router());
-
-  intake.read(file_name.string(), ifs);
+  auto file_interpreter =
+      nibi::nibi_factory_c().file_interpreter(error_callback_function);
+  file_interpreter->interpret_file(file_name);
+  file_interpreter->indicate_complete();
 }
 
 void run_from_dir(const std::string &file_name) {
