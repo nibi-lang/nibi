@@ -1,3 +1,25 @@
+# Lists
+
+In this language there are three types of lists. 
+
+`()` denotes an instruction list
+`[]` denotes a data list
+`{}` denotes an accessor list
+
+The instruction list is a list of instructions that gets executed.
+
+Data lists are not explicitly executed as they "contain data" unless they
+are used to denote a list of instructions for a given function. 
+
+Accessor lists are used to index into environment cells similar to how in
+some languages would do `something.function`
+
+*Note*: Data lists that contain a symbol will be a sort of "reference" to the symbol
+so when the item is accessed via `at` or `iter` the update will occur to the symbol
+in question. If you wish to place a symbol into a list by value `clone` should be ran
+to copy it into the list. With that said, since instructions inside data lists don't
+get executed, in order to get the value in it must be done via a push, or by instantiating
+the list with a default variable and then updated with `at` or `iter`.
 
 # Instruction
 
