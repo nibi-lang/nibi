@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include "libnibi/types.hpp"
 
 namespace nibi {
 
