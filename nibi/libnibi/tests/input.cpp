@@ -3,16 +3,17 @@
 #include "libnibi/common/input.hpp"
 #include "libnibi/common/list.hpp"
 #include "libnibi/common/token.hpp"
+#include "libnibi/common/instruction_processor_if.hpp"
 #include "libnibi/source.hpp"
 #include <vector>
 
 #include <CppUTest/TestHarness.h>
 
 namespace {
-class receiver_c : public nibi::list_cb_if {
+class receiver_c : public nibi::instruction_processor_if {
 public:
   receiver_c(std::string expected) : expected_{expected} {}
-  void on_list(nibi::cell_ptr list_cell) override {
+  void instruction_ind(nibi::cell_ptr &list_cell) override {
     CHECK_EQUAL(expected_, list_cell->to_string(true));
   }
 

@@ -33,11 +33,11 @@ interpreter_c::~interpreter_c() {
 #endif
 }
 
-void interpreter_c::on_list(cell_ptr list_cell) {
+void interpreter_c::instruction_ind(cell_ptr &cell) {
   try {
     // We can ignore the return value because
     // at this level nothing would be returned
-    last_result_ = execute_cell(list_cell, interpreter_env);
+    last_result_ = handle_list_cell(cell, interpreter_env, false);
   } catch (interpreter_c::exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {
@@ -141,19 +141,18 @@ inline bool considered_private(cell_ptr &cell) {
   return false;
 }
 
-inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
+inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
                                                 bool process_data_list) {
-
-  auto &list_info = cell->as_list_info();
-  if (list_info.list.empty()) {
+  auto list = cell->as_list();
+  if (list.size() == 0) {
     //  return cell;
   }
 
-  switch (list_info.type) {
+  switch (cell->as_list_info().type) {
   case list_types_e::DATA: {
     if (process_data_list) {
       cell_ptr last_result = allocate_cell(cell_type_e::NIL);
-      for (auto &list_cell : list_info.list) {
+      for (auto &list_cell : list) {
         last_result = execute_cell(list_cell, env);
         if (this->is_yielding()) {
           return yield_value_;
@@ -167,10 +166,10 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   case list_types_e::ACCESS: {
     // Each item in a list should be a symbol
     // and directing us through environments to a final cell value
-    auto it = list_info.list.begin();
+    auto it = list.begin();
     auto *current_env = &env;
     cell_ptr result = allocate_cell(cell_type_e::NIL);
-    for (std::size_t i = 0; i < list_info.list.size() - 1; i++) {
+    for (std::size_t i = 0; i < list.size() - 1; i++) {
       result = execute_cell(*it, *current_env);
       if (result->type == cell_type_e::ENVIRONMENT) {
         current_env = result->as_environment_info().env;
@@ -196,7 +195,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   case list_types_e::INSTRUCTION: {
     // All lists' first item should be a function of some sort,
     // so we recurse to either load
-    auto operation = list_info.list.front();
+    auto operation = list.front();
     if (operation->type == cell_type_e::SYMBOL) {
 
       // If the operation is a symbol then we need to
@@ -211,7 +210,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 
       // Now that its loaded, we need to update the first item
       // to be the loaded function
-      list_info.list.front() = operation;
+      list.front() = operation;
     }
 
     auto fn_info = operation->as_function_info();
@@ -220,7 +219,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
       fn_call_data_[fn_info.name] = {0, 0};
     }
     auto start = std::chrono::high_resolution_clock::now();
-    auto value = fn_info.fn(list_info.list, env);
+    auto value = fn_info.fn(list, env);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration =
         std::chrono::duration_cast<std::chrono::microseconds>(end - start)
@@ -233,7 +232,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 #else
     // All functions point to a `cell_fn_t`, even lambda functions
     // so we can just call the function and return the result
-    return fn_info.fn(*this, list_info.list, env);
+    return fn_info.fn(*this, list, env);
 #endif
   }
   }

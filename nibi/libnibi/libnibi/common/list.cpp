@@ -38,7 +38,7 @@ private:
 
 } // namespace
 
-list_builder_c::list_builder_c(list_cb_if &cb) : cb_(cb) {}
+list_builder_c::list_builder_c(instruction_processor_if &cb) : cb_(cb) {}
 
 void list_builder_c::on_error(error_c error) {
   // TODO: add error to list and allow up-to a certain number of errors
@@ -88,7 +88,7 @@ void list_builder_c::on_token(token_c token, bool end_list) {
     // an empty lists means an error was found, and the error was already
     // reported to the callback
     if (new_list && new_list->as_list().size()) {
-      cb_.on_list(new_list);
+      cb_.instruction_ind(new_list);
     }
 
     tokens_.clear();

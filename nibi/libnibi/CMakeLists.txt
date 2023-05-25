@@ -49,33 +49,6 @@ if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(-DNDEBUG)
 endif()
 
-set(PARALLEL_HASHMAP_HEADERS
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/btree.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/meminfo.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap_base.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap_bits.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap_config.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap_dump.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap_fwd_decl.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap_utils.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/parallel_hashmap/phmap.hpp
-)
-
-set(HEADERS
-   ${PROJECT_SOURCE_DIR}/libnibi/cell.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/environment.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/rang.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/source.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/modules.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/RLL/RLL.h
-   ${PROJECT_SOURCE_DIR}/libnibi/RLL/rll_wrapper.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/arithmetic_helpers.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/builtins.hpp
-   ${PROJECT_SOURCE_DIR}/libnibi/list_helpers.hpp
-   ${PARALLEL_HASHMAP_HEADERS}
-)
-
 set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/environment.cpp
