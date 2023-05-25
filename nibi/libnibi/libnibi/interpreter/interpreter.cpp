@@ -61,13 +61,13 @@ void interpreter_c::halt_with_error(error_c error) {
 
   // We don't want to halt in repl mode. Just draw the error and keep truckin
   if (repl_mode_) {
-    error.draw_error();
+    error.draw();
     return;
   }
 
   std::cout << rang::fg::red << "\n[ RUNTIME HALT ]\n"
             << rang::fg::reset << std::endl;
-  error.draw_error();
+  error.draw();
 
   std::exit(1);
 }

@@ -3,9 +3,9 @@
 #include "input.hpp"
 #include "token.hpp"
 
+#include "instruction_processor_if.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/source.hpp"
-#include "instruction_processor_if.hpp"
 #include <optional>
 #include <vector>
 

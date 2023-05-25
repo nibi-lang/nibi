@@ -66,6 +66,7 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/common.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/env_cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/excepts.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/intake.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/common/platform.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/common/error.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/common/input.cpp

@@ -1,9 +1,9 @@
 #include <iostream>
 
 #include "libnibi/common/input.hpp"
+#include "libnibi/common/instruction_processor_if.hpp"
 #include "libnibi/common/list.hpp"
 #include "libnibi/common/token.hpp"
-#include "libnibi/common/instruction_processor_if.hpp"
 #include "libnibi/source.hpp"
 #include <vector>
 

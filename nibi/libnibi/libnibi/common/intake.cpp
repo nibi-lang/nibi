@@ -1,10 +1,13 @@
 #include "intake.hpp"
+#include <regex>
 
 namespace nibi {
 
+static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
+
 #define PARSER_ENFORCE_CURRENT_CELL(___message)                                \
   if (!current_list) {                                                         \
-    error_cb(error_c(current_token.get_locator(), ___message));               \
+    error_cb_(error_c(current_token.get_locator(), ___message));               \
     return nullptr;                                                            \
   }
 
@@ -13,27 +16,25 @@ namespace nibi {
   current_cell_list.push_back(cell);                                           \
   return parse(tokens, current_list);
 
-intake_c::intake_c(error_cb_t error_cb, source_manager_c &sm)
-  : error_cb_(error_cb), sm_(sm) {
-  static_assert(nullptr != error_cb, "error_cb must not be null");
-}
+intake_c::intake_c(instruction_processor_if &proc, error_cb_t error_cb,
+                   source_manager_c &sm, function_router_t router)
+    : processor_(proc), error_cb_(error_cb), sm_(sm), symbol_router_(router) {}
 
 void intake_c::read(std::string_view source, std::istream &is) {
 
   std::string line;
-  auto source_origin = sm_.get_source(source);
+  auto source_origin = sm_.get_source(std::string(source));
 
   bool continue_intake = true;
-  while (continue_intake && 
-         std::getline(is, line)) {
+  while (continue_intake && std::getline(is, line)) {
     tracker_.line_count++;
     continue_intake = process_line(line, source_origin);
   }
 }
 
 bool intake_c::process_line(std::string_view data,
-    std::shared_ptr<source_origin_c> origin
-    locator_ptr loc_override) {
+                            std::shared_ptr<source_origin_c> origin,
+                            locator_ptr loc_override) {
 
   for (std::size_t col = 0; col < data.size(); col++) {
     auto locator =
@@ -178,10 +179,10 @@ void intake_c::process_token(token_c token) {
     return;
   }
 
-  auto new_list = parse(tokens_, nullptr);
+  auto instruction = parse(tokens_, nullptr);
 
-  if (new_list && new_list->as_list().size()) {
-    cb_.on_list(new_list);
+  if (instruction && instruction->as_list().size()) {
+    processor_.instruction_ind(instruction);
   }
 
   tokens_.clear();
@@ -236,7 +237,7 @@ cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
     [[fallthrough]];
   case token_e::R_PAREN: {
     if (!current_list) {
-      error_cb(error_c(current_token.get_locator(),
+      error_cb_(error_c(current_token.get_locator(),
                         "Unexpected closing symbol `} ] )`"));
     }
     return nullptr;
@@ -246,9 +247,9 @@ cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
     auto symbol_raw = current_token.get_data();
     PARSER_ENFORCE_CURRENT_CELL("Unexpected symbol: " + symbol_raw);
 
-    auto router_location = router_.find(symbol_raw);
+    auto router_location = symbol_router_.find(symbol_raw);
 
-    if (router_location == router_.end()) {
+    if (router_location == symbol_router_.end()) {
       auto cell = allocate_cell(symbol_s{symbol_raw});
       cell->locator = current_token.get_locator();
       PARSER_ADD_CELL
@@ -269,7 +270,7 @@ cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
     try {
       value_actual = std::stoll(stringed_value);
     } catch (std::exception &e) {
-      error_cb(error_c(current_token.get_locator(),
+      error_cb_(error_c(current_token.get_locator(),
                         {"Invalid integer value: " + stringed_value}));
       return nullptr;
     }
@@ -289,7 +290,7 @@ cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
     try {
       value_actual = std::stod(stringed_value);
     } catch (std::exception &e) {
-      error_cb(error_c(current_token.get_locator(),
+      error_cb_(error_c(current_token.get_locator(),
                         {"Invalid double value: " + stringed_value}));
       return nullptr;
     }
@@ -311,12 +312,4 @@ cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
   return nullptr;
 }
 
-
-
-
-
-
-
-
-
-} // nibi
+} // namespace nibi

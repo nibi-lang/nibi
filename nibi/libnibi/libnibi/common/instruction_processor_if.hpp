@@ -1,5 +1,7 @@
 #pragma once
 
+#include "libnibi/cell.hpp"
+
 namespace nibi {
 
 //! \brief Something that can process a list of instructions
@@ -11,7 +13,7 @@ public:
   //! \param list The list of instructions to execute
   //! \note Callers are responsible for ensuring that the
   //!       list is a list of instructions, and not a data list
-  //!       or accessor list. 
+  //!       or accessor list.
   virtual void instruction_ind(cell_ptr &cell) = 0;
 };
 

@@ -26,7 +26,7 @@ public:
   //! \brief Get the error message.
   const std::string get_message() const { return message_; }
 
-  void draw_error(bool markup = true) const;
+  void draw(bool markup = true) const;
 
 private:
   locator_ptr locator_{nullptr};

@@ -130,7 +130,6 @@ bool scanner_c::scan_line(std::shared_ptr<source_origin_c> origin,
       }
 
       if (!value.ends_with('"')) {
-        // std::cout << "<<" << value << ">>\n";
         cb_.on_error(error_c(locator, "Unterminated string"));
         return false;
       }

@@ -44,7 +44,7 @@ void list_builder_c::on_error(error_c error) {
   // TODO: add error to list and allow up-to a certain number of errors
   // before aborting
   std::cout << "Error reported to list builder!\n";
-  error.draw_error();
+  error.draw();
 }
 
 void list_builder_c::on_complete(

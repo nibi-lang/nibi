@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -8,10 +9,12 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/common/error.hpp"
 #include "libnibi/common/input.hpp"
+#include "libnibi/common/intake.hpp"
 #include "libnibi/common/list.hpp"
 #include "libnibi/common/platform.hpp"
 #include "libnibi/config.hpp"
 #include "libnibi/environment.hpp"
+#include "libnibi/interpreter/builtins/builtins.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
 #include "libnibi/modules.hpp"
 #include "libnibi/source.hpp"
@@ -57,6 +60,9 @@ public:
   env_c &get_env() { return env_; }
   interpreter_c &get_interpreter() { return interpreter_; }
   source_manager_c &get_source_manager() { return source_manager_; }
+  nibi::intake_c::function_router_t get_interpreter_symbol_router() {
+    return interpreter_symbol_router_;
+  }
 
 private:
   void reinit_platform() {
@@ -72,6 +78,8 @@ private:
   env_c env_;
   source_manager_c source_manager_;
   interpreter_c interpreter_;
+  nibi::intake_c::function_router_t interpreter_symbol_router_{
+      nibi::builtins::get_builtin_symbols_map()};
 };
 
 std::unique_ptr<program_data_controller_c> pdc{nullptr};
@@ -80,16 +88,31 @@ std::unique_ptr<program_data_controller_c> pdc{nullptr};
 
 void run_from_file(std::filesystem::path file_name) {
 
-  // List builder that will build lists from parsed tokens
-  // and pass lists to a interpreter
-  list_builder_c list_builder(pdc->get_interpreter());
+  if (!std::filesystem::exists(file_name)) {
+    std::cerr << "File does not exist: " << file_name << std::endl;
+    std::exit(1);
+  }
 
-  // File reader that reads file and kicks off parser/ scanner
-  // that will send tokens to the list builder
-  file_reader_c file_reader(list_builder, pdc->get_source_manager());
+  std::ifstream ifs;
+  ifs.open(file_name);
+  if (ifs.fail()) {
+    std::cerr << "Failed to open file: " << file_name << std::endl;
+    std::exit(1);
+  }
 
-  // Read the file and start the process
-  file_reader.read_file(file_name);
+  static auto error_callback = [&](error_c err) {
+    if (ifs.is_open()) {
+      ifs.close();
+    }
+    err.draw();
+    std::exit(1);
+  };
+
+  nibi::intake_c intake(pdc->get_interpreter(), error_callback,
+                        pdc->get_source_manager(),
+                        pdc->get_interpreter_symbol_router());
+
+  intake.read(file_name.string(), ifs);
 }
 
 void run_from_dir(const std::string &file_name) {

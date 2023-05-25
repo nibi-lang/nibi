@@ -5,7 +5,7 @@
 
 namespace nibi {
 
-void error_c::draw_error(bool markup) const {
+void error_c::draw(bool markup) const {
 
   if (!locator_ || !markup) {
     std::cout << rang::fg::red << "ERROR: " << rang::fg::reset << message_

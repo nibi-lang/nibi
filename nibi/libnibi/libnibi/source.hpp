@@ -72,7 +72,7 @@ public:
   //! \brief Get a source by name.
   //! \param source_name The name of the source.
   //! \note If the source does not exist, it will be created.
-  std::shared_ptr<source_origin_c> get_source(const std::string &source_name) {
+  std::shared_ptr<source_origin_c> get_source(const std::string source_name) {
     auto it = sources_.find(source_name);
     if (it != sources_.end()) {
       return it->second;
@@ -82,7 +82,7 @@ public:
     return source;
   }
   //! \brief Check if a source exists.
-  bool exists(const std::string &source_name) const {
+  bool exists(const std::string source_name) const {
     return sources_.find(source_name) != sources_.end();
   }
   inline void clear() { sources_.clear(); }
