@@ -78,7 +78,6 @@
 (assert (eq -1 ({PaginationHelper page_index} 20)) "")
 (assert (eq -1 ({PaginationHelper page_index} -10)) "")
 
-
 # (putln "Page count: " ({PaginationHelper page_count}))
 # (putln "Item count: " ({PaginationHelper item_count}))
 # (putln "Page item count of 0 : " ({PaginationHelper page_item_count} 0))

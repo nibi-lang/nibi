@@ -42,6 +42,8 @@ public:
     reinit_platform();
   }
 
+  ~program_data_controller_c() { global_platform_destroy(); }
+
   void reset() {
     source_manager_.clear();
     env_.get_map().clear();

@@ -30,6 +30,8 @@
 | iter  | Iterate over a list         | iterated list
 | at    | Retrieve an index into a list | cell at given index
 | <\|>  | Spawn a list of a given size with a given value | new list
+| <<\|  | Pop front | list given sans the first element
+| \|>>  | Pop back  | list given sans the last element
 
 | arithmetic | description | returns
 |---- |---- |----
@@ -448,6 +450,26 @@ keyword: `<|>`
 
 ```
 ( <|> < () S RD [] > < () I > )
+```
+
+### Pop front
+
+| arg1 |
+|----
+| list to pop the front of
+
+```
+( <<| < S [] > )
+```
+
+### Pop back
+
+| arg1 |
+|----
+| list to pop the back of
+
+```
+( |>> < S [] > )
 ```
 
 ### Iterate
