@@ -104,8 +104,8 @@ void start_repl() {
   linenoise::LoadHistory(history_path.c_str());
   linenoise::SetMultiLine(true);
 
-  auto interpreter =
-      nibi::interpreter_factory_c::line_interpreter([](nibi::error_c e) { e.draw(); });
+  auto interpreter = nibi::interpreter_factory_c::line_interpreter(
+      [](nibi::error_c e) { e.draw(); });
 
   uint64_t line_number{0};
   bool show_prompt{true};
