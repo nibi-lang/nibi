@@ -66,10 +66,11 @@ TEST(nibi_input_tests, builtins) {
     tc_s{TEST_GEN_BUILTIN_TC(env)}
   };
 
-  auto interpreter = nibi::nibi_factory_c::line_interpreter([](nibi::error_c e){
-    e.draw();
-    FAIL("Recieved Nibi Error");
-    });
+  auto interpreter =
+      nibi::nibi_factory_c::line_interpreter([](nibi::error_c e) {
+        e.draw();
+        FAIL("Recieved Nibi Error");
+      });
   for (auto &tc : test_cases) {
     interpreter->interpret_line(tc.data);
     CHECK_EQUAL(tc.expected, interpreter->get_result());
@@ -84,10 +85,11 @@ TEST(nibi_input_tests, data) {
       tc_s{"(x \"WHAT\")", "(x \"WHAT\")"},
   };
 
-  auto interpreter = nibi::nibi_factory_c::line_interpreter([](nibi::error_c e){
-    e.draw();
-    FAIL("Recieved Nibi Error");
-    });
+  auto interpreter =
+      nibi::nibi_factory_c::line_interpreter([](nibi::error_c e) {
+        e.draw();
+        FAIL("Recieved Nibi Error");
+      });
   for (auto &tc : test_cases) {
     interpreter->interpret_line(tc.data);
     CHECK_EQUAL(tc.expected, interpreter->get_result());

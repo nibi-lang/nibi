@@ -1,13 +1,13 @@
 #pragma once
 
-#include <filesystem>
-#include <fstream>
 #include "libnibi/common/intake.hpp"
 #include "libnibi/environment.hpp"
-#include "libnibi/source.hpp"
+#include "libnibi/interfaces/file_interpreter_if.hpp"
 #include "libnibi/interpreter/builtins/builtins.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/interfaces/file_interpreter_if.hpp"
+#include "libnibi/source.hpp"
+#include <filesystem>
+#include <fstream>
 
 namespace nibi {
 
@@ -24,26 +24,21 @@ public:
   //! \brief Interpret a file and populate a specific environment.
   //! \param error_callback Callback to report errors.
   //! \param env Environment to populate.
-  file_interpreter_c(
-      error_callback_f error_callback,
-      env_c &env) : error_callback_(error_callback),
-                    interpreter_(env, source_manager_),
-                    intake_(interpreter_, error_callback, source_manager_,
-                            nibi::builtins::get_builtin_symbols_map()) {}
+  file_interpreter_c(error_callback_f error_callback, env_c &env)
+      : error_callback_(error_callback), interpreter_(env, source_manager_),
+        intake_(interpreter_, error_callback, source_manager_,
+                nibi::builtins::get_builtin_symbols_map()) {}
 
   //! \brief Interpret a file and populate a specific environment.
   //!        and specific source manager.
   //! \param error_callback Callback to report errors.
   //! \param env Environment to populate.
   //! \param sm Source manager to use.
-  file_interpreter_c(
-      error_callback_f error_callback,
-      env_c &env,
-      source_manager_c &sm)
-      : error_callback_(error_callback),
-                    interpreter_(env, sm),
-                    intake_(interpreter_, error_callback, source_manager_,
-                            nibi::builtins::get_builtin_symbols_map()) {}
+  file_interpreter_c(error_callback_f error_callback, env_c &env,
+                     source_manager_c &sm)
+      : error_callback_(error_callback), interpreter_(env, sm),
+        intake_(interpreter_, error_callback, source_manager_,
+                nibi::builtins::get_builtin_symbols_map()) {}
   ~file_interpreter_c() { indicate_complete(); }
 
   void interpret_file(std::filesystem::path filename) override {
@@ -76,6 +71,4 @@ private:
   std::ifstream file_;
 };
 
-
-
-}
+} // namespace nibi

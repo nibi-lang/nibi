@@ -2,8 +2,8 @@
 #include "environment.hpp"
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
-#include "libnibi/common/intake.hpp"
 #include "libnibi/common/file_interpreter.hpp"
+#include "libnibi/common/intake.hpp"
 #include "modules.hpp"
 #include "source.hpp"
 #include <filesystem>
@@ -37,10 +37,10 @@ public:
         interpreter_(environment_, source_manager_),
         intake_(interpreter_, error_callback, source_manager_,
                 nibi::builtins::get_builtin_symbols_map()) {
-    interpreter_.indicate_repl(); 
+    interpreter_.indicate_repl();
     source_origin_ = std::make_shared<source_origin_c>("line_interpreter");
   }
-  
+
   void interpret_line(std::string line) override {
     intake_.read_line(line, source_origin_);
   }

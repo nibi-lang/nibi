@@ -12,7 +12,6 @@
 #include <optional>
 #include <string_view>
 #include <vector>
-#include "libnibi/source.hpp"
 
 namespace nibi {
 
@@ -34,15 +33,16 @@ public:
 
   //! \brief Read from a string
   //! \param processor Processor to use
-  void read_line(std::string_view line, std::shared_ptr<source_origin_c> origin);
+  void read_line(std::string_view line,
+                 std::shared_ptr<source_origin_c> origin);
 
   //! \brief Evaluate a line
   //! \param line Line to evaluate
   //! \param origin Source origin
   //! \param location Location of the line source
-  void evaluate(std::string_view line, 
-      std::shared_ptr<source_origin_c> origin,
-      locator_ptr location);
+  void evaluate(std::string_view line, std::shared_ptr<source_origin_c> origin,
+                locator_ptr location);
+
 private:
   struct tracker_s {
     std::size_t bracket_count{0};

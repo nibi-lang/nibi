@@ -1,10 +1,10 @@
 #include "app/linenoise/linenoise.hpp"
 
-#include "libnibi/nibi_factory.hpp"
+#include "libnibi/common/intake.hpp"
 #include "libnibi/common/platform.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/common/intake.hpp"
+#include "libnibi/nibi_factory.hpp"
 #include "libnibi/source.hpp"
 #include <filesystem>
 #include <optional>
@@ -108,9 +108,8 @@ void start_repl() {
   linenoise::LoadHistory(history_path.c_str());
   linenoise::SetMultiLine(true);
 
-  auto interpreter = nibi::nibi_factory_c::line_interpreter([](nibi::error_c e) {
-    e.draw();
-  });
+  auto interpreter =
+      nibi::nibi_factory_c::line_interpreter([](nibi::error_c e) { e.draw(); });
 
   uint64_t line_number{0};
   bool show_prompt{true};

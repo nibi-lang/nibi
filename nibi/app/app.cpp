@@ -184,7 +184,7 @@ void run_each_test(std::vector<std::filesystem::path> &files) {
   for (auto &test_file : files) {
     std::cout << "Running test file: " << test_file << std::endl;
     run_from_file(test_file);
-    //pdc->reset();
+    // pdc->reset();
 
     std::cout << "COMPLETE\n" << std::endl;
   }

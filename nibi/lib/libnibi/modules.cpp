@@ -1,11 +1,11 @@
 #include "modules.hpp"
 #include "libnibi/RLL/rll_wrapper.hpp"
-#include "libnibi/config.hpp"
-#include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/interpreter/builtins/builtins.hpp"
-#include "libnibi/platform.hpp"
-#include "libnibi/common/intake.hpp"
 #include "libnibi/common/file_reader.hpp"
+#include "libnibi/common/intake.hpp"
+#include "libnibi/config.hpp"
+#include "libnibi/interpreter/builtins/builtins.hpp"
+#include "libnibi/interpreter/interpreter.hpp"
+#include "libnibi/platform.hpp"
 #include <fstream>
 #include <random>
 
@@ -49,7 +49,7 @@ namespace nibi {
 class module_cell_c final : public aberrant_cell_if {
 public:
   module_cell_c() = delete;
-  module_cell_c(rll_ptr lib): lib_(lib) {}
+  module_cell_c(rll_ptr lib) : lib_(lib) {}
   virtual std::string represent_as_string() override {
     return "EXTERNAL_MODULE";
   }
@@ -99,10 +99,9 @@ std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
   return path;
 }
 
-void populate_env(std::filesystem::path module_file, interpreter_c &ci, env_c &env) {
-  error_callback_f error_callback = [&](error_c e) {
-    ci.halt_with_error(e);
-  };
+void populate_env(std::filesystem::path module_file, interpreter_c &ci,
+                  env_c &env) {
+  error_callback_f error_callback = [&](error_c e) { ci.halt_with_error(e); };
   file_interpreter_c(error_callback, env).interpret_file(module_file);
 }
 
@@ -300,8 +299,8 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
   // alive
 
   // the interpreter's way of managing what libs are already loaded
-  auto rll_cell =
-      allocate_cell(static_cast<aberrant_cell_if *>(new module_cell_c(target_lib)));
+  auto rll_cell = allocate_cell(
+      static_cast<aberrant_cell_if *>(new module_cell_c(target_lib)));
 
   // We store in the environment so it stays alive as long as the module is
   // loaded and is removed if the module is dropped by the user or otherwise
@@ -316,9 +315,7 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
 
   auto source_list_info = source_list->as_list_info();
 
-  error_callback_f error_callback = [&](error_c e) {
-    ci_.halt_with_error(e);
-  };
+  error_callback_f error_callback = [&](error_c e) { ci_.halt_with_error(e); };
 
   // Walk over each file given by the source list
   // and read it into the module env by way of the new interpreter
@@ -331,8 +328,8 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
                       " is not a regular file: " + source_file_path.string()));
     }
 
-    file_interpreter_c(error_callback, module_env, source_manager_).interpret_file(
-        source_file_path);
+    file_interpreter_c(error_callback, module_env, source_manager_)
+        .interpret_file(source_file_path);
   }
 
   // Create a death callback to remove the module from the interpreter's

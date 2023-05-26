@@ -2,9 +2,9 @@
 #include <iostream>
 
 #include "interpreter/builtins/builtins.hpp"
+#include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/common/file_interpreter.hpp"
-#include "interpreter/interpreter.hpp"
 #include "list_helpers.hpp"
 #include "platform.hpp"
 
@@ -187,7 +187,7 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
     // Check that the item hasn't already been imported
     if (!gsm.exists((*item).string())) {
       file_interpreter_c(error_callback, ci.get_env(), gsm)
-        .interpret_file((*item).string());
+          .interpret_file((*item).string());
     }
     std::advance(it, 1);
   }
@@ -238,11 +238,9 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
   interpreter_c eval_ci(env, sm);
 
   intake_c(
-      eval_ci,
-      [&](error_c error){
-        ci.halt_with_error(error);
-        }, sm, builtins::get_builtin_symbols_map()).evaluate(
-        ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
+      eval_ci, [&](error_c error) { ci.halt_with_error(error); }, sm,
+      builtins::get_builtin_symbols_map())
+      .evaluate(ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
 
   return eval_ci.get_last_result();
 }
