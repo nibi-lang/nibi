@@ -84,6 +84,10 @@ public:
   //! \return The last result
   cell_ptr get_last_result() const { return last_result_; }
 
+  //! \brief Get the interpreter environment
+  //! \return The interpreter environment
+  inline env_c &get_env() { return interpreter_env; }
+
 private:
   cell_ptr last_result_{nullptr};
 

@@ -129,8 +129,7 @@ void show_version() {
 
 void show_module_info(std::string module_name) {
 
-  auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
-                  .get_module_info(module_name);
+  auto info = nibi_factory_c().module_viewer()->get_module_info(module_name);
 
   std::cout << "Description: " << std::endl;
   if (info.description.has_value()) {
@@ -185,7 +184,7 @@ void run_each_test(std::vector<std::filesystem::path> &files) {
   for (auto &test_file : files) {
     std::cout << "Running test file: " << test_file << std::endl;
     run_from_file(test_file);
-    pdc->reset();
+    //pdc->reset();
 
     std::cout << "COMPLETE\n" << std::endl;
   }
@@ -249,8 +248,7 @@ void run_tests(std::string &dir) {
 
   // Check installed modules
   {
-    auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
-                    .get_module_info(dir);
+    auto info = nibi_factory_c().module_viewer()->get_module_info(dir);
     pdc->reset();
 
     if (info.test_files.has_value()) {

@@ -2,7 +2,11 @@
 #include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/config.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
+#include "libnibi/interpreter/builtins/builtins.hpp"
 #include "libnibi/platform.hpp"
+#include "libnibi/common/intake.hpp"
+#include "libnibi/common/file_reader.hpp"
+#include <fstream>
 #include <random>
 
 /*
@@ -42,30 +46,15 @@ inline std::string generate_random_id() {
 } // namespace
 
 namespace nibi {
-
-// A module death callback
-using death_callback = std::function<void()>;
-
-// Aberrant cell used to maintain the lifetime of a loaded dynamic library
-// these cells are stored into the environment that are populated when
-// a module is loaded. If that module is later dropped, the cell will be
-// deleted and the callback will triggeer the removal from the interpreter's
-// loaded_modules_ set.
 class module_cell_c final : public aberrant_cell_if {
 public:
   module_cell_c() = delete;
-  module_cell_c(death_callback cb, rll_ptr lib) : cb_(cb), lib_(lib) {}
-  ~module_cell_c() {
-    if (lib_) {
-      cb_();
-    }
-  }
+  module_cell_c(rll_ptr lib): lib_(lib) {}
   virtual std::string represent_as_string() override {
     return "EXTERNAL_MODULE";
   }
 
 private:
-  death_callback cb_;
   rll_ptr lib_;
 };
 
@@ -73,15 +62,11 @@ private:
 // so this is just a death callback cell
 class import_cell_c final : public aberrant_cell_if {
 public:
-  import_cell_c() = delete;
-  import_cell_c(death_callback cb) : cb_(cb) {}
-  ~import_cell_c() { cb_(); }
   virtual std::string represent_as_string() override {
     return "EXTERNAL_IMPORT";
   }
 
 private:
-  death_callback cb_;
 };
 
 std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
@@ -114,6 +99,13 @@ std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
   return path;
 }
 
+void populate_env(std::filesystem::path module_file, interpreter_c &ci, env_c &env) {
+  error_callback_f error_callback = [&](error_c e) {
+    ci.halt_with_error(e);
+  };
+  file_interpreter_c(error_callback, env).interpret_file(module_file);
+}
+
 module_info_s modules_c::get_module_info(std::string &module_name) {
 
   cell_ptr mns = allocate_cell(module_name);
@@ -125,11 +117,7 @@ module_info_s modules_c::get_module_info(std::string &module_name) {
   auto expected_test_directory = path / config::NIBI_MODULE_TEST_DIR;
 
   env_c module_env;
-  source_manager_c module_source_manager;
-  interpreter_c module_interpreter(module_env, module_source_manager);
-  list_builder_c module_builder(module_interpreter);
-  file_reader_c module_reader(module_builder, module_source_manager);
-  module_reader.read_file(module_file.string());
+  populate_env(module_file, ci_, module_env);
 
   module_info_s result;
 
@@ -202,11 +190,7 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   auto module_file = path / config::NIBI_MODULE_FILE_NAME;
 
   env_c module_env;
-  source_manager_c module_source_manager;
-  interpreter_c module_interpreter(module_env, module_source_manager);
-  list_builder_c module_builder(module_interpreter);
-  file_reader_c module_reader(module_builder, module_source_manager);
-  module_reader.read_file(module_file.string());
+  populate_env(module_file, ci_, module_env);
 
   // Env that everything will be dumped into and
   // then put into a cell
@@ -254,9 +238,7 @@ modules_c::execute_post_import_actions(cell_ptr &post_list,
                   "Could not locate post-import file: " + file.string()));
     }
 
-    list_builder_c export_builder(ci_);
-    file_reader_c export_reader(export_builder, source_manager_);
-    export_reader.read_file(file.string());
+    populate_env(file, ci_, ci_.get_env());
   }
 }
 
@@ -317,11 +299,9 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
   // Add the RLL to an aberrant cell and add that to the module env so it stays
   // alive
 
-  // We construct it with a lambda that will callback to remove the item from
   // the interpreter's way of managing what libs are already loaded
   auto rll_cell =
-      allocate_cell(static_cast<aberrant_cell_if *>(new module_cell_c(
-          [this, name]() { this->loaded_modules_.erase(name); }, target_lib)));
+      allocate_cell(static_cast<aberrant_cell_if *>(new module_cell_c(target_lib)));
 
   // We store in the environment so it stays alive as long as the module is
   // loaded and is removed if the module is dropped by the user or otherwise
@@ -336,11 +316,9 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
 
   auto source_list_info = source_list->as_list_info();
 
-  // Create an interpreter/ builder/ reader that will dump
-  // all the source into the module env
-  interpreter_c module_interpreter(module_env, source_manager_);
-  list_builder_c module_builder(module_interpreter);
-  file_reader_c module_reader(module_builder, source_manager_);
+  error_callback_f error_callback = [&](error_c e) {
+    ci_.halt_with_error(e);
+  };
 
   // Walk over each file given by the source list
   // and read it into the module env by way of the new interpreter
@@ -352,14 +330,15 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
                   "File listed in module: " + name +
                       " is not a regular file: " + source_file_path.string()));
     }
-    module_reader.read_file(source_file_path.string());
+
+    file_interpreter_c(error_callback, module_env, source_manager_).interpret_file(
+        source_file_path);
   }
 
   // Create a death callback to remove the module from the interpreter's
   // list of imported modules
   auto import_cell =
-      allocate_cell(static_cast<aberrant_cell_if *>(new import_cell_c(
-          [this, name]() { this->loaded_modules_.erase(name); })));
+      allocate_cell(static_cast<aberrant_cell_if *>(new import_cell_c()));
 
   // We store in the environment so it stays alive as long as the import is
   // loaded and is removed if the import is dropped by the user or otherwise
