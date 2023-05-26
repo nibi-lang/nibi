@@ -143,9 +143,9 @@ inline bool considered_private(cell_ptr &cell) {
 
 inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
                                                 bool process_data_list) {
-  auto list = cell->as_list();
-  if (list.size() == 0) {
-    //  return cell;
+  auto &list = cell->as_list();
+  if (!list.size()) {
+    return cell;
   }
 
   switch (cell->as_list_info().type) {

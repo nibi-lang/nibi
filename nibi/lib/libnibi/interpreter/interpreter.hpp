@@ -65,16 +65,16 @@ public:
   void halt_with_error(error_c error);
 
   //! \brief Stop recursing on the current instruction and return a value
-  void set_yield_value(cell_ptr value) { yield_value_ = value; }
+  inline void set_yield_value(cell_ptr value) { yield_value_ = value; }
 
   //! \brief Check if the interpreter is yielding a value
-  bool is_yielding() const { return yield_value_ != nullptr; }
+  inline bool is_yielding() const { return yield_value_ != nullptr; }
 
   //! \brief Get the yield valueq
-  cell_ptr get_yield_value() const { return yield_value_; }
+  inline cell_ptr get_yield_value() const { return yield_value_; }
 
   //! \brief Get the source manager
-  source_manager_c &get_source_manager() { return source_manager_; }
+  inline source_manager_c &get_source_manager() { return source_manager_; }
 
   //! \brief Load a module
   //! \param module_name The name of the module to load
@@ -82,7 +82,7 @@ public:
 
   //! \brief Get the last result of the interpreter
   //! \return The last result
-  cell_ptr get_last_result() const { return last_result_; }
+  inline cell_ptr get_last_result() const { return last_result_; }
 
   //! \brief Get the interpreter environment
   //! \return The interpreter environment
