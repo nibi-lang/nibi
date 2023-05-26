@@ -1,7 +1,7 @@
 #include "lib.hpp"
 
 #include <iostream>
-#include <libnibi/common/error.hpp>
+#include <libnibi/error.hpp>
 #include <libnibi/interpreter/interpreter.hpp>
 #include <libnibi/list_helpers.hpp>
 #include <memory>

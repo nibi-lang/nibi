@@ -19,20 +19,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 #
-# Locate CPPUTest
-#
-if(DEFINED ENV{CPPUTEST_HOME})
-    message(STATUS "Using CppUTest home: $ENV{CPPUTEST_HOME}")
-    set(CPPUTEST_INCLUDE_DIRS $ENV{CPPUTEST_HOME}/include)
-    set(CPPUTEST_LIBRARIES $ENV{CPPUTEST_HOME}/lib)
-    set(CPPUTEST_LDFLAGS CppUTest CppUTestExt)
-else()
-    find_package(PkgConfig REQUIRED)
-    pkg_search_module(CPPUTEST REQUIRED cpputest>=3.8)
-    message(STATUS "Found CppUTest version ${CPPUTEST_VERSION}")
-endif()
-
-#
 # Setup ASAN
 #
 if(WITH_ASAN)
@@ -67,8 +53,8 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/env_cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/excepts.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/common/intake.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/common/token.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/front/intake.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/front/token.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/platform.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/error.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/nibi_factory.cpp
@@ -88,6 +74,3 @@ include(${PROJECT_SOURCE_DIR}/cmake/LibraryConfig.cmake)
 #
 include(${PROJECT_SOURCE_DIR}/cmake/InstallConfig.cmake)
 
-if(COMPILE_TESTS)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/tests)
-endif()

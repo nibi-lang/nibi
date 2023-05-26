@@ -1,7 +1,7 @@
 #include "app/linenoise/linenoise.hpp"
 
-#include "libnibi/common/intake.hpp"
-#include "libnibi/common/platform.hpp"
+#include "libnibi/front/intake.hpp"
+#include "libnibi/platform.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/interpreter/interpreter.hpp"
 #include "libnibi/nibi_factory.hpp"

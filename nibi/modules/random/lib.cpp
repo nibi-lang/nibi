@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <iostream>
-#include <libnibi/common/platform.hpp>
 #include <libnibi/list_helpers.hpp>
 #include <limits>
 #include <memory>

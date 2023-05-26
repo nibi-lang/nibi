@@ -6,24 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "libnibi/cell.hpp"
-#include "libnibi/common/error.hpp"
-#include "libnibi/common/input.hpp"
-#include "libnibi/common/intake.hpp"
-#include "libnibi/common/list.hpp"
-#include "libnibi/common/platform.hpp"
-#include "libnibi/config.hpp"
-#include "libnibi/environment.hpp"
-#include "libnibi/interpreter/builtins/builtins.hpp"
-#include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/modules.hpp"
-#include "libnibi/source.hpp"
-#include "libnibi/types.hpp"
-#include "libnibi/version.hpp"
+#include <libnibi/nibi.hpp>
 
 #include "app/repl/repl.hpp"
-
-#include "libnibi/nibi_factory.hpp"
 
 #ifndef NIBI_BUILD_HASH
 #define NIBI_BUILD_HASH "unknown"
@@ -43,28 +28,18 @@ class program_data_controller_c {
 public:
   program_data_controller_c(std::vector<std::string> &args,
                             std::vector<std::filesystem::path> &include_dirs)
-      : args_(args), include_dirs_(include_dirs),
-        interpreter_(env_, source_manager_) {
+      : args_(args), include_dirs_(include_dirs) {
     reinit_platform();
   }
 
   ~program_data_controller_c() { global_platform_destroy(); }
 
   void reset() {
-    source_manager_.clear();
-    env_.get_map().clear();
     reinit_platform();
   }
 
   void add_include_dir(std::filesystem::path dir) {
     include_dirs_.push_back(dir);
-  }
-
-  env_c &get_env() { return env_; }
-  interpreter_c &get_interpreter() { return interpreter_; }
-  source_manager_c &get_source_manager() { return source_manager_; }
-  nibi::function_router_t get_interpreter_symbol_router() {
-    return interpreter_symbol_router_;
   }
 
 private:
@@ -78,11 +53,6 @@ private:
 
   std::vector<std::filesystem::path> &include_dirs_;
   std::vector<std::string> &args_;
-  env_c env_;
-  source_manager_c source_manager_;
-  interpreter_c interpreter_;
-  nibi::function_router_t interpreter_symbol_router_{
-      nibi::builtins::get_builtin_symbols_map()};
 };
 
 std::unique_ptr<program_data_controller_c> pdc{nullptr};

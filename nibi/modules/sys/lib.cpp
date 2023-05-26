@@ -5,7 +5,7 @@
 #include <string>
 
 #include <filesystem>
-#include <libnibi/common/platform.hpp>
+#include <libnibi/platform.hpp>
 #include <libnibi/list_helpers.hpp>
 
 nibi::cell_ptr get_argv(nibi::interpreter_c &ci, nibi::cell_list_t &list,

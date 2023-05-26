@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "libnibi/cell.hpp"
-#include "libnibi/common/list.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/source.hpp"
 #include "libnibi/types.hpp"

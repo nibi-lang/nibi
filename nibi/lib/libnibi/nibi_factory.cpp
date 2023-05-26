@@ -2,8 +2,8 @@
 #include "environment.hpp"
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
-#include "libnibi/common/file_interpreter.hpp"
-#include "libnibi/common/intake.hpp"
+#include "libnibi/front/file_interpreter.hpp"
+#include "libnibi/front/intake.hpp"
 #include "modules.hpp"
 #include "source.hpp"
 #include <filesystem>

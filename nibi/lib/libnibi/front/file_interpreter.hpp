@@ -1,6 +1,6 @@
 #pragma once
 
-#include "libnibi/common/intake.hpp"
+#include "intake.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/interfaces/file_interpreter_if.hpp"
 #include "libnibi/interpreter/builtins/builtins.hpp"
