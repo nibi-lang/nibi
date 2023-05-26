@@ -319,7 +319,7 @@ int main(int argc, char **argv) {
   }
 
   if (remaining_args.empty()) {
-    app::start_repl(pdc->get_interpreter(), pdc->get_source_manager());
+    app::start_repl();
     return 0;
   }
 

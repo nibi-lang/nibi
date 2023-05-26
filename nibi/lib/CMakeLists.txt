@@ -66,14 +66,12 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/common.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/env_cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/excepts.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/common/intake.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/common/token.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/platform.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/error.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/nibi_factory.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/common/input.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/common/list.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/common/token.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.cpp
 )
 
 set(SOURCES

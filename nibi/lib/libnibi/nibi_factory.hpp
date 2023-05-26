@@ -2,6 +2,7 @@
 
 #include "error.hpp"
 #include "interfaces/file_interpreter_if.hpp"
+#include "interfaces/line_interpreter_if.hpp"
 #include "interfaces/module_viewer_if.hpp"
 #include "source.hpp"
 #include "types.hpp"
@@ -20,17 +21,17 @@ public:
   nibi_factory_c &operator=(nibi_factory_c &&) = delete;
 
   //! \brief Create a module viewer
-  module_viewer_ptr module_viewer();
+  static module_viewer_ptr module_viewer();
 
   //! \brief Create a file interpreter.
   //! \param error_callback Callback for errors.
   //! \return A file interpreter interface shared pointer
-  file_interpreter_ptr file_interpreter(error_callback_f error_callback);
+  static file_interpreter_ptr file_interpreter(error_callback_f error_callback);
 
-  // TODO: Add one for repl
-  //
-
-  // TODO: Could add one for compiler
+  //! \brief Create a line interpreter.
+  //! \param error_callback Callback for errors.
+  //! \return A line interpreter interface shared pointer
+  static line_interpreter_ptr line_interpreter(error_callback_f error_callback);
 };
 
 } // namespace nibi

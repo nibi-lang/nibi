@@ -197,6 +197,11 @@ if not program_exists("cmake"):
   print("CMake is not installed. Please install it and try again.")
   exit(1)
 
+if args.scrub:
+  ensure_nibi_installed()
+
+  scrub()
+
 if args.install_nibi or args.all_the_things:
   build_and_install_nibi()
 
@@ -225,7 +230,3 @@ if args.perf or args.all_the_things:
 
   run_perfs()
 
-if args.scrub:
-  ensure_nibi_installed()
-
-  scrub()

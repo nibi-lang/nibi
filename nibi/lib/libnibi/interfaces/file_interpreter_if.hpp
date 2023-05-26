@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <memory>
 
 namespace nibi {
 
@@ -16,7 +15,5 @@ public:
   //! \brief Indicate that interpretation is complete.
   virtual void indicate_complete() = 0;
 };
-
-using file_interpreter_ptr = std::shared_ptr<file_interpreter_if>;
 
 } // namespace nibi

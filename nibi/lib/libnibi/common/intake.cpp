@@ -32,6 +32,17 @@ void intake_c::read(std::string_view source, std::istream &is) {
   }
 }
 
+void intake_c::read_line(std::string_view line, std::shared_ptr<source_origin_c> origin) {
+  tracker_.line_count++;
+  process_line(line, origin);
+}
+
+void intake_c::evaluate(std::string_view data,
+    std::shared_ptr<source_origin_c> origin,
+    locator_ptr location) {
+  process_line(data, origin, location);
+}
+
 bool intake_c::process_line(std::string_view data,
                             std::shared_ptr<source_origin_c> origin,
                             locator_ptr loc_override) {

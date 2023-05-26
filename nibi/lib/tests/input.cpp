@@ -1,25 +1,11 @@
 #include <iostream>
 
-#include "libnibi/common/input.hpp"
-#include "libnibi/common/list.hpp"
-#include "libnibi/common/token.hpp"
-#include "libnibi/interfaces/instruction_processor_if.hpp"
-#include "libnibi/source.hpp"
+#include "libnibi/nibi_factory.hpp"
 #include <vector>
 
 #include <CppUTest/TestHarness.h>
 
 namespace {
-class receiver_c : public nibi::instruction_processor_if {
-public:
-  receiver_c(std::string expected) : expected_{expected} {}
-  void instruction_ind(nibi::cell_ptr &list_cell) override {
-    CHECK_EQUAL(expected_, list_cell->to_string(true));
-  }
-
-private:
-  std::string expected_;
-};
 
 struct tc_s {
   std::string data;
@@ -80,18 +66,13 @@ TEST(nibi_input_tests, builtins) {
     tc_s{TEST_GEN_BUILTIN_TC(env)}
   };
 
+  auto interpreter = nibi::nibi_factory_c::line_interpreter([](nibi::error_c e){
+    e.draw();
+    FAIL("Recieved Nibi Error");
+    });
   for (auto &tc : test_cases) {
-
-    nibi::source_manager_c source_manager;
-
-    receiver_c receiver{tc.expected};
-    nibi::list_builder_c builder{receiver};
-    nibi::scanner_c scanner{builder};
-
-    auto origin = source_manager.get_source("test");
-
-    scanner.scan_line(origin, tc.data);
-    scanner.indicate_complete();
+    interpreter->interpret_line(tc.data);
+    CHECK_EQUAL(tc.expected, interpreter->get_result());
   }
 }
 
@@ -103,17 +84,12 @@ TEST(nibi_input_tests, data) {
       tc_s{"(x \"WHAT\")", "(x \"WHAT\")"},
   };
 
+  auto interpreter = nibi::nibi_factory_c::line_interpreter([](nibi::error_c e){
+    e.draw();
+    FAIL("Recieved Nibi Error");
+    });
   for (auto &tc : test_cases) {
-
-    nibi::source_manager_c source_manager;
-
-    receiver_c receiver{tc.expected};
-    nibi::list_builder_c builder{receiver};
-    nibi::scanner_c scanner{builder};
-
-    auto origin = source_manager.get_source("test");
-
-    scanner.scan_line(origin, tc.data);
-    scanner.indicate_complete();
+    interpreter->interpret_line(tc.data);
+    CHECK_EQUAL(tc.expected, interpreter->get_result());
   }
 }

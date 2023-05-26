@@ -5,7 +5,6 @@
 
 namespace app {
 
-extern void start_repl(nibi::interpreter_c &interpreter,
-                       nibi::source_manager_c &source_manager);
+extern void start_repl();
 
 }

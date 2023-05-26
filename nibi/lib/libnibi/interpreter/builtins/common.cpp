@@ -3,7 +3,7 @@
 
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
-
+#include "libnibi/common/file_interpreter.hpp"
 #include "interpreter/interpreter.hpp"
 #include "list_helpers.hpp"
 #include "platform.hpp"
@@ -162,8 +162,9 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 
   auto &gsm = ci.get_source_manager();
 
-  list_builder_c list_builder(ci);
-  file_reader_c file_reader(list_builder, gsm);
+  error_callback_f error_callback = [&](error_c error) {
+    ci.halt_with_error(error);
+  };
 
   while (it != list.end()) {
     // Get the source file from the `import` keyword so we can ensure that
@@ -185,7 +186,8 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 
     // Check that the item hasn't already been imported
     if (!gsm.exists((*item).string())) {
-      file_reader.read_file((*item).string());
+      file_interpreter_c(error_callback, ci.get_env(), gsm)
+        .interpret_file((*item).string());
     }
     std::advance(it, 1);
   }
@@ -235,14 +237,12 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
 
   interpreter_c eval_ci(env, sm);
 
-  list_builder_c list_builder(eval_ci);
-
-  scanner_c scanner(list_builder);
-
-  scanner.scan_line(so, ci.execute_cell((*it), env)->as_string(),
-                    (*it)->locator);
-
-  scanner.indicate_complete();
+  intake_c(
+      eval_ci,
+      [&](error_c error){
+        ci.halt_with_error(error);
+        }, sm, builtins::get_builtin_symbols_map()).evaluate(
+        ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
 
   return eval_ci.get_last_result();
 }
