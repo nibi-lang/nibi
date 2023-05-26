@@ -34,9 +34,7 @@ public:
 
   ~program_data_controller_c() { global_platform_destroy(); }
 
-  void reset() {
-    reinit_platform();
-  }
+  void reset() { reinit_platform(); }
 
   void add_include_dir(std::filesystem::path dir) {
     include_dirs_.push_back(dir);
