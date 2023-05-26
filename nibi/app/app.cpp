@@ -291,17 +291,6 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  if (remaining_args.size() > 1) {
-    std::cerr << "Remaining arguments indicate unhandled options." << std::endl;
-    std::cerr << "Expected a single file or directory, but got the "
-              << std::endl;
-    std::cerr << "remaining arguments:" << std::endl;
-    for (auto &arg : remaining_args) {
-      std::cout << "  " << arg << std::endl;
-    }
-    return 1;
-  }
-
   auto &launch_target = remaining_args[0];
 
   bool run_as_dir = false;
