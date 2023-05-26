@@ -18,6 +18,7 @@ parser.add_argument("-t", "--test", action="store_true", help="Runs all tests fo
 parser.add_argument("-p", "--perf", action="store_true", help="Runs performance tests for Nibi")
 parser.add_argument("-c", "--check_modules", action="store_true", help="Details all modules installed, and runs their tests")
 parser.add_argument("-a", "--all_the_things", action="store_true", help="Installs Nibi, modules, runs tests, and runs performance tests")
+parser.add_argument("-s", "--scrub", action="store_true", help="Scrub the system of all Nibi and modules and build files")
 args = parser.parse_args()
 
 if not any(vars(args).values()):
@@ -58,6 +59,14 @@ def execute_command(cmd):
     print("\nCommand failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
     exit(1)
   return result.stdout.decode("utf-8")
+
+def scrub():
+  os.chdir("./nibi")
+  if os.path.exists("./build"):
+    shutil.rmtree("./build")
+  target_dest = NIBI_PATH + "/modules"
+  if os.path.exists(target_dest):
+    shutil.rmtree(target_dest)
 
 def build_and_install_nibi():
   print("Building and installing Nibi library and application")
@@ -188,6 +197,11 @@ if not program_exists("cmake"):
   print("CMake is not installed. Please install it and try again.")
   exit(1)
 
+if args.scrub:
+  ensure_nibi_installed()
+
+  scrub()
+
 if args.install_nibi or args.all_the_things:
   build_and_install_nibi()
 
@@ -215,3 +229,4 @@ if args.perf or args.all_the_things:
   ensure_nibi_installed()
 
   run_perfs()
+

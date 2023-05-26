@@ -1,14 +1,12 @@
 #include "app/linenoise/linenoise.hpp"
 
-#include "libnibi/common/platform.hpp"
-#include "libnibi/environment.hpp"
-#include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/source.hpp"
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <libnibi/nibi.hpp>
 
 namespace app {
 
@@ -60,10 +58,7 @@ std::optional<std::string> input_buffer_c::submit(std::string &line) {
 
 } // namespace
 
-void start_repl(nibi::interpreter_c &interpreter,
-                nibi::source_manager_c &source_manager) {
-
-  interpreter.indicate_repl();
+void start_repl() {
 
   std::unordered_map<std::string, std::vector<std::string>> completion_map = {
       {"(e", {"(exit "}},        {"(ex", {"(exit "}},
@@ -109,10 +104,8 @@ void start_repl(nibi::interpreter_c &interpreter,
   linenoise::LoadHistory(history_path.c_str());
   linenoise::SetMultiLine(true);
 
-  nibi::list_builder_c list_builder(interpreter);
-  auto source_origin = source_manager.get_source(history_path.string());
-
-  nibi::scanner_c scanner(list_builder);
+  auto interpreter = nibi::interpreter_factory_c::line_interpreter(
+      [](nibi::error_c e) { e.draw(); });
 
   uint64_t line_number{0};
   bool show_prompt{true};
@@ -149,9 +142,9 @@ void start_repl(nibi::interpreter_c &interpreter,
       // Save history
       linenoise::SaveHistory(history_path.c_str());
 
-      scanner.scan_line(source_origin, *buffer);
+      interpreter->interpret_line(*buffer);
 
-      std::cout << interpreter.get_last_result()->to_string() << std::endl;
+      std::cout << interpreter->get_result() << std::endl;
 
       show_prompt = true;
 

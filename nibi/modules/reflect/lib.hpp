@@ -1,7 +1,6 @@
 #pragma once
 
-#include <libnibi/cell.hpp>
-#include <libnibi/environment.hpp>
+#include <libnibi/nibi.hpp>
 
 #ifdef WIN32
 #define API_EXPORT __declspec(dllexport)

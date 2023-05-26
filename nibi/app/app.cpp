@@ -1,21 +1,12 @@
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "libnibi/cell.hpp"
-#include "libnibi/common/error.hpp"
-#include "libnibi/common/input.hpp"
-#include "libnibi/common/list.hpp"
-#include "libnibi/common/platform.hpp"
-#include "libnibi/config.hpp"
-#include "libnibi/environment.hpp"
-#include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/modules.hpp"
-#include "libnibi/source.hpp"
-#include "libnibi/version.hpp"
+#include <libnibi/nibi.hpp>
 
 #include "app/repl/repl.hpp"
 
@@ -37,26 +28,17 @@ class program_data_controller_c {
 public:
   program_data_controller_c(std::vector<std::string> &args,
                             std::vector<std::filesystem::path> &include_dirs)
-      : args_(args), include_dirs_(include_dirs),
-        interpreter_(env_, source_manager_) {
+      : args_(args), include_dirs_(include_dirs) {
     reinit_platform();
   }
 
   ~program_data_controller_c() { global_platform_destroy(); }
 
-  void reset() {
-    source_manager_.clear();
-    env_.get_map().clear();
-    reinit_platform();
-  }
+  void reset() { reinit_platform(); }
 
   void add_include_dir(std::filesystem::path dir) {
     include_dirs_.push_back(dir);
   }
-
-  env_c &get_env() { return env_; }
-  interpreter_c &get_interpreter() { return interpreter_; }
-  source_manager_c &get_source_manager() { return source_manager_; }
 
 private:
   void reinit_platform() {
@@ -69,27 +51,23 @@ private:
 
   std::vector<std::filesystem::path> &include_dirs_;
   std::vector<std::string> &args_;
-  env_c env_;
-  source_manager_c source_manager_;
-  interpreter_c interpreter_;
 };
 
 std::unique_ptr<program_data_controller_c> pdc{nullptr};
 
 } // namespace
 
+void error_callback_function(nibi::error_c error) {
+
+  error.draw();
+  std::exit(1);
+}
+
 void run_from_file(std::filesystem::path file_name) {
-
-  // List builder that will build lists from parsed tokens
-  // and pass lists to a interpreter
-  list_builder_c list_builder(pdc->get_interpreter());
-
-  // File reader that reads file and kicks off parser/ scanner
-  // that will send tokens to the list builder
-  file_reader_c file_reader(list_builder, pdc->get_source_manager());
-
-  // Read the file and start the process
-  file_reader.read_file(file_name);
+  auto file_interpreter =
+      interpreter_factory_c::file_interpreter(error_callback_function);
+  file_interpreter->interpret_file(file_name);
+  file_interpreter->indicate_complete();
 }
 
 void run_from_dir(const std::string &file_name) {
@@ -119,8 +97,7 @@ void show_version() {
 
 void show_module_info(std::string module_name) {
 
-  auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
-                  .get_module_info(module_name);
+  auto info = module_factory_c::module_viewer()->get_module_info(module_name);
 
   std::cout << "Description: " << std::endl;
   if (info.description.has_value()) {
@@ -175,7 +152,7 @@ void run_each_test(std::vector<std::filesystem::path> &files) {
   for (auto &test_file : files) {
     std::cout << "Running test file: " << test_file << std::endl;
     run_from_file(test_file);
-    pdc->reset();
+    // pdc->reset();
 
     std::cout << "COMPLETE\n" << std::endl;
   }
@@ -239,8 +216,7 @@ void run_tests(std::string &dir) {
 
   // Check installed modules
   {
-    auto info = modules_c(pdc->get_source_manager(), pdc->get_interpreter())
-                    .get_module_info(dir);
+    auto info = module_factory_c::module_viewer()->get_module_info(dir);
     pdc->reset();
 
     if (info.test_files.has_value()) {
@@ -311,7 +287,7 @@ int main(int argc, char **argv) {
   }
 
   if (remaining_args.empty()) {
-    app::start_repl(pdc->get_interpreter(), pdc->get_source_manager());
+    app::start_repl();
     return 0;
   }
 
