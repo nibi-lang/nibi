@@ -65,7 +65,7 @@ void error_callback_function(nibi::error_c error) {
 
 void run_from_file(std::filesystem::path file_name) {
   auto file_interpreter =
-      nibi::nibi_factory_c().file_interpreter(error_callback_function);
+      interpreter_factory_c::file_interpreter(error_callback_function);
   file_interpreter->interpret_file(file_name);
   file_interpreter->indicate_complete();
 }
@@ -97,7 +97,7 @@ void show_version() {
 
 void show_module_info(std::string module_name) {
 
-  auto info = nibi_factory_c().module_viewer()->get_module_info(module_name);
+  auto info = module_factory_c::module_viewer()->get_module_info(module_name);
 
   std::cout << "Description: " << std::endl;
   if (info.description.has_value()) {
@@ -216,7 +216,7 @@ void run_tests(std::string &dir) {
 
   // Check installed modules
   {
-    auto info = nibi_factory_c().module_viewer()->get_module_info(dir);
+    auto info = module_factory_c::module_viewer()->get_module_info(dir);
     pdc->reset();
 
     if (info.test_files.has_value()) {

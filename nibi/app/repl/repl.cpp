@@ -1,16 +1,12 @@
 #include "app/linenoise/linenoise.hpp"
 
-#include "libnibi/environment.hpp"
-#include "libnibi/front/intake.hpp"
-#include "libnibi/interpreter/interpreter.hpp"
-#include "libnibi/nibi_factory.hpp"
-#include "libnibi/platform.hpp"
-#include "libnibi/source.hpp"
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <libnibi/nibi.hpp>
 
 namespace app {
 
@@ -109,7 +105,7 @@ void start_repl() {
   linenoise::SetMultiLine(true);
 
   auto interpreter =
-      nibi::nibi_factory_c::line_interpreter([](nibi::error_c e) { e.draw(); });
+      nibi::interpreter_factory_c::line_interpreter([](nibi::error_c e) { e.draw(); });
 
   uint64_t line_number{0};
   bool show_prompt{true};

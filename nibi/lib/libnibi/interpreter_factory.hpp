@@ -11,17 +11,14 @@
 
 namespace nibi {
 
-class nibi_factory_c {
+class interpreter_factory_c {
 public:
-  nibi_factory_c() = default;
-  ~nibi_factory_c() = default;
-  nibi_factory_c(const nibi_factory_c &) = delete;
-  nibi_factory_c(nibi_factory_c &&) = delete;
-  nibi_factory_c &operator=(const nibi_factory_c &) = delete;
-  nibi_factory_c &operator=(nibi_factory_c &&) = delete;
-
-  //! \brief Create a module viewer
-  static module_viewer_ptr module_viewer();
+  interpreter_factory_c() = default;
+  ~interpreter_factory_c() = default;
+  interpreter_factory_c(const interpreter_factory_c &) = delete;
+  interpreter_factory_c(interpreter_factory_c &&) = delete;
+  interpreter_factory_c &operator=(const interpreter_factory_c &) = delete;
+  interpreter_factory_c &operator=(interpreter_factory_c &&) = delete;
 
   //! \brief Create a file interpreter.
   //! \param error_callback Callback for errors.

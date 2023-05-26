@@ -1,4 +1,4 @@
-#include "nibi_factory.hpp"
+#include "interpreter_factory.hpp"
 #include "environment.hpp"
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
@@ -12,23 +12,6 @@
 namespace nibi {
 
 namespace {
-
-class module_viewer_c : public module_viewer_if {
-public:
-  module_viewer_c()
-      : interpreter_(environment_, source_manager_),
-        modules_(source_manager_, interpreter_) {}
-  virtual ~module_viewer_c() = default;
-  virtual module_info_s get_module_info(std::string &name) override {
-    return modules_.get_module_info(name);
-  }
-
-private:
-  env_c environment_;
-  source_manager_c source_manager_;
-  interpreter_c interpreter_;
-  modules_c modules_;
-};
 
 class line_interpreter_c : public line_interpreter_if {
 public:
@@ -60,17 +43,13 @@ private:
 
 } // namespace
 
-module_viewer_ptr nibi_factory_c::module_viewer() {
-  return std::make_shared<module_viewer_c>();
-}
-
 file_interpreter_ptr
-nibi_factory_c::file_interpreter(error_callback_f error_callback) {
+interpreter_factory_c::file_interpreter(error_callback_f error_callback) {
   return std::make_shared<file_interpreter_c>(error_callback);
 }
 
 line_interpreter_ptr
-nibi_factory_c::line_interpreter(error_callback_f error_callback) {
+interpreter_factory_c::line_interpreter(error_callback_f error_callback) {
   return std::make_shared<line_interpreter_c>(error_callback);
 }
 

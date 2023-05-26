@@ -57,7 +57,8 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/front/token.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/platform.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/error.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/nibi_factory.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter_factory.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/module_factory.cpp
 )
 
 set(SOURCES
