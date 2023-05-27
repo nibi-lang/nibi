@@ -42,6 +42,7 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/modules.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/RLL/rll_wrapper.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/builtins.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/conversion.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/lambdas.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/arithmetic.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/environment_modifiers.cpp
