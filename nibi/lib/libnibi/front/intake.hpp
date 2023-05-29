@@ -46,6 +46,24 @@ public:
                 locator_ptr location);
 
 private:
+
+  /*
+      Simple grammar that defines list building
+
+      program           - <instruction_list>+
+      instruction_list  - '(' callable <element>+ ')'
+      callable          - symbol | access_list
+      access_list       - '{' <symbol>+ '}'
+      data_list         - '[' <element>+ ']'
+      element           - data | list
+      list              - instruction_list | data_list | access_list
+      data              - symbol | number | string
+      number            - integer | real
+      integer           - [-]? <digit>+
+      real              - [-]? <integer> '.' <integer>
+      string            - '"' <any> '"'
+      symbol            - <any>
+   */
   class parser_c {
   public:
     parser_c() = delete;

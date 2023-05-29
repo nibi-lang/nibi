@@ -5,17 +5,6 @@ namespace nibi {
 
 static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
 
-#define PARSER_ENFORCE_CURRENT_CELL(___message)                                \
-  if (!current_list) {                                                         \
-    error_cb_(error_c(current_token.get_locator(), ___message));               \
-    return nullptr;                                                            \
-  }
-
-#define PARSER_ADD_CELL                                                        \
-  auto &current_cell_list = current_list->as_list();                           \
-  current_cell_list.push_back(cell);                                           \
-  return parse(tokens, current_list);
-
 intake_c::intake_c(instruction_processor_if &proc, error_callback_f error_cb,
                    source_manager_c &sm, function_router_t router)
     : processor_(proc), error_cb_(error_cb), sm_(sm), symbol_router_(router) {
@@ -54,11 +43,9 @@ void intake_c::check_for_complete_expression() {
     error_cb_(
         error_c(tracker_.instruction_stack_.top(), "Unmatched opening paren"));
   }
-
   if (!tracker_.data_stack_.empty()) {
     error_cb_(error_c(tracker_.data_stack_.top(), "Unmatched opening bracket"));
   }
-
   if (!tracker_.access_stack_.empty()) {
     error_cb_(error_c(tracker_.access_stack_.top(), "Unmatched opening brace"));
   }
