@@ -8,6 +8,7 @@
 #include "libnibi/types.hpp"
 #include "token.hpp"
 #include <functional>
+#include <memory>
 #include <istream>
 #include <optional>
 #include <string_view>
@@ -44,6 +45,51 @@ public:
                 locator_ptr location);
 
 private:
+
+class parser_c {
+public:
+  parser_c() = delete;
+  parser_c(function_router_t router, error_callback_f ecb) : symbol_router_(router), error_cb_(ecb) {};
+  cell_ptr parse(std::vector<token_c> &tokens);
+  bool has_next() { return index_ < tokens_->size(); }
+  void next() { 
+    if (index_ >= tokens_->size()) {
+      return;
+    }
+    index_++;
+  }
+  token_e current_token() { 
+    if (index_ >= tokens_->size()) {
+      return token_e::NIL;
+    }
+    return (*tokens_)[index_].get_token();
+  }
+
+  locator_ptr current_location() { return (*tokens_)[index_].get_locator(); }
+  std::string current_data() { return (*tokens_)[index_].get_data(); }
+
+private:
+  std::size_t index_{0};
+  std::vector<token_c> *tokens_{nullptr};
+  function_router_t symbol_router_;
+  cell_list_t current_list_;
+  error_callback_f error_cb_;
+
+  cell_ptr instruction_list();
+  cell_ptr access_list();
+  cell_ptr data_list();
+
+  cell_ptr list();
+  cell_ptr data();
+  cell_ptr element();
+
+  cell_ptr symbol();
+  cell_ptr number();
+  cell_ptr integer();
+  cell_ptr real();
+  cell_ptr string();
+};
+
   struct tracker_s {
     std::size_t bracket_count{0};
     std::size_t paren_count{0};
@@ -57,6 +103,9 @@ private:
   source_manager_c &sm_;
   function_router_t symbol_router_;
   std::vector<token_c> tokens_;
+  std::unique_ptr<parser_c> parser_;
+
+  void check_for_complete_expression();
 
   bool process_line(std::string_view line,
                     std::shared_ptr<source_origin_c> origin,
