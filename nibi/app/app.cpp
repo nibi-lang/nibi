@@ -27,9 +27,8 @@ namespace {
 class program_data_controller_c {
 public:
   program_data_controller_c(std::vector<std::string> &args,
-                            std::vector<std::filesystem::path> &include_dirs,
-                            std::vector<std::string> &std_in)
-      : args_(args), include_dirs_(include_dirs), std_in_(std_in) {
+                            std::vector<std::filesystem::path> &include_dirs)
+      : args_(args), include_dirs_(include_dirs) {
     reinit_platform();
   }
 
@@ -44,7 +43,7 @@ public:
 private:
   void reinit_platform() {
     global_platform_destroy();
-    if (!global_platform_init(include_dirs_, args_, std_in_)) {
+    if (!global_platform_init(include_dirs_, args_)) {
       std::cerr << "Failed to initialize global platform" << std::endl;
       exit(1);
     }
@@ -52,7 +51,6 @@ private:
 
   std::vector<std::filesystem::path> &include_dirs_;
   std::vector<std::string> &args_;
-  std::vector<std::string> &std_in_;
 };
 
 std::unique_ptr<program_data_controller_c> pdc{nullptr};
@@ -237,15 +235,8 @@ int main(int argc, char **argv) {
   std::vector<std::filesystem::path> include_dirs;
   std::vector<std::string> args =
       std::vector<std::string>(argv + 1, argv + argc);
-  std::vector<std::string> std_in;
 
-  if (!isatty(STDIN_FILENO)) {
-    std_in =
-        std::vector<std::string>(std::istream_iterator<std::string>(std::cin),
-                                 std::istream_iterator<std::string>());
-  }
-
-  pdc = std::make_unique<program_data_controller_c>(args, include_dirs, std_in);
+  pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
 
   for (std::size_t i = 0; i < args.size(); i++) {
     if (args[i] == "-h" || args[i] == "--help") {

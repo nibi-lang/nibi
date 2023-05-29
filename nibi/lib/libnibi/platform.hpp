@@ -17,8 +17,7 @@ public:
   //! \brief Constructor
   //! \param include_dirs Include directories
   platform_c(std::vector<std::filesystem::path> &include_dirs,
-             std::vector<std::string> &program_args,
-             std::vector<std::string> &std_in);
+             std::vector<std::string> &program_args);
 
   //! \brief Retrieve the nibi home path
   //! \return The nibi home path iff it exists
@@ -45,15 +44,10 @@ public:
   //! \return The program arguments
   const std::vector<std::string> get_program_args() const;
 
-  //! \brief Retrieve the standard input
-  //! \return The standard input
-  const std::vector<std::string> get_std_in() const;
-
 private:
   platform_e _platform{platform_e::UNKNOWN};
   std::vector<std::filesystem::path> &_include_dirs;
   std::vector<std::string> &_program_args;
-  std::vector<std::string> &_std_in;
   std::optional<std::filesystem::path> _nibi_path{std::nullopt};
 };
 
@@ -61,8 +55,7 @@ extern platform_c *global_platform;
 
 extern bool
 global_platform_init(std::vector<std::filesystem::path> &include_dirs,
-                     std::vector<std::string> &program_args,
-                     std::vector<std::string> &std_in);
+                     std::vector<std::string> &program_args);
 
 extern bool global_platform_destroy();
 
