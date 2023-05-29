@@ -23,7 +23,9 @@ nibi::cell_ptr get_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
   } catch (std::invalid_argument) {
     return nibi::allocate_cell(nibi::cell_type_e::NIL);
   }
-  return nibi::allocate_cell((int64_t)val);
+  auto r = nibi::allocate_cell((int64_t)val);
+  r->locator = list[0]->locator;
+  return r;
 }
 
 nibi::cell_ptr get_double(nibi::interpreter_c &ci, nibi::cell_list_t &list,
@@ -38,5 +40,7 @@ nibi::cell_ptr get_double(nibi::interpreter_c &ci, nibi::cell_list_t &list,
   } catch (std::invalid_argument) {
     return nibi::allocate_cell(nibi::cell_type_e::NIL);
   }
-  return nibi::allocate_cell((double)val);
+  auto r = nibi::allocate_cell((double)val);
+  r->locator = list[0]->locator;
+  return r;
 }
