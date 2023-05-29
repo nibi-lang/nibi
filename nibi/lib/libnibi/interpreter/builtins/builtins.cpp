@@ -125,6 +125,17 @@ static function_info_s builtin_common_quote_inf = {
 static function_info_s builtin_envcell_env_inf = {
     "env", builtin_fn_envcell_env, function_type_e::BUILTIN_CPP_FUNCTION};
 
+// conversion functions
+
+static function_info_s builtin_cvt_string_inf = {
+    "str", builtin_fn_cvt_to_string, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_int_inf = {
+    "int", builtin_fn_cvt_to_integer, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_float_inf = {
+    "float", builtin_fn_cvt_to_float, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_split_inf = {
+    "split", builtin_fn_cvt_to_split, function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
     {{"eq", builtin_comparison_eq_inf},
@@ -174,7 +185,11 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"bw-or", builtin_bitwise_or_inf},
      {"bw-xor", builtin_bitwise_xor_inf},
      {"bw-not", builtin_bitwise_not_inf},
-     {"env", builtin_envcell_env_inf}};
+     {"env", builtin_envcell_env_inf},
+     {"str", builtin_cvt_string_inf},
+     {"int", builtin_cvt_int_inf},
+     {"float", builtin_cvt_float_inf},
+     {"split", builtin_cvt_split_inf}};
 
 // Retrieve the map of symbols to function info structs
 function_router_t get_builtin_symbols_map() { return keyword_map; }

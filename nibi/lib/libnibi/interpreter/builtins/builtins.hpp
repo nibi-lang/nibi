@@ -147,5 +147,17 @@ extern cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
                                        env_c &env);
 extern cell_ptr builtin_fn_envcell_create(interpreter_c &ci, cell_list_t &list,
                                           env_c &env);
+
+// Conversion functions
+
+extern cell_ptr builtin_fn_cvt_to_string(interpreter_c &ci, cell_list_t &list,
+                                         env_c &env);
+extern cell_ptr builtin_fn_cvt_to_integer(interpreter_c &ci, cell_list_t &list,
+                                          env_c &env);
+extern cell_ptr builtin_fn_cvt_to_float(interpreter_c &ci, cell_list_t &list,
+                                        env_c &env);
+extern cell_ptr builtin_fn_cvt_to_split(interpreter_c &ci, cell_list_t &list,
+                                        env_c &env);
+
 } // namespace builtins
 } // namespace nibi

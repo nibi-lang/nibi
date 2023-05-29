@@ -118,7 +118,8 @@ cell_ptr builtin_fn_list_at(interpreter_c &ci, cell_list_t &list, env_c &env) {
   auto actual_idx_val = requested_idx->as_integer();
 
   if (actual_idx_val < 0 || actual_idx_val >= list_info.list.size()) {
-    throw std::runtime_error("Index OOB for given list");
+    throw interpreter_c::exception_c("Index out of bounds (OOB)",
+                                     list[2]->locator);
   }
 
   return list_get_nth_arg(ci, actual_idx_val, list_info.list, env);

@@ -44,6 +44,10 @@ the list with a default variable and then updated with `at` or `iter`.
 | exit    | Exit the program | N/A
 | eval    | Evaluate a given string | variable
 | quote   | Quote a a list into a string | variable
+| str     | Convert an item to a string type | converted value 
+| int     | Convert an item to an integer type | converted value 
+| float   | Convert an item to a float type | converted value 
+| split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
 
 | list commands | description | returns
 |----   |---- |----
@@ -420,6 +424,61 @@ Keyword `quote`
 
 ```
 ( quote < S () [] {} RD > )
+```
+
+### Str
+
+Keyword `str`
+
+| arg1 |
+|----
+| Item to convert to string
+
+```
+( str < S () RD > )
+```
+
+### Int
+
+Keyword `int`
+
+| arg1 |
+|----
+| Item to convert to an integer
+
+```
+( int < S () RD > )
+```
+
+### Float
+
+Keyword `float`
+
+| arg1 |
+|----
+| Item to convert to a float
+
+```
+( float < S () RD > )
+```
+
+### Split 
+
+| arg 1         | arg 2  
+| Item to split | length - only required if arg1 is a list
+
+Note: Split will not resolve symbols in a given list
+
+Note: A value of `0` passed as argument 2 when argument 1 is a list
+      will result in a copy of the list being returned
+
+```
+( split < S () RD > )
+
+# With list:
+
+( split < S [] > < NU S () > )
+
 ```
 
 ----
