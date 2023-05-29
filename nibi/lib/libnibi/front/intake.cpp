@@ -35,7 +35,6 @@ void intake_c::read(std::string_view source, std::istream &is) {
   check_for_complete_expression();
 }
 
-
 void intake_c::read_line(std::string_view line,
                          std::shared_ptr<source_origin_c> origin) {
   tracker_.line_count++;
@@ -51,7 +50,19 @@ void intake_c::evaluate(std::string_view data,
 }
 
 void intake_c::check_for_complete_expression() {
-  if(tokens_.size()) {
+  if (!tracker_.instruction_stack_.empty()) {
+    error_cb_(
+        error_c(tracker_.instruction_stack_.top(), "Unmatched opening paren"));
+  }
+
+  if (!tracker_.data_stack_.empty()) {
+    error_cb_(error_c(tracker_.data_stack_.top(), "Unmatched opening bracket"));
+  }
+
+  if (!tracker_.access_stack_.empty()) {
+    error_cb_(error_c(tracker_.access_stack_.top(), "Unmatched opening brace"));
+  }
+  if (tokens_.size()) {
     error_cb_(error_c(tokens_.back().get_locator(), "Incomplete expression"));
   }
 }
@@ -74,44 +85,44 @@ bool intake_c::process_line(std::string_view data,
       return true;
     }
     case '(': {
-      tracker_.paren_count++;
+      tracker_.instruction_stack_.push(locator);
       process_token(token_c(locator, token_e::L_PAREN));
       break;
     }
     case ')': {
-      if (tracker_.paren_count == 0) {
+      if (tracker_.instruction_stack_.empty()) {
         error_cb_(error_c(locator, "Unmatched closing paren"));
         return false;
       }
-      tracker_.paren_count--;
+      tracker_.instruction_stack_.pop();
       process_token(token_c(locator, token_e::R_PAREN));
       break;
     }
     case '[': {
-      tracker_.bracket_count++;
+      tracker_.data_stack_.push(locator);
       process_token(token_c(locator, token_e::L_BRACKET));
       break;
     }
     case ']': {
-      if (tracker_.bracket_count == 0) {
+      if (tracker_.data_stack_.empty()) {
         error_cb_(error_c(locator, "Unmatched closing bracket"));
         return false;
       }
-      tracker_.bracket_count--;
+      tracker_.data_stack_.pop();
       process_token(token_c(locator, token_e::R_BRACKET));
       break;
     }
     case '{': {
-      tracker_.brace_count++;
+      tracker_.access_stack_.push(locator);
       process_token(token_c(locator, token_e::L_BRACE));
       break;
     }
     case '}': {
-      if (tracker_.brace_count == 0) {
+      if (tracker_.access_stack_.empty()) {
         error_cb_(error_c(locator, "Unmatched closing brace"));
         return false;
       }
-      tracker_.brace_count--;
+      tracker_.access_stack_.pop();
       process_token(token_c(locator, token_e::R_BRACE));
       break;
     }
@@ -198,11 +209,9 @@ void intake_c::process_token(token_c token) {
 
   tokens_.push_back(token);
 
-  if (tracker_.paren_count != 0) {
+  if (!tracker_.instruction_stack_.empty()) {
     return;
   }
-
-  //auto instruction = parse(tokens_, nullptr);
 
   auto instruction = parser_->parse(tokens_);
 
@@ -214,153 +223,22 @@ void intake_c::process_token(token_c token) {
   return;
 }
 
-/*
-
-cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
-
-  if (tokens.empty()) {
-    return nullptr;
-  }
-
-  auto current_token = tokens[0];
-
-  tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
-
-  switch (current_token.get_token()) {
-  case token_e::L_BRACE:
-    [[fallthrough]];
-  case token_e::L_BRACKET: {
-    // Data lists must exist within an executable list ([ ... ]])
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected opening symbol `{ [`")
-    [[fallthrough]];
-  }
-  case token_e::L_PAREN: {
-    auto new_list = allocate_cell(cell_type_e::LIST);
-    new_list->locator = current_token.get_locator();
-
-    if (current_token.get_token() == token_e::L_PAREN) {
-      new_list->as_list_info().type = list_types_e::INSTRUCTION;
-    }
-    if (current_token.get_token() == token_e::L_BRACKET) {
-      new_list->as_list_info().type = list_types_e::DATA;
-    }
-    if (current_token.get_token() == token_e::L_BRACE) {
-      new_list->as_list_info().type = list_types_e::ACCESS;
-    }
-
-    parse(tokens, new_list);
-
-    if (current_list) {
-      auto &current_list_actual = current_list->as_list();
-      current_list_actual.push_back(new_list);
-      return parse(tokens, current_list);
-    } else {
-      return new_list;
-    }
-  }
-  case token_e::R_BRACKET:
-    [[fallthrough]];
-  case token_e::R_BRACE:
-    [[fallthrough]];
-  case token_e::R_PAREN: {
-    if (!current_list) {
-      error_cb_(error_c(current_token.get_locator(),
-                        "Unexpected closing symbol `} ] )`"));
-    }
-    return nullptr;
-  }
-
-  case token_e::SYMBOL: {
-    auto symbol_raw = current_token.get_data();
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected symbol: " + symbol_raw);
-
-    auto router_location = symbol_router_.find(symbol_raw);
-
-    if (router_location == symbol_router_.end()) {
-      auto cell = allocate_cell(symbol_s{symbol_raw});
-      cell->locator = current_token.get_locator();
-      PARSER_ADD_CELL
-    }
-
-    auto cell = allocate_cell(router_location->second);
-    cell->locator = current_token.get_locator();
-
-    PARSER_ADD_CELL
-  }
-
-  case token_e::RAW_INTEGER: {
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected integer");
-
-    auto stringed_value = current_token.get_data();
-
-    int64_t value_actual{0};
-    try {
-      value_actual = std::stoll(stringed_value);
-    } catch (std::exception &e) {
-      error_cb_(error_c(current_token.get_locator(),
-                        {"Invalid integer value: " + stringed_value}));
-      return nullptr;
-    }
-
-    auto cell = allocate_cell((int64_t)value_actual);
-    cell->locator = current_token.get_locator();
-
-    PARSER_ADD_CELL
-  }
-
-  case token_e::RAW_FLOAT: {
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected float");
-
-    auto stringed_value = current_token.get_data();
-
-    double value_actual{0.00};
-    try {
-      value_actual = std::stod(stringed_value);
-    } catch (std::exception &e) {
-      error_cb_(error_c(current_token.get_locator(),
-                        {"Invalid double value: " + stringed_value}));
-      return nullptr;
-    }
-
-    auto cell = allocate_cell((double)value_actual);
-    cell->locator = current_token.get_locator();
-
-    PARSER_ADD_CELL
-  }
-
-  case token_e::RAW_STRING: {
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
-    auto cell = allocate_cell(current_token.get_data());
-    cell->locator = current_token.get_locator();
-
-    PARSER_ADD_CELL
-  }
-  }
-  return nullptr;
-}
-
-
-
-*/
-
-
-
 cell_ptr intake_c::parser_c::parse(std::vector<token_c> &tokens) {
-    tokens_ = &tokens;
-    current_list_.clear();
-    index_ = 0;
+  tokens_ = &tokens;
+  current_list_.clear();
+  index_ = 0;
 
-    cell_ptr list{nullptr};
-    list = instruction_list();
+  cell_ptr list{nullptr};
+  list = instruction_list();
 
-    if (!list) {
-      error_cb_(error_c(tokens[0].get_locator(), "Invalid instruction list"));
-      return nullptr;
-    }
-    return list;
+  if (!list) {
+    error_cb_(error_c(tokens[0].get_locator(), "Invalid instruction list"));
+    return nullptr;
+  }
+  return list;
 }
 
-cell_ptr intake_c::parser_c::instruction_list(){
+cell_ptr intake_c::parser_c::instruction_list() {
   if (tokens_->empty()) {
     return nullptr;
   }
@@ -374,107 +252,108 @@ cell_ptr intake_c::parser_c::instruction_list(){
   cell_list_t list;
 
   switch (current_token()) {
-    case token_e::SYMBOL: list.push_back(symbol()); break;
-    case token_e::L_BRACE: list.push_back(access_list()); break;
-    case token_e::L_PAREN: list.push_back(instruction_list()); break;
-    default:
-      error_cb_(error_c(current_location(), "Invalid instruction list"));
-      return nullptr;
+  case token_e::SYMBOL:
+    list.push_back(symbol());
+    break;
+  case token_e::L_BRACE:
+    list.push_back(access_list());
+    break;
+  case token_e::L_PAREN:
+    list.push_back(instruction_list());
+    break;
+  default:
+    error_cb_(error_c(current_location(), "Invalid instruction list"));
+    return nullptr;
   }
 
   auto tracker = current_location();
-  while(current_token() != token_e::R_PAREN) {
+  while (current_token() != token_e::R_PAREN) {
     cell_ptr next_cell = element();
     if (!next_cell) {
-      error_cb_(error_c(tracker, "Invalid instruction list - Expected data or list"));
+      error_cb_(
+          error_c(tracker, "Invalid instruction list - Expected data or list"));
       return nullptr;
     }
     list.push_back(next_cell);
     tracker = current_location();
     if (!has_next()) {
-      error_cb_(error_c(tracker, "Invalid instruction - Unexpected end of file/input"));
+      error_cb_(error_c(tracker,
+                        "Invalid instruction - Unexpected end of file/input"));
       return nullptr;
     }
   }
 
   if (current_token() != token_e::R_PAREN) {
-    error_cb_(error_c(current_location(), "Invalid instruction list - Expected closing `)`"));
+    error_cb_(error_c(current_location(),
+                      "Invalid instruction list - Expected closing `)`"));
     return nullptr;
   }
 
   next();
 
-  return allocate_cell(
-      list_info_s{
-        list_types_e::INSTRUCTION,
-        std::move(list)
-        });
+  return allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
 }
 
-cell_ptr intake_c::parser_c::access_list(){
+cell_ptr intake_c::parser_c::access_list() {
   if (current_token() != token_e::L_BRACE) {
     return nullptr;
   }
-  
+
   next();
 
   cell_list_t list;
 
   auto tracker = current_location();
-  while(current_token() != token_e::R_BRACE) {
+  while (current_token() != token_e::R_BRACE) {
     cell_ptr next_cell = symbol();
     if (!next_cell) {
-      error_cb_(error_c(tracker, "Invalid instruction list - Expected data or list"));
+      error_cb_(
+          error_c(tracker, "Invalid instruction list - Expected data or list"));
       return nullptr;
     }
     list.push_back(next_cell);
     tracker = current_location();
     if (!has_next()) {
-      error_cb_(error_c(tracker, "Invalid instruction - Unexpected end of file/input"));
+      error_cb_(error_c(tracker,
+                        "Invalid instruction - Unexpected end of file/input"));
       return nullptr;
     }
   }
 
   next();
 
-  return allocate_cell(
-      list_info_s{
-        list_types_e::ACCESS,
-        std::move(list)
-        });
+  return allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
 }
 
-cell_ptr intake_c::parser_c::data_list(){
+cell_ptr intake_c::parser_c::data_list() {
   if (current_token() != token_e::L_BRACKET) {
     return nullptr;
   }
-  
+
   next();
 
   cell_list_t list;
 
   auto tracker = current_location();
-  while(current_token() != token_e::R_BRACKET) {
+  while (current_token() != token_e::R_BRACKET) {
     cell_ptr next_cell = element();
     if (!next_cell) {
-      error_cb_(error_c(tracker, "Invalid instruction list - Expected data or list"));
+      error_cb_(
+          error_c(tracker, "Invalid instruction list - Expected data or list"));
       return nullptr;
     }
     list.push_back(next_cell);
     tracker = current_location();
     if (!has_next()) {
-      error_cb_(error_c(tracker, "Invalid instruction - Unexpected end of file/input"));
+      error_cb_(error_c(tracker,
+                        "Invalid instruction - Unexpected end of file/input"));
       return nullptr;
     }
   }
 
   next();
 
-  return allocate_cell(
-      list_info_s{
-        list_types_e::DATA,
-        std::move(list)
-        });
+  return allocate_cell(list_info_s{list_types_e::DATA, std::move(list)});
 }
 
 cell_ptr intake_c::parser_c::list() {
@@ -517,7 +396,7 @@ cell_ptr intake_c::parser_c::data() {
   return nullptr;
 }
 
-cell_ptr intake_c::parser_c::element(){
+cell_ptr intake_c::parser_c::element() {
   auto element = data();
   if (element) {
     return element;
@@ -530,7 +409,7 @@ cell_ptr intake_c::parser_c::element(){
   return nullptr;
 }
 
-cell_ptr intake_c::parser_c::symbol(){ 
+cell_ptr intake_c::parser_c::symbol() {
 
   if (current_token() != token_e::SYMBOL) {
     return nullptr;
@@ -556,7 +435,6 @@ cell_ptr intake_c::parser_c::symbol(){
 
   return cell;
 }
-
 
 cell_ptr intake_c::parser_c::number() {
   auto num = integer();
@@ -631,29 +509,5 @@ cell_ptr intake_c::parser_c::string() {
 
   return cell;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 } // namespace nibi
