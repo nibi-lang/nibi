@@ -1,24 +1,61 @@
 #include "intake.hpp"
+#include <cassert>
 #include <regex>
 
 namespace nibi {
 
-static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
+namespace {
+inline std::string closing_sym_from_token(const token_e token) {
+  assert((token == token_e::R_PAREN || token == token_e::R_BRACKET ||
+          token == token_e::R_BRACE));
+  switch (token) {
+  case token_e::L_PAREN:
+    return ")";
+  case token_e::L_BRACKET:
+    return "]";
+  case token_e::L_BRACE:
+    return "}";
+  default:
+    return "";
+  }
+}
+} // namespace
 
-#define PARSER_ENFORCE_CURRENT_CELL(___message)                                \
-  if (!current_list) {                                                         \
-    error_cb_(error_c(current_token.get_locator(), ___message));               \
+#define NIBI_PARSER_SCAN_LIST(___sym_open, ___sym_close, ___fn)                \
+  auto tracker = current_location();                                           \
+  while (current_token() != ___sym_close) {                                    \
+    cell_ptr next_cell = ___fn();                                              \
+    if (!next_cell) {                                                          \
+      std::string msg = "Invalid list - Expected value (symbol, number, "      \
+                        "string) or list (instruction, access, data)";         \
+      msg += "\n Got: " + std::string(token_to_string((*tokens_)[index_]));    \
+      msg += "\n It is possible that this is a result of a missing closing "   \
+             "symbol in a previous instruction list";                          \
+      error_cb_(error_c(tracker, msg));                                        \
+      return nullptr;                                                          \
+    }                                                                          \
+    if (!has_next()) {                                                         \
+      error_cb_(error_c(                                                       \
+          tracker, "Invalid instruction - Unexpected end of file/input"));     \
+      return nullptr;                                                          \
+    }                                                                          \
+    list.push_back(next_cell);                                                 \
+    tracker = current_location();                                              \
+  }                                                                            \
+  if (current_token() != ___sym_close) {                                       \
+    std::string msg = "Expected closing '" +                                   \
+                      closing_sym_from_token(___sym_close) + "' symbol";       \
+    error_cb_(error_c(current_location(), msg));                               \
     return nullptr;                                                            \
   }
 
-#define PARSER_ADD_CELL                                                        \
-  auto &current_cell_list = current_list->as_list();                           \
-  current_cell_list.push_back(cell);                                           \
-  return parse(tokens, current_list);
+static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
 
 intake_c::intake_c(instruction_processor_if &proc, error_callback_f error_cb,
                    source_manager_c &sm, function_router_t router)
-    : processor_(proc), error_cb_(error_cb), sm_(sm), symbol_router_(router) {}
+    : processor_(proc), error_cb_(error_cb), sm_(sm), symbol_router_(router) {
+  parser_ = std::make_unique<parser_c>(symbol_router_, error_cb_);
+}
 
 void intake_c::read(std::string_view source, std::istream &is) {
 
@@ -30,18 +67,27 @@ void intake_c::read(std::string_view source, std::istream &is) {
     tracker_.line_count++;
     continue_intake = process_line(line, source_origin);
   }
+  check_for_complete_expression();
 }
 
 void intake_c::read_line(std::string_view line,
                          std::shared_ptr<source_origin_c> origin) {
   tracker_.line_count++;
   process_line(line, origin);
+  check_for_complete_expression();
 }
 
 void intake_c::evaluate(std::string_view data,
                         std::shared_ptr<source_origin_c> origin,
                         locator_ptr location) {
   process_line(data, origin, location);
+  check_for_complete_expression();
+}
+
+void intake_c::check_for_complete_expression() {
+  if (tokens_.size()) {
+    error_cb_(error_c(tokens_.back().get_locator(), "Incomplete expression"));
+  }
 }
 
 bool intake_c::process_line(std::string_view data,
@@ -62,44 +108,44 @@ bool intake_c::process_line(std::string_view data,
       return true;
     }
     case '(': {
-      tracker_.paren_count++;
+      tracker_.instruction_stack_.push(locator);
       process_token(token_c(locator, token_e::L_PAREN));
       break;
     }
     case ')': {
-      if (tracker_.paren_count == 0) {
+      if (tracker_.instruction_stack_.empty()) {
         error_cb_(error_c(locator, "Unmatched closing paren"));
         return false;
       }
-      tracker_.paren_count--;
+      tracker_.instruction_stack_.pop();
       process_token(token_c(locator, token_e::R_PAREN));
       break;
     }
     case '[': {
-      tracker_.bracket_count++;
+      tracker_.data_stack_.push(locator);
       process_token(token_c(locator, token_e::L_BRACKET));
       break;
     }
     case ']': {
-      if (tracker_.bracket_count == 0) {
+      if (tracker_.data_stack_.empty()) {
         error_cb_(error_c(locator, "Unmatched closing bracket"));
         return false;
       }
-      tracker_.bracket_count--;
+      tracker_.data_stack_.pop();
       process_token(token_c(locator, token_e::R_BRACKET));
       break;
     }
     case '{': {
-      tracker_.brace_count++;
+      tracker_.access_stack_.push(locator);
       process_token(token_c(locator, token_e::L_BRACE));
       break;
     }
     case '}': {
-      if (tracker_.brace_count == 0) {
+      if (tracker_.access_stack_.empty()) {
         error_cb_(error_c(locator, "Unmatched closing brace"));
         return false;
       }
-      tracker_.brace_count--;
+      tracker_.access_stack_.pop();
       process_token(token_c(locator, token_e::R_BRACE));
       break;
     }
@@ -118,7 +164,6 @@ bool intake_c::process_line(std::string_view data,
       }
 
       if (!value.ends_with('"')) {
-        // std::cout << "<<" << value << ">>\n";
         error_cb_(error_c(locator, "Unterminated string"));
         return false;
       }
@@ -170,7 +215,7 @@ bool intake_c::process_line(std::string_view data,
       while (col + 1 < data.size() && !std::isspace(data[col + 1]) &&
              data[col + 1] != '(' && data[col + 1] != ')' &&
              data[col + 1] != '[' && data[col + 1] != ']' &&
-             data[col + 1] != '}' && data[col + 1] != '}') {
+             data[col + 1] != '{' && data[col + 1] != '}') {
         word += data[col + 1];
         col++;
       }
@@ -187,11 +232,11 @@ void intake_c::process_token(token_c token) {
 
   tokens_.push_back(token);
 
-  if (tracker_.paren_count != 0) {
+  if (!tracker_.instruction_stack_.empty()) {
     return;
   }
 
-  auto instruction = parse(tokens_, nullptr);
+  auto instruction = parser_->parse(tokens_);
 
   if (instruction && instruction->as_list().size()) {
     processor_.instruction_ind(instruction);
@@ -201,127 +246,243 @@ void intake_c::process_token(token_c token) {
   return;
 }
 
-cell_ptr intake_c::parse(std::vector<token_c> &tokens, cell_ptr current_list) {
+cell_ptr intake_c::parser_c::parse(std::vector<token_c> &tokens) {
+  tokens_ = &tokens;
+  current_list_.clear();
+  index_ = 0;
 
-  if (tokens.empty()) {
+  cell_ptr list{nullptr};
+  list = instruction_list();
+
+  if (!list) {
+    error_cb_(error_c(tokens[0].get_locator(),
+                      "Invalid instruction list - Expected '('"));
+    return nullptr;
+  }
+  return list;
+}
+
+cell_ptr intake_c::parser_c::instruction_list() {
+  if (tokens_->empty()) {
     return nullptr;
   }
 
-  auto current_token = tokens[0];
+  if (current_token() != token_e::L_PAREN) {
+    return nullptr;
+  }
 
-  tokens = std::vector<token_c>(tokens.begin() + 1, tokens.end());
+  next();
 
-  switch (current_token.get_token()) {
+  cell_list_t list;
+
+  switch (current_token()) {
+  case token_e::SYMBOL:
+    list.push_back(symbol());
+    break;
   case token_e::L_BRACE:
-    [[fallthrough]];
-  case token_e::L_BRACKET: {
-    // Data lists must exist within an executable list ([ ... ]])
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected opening symbol `{ [`")
-    [[fallthrough]];
-  }
-  case token_e::L_PAREN: {
-    auto new_list = allocate_cell(cell_type_e::LIST);
-    new_list->locator = current_token.get_locator();
-
-    if (current_token.get_token() == token_e::L_PAREN) {
-      new_list->as_list_info().type = list_types_e::INSTRUCTION;
-    }
-    if (current_token.get_token() == token_e::L_BRACKET) {
-      new_list->as_list_info().type = list_types_e::DATA;
-    }
-    if (current_token.get_token() == token_e::L_BRACE) {
-      new_list->as_list_info().type = list_types_e::ACCESS;
-    }
-
-    parse(tokens, new_list);
-
-    if (current_list) {
-      auto &current_list_actual = current_list->as_list();
-      current_list_actual.push_back(new_list);
-      return parse(tokens, current_list);
-    } else {
-      return new_list;
-    }
-  }
-  case token_e::R_BRACKET:
-    [[fallthrough]];
-  case token_e::R_BRACE:
-    [[fallthrough]];
-  case token_e::R_PAREN: {
-    if (!current_list) {
-      error_cb_(error_c(current_token.get_locator(),
-                        "Unexpected closing symbol `} ] )`"));
-    }
+    list.push_back(access_list());
+    break;
+  case token_e::L_PAREN:
+    list.push_back(instruction_list());
+    break;
+  default:
+    error_cb_(error_c(current_location(),
+                      "Invalid instruction list - Expected symbol, access "
+                      "list, or instruction list"));
     return nullptr;
   }
 
-  case token_e::SYMBOL: {
-    auto symbol_raw = current_token.get_data();
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected symbol: " + symbol_raw);
+  NIBI_PARSER_SCAN_LIST(token_e::L_PAREN, token_e::R_PAREN, element);
 
-    auto router_location = symbol_router_.find(symbol_raw);
+  next();
 
-    if (router_location == symbol_router_.end()) {
-      auto cell = allocate_cell(symbol_s{symbol_raw});
-      cell->locator = current_token.get_locator();
-      PARSER_ADD_CELL
-    }
+  return allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
+}
 
-    auto cell = allocate_cell(router_location->second);
-    cell->locator = current_token.get_locator();
-
-    PARSER_ADD_CELL
+cell_ptr intake_c::parser_c::access_list() {
+  if (current_token() != token_e::L_BRACE) {
+    return nullptr;
   }
 
-  case token_e::RAW_INTEGER: {
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected integer");
+  next();
 
-    auto stringed_value = current_token.get_data();
+  cell_list_t list;
 
-    int64_t value_actual{0};
-    try {
-      value_actual = std::stoll(stringed_value);
-    } catch (std::exception &e) {
-      error_cb_(error_c(current_token.get_locator(),
-                        {"Invalid integer value: " + stringed_value}));
-      return nullptr;
-    }
+  NIBI_PARSER_SCAN_LIST(token_e::L_BRACE, token_e::R_BRACE, symbol);
 
-    auto cell = allocate_cell((int64_t)value_actual);
-    cell->locator = current_token.get_locator();
+  next();
 
-    PARSER_ADD_CELL
+  return allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
+}
+
+cell_ptr intake_c::parser_c::data_list() {
+  if (current_token() != token_e::L_BRACKET) {
+    return nullptr;
   }
 
-  case token_e::RAW_FLOAT: {
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected float");
+  next();
 
-    auto stringed_value = current_token.get_data();
+  cell_list_t list;
 
-    double value_actual{0.00};
-    try {
-      value_actual = std::stod(stringed_value);
-    } catch (std::exception &e) {
-      error_cb_(error_c(current_token.get_locator(),
-                        {"Invalid double value: " + stringed_value}));
-      return nullptr;
-    }
+  NIBI_PARSER_SCAN_LIST(token_e::L_BRACKET, token_e::R_BRACKET, element);
 
-    auto cell = allocate_cell((double)value_actual);
-    cell->locator = current_token.get_locator();
+  next();
 
-    PARSER_ADD_CELL
+  return allocate_cell(list_info_s{list_types_e::DATA, std::move(list)});
+}
+
+cell_ptr intake_c::parser_c::list() {
+
+  auto cell = instruction_list();
+  if (cell) {
+    return cell;
   }
 
-  case token_e::RAW_STRING: {
-    PARSER_ENFORCE_CURRENT_CELL("Unexpected string");
-    auto cell = allocate_cell(current_token.get_data());
-    cell->locator = current_token.get_locator();
-
-    PARSER_ADD_CELL
+  cell = data_list();
+  if (cell) {
+    return cell;
   }
+
+  cell = access_list();
+  if (cell) {
+    return cell;
+  }
+
+  return nullptr;
+}
+
+cell_ptr intake_c::parser_c::data() {
+
+  auto data = symbol();
+  if (data) {
+    return data;
+  }
+
+  data = number();
+  if (data) {
+    return data;
+  }
+
+  data = string();
+  if (data) {
+    return data;
+  }
+
+  return nullptr;
+}
+
+cell_ptr intake_c::parser_c::element() {
+  auto element = data();
+  if (element) {
+    return element;
+  }
+
+  element = list();
+  if (element) {
+    return element;
   }
   return nullptr;
+}
+
+cell_ptr intake_c::parser_c::symbol() {
+
+  if (current_token() != token_e::SYMBOL) {
+    return nullptr;
+  }
+
+  auto symbol_raw = current_data();
+
+  auto router_location = symbol_router_.find(symbol_raw);
+
+  if (router_location == symbol_router_.end()) {
+    auto cell = allocate_cell(symbol_s{symbol_raw});
+    cell->locator = current_location();
+
+    next();
+
+    return cell;
+  }
+
+  auto cell = allocate_cell(router_location->second);
+  cell->locator = current_location();
+
+  next();
+
+  return cell;
+}
+
+cell_ptr intake_c::parser_c::number() {
+  auto num = integer();
+  if (num) {
+    return num;
+  }
+  num = real();
+  if (num) {
+    return num;
+  }
+  return nullptr;
+}
+
+cell_ptr intake_c::parser_c::integer() {
+
+  if (current_token() != token_e::RAW_INTEGER) {
+    return nullptr;
+  }
+
+  auto stringed_value = current_data();
+
+  int64_t value_actual{0};
+  try {
+    value_actual = std::stoll(stringed_value);
+  } catch (std::exception &e) {
+    error_cb_(error_c(current_location(),
+                      {"Invalid integer value: " + stringed_value}));
+    return nullptr;
+  }
+
+  auto cell = allocate_cell((int64_t)value_actual);
+  cell->locator = current_location();
+
+  next();
+
+  return cell;
+}
+
+cell_ptr intake_c::parser_c::real() {
+  if (current_token() != token_e::RAW_FLOAT) {
+    return nullptr;
+  }
+
+  auto stringed_value = current_data();
+
+  double value_actual{0.00};
+  try {
+    value_actual = std::stod(stringed_value);
+  } catch (std::exception &e) {
+    error_cb_(error_c(current_location(),
+                      {"Invalid double value: " + stringed_value}));
+    return nullptr;
+  }
+
+  auto cell = allocate_cell((double)value_actual);
+  cell->locator = current_location();
+
+  next();
+
+  return cell;
+}
+
+cell_ptr intake_c::parser_c::string() {
+  if (current_token() != token_e::RAW_STRING) {
+    return nullptr;
+  }
+
+  auto cell = allocate_cell(current_data());
+  cell->locator = current_location();
+
+  next();
+
+  return cell;
 }
 
 } // namespace nibi

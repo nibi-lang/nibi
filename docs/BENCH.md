@@ -68,3 +68,15 @@ git hash: **c22ad54acc06c8651b73f3ebd3107a67c28fcfc4**
 | 4sieve.nibi     | 1.9878s | 1987.8231ms |
 | leibniz.nibi    | 0.185s  | 184.9674ms  |
 
+### 29-May-2023
+
+Benchmark after changing out parser and tracking method
+
+git hash **270588749191845e732b0d8c6c24eca3eb2b8dd3**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1453s   | 145.3236ms  |
+| primality.nibi  | 1.8514s   | 1851.4003ms |
+| 4sieve.nibi     | 2.1597s   | 2159.7168ms |
+| leibniz.nibi    | 0.182s    | 182.0244ms  |

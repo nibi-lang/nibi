@@ -37,7 +37,7 @@ public:
   const token_e get_token() const { return token_; }
   //! \brief Get the locator interface.
   const locator_ptr get_locator() const { return locator_; }
-  //! \brief
+  //! \brief Get the data associated with the token.
   const std::string get_data() const { return data_; }
 
 private:
