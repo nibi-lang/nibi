@@ -46,7 +46,6 @@ public:
                 locator_ptr location);
 
 private:
-
   /*
       Simple grammar that defines list building
 

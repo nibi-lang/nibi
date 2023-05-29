@@ -1,7 +1,53 @@
 #include "intake.hpp"
+#include <cassert>
 #include <regex>
 
 namespace nibi {
+
+namespace {
+inline std::string closing_sym_from_token(const token_e token) {
+  assert((token == token_e::R_PAREN || token == token_e::R_BRACKET ||
+          token == token_e::R_BRACE));
+  switch (token) {
+  case token_e::L_PAREN:
+    return ")";
+  case token_e::L_BRACKET:
+    return "]";
+  case token_e::L_BRACE:
+    return "}";
+  default:
+    return "";
+  }
+}
+} // namespace
+
+#define NIBI_PARSER_SCAN_LIST(___sym_open, ___sym_close, ___fn)                \
+  auto tracker = current_location();                                           \
+  while (current_token() != ___sym_close) {                                    \
+    cell_ptr next_cell = ___fn();                                              \
+    if (!next_cell) {                                                          \
+      std::string msg = "Invalid list - Expected value (symbol, number, "      \
+                        "string) or list (instruction, access, data)";         \
+      msg += "\n Got: " + std::string(token_to_string((*tokens_)[index_]));    \
+      msg += "\n It is possible that this is a result of a missing closing "   \
+             "symbol in a previous instruction list";                          \
+      error_cb_(error_c(tracker, msg));                                        \
+      return nullptr;                                                          \
+    }                                                                          \
+    if (!has_next()) {                                                         \
+      error_cb_(error_c(                                                       \
+          tracker, "Invalid instruction - Unexpected end of file/input"));     \
+      return nullptr;                                                          \
+    }                                                                          \
+    list.push_back(next_cell);                                                 \
+    tracker = current_location();                                              \
+  }                                                                            \
+  if (current_token() != ___sym_close) {                                       \
+    std::string msg = "Expected closing '" +                                   \
+                      closing_sym_from_token(___sym_close) + "' symbol";       \
+    error_cb_(error_c(current_location(), msg));                               \
+    return nullptr;                                                            \
+  }
 
 static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
 
@@ -39,16 +85,6 @@ void intake_c::evaluate(std::string_view data,
 }
 
 void intake_c::check_for_complete_expression() {
-  if (!tracker_.instruction_stack_.empty()) {
-    error_cb_(
-        error_c(tracker_.instruction_stack_.top(), "Unmatched opening paren"));
-  }
-  if (!tracker_.data_stack_.empty()) {
-    error_cb_(error_c(tracker_.data_stack_.top(), "Unmatched opening bracket"));
-  }
-  if (!tracker_.access_stack_.empty()) {
-    error_cb_(error_c(tracker_.access_stack_.top(), "Unmatched opening brace"));
-  }
   if (tokens_.size()) {
     error_cb_(error_c(tokens_.back().get_locator(), "Incomplete expression"));
   }
@@ -179,7 +215,7 @@ bool intake_c::process_line(std::string_view data,
       while (col + 1 < data.size() && !std::isspace(data[col + 1]) &&
              data[col + 1] != '(' && data[col + 1] != ')' &&
              data[col + 1] != '[' && data[col + 1] != ']' &&
-             data[col + 1] != '}' && data[col + 1] != '}') {
+             data[col + 1] != '{' && data[col + 1] != '}') {
         word += data[col + 1];
         col++;
       }
@@ -219,7 +255,8 @@ cell_ptr intake_c::parser_c::parse(std::vector<token_c> &tokens) {
   list = instruction_list();
 
   if (!list) {
-    error_cb_(error_c(tokens[0].get_locator(), "Invalid instruction list"));
+    error_cb_(error_c(tokens[0].get_locator(),
+                      "Invalid instruction list - Expected '('"));
     return nullptr;
   }
   return list;
@@ -249,32 +286,13 @@ cell_ptr intake_c::parser_c::instruction_list() {
     list.push_back(instruction_list());
     break;
   default:
-    error_cb_(error_c(current_location(), "Invalid instruction list"));
-    return nullptr;
-  }
-
-  auto tracker = current_location();
-  while (current_token() != token_e::R_PAREN) {
-    cell_ptr next_cell = element();
-    if (!next_cell) {
-      error_cb_(
-          error_c(tracker, "Invalid instruction list - Expected data or list"));
-      return nullptr;
-    }
-    list.push_back(next_cell);
-    tracker = current_location();
-    if (!has_next()) {
-      error_cb_(error_c(tracker,
-                        "Invalid instruction - Unexpected end of file/input"));
-      return nullptr;
-    }
-  }
-
-  if (current_token() != token_e::R_PAREN) {
     error_cb_(error_c(current_location(),
-                      "Invalid instruction list - Expected closing `)`"));
+                      "Invalid instruction list - Expected symbol, access "
+                      "list, or instruction list"));
     return nullptr;
   }
+
+  NIBI_PARSER_SCAN_LIST(token_e::L_PAREN, token_e::R_PAREN, element);
 
   next();
 
@@ -290,22 +308,7 @@ cell_ptr intake_c::parser_c::access_list() {
 
   cell_list_t list;
 
-  auto tracker = current_location();
-  while (current_token() != token_e::R_BRACE) {
-    cell_ptr next_cell = symbol();
-    if (!next_cell) {
-      error_cb_(
-          error_c(tracker, "Invalid instruction list - Expected data or list"));
-      return nullptr;
-    }
-    list.push_back(next_cell);
-    tracker = current_location();
-    if (!has_next()) {
-      error_cb_(error_c(tracker,
-                        "Invalid instruction - Unexpected end of file/input"));
-      return nullptr;
-    }
-  }
+  NIBI_PARSER_SCAN_LIST(token_e::L_BRACE, token_e::R_BRACE, symbol);
 
   next();
 
@@ -321,22 +324,7 @@ cell_ptr intake_c::parser_c::data_list() {
 
   cell_list_t list;
 
-  auto tracker = current_location();
-  while (current_token() != token_e::R_BRACKET) {
-    cell_ptr next_cell = element();
-    if (!next_cell) {
-      error_cb_(
-          error_c(tracker, "Invalid instruction list - Expected data or list"));
-      return nullptr;
-    }
-    list.push_back(next_cell);
-    tracker = current_location();
-    if (!has_next()) {
-      error_cb_(error_c(tracker,
-                        "Invalid instruction - Unexpected end of file/input"));
-      return nullptr;
-    }
-  }
+  NIBI_PARSER_SCAN_LIST(token_e::L_BRACKET, token_e::R_BRACKET, element);
 
   next();
 
