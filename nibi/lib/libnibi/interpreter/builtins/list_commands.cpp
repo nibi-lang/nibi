@@ -145,5 +145,33 @@ cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
                               list_get_nth_arg(ci, 1, list, env)->clone())});
 }
 
+cell_ptr builtin_fn_list_exec(interpreter_c &ci, cell_list_t &list,
+                              env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("exec", ==, 2)
+
+  auto it = list.begin();
+  std::advance(it, 1);
+
+  auto list_info = ci.execute_cell(*it, env)->as_list_info();
+
+  if (list_info.type != list_types_e::DATA) {
+    throw interpreter_c::exception_c(
+        "Parameter to exec must be a data list : []", (*it)->locator);
+  }
+
+  cell_list_t result;
+
+  auto lit = list_info.list.begin();
+  while (lit != list_info.list.end()) {
+    result.push_back(ci.execute_cell(*lit, env));
+    std::advance(lit, 1);
+  }
+
+  return allocate_cell(list_info_s{
+      list_types_e::DATA,
+      std::move(result),
+  });
+}
+
 } // namespace builtins
 } // namespace nibi
