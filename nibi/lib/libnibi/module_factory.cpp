@@ -33,7 +33,7 @@ private:
 } // namespace
 
 module_viewer_ptr module_factory_c::module_viewer() {
-  return std::make_shared<module_viewer_c>();
+  return std::make_unique<module_viewer_c>();
 }
 
 } // namespace nibi

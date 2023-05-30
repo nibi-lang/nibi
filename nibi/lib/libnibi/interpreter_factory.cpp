@@ -45,12 +45,12 @@ private:
 
 file_interpreter_ptr
 interpreter_factory_c::file_interpreter(error_callback_f error_callback) {
-  return std::make_shared<file_interpreter_c>(error_callback);
+  return std::make_unique<file_interpreter_c>(error_callback);
 }
 
 line_interpreter_ptr
 interpreter_factory_c::line_interpreter(error_callback_f error_callback) {
-  return std::make_shared<line_interpreter_c>(error_callback);
+  return std::make_unique<line_interpreter_c>(error_callback);
 }
 
 } // namespace nibi
