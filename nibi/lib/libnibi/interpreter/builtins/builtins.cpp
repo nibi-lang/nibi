@@ -138,6 +138,11 @@ static function_info_s builtin_cvt_float_inf = {
 static function_info_s builtin_cvt_split_inf = {
     "split", builtin_fn_cvt_to_split, function_type_e::BUILTIN_CPP_FUNCTION};
 
+// reflection
+
+static function_info_s builtin_reflect_type_inf = {
+    "type", builtin_fn_reflect_type, function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
     {{"eq", builtin_comparison_eq_inf},
@@ -192,7 +197,8 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"str", builtin_cvt_string_inf},
      {"int", builtin_cvt_int_inf},
      {"float", builtin_cvt_float_inf},
-     {"split", builtin_cvt_split_inf}};
+     {"split", builtin_cvt_split_inf},
+     {"type", builtin_reflect_type_inf}};
 
 // Retrieve the map of symbols to function info structs
 function_router_t get_builtin_symbols_map() { return keyword_map; }
