@@ -145,9 +145,9 @@ cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
                               list_get_nth_arg(ci, 1, list, env)->clone())});
 }
 
-cell_ptr builtin_fn_list_exec(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_proc(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("exec", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE("proc", ==, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -156,7 +156,7 @@ cell_ptr builtin_fn_list_exec(interpreter_c &ci, cell_list_t &list,
 
   if (list_info.type != list_types_e::DATA) {
     throw interpreter_c::exception_c(
-        "Parameter to exec must be a data list : []", (*it)->locator);
+        "Parameter to proc must be a data list : []", (*it)->locator);
   }
 
   cell_list_t result;

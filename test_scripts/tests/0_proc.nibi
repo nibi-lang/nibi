@@ -5,26 +5,26 @@
   (eq "[1 2 var (<function:clone, type:BUILTIN_CPP_FUNCTION> var) (<function:putln, type:BUILTIN_CPP_FUNCTION> YO) (<function::=, type:BUILTIN_CPP_FUNCTION> woot 44)]"
     list) "List was not literal")
 
-(:= execd (exec list))
+(:= procd (proc list))
 
 (assert
   (eq "[1 2 3 3 0 44]"
-    execd) "Execd was not fully executed")
+    procd) "Execd was not fully processed")
 
 (assert (eq 44 woot) "Woot was not set")
 
-(set (at execd 2) 99)
+(set (at procd 2) 99)
 
 (assert
   (eq "[1 2 99 3 0 44]"
-    execd) "Execd was not updated")
+    procd) "Execd was not updated")
 
-(assert (eq 3 var) "Var was updated by execd")
+(assert (eq 3 var) "Var was updated by procd")
 
-(:= pre_loaded (exec [1 2 var (+ var 7)]))
+(:= pre_loaded (proc [1 2 var (+ var 7)]))
 
 (assert
   (eq "[1 2 3 10]"
-    pre_loaded) "Pre loaded was not fully executed")
+    pre_loaded) "Pre loaded was not fully processed")
 
 (putln "completed")
