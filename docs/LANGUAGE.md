@@ -51,13 +51,14 @@ the list with a default variable and then updated with `at` or `iter`.
 
 | list commands | description | returns
 |----   |---- |----
-| >\|    | Push value to front of list | modified list cell
-| \|<    | Push value to back of list  | modified list cell
+| >\|   | Push value to front of list | modified list cell
+| \|<   | Push value to back of list  | modified list cell
 | iter  | Iterate over a list         | iterated list
 | at    | Retrieve an index into a list | cell at given index
 | <\|>  | Spawn a list of a given size with a given value | new list
 | <<\|  | Pop front | list given sans the first element
 | \|>>  | Pop back  | list given sans the last element
+| proc  | Process a data list resolving any symbols and executing any instruction lists | data list with processed results
 
 | arithmetic | description | returns
 |---- |---- |----
@@ -583,6 +584,27 @@ Note: Arg 2 is required to evaluate to an integer type
 
 ```
 ( at < S [] > < () S I > )
+```
+
+### Proc
+
+keyword `proc`
+
+| arg1 |
+|----
+| Data list to process
+
+Data list store symbols as references to the underlying cells by default, 
+so the proc command is meant to resolve symbols to load into a data list
+and can be used to store a list of instructions that needs to be executed
+in a particular order. 
+
+The proc command only resolves "one level" deep meaning that if a symbol resolves
+to a data list that contains further symbols, the inner resolved list will itself
+_not_ be resolved.
+
+```
+( proc < S [] > )
 ```
 
 ----
