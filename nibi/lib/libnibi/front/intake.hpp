@@ -93,19 +93,19 @@ private:
     cell_list_t current_list_;
     error_callback_f error_cb_;
 
-    cell_ptr instruction_list();
-    cell_ptr access_list();
-    cell_ptr data_list();
+    inline cell_ptr instruction_list();
+    inline cell_ptr access_list();
+    inline cell_ptr data_list();
 
-    cell_ptr list();
-    cell_ptr data();
-    cell_ptr element();
+    inline cell_ptr list();
+    inline cell_ptr data();
+    inline cell_ptr element();
 
-    cell_ptr symbol();
-    cell_ptr number();
-    cell_ptr integer();
-    cell_ptr real();
-    cell_ptr string();
+    inline cell_ptr symbol();
+    inline cell_ptr number();
+    inline cell_ptr integer();
+    inline cell_ptr real();
+    inline cell_ptr string();
   };
 
   struct tracker_s {
