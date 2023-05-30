@@ -48,6 +48,7 @@ the list with a default variable and then updated with `at` or `iter`.
 | int     | Convert an item to an integer type | converted value 
 | float   | Convert an item to a float type | converted value 
 | split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
+| type    | Retrieve a string detailing the type of a given item | string
 
 | list commands | description | returns
 |----   |---- |----
@@ -134,7 +135,7 @@ The meta list `<>` encompasses only one parameter into the given keyword
 
 Keyword: `:=`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | symbol to designate | symbol or list that will yield the value to set
 
@@ -150,7 +151,7 @@ Keyword: `:=`
 
 Keyword: `set`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | symbol or list that will yield the cell to update | symbol or list that will yield the value to set
 
@@ -174,7 +175,7 @@ All arguments must be expressed as a `symbol`
 
 Keyword: `len`
 
-| arg1
+| arg 1
 |----
 | Item to retrieve length of 
 
@@ -191,7 +192,7 @@ Note: If the item is not a list it will be converted to a string and the length 
 
 Keyword: `<-`
 
-| arg1
+| arg 1
 |----
 | Item to return
 
@@ -203,7 +204,7 @@ Keyword: `<-`
 
 Keyword: `?`
 
-| arg1               | arg2                    | arg3 (optional)
+| arg 1               | arg 2                    | arg3 (optional)
 |----                |----                     |----
 | Condition to check | Body to execute if true | Body to execute if false
 
@@ -215,7 +216,7 @@ Keyword: `?`
 
 Keyword: `?`
 
-| arg1          | arg2               | arg3           | arg4
+| arg 1          | arg 2               | arg3           | arg4
 |----           |----                |----            |----
 | Pre condition | Condition to check | Post condition | Body
 
@@ -234,7 +235,7 @@ the pre condition
 
 Keyword: `clone`
 
-| arg1
+| arg 1
 |----
 | Item to clone
 
@@ -364,11 +365,11 @@ lists, and execute each member.
 
 Keyword: `throw`
 
-| arg1 |
+| arg 1 |
 |----  |
 | cell to execute and throw string value of
 
-Note: Whatever is returned from the execution of arg1 will be forcefully converted to a string for the given
+Note: Whatever is returned from the execution of arg 1 will be forcefully converted to a string for the given
 exception. If the result can not be turned into a string it will throw a cell_access_exception instead.
 
 This means that if you want to directly update the cell that `$it` points to, you NEED to use `set`
@@ -383,7 +384,7 @@ and be overwritten at the end of the instruction list.
 
 Keyword: `assert`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | condition to check | string value to throw in an exception if assertion fails
 
@@ -395,7 +396,7 @@ Keyword: `assert`
 
 Keyword: `exit`
 
-| arg1 |
+| arg 1 |
 |----
 | Number to set as exit code - must be integer
 
@@ -407,7 +408,7 @@ Keyword: `exit`
 
 Keyword: `eval`
 
-| arg1 |
+| arg 1 |
 |----
 | String to evaluate
 
@@ -419,7 +420,7 @@ Keyword: `eval`
 
 Keyword `quote`
 
-| arg1 |
+| arg 1 |
 |----
 | Item to quote
 
@@ -431,7 +432,7 @@ Keyword `quote`
 
 Keyword `str`
 
-| arg1 |
+| arg 1 |
 |----
 | Item to convert to string
 
@@ -443,7 +444,7 @@ Keyword `str`
 
 Keyword `int`
 
-| arg1 |
+| arg 1 |
 |----
 | Item to convert to an integer
 
@@ -455,7 +456,7 @@ Keyword `int`
 
 Keyword `float`
 
-| arg1 |
+| arg 1 |
 |----
 | Item to convert to a float
 
@@ -466,7 +467,8 @@ Keyword `float`
 ### Split 
 
 | arg 1         | arg 2  
-| Item to split | length - only required if arg1 is a list
+|----           |----
+| Item to split | length - only required if arg 1 is a list
 
 Note: Split will not resolve symbols in a given list
 
@@ -479,6 +481,42 @@ Note: A value of `0` passed as argument 2 when argument 1 is a list
 # With list:
 
 ( split < S [] > < NU S () > )
+
+```
+
+### Type
+
+| arg 1 |
+|----
+| Item to get the type of
+
+Returns a string detailing the type of what `arg 1` resolves to.
+
+The possible strings returned are as follows:
+
+| return | info
+|----    |----
+| aberrant  | Aberrant cells are under-the-hood cells that shouldn't be able to be accessed |
+| nil       | A nil cell        |
+| int       | An integer cell   |
+| float     | A float cell      |
+| string    | A string cell     |
+| list:data     | A data list   |
+| list:access   | An access list |
+| list:instruction An instruction list |
+| list          | Undetermined list type |
+| function      | Function |
+| environment   | An environment of cells |
+| symbol        | A symbol  |
+| unknown       | Unknown type |
+
+The following cells will only show up if either something goes terribly wrong, 
+or you are working on extending the language with a module or working on nibi itself.
+
+    aberrant, list, symbol, unknown
+
+```
+( type < S () [] RD > ) 
 
 ```
 
@@ -496,7 +534,7 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
       a list is the "left" side when reading
 ```
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to push | list to push to
 
@@ -514,7 +552,7 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
       a list is the "left" side when reading
 ```
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to push | list to push to
 
@@ -526,7 +564,7 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
 
 keyword: `<|>`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to default all elements to| size of the list that must resolve to integer >0
 
@@ -536,7 +574,7 @@ keyword: `<|>`
 
 ### Pop front
 
-| arg1 |
+| arg 1 |
 |----
 | list to pop the front of
 
@@ -546,7 +584,7 @@ keyword: `<|>`
 
 ### Pop back
 
-| arg1 |
+| arg 1 |
 |----
 | list to pop the back of
 
@@ -558,7 +596,7 @@ keyword: `<|>`
 
 keyword: `iter`
 
-| arg1            | arg2                        | arg3 |
+| arg 1            | arg 2                        | arg3 |
 |----             |----                         |----
 | list to iterate | symbol name to map value to | instruction(s) to execute per item
 
@@ -574,7 +612,7 @@ instruction, the symbol will be removed.
 
 keyword: `at`
 
-| arg1               | arg2 |
+| arg 1               | arg 2 |
 |----                |----
 | list to index into | index to access
 
@@ -590,7 +628,7 @@ Note: Arg 2 is required to evaluate to an integer type
 
 keyword `proc`
 
-| arg1 |
+| arg 1 |
 |----
 | Data list to process
 
@@ -647,7 +685,7 @@ the remaining comparisons require that the arguments are numerical types (intege
 
 keyword: `bw-lsh`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to shift | amount to shift
 
@@ -659,7 +697,7 @@ keyword: `bw-lsh`
 
 keyword: `bw-rsh`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to shift | amount to shift
 
@@ -670,7 +708,7 @@ keyword: `bw-rsh`
 
 keyword: `bw-and`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to shift | amount to shift
 
@@ -681,7 +719,7 @@ keyword: `bw-and`
 
 keyword: `bw-or`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to shift | amount to shift
 
@@ -693,7 +731,7 @@ keyword: `bw-or`
 
 keyword: `bw-xor`
 
-| arg1 | arg2 |
+| arg 1 | arg 2 |
 |----  |----
 | value to shift | amount to shift
 
@@ -704,7 +742,7 @@ keyword: `bw-xor`
 
 keyword: `bw-not`
 
-| arg1
+| arg 1
 |----
 | value to not
 
