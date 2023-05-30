@@ -26,9 +26,9 @@ struct module_info_s {
   std::optional<std::string> version{std::nullopt};
 };
 
-using file_interpreter_ptr = std::shared_ptr<file_interpreter_if>;
-using line_interpreter_ptr = std::shared_ptr<line_interpreter_if>;
-using module_viewer_ptr = std::shared_ptr<module_viewer_if>;
+using file_interpreter_ptr = std::unique_ptr<file_interpreter_if>;
+using line_interpreter_ptr = std::unique_ptr<line_interpreter_if>;
+using module_viewer_ptr = std::unique_ptr<module_viewer_if>;
 using error_callback_f = std::function<void(error_c)>;
 using function_router_t =
     phmap::parallel_node_hash_map<std::string, function_info_s> &;
