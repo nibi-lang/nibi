@@ -1,34 +1,38 @@
 #include "intake.hpp"
 #include <cassert>
-#include <regex>
 #include <iostream>
+#include <regex>
 
 namespace nibi {
 
 namespace {
 
 token_c generate_type_token(token_e token, locator_ptr locator) {
-  
-  switch (token) {
-    case token_e::NIL: return token_c(locator, token_e::NIL, "");
-    case token_e::TRUE: return token_c(locator, token_e::TRUE, "1");
-    case token_e::FALSE: return token_c(locator, token_e::FALSE, "0");
-    case token_e::NOT_A_NUMBER: return token_c(locator, token_e::NOT_A_NUMBER,
-                           std::to_string(std::numeric_limits<double>::quiet_NaN()));
-    default:
-     std::cerr << "INTERNAL ERROR: Invalid type token: " << (int)token << std::endl;
 
-     std::exit(1);
-     break;
+  switch (token) {
+  case token_e::NIL:
+    return token_c(locator, token_e::NIL, "");
+  case token_e::TRUE:
+    return token_c(locator, token_e::TRUE, "1");
+  case token_e::FALSE:
+    return token_c(locator, token_e::FALSE, "0");
+  case token_e::NOT_A_NUMBER:
+    return token_c(locator, token_e::NOT_A_NUMBER,
+                   std::to_string(std::numeric_limits<double>::quiet_NaN()));
+  default:
+    std::cerr << "INTERNAL ERROR: Invalid type token: " << (int)token
+              << std::endl;
+
+    std::exit(1);
+    break;
   }
 }
 
 static phmap::parallel_node_hash_map<std::string, token_e> type_map = {
-  {"nil", token_e::NIL},
-  {"true", token_e::TRUE},
-  {"false", token_e::FALSE},
-  {"nan", token_e::NOT_A_NUMBER}
-};
+    {"nil", token_e::NIL},
+    {"true", token_e::TRUE},
+    {"false", token_e::FALSE},
+    {"nan", token_e::NOT_A_NUMBER}};
 
 inline std::string closing_sym_from_token(const token_e token) {
   assert((token == token_e::R_PAREN || token == token_e::R_BRACKET ||
@@ -505,7 +509,8 @@ cell_ptr intake_c::parser_c::boolean() {
 }
 
 cell_ptr intake_c::parser_c::real() {
-  if (current_token() != token_e::RAW_FLOAT && current_token() != token_e::NOT_A_NUMBER) {
+  if (current_token() != token_e::RAW_FLOAT &&
+      current_token() != token_e::NOT_A_NUMBER) {
     return nullptr;
   }
 
