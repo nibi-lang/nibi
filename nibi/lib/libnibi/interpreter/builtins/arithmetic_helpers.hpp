@@ -20,6 +20,11 @@ static inline T list_perform_sub(T base_value, interpreter_c &ci,
                                  std::function<T(cell_ptr)> conversion_method,
                                  cell_list_t &list, env_c &env) {
   T accumulate{base_value};
+
+  if (list.size() == 2) {
+    return 0 - conversion_method(ci.execute_cell(list[1], env));
+  }
+
   NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate -= conversion_method(arg); })
   return accumulate;
 }

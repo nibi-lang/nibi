@@ -33,6 +33,7 @@ coded in:
 | true    | 1     | An integer with value 1
 | false   | 0     | An integer with value 0
 | nan     | NaN   | A float encoded with NaN
+| inf     | inf   | A float encoded with inf
 
 Any given qt can be used as a drop-in replacement for its raw data representation with the 
 exception of `nil` which has no raw data representation, however, nil can be used as if it were 
@@ -666,7 +667,8 @@ _not_ be resolved.
 
 ## Arithmetic
 
-A variable number of arguments accepted with the minimum being 2
+A variable number of arguments accepted with the minimum being 2, 
+with the exception of `-` which will subtract the given value from 0 by default.
 
 ```
 ( op < S () .. > .. )

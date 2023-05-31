@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include <regex>
+#include <limits>
 
 namespace nibi {
 
@@ -19,6 +20,9 @@ token_c generate_type_token(token_e token, locator_ptr locator) {
   case token_e::NOT_A_NUMBER:
     return token_c(locator, token_e::NOT_A_NUMBER,
                    std::to_string(std::numeric_limits<double>::quiet_NaN()));
+  case token_e::INF:
+    return token_c(locator, token_e::INF,
+                   std::to_string(std::numeric_limits<double>::infinity()));
   default:
     std::cerr << "INTERNAL ERROR: Invalid type token: " << (int)token
               << std::endl;
@@ -32,7 +36,8 @@ static phmap::parallel_node_hash_map<std::string, token_e> type_map = {
     {"nil", token_e::NIL},
     {"true", token_e::TRUE},
     {"false", token_e::FALSE},
-    {"nan", token_e::NOT_A_NUMBER}};
+    {"nan", token_e::NOT_A_NUMBER},
+    {"inf", token_e::INF}};
 
 inline std::string closing_sym_from_token(const token_e token) {
   assert((token == token_e::R_PAREN || token == token_e::R_BRACKET ||
@@ -510,7 +515,8 @@ cell_ptr intake_c::parser_c::boolean() {
 
 cell_ptr intake_c::parser_c::real() {
   if (current_token() != token_e::RAW_FLOAT &&
-      current_token() != token_e::NOT_A_NUMBER) {
+      current_token() != token_e::NOT_A_NUMBER &&
+      current_token() != token_e::INF) {
     return nullptr;
   }
 
