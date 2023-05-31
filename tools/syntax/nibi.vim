@@ -8,28 +8,39 @@ if exists('b:current_syntax')
   finish
 endif
 
+syn cluster nibiCluster contains=ALL
+syn region nibiString start=/"/ skip=/\\"/ end=/"/ oneline contains=nibiStringWrapper contained
+syn region nibiStringWrapper start="\v\\\(\s*" end="\v\s*\)" contained containedin=nibiString contains=nibiInterpolatedString
+syn region nibiInsList start='(' end=')' contains=@nibiCluster
+syn region nibiDataList start='\[' end='\]' contained contains=@nibiCluster
+syn region nibiAccessList start='{' end='}' contained contains=@nibiCluster
+
+syntax match nibiInterpolatedString "\v\w+(\(\))?" contained containedin=nibiStringWrapper
 syn match nibiComment "#.*$"
+syn match nibiIdentifier '[a-zA-Z_][a-zA-Z0-9_]*' contained
+syn match nibiNumber '\d\+' contained
 
-syn match nibiString '".*"'  
-syn match nibiIdentifier '[a-zA-Z_][a-zA-Z0-9_]*' 
-syn match nibiNumber '\d\+' 
-syn match nibiAssign ':='  
-syn match nibiOperator '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|?\|+\|-\|*\|/\)' 
-syn match nibiListOperations '\(>|\||<\|<|>\)' 
-syn match nibiKeywords '\v(set|fn|drop|try|throw|assert|len|clone|put|putln|env|at|iter|eval|quote|loop|exit|quote|import|use)'  
-syn match nibiRet '<-' 
-syn match nibiAbsLists '\((\|)\|{\|}\|\[\|]\)' 
+syn keyword nibiFunc set fn drop try throw assert len clone put putln 
+syn keyword nibiFunc env at iter eval quote loop exit quote import use
+syn keyword nibiFunc int str float split type proc
 
+syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|?\|+\|-\|*\|/\)'
+syn match nibiFunc '\(bw-and\|bw-or\|bw-xor\|bw-not\|bw-lsh\|bw-rsh\|<-\)'
+syn match nibiFunc ':='
+syn match nibiFunc '<<|'
+syn match nibiFunc '|>>'
+syn match nibiFunc "<|>"
+syn match nibiFunc '>|'
+syn match nibiFunc '|<'
+
+hi def link nibiFunc Function
 hi def link nibiNumber Number
 hi def link nibiComment Comment
 hi def link nibiIdentifier Identifier
 hi def link nibiString String
-hi def link nibiOperator Operator
-hi def link nibiAssign Keyword
-hi def link nibiListOperations Keyword
-hi def link nibiKeywords Keyword
-hi def link nibiRet Keyword
-hi def link nibiAbsLists Keyword
+hi def link nibiInsList Keyword
+hi def link nibiDataList Keyword
+hi def link nibiAccessList Keyword
 
 let b:current_syntax = "nibi"
 
