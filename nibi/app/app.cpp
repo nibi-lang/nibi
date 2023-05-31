@@ -8,7 +8,8 @@
 
 #include <libnibi/nibi.hpp>
 
-#include "app/repl/repl.hpp"
+#include "arger.hpp"
+#include "repl/repl.hpp"
 
 #ifndef NIBI_BUILD_HASH
 #define NIBI_BUILD_HASH "unknown"
@@ -225,73 +226,91 @@ void run_tests(std::string &dir) {
   }
 }
 
+void args_error_cb(args::errors_e error, const std::string &arg) {
+  std::cout << "Error [" << args::error_to_string(error) << "] " << arg
+            << std::endl;
+  std::exit(1);
+}
+
 int main(int argc, char **argv) {
 
 #if CALCULATE_EXECUTION_TIME
   auto app_start = std::chrono::high_resolution_clock::now();
 #endif
-
-  std::vector<std::string> remaining_args;
   std::vector<std::filesystem::path> include_dirs;
   std::vector<std::string> args =
       std::vector<std::string>(argv + 1, argv + argc);
 
-  pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
+  std::string launch_target;
 
-  for (std::size_t i = 0; i < args.size(); i++) {
-    if (args[i] == "-h" || args[i] == "--help") {
-      show_help();
-      return 0;
-    }
+  {
+    args::arger_c arger;
+    arger.set_error_cb(args_error_cb);
+    arger.add_flag({"-h", "--help"},   "Show help", false);
+    arger.add_flag({"-v", "--version"},  "Show version information", false);
+    arger.add_argument({"-t", "--test"}, "Run module tests for a single module");
+    arger.add_argument({"-i", "--include"}, "Add an include directories. `:` delimited");
+    arger.add_argument({"-m", "--module"}, "Display module information for given module");
 
-    if (args[i] == "-v" || args[i] == "--version") {
-      show_version();
-      return 0;
-    }
+    arger.parse(argc, argv);
 
-    if (args[i] == "-t" || args[i] == "--test") {
-      if (i + 1 >= args.size()) {
-        std::cout << "No module name specified to test" << std::endl;
-        return 1;
+    pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
+
+    {
+      auto do_action = arger.get_arg<bool>("--help");
+      if (do_action.has_value() && (*do_action)) {
+        show_help();
+        return 0;
       }
-      pdc->add_include_dir(std::filesystem::current_path());
-      run_tests(args[i + 1]);
-      return 0;
     }
 
-    if (args[i] == "-i" || args[i] == "--include") {
-      if (i + 1 >= args.size()) {
-        std::cout << "No include directory specified" << std::endl;
-        return 1;
+    {
+      auto do_action = arger.get_arg<bool>("--version");
+      if (do_action.has_value() && (*do_action)) {
+        show_version();
+        return 0;
       }
-      std::stringstream ss(args[i + 1]);
-      std::string item;
-      while (std::getline(ss, item, ':')) {
-        pdc->add_include_dir(item);
-      }
-      ++i;
-      continue;
     }
 
-    if (args[i] == "-m" || args[i] == "--module") {
-      if (i + 1 >= args.size()) {
-        std::cout << "No module name specified" << std::endl;
-        return 1;
+    {
+      auto do_action = arger.get_arg<std::string>("--test");
+      if (do_action.has_value() && (*do_action).size() > 0) {
+        pdc->add_include_dir(std::filesystem::current_path());
+        run_tests(*do_action);
+        return 0;
       }
-      pdc->add_include_dir(std::filesystem::current_path());
-      show_module_info(args[i + 1]);
-      return 0;
     }
 
-    remaining_args.push_back(args[i]);
+    {
+      auto do_action = arger.get_arg<std::string>("--module");
+      if (do_action.has_value() && (*do_action).size() > 0) {
+        pdc->add_include_dir(std::filesystem::current_path());
+        show_module_info(*do_action);
+        return 0;
+      }
+    }
+
+    {
+      auto do_action = arger.get_arg<std::string>("--include");
+      if (do_action.has_value() && (*do_action).size() > 0) {
+        std::stringstream ss(*do_action);
+        std::string item;
+        while (std::getline(ss, item, ':')) {
+          pdc->add_include_dir(item);
+        }
+      }
+    }
+
+    auto unmatched = arger.get_unmatched_args();
+    if (unmatched.size() >= 1) {
+      launch_target = arger.get_unmatched_args()[0];
+    }
   }
 
-  if (remaining_args.empty()) {
+  if (launch_target.empty()) {
     app::start_repl();
     return 0;
   }
-
-  auto &launch_target = remaining_args[0];
 
   bool run_as_dir = false;
   if (std::filesystem::is_directory(launch_target)) {
@@ -299,7 +318,7 @@ int main(int argc, char **argv) {
   } else if (std::filesystem::is_regular_file(launch_target)) {
     run_as_dir = false;
   } else {
-    std::cout << "Invalid file or directory: " << remaining_args[0]
+    std::cout << "Invalid file or directory: " << launch_target
               << std::endl;
     return 1;
   }
