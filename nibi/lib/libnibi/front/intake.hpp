@@ -59,9 +59,8 @@ private:
       data              - symbol | number | string | nil
       number            - integer | real | boolean
       integer           - [-]? <digit>+
-      real              - [-]? <integer> '.' <integer> | not-a-number (NaN) | inf
-      string            - '"' <any> '"'
-      symbol            - <any>
+      real              - [-]? <integer> '.' <integer> | not-a-number (NaN) |
+     inf string            - '"' <any> '"' symbol            - <any>
    */
   class parser_c {
   public:

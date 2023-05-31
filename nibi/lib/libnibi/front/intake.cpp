@@ -1,8 +1,8 @@
 #include "intake.hpp"
 #include <cassert>
 #include <iostream>
-#include <regex>
 #include <limits>
+#include <regex>
 
 namespace nibi {
 

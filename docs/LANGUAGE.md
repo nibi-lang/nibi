@@ -404,10 +404,11 @@ Keyword: `assert`
 
 | arg 1 | arg 2 |
 |----  |----
-| condition to check | string value to throw in an exception if assertion fails
+| condition to check | string value to throw in an exception if assertion fails <optional>
 
 ```
 ( assert < () S > STR )
+( assert < () S > )
 ```
 
 ### Exit
