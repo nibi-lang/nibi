@@ -8,8 +8,6 @@
 
 The Nibi programming language! Nibi is a list processing language that is under heavy development.
 
-To get started, you can run `commander.py` to help build/ install Nibi and its default modules.
-
 For documentation on the language please see `docs/LANGUAGE.md` 
 
 ## Demo applications
@@ -64,6 +62,23 @@ For documentation on the language please see `docs/LANGUAGE.md`
    (? (< magic_number guess) (putln "Lower!") (putln "Higher!"))
 ])
 ```
+
+## Installing
+
+To get started, clone the repo and ensure you run:
+
+```
+    git submodule update --init --recursive
+```
+
+Before installing `nibi` you will need to create the `NIBI_HOME` environment variable that directs
+to an area that modules and everything can be installed to. 
+
+Once that is done use `commander.py` to help build/ install Nibi and its default modules.
+
+You can use `-h` to see the options, or just use `-n -m -c -t` 
+to build nibi, build/ install the modules, run module checks, and automated tests to ensure
+that the system is setup correctly.
 
 # Applications
 
