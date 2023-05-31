@@ -246,11 +246,14 @@ int main(int argc, char **argv) {
   {
     args::arger_c arger;
     arger.set_error_cb(args_error_cb);
-    arger.add_flag({"-h", "--help"},   "Show help", false);
-    arger.add_flag({"-v", "--version"},  "Show version information", false);
-    arger.add_argument({"-t", "--test"}, "Run module tests for a single module");
-    arger.add_argument({"-i", "--include"}, "Add an include directories. `:` delimited");
-    arger.add_argument({"-m", "--module"}, "Display module information for given module");
+    arger.add_flag({"-h", "--help"}, "Show help", false);
+    arger.add_flag({"-v", "--version"}, "Show version information", false);
+    arger.add_argument({"-t", "--test"},
+                       "Run module tests for a single module");
+    arger.add_argument({"-i", "--include"},
+                       "Add an include directories. `:` delimited");
+    arger.add_argument({"-m", "--module"},
+                       "Display module information for given module");
 
     arger.parse(argc, argv);
 
@@ -318,8 +321,7 @@ int main(int argc, char **argv) {
   } else if (std::filesystem::is_regular_file(launch_target)) {
     run_as_dir = false;
   } else {
-    std::cout << "Invalid file or directory: " << launch_target
-              << std::endl;
+    std::cout << "Invalid file or directory: " << launch_target << std::endl;
     return 1;
   }
 
