@@ -27,6 +27,14 @@ const char *token_to_string(const token_c &token) {
     return "SYMBOL";
   case token_e::NIL:
     return "NIL";
+  case token_e::TRUE:
+    return "TRUE";
+  case token_e::FALSE:
+    return "FALSE";
+  case token_e::NOT_A_NUMBER:
+    return "NaN";
+  case token_e::INF:
+    return "INF";
   }
   return "<<<UNKNOWN>>>";
 }

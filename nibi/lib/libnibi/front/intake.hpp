@@ -56,12 +56,11 @@ private:
       data_list         - '[' <element>+ ']'
       element           - data | list
       list              - instruction_list | data_list | access_list
-      data              - symbol | number | string
-      number            - integer | real
+      data              - symbol | number | string | nil
+      number            - integer | real | boolean
       integer           - [-]? <digit>+
-      real              - [-]? <integer> '.' <integer>
-      string            - '"' <any> '"'
-      symbol            - <any>
+      real              - [-]? <integer> '.' <integer> | not-a-number (NaN) |
+     inf string            - '"' <any> '"' symbol            - <any>
    */
   class parser_c {
   public:
@@ -104,8 +103,10 @@ private:
     inline cell_ptr symbol();
     inline cell_ptr number();
     inline cell_ptr integer();
+    inline cell_ptr boolean();
     inline cell_ptr real();
     inline cell_ptr string();
+    inline cell_ptr nil();
   };
 
   struct tracker_s {

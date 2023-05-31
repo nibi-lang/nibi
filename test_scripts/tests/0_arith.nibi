@@ -4,3 +4,4 @@
 (assert (eq 100 (*  10  10)) "fail")
 (assert (eq 1   (%  11  10)) "fail")
 (assert (eq 256 (** 2    8)) "fail")
+(assert (eq -10 (-  10    )) "fail")

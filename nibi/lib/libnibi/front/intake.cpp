@@ -1,10 +1,44 @@
 #include "intake.hpp"
 #include <cassert>
+#include <iostream>
+#include <limits>
 #include <regex>
 
 namespace nibi {
 
 namespace {
+
+token_c generate_type_token(token_e token, locator_ptr locator) {
+
+  switch (token) {
+  case token_e::NIL:
+    return token_c(locator, token_e::NIL, "");
+  case token_e::TRUE:
+    return token_c(locator, token_e::TRUE, "1");
+  case token_e::FALSE:
+    return token_c(locator, token_e::FALSE, "0");
+  case token_e::NOT_A_NUMBER:
+    return token_c(locator, token_e::NOT_A_NUMBER,
+                   std::to_string(std::numeric_limits<double>::quiet_NaN()));
+  case token_e::INF:
+    return token_c(locator, token_e::INF,
+                   std::to_string(std::numeric_limits<double>::infinity()));
+  default:
+    std::cerr << "INTERNAL ERROR: Invalid type token: " << (int)token
+              << std::endl;
+
+    std::exit(1);
+    break;
+  }
+}
+
+static phmap::parallel_node_hash_map<std::string, token_e> type_map = {
+    {"nil", token_e::NIL},
+    {"true", token_e::TRUE},
+    {"false", token_e::FALSE},
+    {"nan", token_e::NOT_A_NUMBER},
+    {"inf", token_e::INF}};
+
 inline std::string closing_sym_from_token(const token_e token) {
   assert((token == token_e::R_PAREN || token == token_e::R_BRACKET ||
           token == token_e::R_BRACE));
@@ -220,6 +254,14 @@ bool intake_c::process_line(std::string_view data,
         col++;
       }
 
+      {
+        auto item = type_map.find(word);
+        if (item != type_map.end()) {
+          process_token(generate_type_token(item->second, locator));
+          break;
+        }
+      }
+
       process_token(token_c(locator, token_e::SYMBOL, word));
       break;
     }
@@ -368,6 +410,11 @@ cell_ptr intake_c::parser_c::data() {
     return data;
   }
 
+  data = nil();
+  if (data) {
+    return data;
+  }
+
   return nullptr;
 }
 
@@ -420,6 +467,10 @@ cell_ptr intake_c::parser_c::number() {
   if (num) {
     return num;
   }
+  num = boolean();
+  if (num) {
+    return num;
+  }
   return nullptr;
 }
 
@@ -448,8 +499,24 @@ cell_ptr intake_c::parser_c::integer() {
   return cell;
 }
 
+cell_ptr intake_c::parser_c::boolean() {
+
+  if (current_token() != token_e::TRUE && current_token() != token_e::FALSE) {
+    return nullptr;
+  }
+
+  auto cell = allocate_cell((int64_t)(current_token() == token_e::TRUE));
+  cell->locator = current_location();
+
+  next();
+
+  return cell;
+}
+
 cell_ptr intake_c::parser_c::real() {
-  if (current_token() != token_e::RAW_FLOAT) {
+  if (current_token() != token_e::RAW_FLOAT &&
+      current_token() != token_e::NOT_A_NUMBER &&
+      current_token() != token_e::INF) {
     return nullptr;
   }
 
@@ -478,6 +545,19 @@ cell_ptr intake_c::parser_c::string() {
   }
 
   auto cell = allocate_cell(current_data());
+  cell->locator = current_location();
+
+  next();
+
+  return cell;
+}
+
+cell_ptr intake_c::parser_c::nil() {
+  if (current_token() != token_e::NIL) {
+    return nullptr;
+  }
+
+  auto cell = allocate_cell(cell_type_e::NIL);
   cell->locator = current_location();
 
   next();
