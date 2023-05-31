@@ -18,6 +18,9 @@ jobs:
           name: Construct NIBI_PATH
           command: 'mkdir /tmp/nibi_path'
       - run:
+          name: Submodules
+          command: 'git submodule update --init --recursive'
+      - run:
           name: Build and install libnibi, and nibi
           command: 'python3 commander.py -n'
       - run:

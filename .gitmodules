@@ -1,0 +1,3 @@
+[submodule "nibi/app/arger"]
+	path = nibi/app/arger
+	url = https://github.com/bosley/arger.git
