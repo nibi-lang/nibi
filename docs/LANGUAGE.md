@@ -21,6 +21,23 @@ to copy it into the list. With that said, since instructions inside data lists d
 get executed, in order to get the value in it must be done via a push, or by instantiating
 the list with a default variable and then updated with `at` or `iter`.
 
+# Quick Types
+
+A quick type (qt) is a keyword that is bound to a specific value. These are created to make
+programs more readable and to introduce some concepts that would otherwise have to be hand
+coded in:
+
+| keyword | value | description
+|----     |----   |----
+| nil     | nil   | A nil value
+| true    | 1     | An integer with value 1
+| false   | 0     | An integer with value 0
+| nan     | NaN   | A float encoded with NaN
+
+Any given qt can be used as a drop-in replacement for its raw data representation with the 
+exception of `nil` which has no raw data representation, however, nil can be used as if it were 
+any other piece of data in the instructions below.
+
 # Instruction
 
 | keyword | description | returns

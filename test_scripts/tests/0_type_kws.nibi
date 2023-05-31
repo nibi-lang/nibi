@@ -1,0 +1,6 @@
+(assert (eq "nil" (type nil)) "")
+(assert (eq "float" (type nan)) "")
+(assert (eq "int" (type true)) "")
+(assert (eq "int" (type false)) "")
+(assert (eq 0 false) "")
+(assert (eq 1 true) "")

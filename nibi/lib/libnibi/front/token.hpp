@@ -7,6 +7,9 @@ namespace nibi {
 
 enum class token_e {
   NIL,
+  TRUE,
+  FALSE,
+  NOT_A_NUMBER,
   L_PAREN,
   R_PAREN,
   L_BRACKET,
