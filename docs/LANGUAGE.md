@@ -555,7 +555,7 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
 
 | arg 1 | arg 2 |
 |----  |----
-| value to push | list to push to
+| list to push to | value to push
 
 ```
 ( >| < () [] S RD > [] )
@@ -573,7 +573,7 @@ Note: the `|` is meant to represent the boundary of a list, with the `>` showing
 
 | arg 1 | arg 2 |
 |----  |----
-| value to push | list to push to
+| list to push to | value to push
 
 ```
 ( |< < () [] S RD > [] )

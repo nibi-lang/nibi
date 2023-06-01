@@ -12,9 +12,9 @@ cell_ptr builtin_fn_list_push_front(interpreter_c &ci, cell_list_t &list,
                                     env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(">|", ==, 3)
 
-  auto value_to_push = list_get_nth_arg(ci, 1, list, env);
+  auto value_to_push = list_get_nth_arg(ci, 2, list, env);
 
-  auto list_to_push_to = list_get_nth_arg(ci, 2, list, env);
+  auto list_to_push_to = list_get_nth_arg(ci, 1, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 
@@ -28,9 +28,9 @@ cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("|<", ==, 3)
 
-  auto value_to_push = list_get_nth_arg(ci, 1, list, env);
+  auto value_to_push = list_get_nth_arg(ci, 2, list, env);
 
-  auto list_to_push_to = list_get_nth_arg(ci, 2, list, env);
+  auto list_to_push_to = list_get_nth_arg(ci, 1, list, env);
 
   auto &list_info = list_to_push_to->as_list_info();
 

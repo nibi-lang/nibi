@@ -245,5 +245,10 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
   return eval_ci.get_last_result();
 }
 
+cell_ptr builtin_fn_common_nop(interpreter_c &ci, cell_list_t &list,
+                                 env_c &env) {
+  return allocate_cell(cell_type_e::NIL);
+}
+
 } // namespace builtins
 } // namespace nibi

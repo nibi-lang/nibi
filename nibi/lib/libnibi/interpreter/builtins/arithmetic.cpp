@@ -29,7 +29,7 @@ namespace builtins {
   default: {                                                                   \
     std::string msg = "Incorrect argument type for arithmetic function: ";     \
     msg += cell_type_to_string(first_arg->type);                               \
-    ci.halt_with_error(error_c(first_arg->locator, msg));                      \
+    ci.halt_with_error(error_c(list[0]->locator, msg));                      \
     break;                                                                     \
   }                                                                            \
   }                                                                            \
@@ -37,7 +37,17 @@ namespace builtins {
 
 cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
                                    env_c &env){
-    NIBI_LIST_ENFORCE_SIZE("+", >=, 2) PERFORM_OPERATION(list_perform_add)}
+  NIBI_LIST_ENFORCE_SIZE("+", >=, 2)
+
+  auto first_item = list_get_nth_arg(ci, 1, list, env);
+  if (first_item->type == cell_type_e::STRING) {
+    std::string accumulate{first_item->to_string()};
+    NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate += arg->to_string(); })
+    return allocate_cell(accumulate);
+  } else {
+    PERFORM_OPERATION(list_perform_add)
+  }
+}
 
 cell_ptr
     builtin_fn_arithmetic_sub(interpreter_c &ci, cell_list_t &list, env_c &env){
@@ -49,7 +59,23 @@ cell_ptr
 
 cell_ptr
     builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list, env_c &env){
-        NIBI_LIST_ENFORCE_SIZE("*", >=, 2) PERFORM_OPERATION(list_perform_mul)}
+      NIBI_LIST_ENFORCE_SIZE("*", >=, 2)
+    
+    auto first_item = list_get_nth_arg(ci, 1, list, env);
+    if (first_item->type == cell_type_e::STRING) {
+      std::string accumulate{first_item->to_string()};
+      NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, {
+          int64_t times = arg->to_integer() - 1;
+          for(int64_t i = 0; i < times; i++)
+            accumulate += first_item->to_string();
+      })
+      return allocate_cell(accumulate);
+    } else {
+        PERFORM_OPERATION(list_perform_mul)
+
+    }
+
+    }
 
 cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {

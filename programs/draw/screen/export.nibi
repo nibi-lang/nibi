@@ -2,3 +2,4 @@
 (:= screen::draw {screen draw})
 (:= screen::clear {screen clear})
 (:= screen::set_pixel {screen set_pixel})
+(:= screen::draw_with_coords {screen draw_with_coords})

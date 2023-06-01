@@ -1,0 +1,51 @@
+(use "screen")
+
+(use "io")
+
+(:= prompt "cmd ➤ ")
+
+(fn get_valid_int [int_prompt] [
+  (:= input nil)
+  (loop (:= valid false) (eq false valid) (nop) [
+    (set input (io::prompt int_prompt io::get::int))
+    (? (eq "int" (type input)) [
+      (set valid true)
+      ]
+      (putln "Invalid integer"))
+  ])
+  (<- input)
+])
+
+(fn get_coords [] [
+  (:= result [])
+  (|< result (get_valid_int "x: "))
+  (|< result (get_valid_int "y: "))
+  (<- result)
+])
+
+(fn draw_line [] [
+
+  (:= point_one (get_coords)) 
+ # (:= point_two (get_coords)) 
+
+  (screen::set_pixel (at point_one 0) (at point_one 1) "◼")
+
+  (screen::draw_with_coords)
+])
+
+(fn main [] [
+  (screen::setup "◻" 20 20)
+
+  (loop (nop) (eq true true) (nop) [
+    (screen::clear)
+    (screen::draw_with_coords)
+
+    (:= cmd (io::prompt prompt io::get::str) )
+
+    (? (eq cmd "draw") (draw_line))
+
+
+  ])
+])
+
+(main)

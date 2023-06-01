@@ -91,8 +91,13 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
     // Load the symbol from the environment
     auto loaded_cell = env.get(cell->as_symbol());
     if (!loaded_cell) {
-      throw exception_c("Symbol not found in environment: " + cell->as_symbol(),
-                        cell->locator);
+
+      std::string error = "Symbol not found in environment: " + cell->as_symbol();
+      error += "\nIf this symbol is in a data list [ ] then it will not be "
+               "loaded until the list is executed, at which point the symbol "
+               "may be out of scope. Try `proc` to resolve the symbol at the "
+               "time of definition.";
+      throw exception_c(error, cell->locator);
       return nullptr;
     }
     // Return the loaded cell
