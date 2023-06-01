@@ -42,8 +42,8 @@
 
     (:= cmd (io::prompt prompt io::get::str) )
 
-    (? (eq cmd "draw") (draw_line))
-
+    (? (eq cmd "draw") (draw_line)
+      (? (eq cmd "exit") (exit 0)))
 
   ])
 ])
