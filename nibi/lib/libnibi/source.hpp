@@ -29,19 +29,22 @@ public:
   //! \param source The name of the source.
   //! \param line The line of the source.
   //! \param column The column of the source.
-  locator_c(const char *source, const size_t line, const size_t column)
+  locator_c(std::shared_ptr<std::string> source, const size_t line,
+            const size_t column)
       : line_(line), column_(column), source_name_(source) {}
   virtual std::tuple<size_t, size_t> get_line_column() const override {
     return std::make_tuple(line_, column_);
   }
   virtual const size_t get_line() const override { return line_; }
   virtual const size_t get_column() const override { return column_; }
-  virtual const char *get_source_name() const override { return source_name_; }
+  virtual const char *get_source_name() const override {
+    return source_name_->c_str();
+  }
 
 private:
   const size_t line_{0};
   const size_t column_{0};
-  const char *source_name_{nullptr};
+  std::shared_ptr<std::string> source_name_{nullptr};
 };
 
 //! \brief A source origin. (File, string, etc.)
@@ -54,16 +57,18 @@ public:
 
   //! \brief Create a source origin.
   //! \param source_name The name of the source.
-  source_origin_c(const std::string source_name) : source_name_(source_name) {}
+  source_origin_c(std::string source_name)
+      : source_name_(std::make_shared<std::string>(source_name)) {}
+
   //! \brief Get the name of the source.
-  const std::string get_source_name() const { return source_name_; }
+  std::string get_source_name() { return *source_name_; }
   //! \brief Get a locator interface for the source.
   locator_ptr get_locator(const size_t line, const size_t column) const {
-    return std::make_shared<locator_c>(source_name_.c_str(), line, column);
+    return std::make_shared<locator_c>(source_name_, line, column);
   }
 
 private:
-  const std::string source_name_;
+  std::shared_ptr<std::string> source_name_{nullptr};
 };
 
 //! \brief A source manager that manages all the sources.
