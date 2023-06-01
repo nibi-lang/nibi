@@ -76,17 +76,20 @@ cell_ptr cell_c::clone() {
   case cell_type_e::NIL:
     return allocate_cell(cell_type_e::NIL);
   case cell_type_e::INTEGER:
-    new_cell->data = this->as_integer();
+    new_cell->data = this->to_integer();
     break;
   case cell_type_e::DOUBLE:
-    new_cell->data = this->as_double();
+    new_cell->data = this->to_double();
     break;
   case cell_type_e::SYMBOL:
     [[fallthrough]];
   case cell_type_e::STRING:
-    new_cell->data = this->as_string();
+    new_cell->data = this->to_string();
     break;
   case cell_type_e::FUNCTION:
+
+    // Note -> This will store a reference to the function info
+    //        which is fine because the function info is stored
     new_cell->data = this->as_function_info();
     break;
   case cell_type_e::LIST: {
@@ -117,9 +120,9 @@ cell_ptr cell_c::clone() {
   return new_cell;
 }
 
-void cell_c::update_data_and_type_to(cell_c &other) {
+void cell_c::update_from(cell_c &other) {
   this->type = other.type;
-  this->data = other.data;
+  this->data = other.clone()->data;
 }
 
 int64_t cell_c::to_integer() {

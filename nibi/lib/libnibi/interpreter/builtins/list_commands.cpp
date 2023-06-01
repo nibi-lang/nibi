@@ -138,7 +138,6 @@ cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
                                      (*it)->locator);
   }
 
-  // Create the list and return it
   return allocate_cell(
       list_info_s{list_types_e::DATA,
                   cell_list_t(list_size->as_integer(),
