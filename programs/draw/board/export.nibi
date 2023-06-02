@@ -1,0 +1,11 @@
+(:= board::init {board init})
+(:= board::refresh {board refresh})
+(:= board::draw_square {board draw_square})
+(fn board::set_default_tile [symbol] 
+  (set {board default_tile} symbol))
+(fn board::toggle_row_col [show] [
+  (assert (eq "int" (type show)))
+  (assert (or
+    (eq false show)
+    (eq true show)))
+  (set {board show_rows_cols} show)])

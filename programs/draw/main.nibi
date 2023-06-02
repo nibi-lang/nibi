@@ -1,4 +1,4 @@
-(use "screen")
+(use "board")
 
 (use "io")
 
@@ -23,29 +23,25 @@
   (<- result)
 ])
 
-(fn draw_line [] [
-
-  (:= point_one (get_coords)) 
- # (:= point_two (get_coords)) 
-
-  (screen::set_pixel (at point_one 0) (at point_one 1) "◼")
-
-  (screen::draw_with_coords)
-])
-
 (fn main [] [
-  (screen::setup "◻" 20 20)
 
-  (loop (nop) (eq true true) (nop) [
-    (screen::clear)
-    (screen::draw_with_coords)
+  (board::set_default_tile " ")
+  (board::toggle_row_col false)
+  (board::init 20 20)
 
-    (:= cmd (io::prompt prompt io::get::str) )
+  (board::draw_square 0 0 20)
+  (board::draw_square 5 5 10)
+  (board::draw_square 9 9 2)
 
-    (? (eq cmd "draw") (draw_line)
-      (? (eq cmd "exit") (exit 0)))
+  (board::refresh)
 
-  ])
+  #(loop (nop) (eq true true) (nop) [
+  #  (screen::clear)
+  #  (screen::draw_with_coords)
+  #  (:= cmd (io::prompt prompt io::get::str) )
+  #  (? (eq cmd "draw") (draw_line)
+  #    (? (eq cmd "exit") (exit 0)))
+  #])
 ])
 
 (main)

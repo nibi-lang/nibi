@@ -1,0 +1,40 @@
+(use "screen")
+
+(:= show_rows_cols true)
+(:= default_tile "◻")
+
+(fn refresh [] [
+  (screen::clear)
+  (screen::draw show_rows_cols)
+])
+
+(fn draw_square [x y length] [
+
+  (:= w (at (screen::get_size) 0))
+  (:= h (at (screen::get_size) 1))
+
+  (? (or 
+      (or
+        (>= x w)
+        (>= y h))
+      (or
+        (< x 0)
+        (< y 0))) (<-))
+
+  (? (<= length 0) (<-))
+  
+  (:= length (- length 1))
+  (loop (:= i 0) (<= i length) (:= i (+ i 1)) [
+    (screen::set_pixel (+ x i) y "◼")
+    (screen::set_pixel x (+ y i) "◼")
+    (screen::set_pixel (+ x i) (+ y length) "◼")
+    (screen::set_pixel (+ x length) (+ y i) "◼")
+  ])
+])
+
+(fn init [width height] [
+
+  (screen::init default_tile width height)
+
+
+])

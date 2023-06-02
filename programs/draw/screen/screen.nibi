@@ -3,7 +3,9 @@
 (:= _display nil)
 (:= _lhs_buffer nil)
 
-(fn setup [fill width height] [
+(fn get_size [] (<- (proc [_width _height])))
+
+(fn init [fill width height] [
   (assert (eq "string" (type fill)) "Fill value must be a string")
   (assert (eq "int" (type width)) "Width value must be an integer")
   (assert (eq "int" (type height)) "Height value must be an integer")
@@ -26,20 +28,20 @@
 (fn set_pixel [x y value] [
   (assert (eq "int" (type x)) "Pixel X value must be an integer")
   (assert (eq "int" (type y)) "Pixel Y value must be an integer")
-  (assert (< x _width) "Pixel X value must be less than the width of the display")
-  (assert (< y _height) "Pixel Y value must be less than the height of the display")
+  (? (>= y _height) (<-))
+  (? (>= x _width) (<-))
   (set (at (at _display y) x) value)
 ])
 
-(fn draw [] [
+(fn _draw_simple [] [
   (iter _display row [
     (iter row col
-      (put col))
+      (put col "  "))
     (putln "")
   ])
 ])
 
-(fn draw_with_coords [] [
+(fn _draw_with_rows_cols [] [
   (put _lhs_buffer)
   (loop (:= x 0) (< x _width) (:= x (+ x 1)) 
     (? (eq 2 (len (split x))) (put " " x) (put "  " x)))
@@ -62,10 +64,8 @@
     (putln ""))
 ])
 
-
-
-
-
-
-
+(fn draw [show_rows_and_cols]
+  (? (eq true show_rows_and_cols)
+    (_draw_with_rows_cols) 
+    (_draw_simple)))
 
