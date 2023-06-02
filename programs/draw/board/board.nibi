@@ -1,15 +1,75 @@
 (use "screen")
+(use "math")
 
 (:= show_rows_cols true)
-(:= default_tile "◻")
+(:= tile_symbol "◻")
 
 (fn refresh [] [
   (screen::clear)
   (screen::draw show_rows_cols)
 ])
 
-(fn draw_square [x y length] [
+(fn clear [] (screen::clear))
 
+(env point [(:= x 0)  (:= y 0)])
+
+(fn coord [x y] [
+  (:= p (clone point))
+  (set {p x} x)
+  (set {p y} y)
+  (<- p)
+])
+
+(fn validate_point [point] [
+  (try [
+    (assert (eq "int" (type {point x})))
+    (assert (eq "int" (type {point y})))
+  ] [
+    (putln "Error: " $e)
+    (throw "Given coordinate must be an env with an x and a y value.")
+  ])
+])
+
+
+(fn draw_line [point_one point_two] [
+  (validate_point point_one)
+  (validate_point point_two)
+
+  (:= dx (math::abs (- {point_one x} {point_two x})))
+  (:= dy (math::abs (- {point_one y} {point_two y})))
+
+  (:= lower_x
+    (? (<= {point_one x} {point_two x})
+       {point_one x}
+       {point_two x}))
+
+  (:= upper_x
+    (? (> {point_one x} {point_two x})
+       {point_one x}
+       {point_two x}))
+
+  #
+  #  TODO: This is wrong - it only draws l->r
+  #
+  (:= lower_y
+    (? (<= {point_one y} {point_two y})
+       {point_one y}
+       {point_two y}))
+
+  # Bresenham's line algorithm
+  (:= d (- (* 2 dy) dx))
+  (:= y lower_y) 
+  (loop (:= x lower_x) (<= x upper_x) (:= x (+ x 1)) [
+    (screen::set_pixel x y tile_symbol)
+    (? (> d 0) [
+      (set y (+ y 1))
+      (set d (- d (* 2 dx)))
+    ])
+    (set d (+ d (* 2 dy)))
+  ])
+])
+
+(fn draw_square [x y length] [
   (:= w (at (screen::get_size) 0))
   (:= h (at (screen::get_size) 1))
 
@@ -19,22 +79,21 @@
         (>= y h))
       (or
         (< x 0)
-        (< y 0))) (<-))
+        (< y 0))) (throw "Invalid coords"))
 
   (? (<= length 0) (<-))
   
   (:= length (- length 1))
   (loop (:= i 0) (<= i length) (:= i (+ i 1)) [
-    (screen::set_pixel (+ x i) y "◼")
-    (screen::set_pixel x (+ y i) "◼")
-    (screen::set_pixel (+ x i) (+ y length) "◼")
-    (screen::set_pixel (+ x length) (+ y i) "◼")
+    (screen::set_pixel (+ x i) y tile_symbol)
+    (screen::set_pixel x (+ y i) tile_symbol)
+    (screen::set_pixel (+ x i) (+ y length) tile_symbol)
+    (screen::set_pixel (+ x length) (+ y i) tile_symbol)
   ])
 ])
 
 (fn init [width height] [
 
-  (screen::init default_tile width height)
-
+  (screen::init tile_symbol width height)
 
 ])

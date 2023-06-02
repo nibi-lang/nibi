@@ -313,6 +313,8 @@ cell_ptr intake_c::parser_c::instruction_list() {
     return nullptr;
   }
 
+  auto instruction_start_locator = current_location();
+
   next();
 
   cell_list_t list;
@@ -338,13 +340,18 @@ cell_ptr intake_c::parser_c::instruction_list() {
 
   next();
 
-  return allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
+  auto instruction = allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
+
+  instruction->locator = instruction_start_locator;
+  return instruction;
 }
 
 cell_ptr intake_c::parser_c::access_list() {
   if (current_token() != token_e::L_BRACE) {
     return nullptr;
   }
+
+  auto locator = current_location();
 
   next();
 
@@ -354,13 +361,17 @@ cell_ptr intake_c::parser_c::access_list() {
 
   next();
 
-  return allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
+  auto nlist = allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
+  nlist->locator = locator;
+  return nlist;
 }
 
 cell_ptr intake_c::parser_c::data_list() {
   if (current_token() != token_e::L_BRACKET) {
     return nullptr;
   }
+
+  auto locator = current_location();
 
   next();
 
@@ -370,7 +381,9 @@ cell_ptr intake_c::parser_c::data_list() {
 
   next();
 
-  return allocate_cell(list_info_s{list_types_e::DATA, std::move(list)});
+  auto nlist = allocate_cell(list_info_s{list_types_e::DATA, std::move(list)});
+  nlist->locator = locator;
+  return nlist;
 }
 
 cell_ptr intake_c::parser_c::list() {

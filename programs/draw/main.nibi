@@ -1,5 +1,6 @@
 (use "board")
 
+
 (use "io")
 
 (:= prompt "cmd ➤ ")
@@ -23,25 +24,65 @@
   (<- result)
 ])
 
+(fn cmd_draw_line [] [
+  (:= start_point (proc (get_coords)))
+  (:= end_point (proc (get_coords)))
+
+  (board::set_tile ".")
+  (board::draw_line 
+    (board::coord 
+      (at start_point 0)
+      (at start_point 1))
+    (board::coord 
+      (at end_point 0)
+      (at end_point 1)))
+])
+
+(fn cmd_draw_square [] [
+
+  (:= pos (get_coords))
+  (:= size (get_valid_int "size: "))
+  (board::set_tile "◼")
+  (board::draw_square 
+    (at pos 0)
+    (at pos 1)
+    size)
+])
+
+(fn cmd_help [] [
+  (board::clear)
+
+  (putln "Commands:")
+  (putln "  help - show this help")
+  (putln "  line - draw a line")
+  (putln "  square - draw a square")
+  (putln "  exit - exit the program")
+
+  (io::prompt "Press enter to continue" io::get::str)
+])
+
 (fn main [] [
 
-  (board::set_default_tile " ")
-  (board::toggle_row_col false)
+  (board::set_tile " ")
+  (board::toggle_row_col true)
   (board::init 20 20)
 
-  (board::draw_square 0 0 20)
-  (board::draw_square 5 5 10)
-  (board::draw_square 9 9 2)
+  (:= show_invalid_command false)
+  (loop (nop) (eq true true) (nop) [
+    (board::refresh)
 
-  (board::refresh)
+    (? (eq true show_invalid_command) [
+      (putln "Invalid command - use `help` for more info")
+      (set show_invalid_command false)
+    ])
 
-  #(loop (nop) (eq true true) (nop) [
-  #  (screen::clear)
-  #  (screen::draw_with_coords)
-  #  (:= cmd (io::prompt prompt io::get::str) )
-  #  (? (eq cmd "draw") (draw_line)
-  #    (? (eq cmd "exit") (exit 0)))
-  #])
+    (:= cmd (io::prompt prompt io::get::str) )
+
+    (? (eq "help" cmd) (cmd_help))
+    (? (eq "line" cmd) (cmd_draw_line))
+    (? (eq "square" cmd) (cmd_draw_square))
+    (? (eq "exit" cmd) (exit 0))
+  ])
 ])
 
 (main)

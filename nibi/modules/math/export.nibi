@@ -7,3 +7,5 @@
 
 (:= math::ceil_list {math ceil_all})
 (:= math::floor_list {math floor_all})
+
+(:= math::abs {math abs})

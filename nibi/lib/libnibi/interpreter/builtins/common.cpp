@@ -121,7 +121,7 @@ cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
     return ci.execute_cell((*it), if_env, true);
   }
 
-  return allocate_cell((int64_t)0);
+  return ci.get_last_result();
 }
 
 cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,

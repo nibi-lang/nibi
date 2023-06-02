@@ -106,14 +106,17 @@ cell_ptr cell_c::clone() {
     auto &other = new_cell->as_environment_info();
     other.env = new env_c(einf.env->get_parent_env());
     for (auto &&[key, val] : einf.env->get_map()) {
-      auto cloned = val->clone();
-      other.env->set(key, cloned);
+      if (val->type == cell_type_e::ENVIRONMENT) {
+        other.env->set(key, val);
+      } else {
+        auto cloned = val->clone();
+        other.env->set(key, cloned);
+      }
     }
     break;
   }
   case cell_type_e::ABERRANT: {
-    std::cout << "CLONE ABERRANT" << std::endl;
-
+    new_cell->data = this->as_aberrant();
     break;
   }
   }
