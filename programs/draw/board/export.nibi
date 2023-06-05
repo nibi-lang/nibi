@@ -1,6 +1,7 @@
 (:= board::init {board init})
 (:= board::refresh {board refresh})
 (:= board::clear {board clear})
+(:= board::fill {board fill})
 (:= board::draw_square {board draw_square})
 (:= board::draw_line {board draw_line})
 (:= board::draw_triangle {board draw_triangle})

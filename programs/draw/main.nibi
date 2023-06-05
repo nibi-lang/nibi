@@ -77,32 +77,34 @@
   (putln "  help - show this help")
   (putln "  line - draw a line")
   (putln "  square - draw a square")
+  (putln "  clear - clear the board")
   (putln "  exit - exit the program")
 
   (io::prompt "Press enter to continue" io::get::str)
 ])
 
-(fn main [] [
+(fn cmd_clear_board [] [
+  (board::set_tile " ")
+  (board::fill)
+])
 
+(fn main [] [
   (board::set_tile " ")
   (board::toggle_row_col true)
-  (board::init 25 25)
-
+  (board::init 30 30)
   (:= show_invalid_command false)
   (loop (nop) (eq true true) (nop) [
     (board::refresh)
-
     (? (eq true show_invalid_command) [
       (putln "Invalid command - use `help` for more info")
       (set show_invalid_command false)
     ])
-
     (:= cmd (io::prompt prompt io::get::str) )
-
     (? (eq "help" cmd) (cmd_help))
     (? (eq "line" cmd) (cmd_draw_line))
     (? (eq "square" cmd) (cmd_draw_square))
     (? (eq "triangle" cmd) (cmd_draw_triangle))
+    (? (eq "clear" cmd) (cmd_clear_board))
     (? (eq "exit" cmd) (exit 0))
   ])
 ])

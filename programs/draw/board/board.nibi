@@ -115,8 +115,15 @@
   ])
 ])
 
-(fn init [width height] [
-
-  (screen::init tile_symbol width height)
-
+(fn fill [] [
+  (:= w (at (screen::get_size) 0))
+  (:= h (at (screen::get_size) 1))
+  (loop (:= x 0) (< x w) (:= x (+ x 1)) [
+    (loop (:= y 0) (< y h) (:= y (+ y 1)) [
+      (screen::set_pixel x y tile_symbol)
+    ])
+  ])
 ])
+
+(fn init [width height]
+  (screen::init tile_symbol width height))
