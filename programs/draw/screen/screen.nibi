@@ -28,8 +28,8 @@
 (fn set_pixel [x y value] [
   (assert (eq "int" (type x)) "Pixel X value must be an integer")
   (assert (eq "int" (type y)) "Pixel Y value must be an integer")
-  (? (>= y _height) (<-))
-  (? (>= x _width) (<-))
+  (? ( or (>= y _height) (< y 0 )) (<-))
+  (? ( or (>= x _width) (< x 0)) (<-))
   (set (at (at _display y) x) value)
 ])
 

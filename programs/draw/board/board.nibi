@@ -30,23 +30,36 @@
   ])
 ])
 
-(fn _plot_line [x0 y0 x1 y1] [
-  (:= dx (math::abs (- x1 x0)))
-  (:= dy (math::abs (- y1 y0)))
-  (:= D (- (* 2 dy) dx))
+(fn _plot_line_low [x0 y0 x1 y1] [
+  (putln "line low")
+  (:= yi 1)
   (:= y y0)
-
-
-  # When DY > DX i think we have issues
-
+  (:= dx (- x1 x0))
+  (:= dy (- y1 y0))
+  (? (< dy 0) [ (set yi -1) (set dy (- dy (* 2 dy) ))])
+  (:= D (- (* 2 dy) dx))
   (loop (:= x x0) (<= x x1) (set x (+ x 1)) [
     (screen::set_pixel x y tile_symbol)
-    (putln "x=" x " y=" y " D=" D)
     (? (> D 0) [
-      (? (> y0 y1) (set y (- y 1)) (set y (+ y 1)))
-      (set D (- D (* 2 dx)))
-    ]
-    (set D (+ D (* 2 dy))))
+      (set y (+ y yi))
+      (set D (+ D (* 2 (- dy dx))))
+    ](set D (+ D (* 2 dy))))
+  ])
+])
+
+(fn _plot_line_high [x0 y0 x1 y1] [
+  (:= xi 1)
+  (:= x x0)
+  (:= dx (- x1 x0))
+  (:= dy (- y1 y0))
+  (? (< dx 0) [ (set xi -1) (set dx (- dx (* 2 dx) ))])
+  (:= D (- (* 2 dx) dy))
+  (loop (:= y y0) (<= y y1) (set y (+ y 1)) [
+    (screen::set_pixel x y tile_symbol)
+    (? (> D 0) [
+      (set x (+ x xi))
+      (set D (+ D (* 2 (- dx dy))))
+    ](set D (+ D (* 2 dx))))
   ])
 ])
 
@@ -54,24 +67,18 @@
   (validate_point point_one)
   (validate_point point_two)
 
-  (:= x0 nil)
-  (:= y0 nil)
-  (:= x1 nil)
-  (:= y1 nil)
+  (:= x0 {point_one x}) 
+  (:= y0 {point_one y}) 
+  (:= x1 {point_two x}) 
+  (:= y1 {point_two y}) 
 
-  (? (< {point_one x} {point_two x}) [
-    (set x0 {point_one x})
-    (set y0 {point_one y})
-    (set x1 {point_two x})
-    (set y1 {point_two y})
-  ][
-    (set x0 {point_two x})
-    (set y0 {point_two y})
-    (set x1 {point_one x})
-    (set y1 {point_one y})
-  ])
-
-  (_plot_line x0 y0 x1 y1)
+  (? (< (math::abs (- y1 y0)) (math::abs(- x1 x0)))
+    (? (> x0 x1)
+       (_plot_line_low x1 y1 x0 y0)
+       (_plot_line_low x0 y0 x1 y1))
+    (? (> y0 y1)
+      (_plot_line_high x1 y1 x0 y0)
+      (_plot_line_high x0 y0 x1 y1)))
 ])
 
 (fn draw_triangle [p0 p1 p2] [
