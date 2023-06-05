@@ -31,6 +31,25 @@
 ])
 
 
+(fn _plot_line [x0 y0 x1 y1] [
+  (:= dx (math::abs (- x1 x0)))
+  (:= dy (math::abs (- y1 y0)))
+
+  (:= D (- (* 2 dy) dx))
+  (:= y y0)
+
+  (loop (:= x x0) (<= x x1) (set x (+ x 1)) [
+    (screen::set_pixel x y tile_symbol)
+    (putln "x=" x " y=" y " D=" D)
+    (? (> D 0) [
+
+      (? (> y0 y1) (set y (- y 1)) (set y (+ y 1)))
+      (set D (- D (* 2 dx)))
+    ])
+    (set D (+ D (* 2 dy)))
+  ])
+])
+
 (fn draw_line [point_one point_two] [
   (validate_point point_one)
   (validate_point point_two)
@@ -38,35 +57,25 @@
   (:= dx (math::abs (- {point_one x} {point_two x})))
   (:= dy (math::abs (- {point_one y} {point_two y})))
 
-  (:= lower_x
-    (? (<= {point_one x} {point_two x})
-       {point_one x}
-       {point_two x}))
+  (:= x0 nil)
+  (:= y0 nil)
+  (:= x1 nil)
+  (:= y1 nil)
 
-  (:= upper_x
-    (? (> {point_one x} {point_two x})
-       {point_one x}
-       {point_two x}))
-
-  #
-  #  TODO: This is wrong - it only draws l->r
-  #
-  (:= lower_y
-    (? (<= {point_one y} {point_two y})
-       {point_one y}
-       {point_two y}))
-
-  # Bresenham's line algorithm
-  (:= d (- (* 2 dy) dx))
-  (:= y lower_y) 
-  (loop (:= x lower_x) (<= x upper_x) (:= x (+ x 1)) [
-    (screen::set_pixel x y tile_symbol)
-    (? (> d 0) [
-      (set y (+ y 1))
-      (set d (- d (* 2 dx)))
-    ])
-    (set d (+ d (* 2 dy)))
+  (? (< {point_one x} {point_two x}) [
+    (set x0 {point_one x})
+    (set y0 {point_one y})
+    (set x1 {point_two x})
+    (set y1 {point_two y})
+  ][
+    (set x0 {point_two x})
+    (set y0 {point_two y})
+    (set x1 {point_one x})
+    (set y1 {point_one y})
   ])
+
+  (_plot_line x0 y0 x1 y1)
+
 ])
 
 (fn draw_square [x y length] [

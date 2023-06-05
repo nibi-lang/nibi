@@ -65,7 +65,7 @@
 
   (board::set_tile " ")
   (board::toggle_row_col true)
-  (board::init 20 20)
+  (board::init 25 20)
 
   (:= show_invalid_command false)
   (loop (nop) (eq true true) (nop) [
