@@ -340,7 +340,8 @@ cell_ptr intake_c::parser_c::instruction_list() {
 
   next();
 
-  auto instruction = allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
+  auto instruction =
+      allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
 
   instruction->locator = instruction_start_locator;
   return instruction;
@@ -361,7 +362,8 @@ cell_ptr intake_c::parser_c::access_list() {
 
   next();
 
-  auto nlist = allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
+  auto nlist =
+      allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
   nlist->locator = locator;
   return nlist;
 }

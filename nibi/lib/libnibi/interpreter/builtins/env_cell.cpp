@@ -18,9 +18,9 @@ cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
   std::advance(it, 1);
 
   if ((*it)->type != cell_type_e::SYMBOL) {
-      throw interpreter_c::exception_c(
-          "env expects first item to be a name for the environment ",
-          (*it)->locator);
+    throw interpreter_c::exception_c(
+        "env expects first item to be a name for the environment ",
+        (*it)->locator);
   }
 
   auto env_name = (*it)->as_symbol();
