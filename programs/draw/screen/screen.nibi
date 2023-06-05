@@ -3,7 +3,7 @@
 (:= _display nil)
 (:= _lhs_buffer nil)
 
-(fn get_size [] (<- (proc [_width _height])))
+(fn get_size [] (<- [_width _height]))
 
 (fn init [fill width height] [
   (assert (eq "string" (type fill)) "Fill value must be a string")

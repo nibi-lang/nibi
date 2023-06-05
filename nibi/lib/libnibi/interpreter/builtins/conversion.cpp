@@ -64,7 +64,7 @@ cell_ptr
     auto target = list_get_nth_arg(ci, 2, list, env)->to_integer();
 
     if (0 == target) {
-      return value->clone();
+      return value->clone(env);
     }
     cell_list_t data_list;
     cell_list_t inner_list;
@@ -76,7 +76,7 @@ cell_ptr
         inner_list.clear();
         count = 0;
       }
-      inner_list.push_back(cell);
+      inner_list.push_back(cell->clone(env));
       count++;
     }
     if (inner_list.size()) {

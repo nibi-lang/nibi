@@ -32,7 +32,7 @@ cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
   // Explicitly clone the value as we might be reading from
   // an instruction that will be mutated later
 
-  target_assignment_value = target_assignment_value->clone();
+  target_assignment_value = target_assignment_value->clone(env);
 
   env.set(target_variable_name, target_assignment_value);
 
@@ -51,7 +51,7 @@ cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
       ci.execute_cell(list_get_nth_arg(ci, 2, list, env), env);
 
   // Then update that cell directly
-  target_assignment_cell->update_from(*target_assignment_value);
+  target_assignment_cell->update_from(*target_assignment_value, env);
 
   return target_assignment_cell;
 }

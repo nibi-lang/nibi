@@ -94,10 +94,6 @@ cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
 
       std::string error =
           "Symbol not found in environment: " + cell->as_symbol();
-      error += "\nIf this symbol is in a data list [ ] then it will not be "
-               "loaded until the list is executed, at which point the symbol "
-               "may be out of scope. Try `proc` to resolve the symbol at the "
-               "time of definition.";
       throw exception_c(error, cell->locator);
       return nullptr;
     }

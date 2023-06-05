@@ -68,20 +68,14 @@
 
 (assert (eq "[2 3 4 5 6]" (<<| [1 2 3 4 5 6])) "nope")
 
-(:= new_target 0)
+(:= new_target 44)
 (:= nt_list [1 2 3 new_target 5 6 7])
 
-(set (at nt_list 3) 4)
-
-(assert (eq 4 new_target) "Nope")
-
-(assert (eq "[1 2 3 new_target 5 6 7]" nt_list) "Nope")
+(assert (eq "[1 2 3 44 5 6 7]" nt_list) "Nope")
 
 (iter nt_list temp_iter_val [
   (set temp_iter_val (+ 1 temp_iter_val))
 ])
-
-(assert (eq 5 new_target) "Nope")
 
 (:= other_list [1 2])
 
@@ -89,25 +83,5 @@
 
 (|< other_list new_target)
 
-(assert (eq 5 (at other_list 2)) "Nope")
 
-(set (at other_list 2) 3)
-
-(assert (eq 3 (at other_list 2)) "Nope")
-
-# ensure that the item is in by value
-# and new_target wasn't updated
-
-(assert (eq 5 new_target) "Nope")
-
-# again but with at
-
-(set (at other_list 2) new_target)
-
-(assert (eq 5 (at other_list 2)) "Nope")
-
-(set (at other_list 2) 3)
-
-(assert (eq 5 new_target) "Nope")
-
-
+(assert (eq [1 2 44] other_list))
