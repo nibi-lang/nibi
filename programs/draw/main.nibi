@@ -49,6 +49,27 @@
     size)
 ])
 
+(fn cmd_draw_triangle [] [
+
+  (:= p0 (proc (get_coords)))
+  (:= p1 (proc (get_coords)))
+  (:= p2 (proc (get_coords)))
+
+  (board::set_tile "*")
+
+  (board::draw_triangle 
+    (board::coord 
+      (at p0 0)
+      (at p0 1))
+    (board::coord
+      (at p1 0)
+      (at p1 1))
+    (board::coord
+      (at p2 0)
+      (at p2 1)))
+
+])
+
 (fn cmd_help [] [
   (board::clear)
 
@@ -65,7 +86,7 @@
 
   (board::set_tile " ")
   (board::toggle_row_col true)
-  (board::init 25 20)
+  (board::init 25 25)
 
   (:= show_invalid_command false)
   (loop (nop) (eq true true) (nop) [
@@ -81,6 +102,7 @@
     (? (eq "help" cmd) (cmd_help))
     (? (eq "line" cmd) (cmd_draw_line))
     (? (eq "square" cmd) (cmd_draw_square))
+    (? (eq "triangle" cmd) (cmd_draw_triangle))
     (? (eq "exit" cmd) (exit 0))
   ])
 ])

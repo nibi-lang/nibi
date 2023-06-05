@@ -30,32 +30,29 @@
   ])
 ])
 
-
 (fn _plot_line [x0 y0 x1 y1] [
   (:= dx (math::abs (- x1 x0)))
   (:= dy (math::abs (- y1 y0)))
-
   (:= D (- (* 2 dy) dx))
   (:= y y0)
+
+
+  # When DY > DX i think we have issues
 
   (loop (:= x x0) (<= x x1) (set x (+ x 1)) [
     (screen::set_pixel x y tile_symbol)
     (putln "x=" x " y=" y " D=" D)
     (? (> D 0) [
-
       (? (> y0 y1) (set y (- y 1)) (set y (+ y 1)))
       (set D (- D (* 2 dx)))
-    ])
-    (set D (+ D (* 2 dy)))
+    ]
+    (set D (+ D (* 2 dy))))
   ])
 ])
 
 (fn draw_line [point_one point_two] [
   (validate_point point_one)
   (validate_point point_two)
-
-  (:= dx (math::abs (- {point_one x} {point_two x})))
-  (:= dy (math::abs (- {point_one y} {point_two y})))
 
   (:= x0 nil)
   (:= y0 nil)
@@ -75,8 +72,18 @@
   ])
 
   (_plot_line x0 y0 x1 y1)
-
 ])
+
+(fn draw_triangle [p0 p1 p2] [
+
+  (validate_point p0)
+  (validate_point p1)
+  (validate_point p2)
+  (draw_line p0 p1)
+  (draw_line p1 p2)
+  (draw_line p2 p0)
+])
+
 
 (fn draw_square [x y length] [
   (:= w (at (screen::get_size) 0))
