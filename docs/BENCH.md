@@ -80,3 +80,29 @@ git hash **270588749191845e732b0d8c6c24eca3eb2b8dd3**
 | primality.nibi  | 1.8514s   | 1851.4003ms |
 | 4sieve.nibi     | 2.1597s   | 2159.7168ms |
 | leibniz.nibi    | 0.182s    | 182.0244ms  |
+
+### 05-June-2023
+
+Removal of proc made us have to clone a few more times and pass env to clone so 
+a slowdown was experienced.
+
+git hash **82465958f327a7e17484f2db38125a813c476ca2**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.2475s   | 247.4568ms  |
+| primality.nibi  | 2.0008s   | 2000.759ms  |
+| 4sieve.nibi     | 2.5767s   | 2576.7131ms |
+| leibniz.nibi    | 0.2387s   | 238.727ms   |
+
+Removal of proc and introducing this slight hit was to remove the symbol
+passing behavior that won't make sense when the language becomes compiled
+to bytecode. So while it hits the raw list walking, it will benefit in the 
+long run.
+
+
+
+
+
+
+
