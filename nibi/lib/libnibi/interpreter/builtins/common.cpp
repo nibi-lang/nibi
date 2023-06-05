@@ -21,7 +21,7 @@ cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
 
   auto loaded_cell = ci.execute_cell(*it, env);
 
-  return loaded_cell->clone();
+  return loaded_cell->clone(env);
 }
 
 cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
@@ -48,7 +48,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE("<-", ==, 2)
 
-  auto target = list_get_nth_arg(ci, 1, list, env);
+  auto target = list_get_nth_arg(ci, 1, list, env)->clone(env);
   ci.set_yield_value(target);
   return target;
 }

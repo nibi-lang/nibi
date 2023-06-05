@@ -19,7 +19,7 @@ cell_ptr builtin_fn_list_push_front(interpreter_c &ci, cell_list_t &list,
   auto &list_info = list_to_push_to->as_list_info();
 
   // Clone the target and push it back
-  list_info.list.push_front(value_to_push->clone());
+  list_info.list.push_front(value_to_push->clone(env));
 
   return list_to_push_to;
 }
@@ -35,7 +35,7 @@ cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
   auto &list_info = list_to_push_to->as_list_info();
 
   // Clone the target and push it back
-  list_info.list.push_back(value_to_push->clone());
+  list_info.list.push_back(value_to_push->clone(env));
 
   return list_to_push_to;
 }
@@ -141,35 +141,7 @@ cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
   return allocate_cell(
       list_info_s{list_types_e::DATA,
                   cell_list_t(list_size->as_integer(),
-                              list_get_nth_arg(ci, 1, list, env)->clone())});
-}
-
-cell_ptr builtin_fn_list_proc(interpreter_c &ci, cell_list_t &list,
-                              env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("proc", ==, 2)
-
-  auto it = list.begin();
-  std::advance(it, 1);
-
-  auto list_info = ci.execute_cell(*it, env)->as_list_info();
-
-  if (list_info.type != list_types_e::DATA) {
-    throw interpreter_c::exception_c(
-        "Parameter to proc must be a data list : []", (*it)->locator);
-  }
-
-  cell_list_t result;
-
-  auto lit = list_info.list.begin();
-  while (lit != list_info.list.end()) {
-    result.push_back(ci.execute_cell(*lit, env));
-    std::advance(lit, 1);
-  }
-
-  return allocate_cell(list_info_s{
-      list_types_e::DATA,
-      std::move(result),
-  });
+                              list_get_nth_arg(ci, 1, list, env)->clone(env))});
 }
 
 } // namespace builtins

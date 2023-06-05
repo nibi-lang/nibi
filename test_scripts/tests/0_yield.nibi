@@ -27,8 +27,12 @@
 
 (assert (eq [1 2 3] (checkl [1 2 3])) "Failed to return list")
 
-# Returned data lists should not resolve symbols
+# Returned data lists should resolve symbols
 
-(fn data_list [] (<- [a v 3 4]))
+(:= a 9)
 
-(assert (eq [a v 3 4] (data_list)) "Failed to return data list")
+(fn data_list [x] (<- [a x 3 4]))
+
+(assert (eq [9 13 3 4] (data_list 13)) "Failed to return data list")
+
+(putln "COMPLETE")

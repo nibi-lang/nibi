@@ -192,12 +192,12 @@ public:
   locator_ptr locator{nullptr};
 
   //! \brief Deep copy the cell
-  cell_ptr clone();
+  cell_ptr clone(env_c &env);
 
   //! \brief Update the cell data and type to match another cell
   //! \param other The other cell to match
   //! \note This will not update the locator
-  void update_from(cell_c &other);
+  void update_from(cell_c &other, env_c &env);
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an integer type

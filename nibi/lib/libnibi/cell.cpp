@@ -64,7 +64,7 @@ cell_c::~cell_c() {
   }
 }
 
-cell_ptr cell_c::clone() {
+cell_ptr cell_c::clone(env_c &env) {
 
   // Allocate a new cell
   cell_ptr new_cell = allocate_cell(this->type);
@@ -81,8 +81,14 @@ cell_ptr cell_c::clone() {
   case cell_type_e::DOUBLE:
     new_cell->data = this->to_double();
     break;
-  case cell_type_e::SYMBOL:
-    [[fallthrough]];
+  case cell_type_e::SYMBOL: {
+    auto referenced_symbol = env.get(this->as_symbol());
+    if (referenced_symbol == nullptr) {
+      throw cell_access_exception_c("Unknown variable", this->locator);
+    }
+    new_cell = referenced_symbol->clone(env);
+    break;
+  }
   case cell_type_e::STRING:
     new_cell->data = this->to_string();
     break;
@@ -97,7 +103,7 @@ cell_ptr cell_c::clone() {
     auto &other = new_cell->as_list_info();
     other.type = linf.type;
     for (auto &cell : linf.list) {
-      other.list.push_back(cell->clone());
+      other.list.push_back(cell->clone(env));
     }
     break;
   }
@@ -109,7 +115,7 @@ cell_ptr cell_c::clone() {
       if (val->type == cell_type_e::ENVIRONMENT) {
         other.env->set(key, val);
       } else {
-        auto cloned = val->clone();
+        auto cloned = val->clone(env);
         other.env->set(key, cloned);
       }
     }
@@ -123,9 +129,9 @@ cell_ptr cell_c::clone() {
   return new_cell;
 }
 
-void cell_c::update_from(cell_c &other) {
+void cell_c::update_from(cell_c &other, env_c &env) {
   this->type = other.type;
-  this->data = other.clone()->data;
+  this->data = other.clone(env)->data;
 }
 
 int64_t cell_c::to_integer() {

@@ -9,7 +9,7 @@
     (:= tile_value " ")
 
     # The tile's coordinates
-    (:= coord (proc [x y]))
+    (:= coord [x y])
 
     # A data variable that the tile owner can use to 
     # store whatever they want

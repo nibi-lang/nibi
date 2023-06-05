@@ -25,8 +25,8 @@
 ])
 
 (fn cmd_draw_line [] [
-  (:= start_point (proc (get_coords)))
-  (:= end_point (proc (get_coords)))
+  (:= start_point (get_coords))
+  (:= end_point (get_coords))
 
   (board::set_tile ".")
   (board::draw_line 
@@ -51,9 +51,9 @@
 
 (fn cmd_draw_triangle [] [
 
-  (:= p0 (proc (get_coords)))
-  (:= p1 (proc (get_coords)))
-  (:= p2 (proc (get_coords)))
+  (:= p0 (get_coords))
+  (:= p1 (get_coords))
+  (:= p2 (get_coords))
 
   (board::set_tile "*")
 

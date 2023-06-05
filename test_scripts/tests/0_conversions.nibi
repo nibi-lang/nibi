@@ -18,9 +18,9 @@
 ] (putln "We expected this error >>> " $e))
 
 
-(:= x "This is the value of x")
+(:= x 88)
 
-(assert (eq [[1 2 3] [x 5 6] [7 8 9] [10]] (split [1 2 3 x 5 6 7 8 9 10] 3)) "")
-(assert (eq [1 2 3 x 5 6 7 8 9 10] (split [1 2 3 x 5 6 7 8 9 10] 0)) "")
-(assert (eq [[1 2] [3 x] [5 6] [7 8] [9 10]] (split [1 2 3 x 5 6 7 8 9 10] 2)) "")
+(assert (eq [[1 2 3] [88 5 6] [7 8 9] [10]] (split [1 2 3 x 5 6 7 8 9 10] 3)) "")
+(assert (eq [1 2 3 88 5 6 7 8 9 10] (split [1 2 3 x 5 6 7 8 9 10] 0)) "")
+(assert (eq [[1 2] [3 88] [5 6] [7 8] [9 10]] (split [1 2 3 x 5 6 7 8 9 10] 2)) "")
 (putln "complete")
