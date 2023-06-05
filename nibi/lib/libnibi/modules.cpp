@@ -102,7 +102,8 @@ std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
 void populate_env(std::filesystem::path module_file, interpreter_c &ci,
                   env_c &env) {
   error_callback_f error_callback = [&](error_c e) { ci.halt_with_error(e); };
-  file_interpreter_c(error_callback, env).interpret_file(module_file);
+  file_interpreter_c(error_callback, env, ci.get_source_manager())
+      .interpret_file(module_file);
 }
 
 module_info_s modules_c::get_module_info(std::string &module_name) {

@@ -10,3 +10,23 @@
 )
 
 (assert (eq 90 result) "No dice")
+
+(fn check_ret [] [
+  (loop (:= i 0) (neq i 10) (set i (+ i 1))
+    (loop (:= x 0) (neq x 20) (set x (+ x 1)) (<- 100)))
+  (<- 50)
+])
+
+(assert (eq 100 (check_ret)))
+
+(fn check_ret_0 [] 
+(loop (:= valid false) (eq false valid) (nop) [
+    (:= input 10)
+    (? (eq "int" (type input)) 
+          (<- input)
+          (exit 1))
+  ]))
+
+(assert (eq 10 (check_ret_0)))
+
+(putln "COMPLETE")

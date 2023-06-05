@@ -1,0 +1,29 @@
+#!/usr/local/bin/nibi
+
+(use "sys")
+
+(fn sierpinski [n] [
+  (loop (:= y (- n 1)) (>= y 0) (set y (- y 1)) [
+    (loop (:= i 0) (< i y) (set i (+ i 1)) 
+      (put " "))
+    (loop (:= x 0) (< (+ x y) n) (set x (+ x 1))
+      (? (eq true (bw-and x y))
+        (put "  ")
+        (put "* ")))
+    (putln "")
+  ])
+])
+
+# Check for user params
+(? ( > (len (sys::args)) 1) [
+  (? (neq 2 (len (sys::args))) [
+    (putln "Usage:" (at (sys::args) 0) " <size>")
+    (exit 1)
+  ])
+  (sierpinski
+    (int (at (sys::args) 1)))
+  (exit 0)
+])
+
+(sierpinski 34)
+

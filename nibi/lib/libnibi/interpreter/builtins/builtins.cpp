@@ -122,6 +122,8 @@ static function_info_s builtin_common_eval_inf = {
     "eval", builtin_fn_common_eval, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_common_quote_inf = {
     "quote", builtin_fn_common_quote, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_nop_inf = {
+    "nop", builtin_fn_common_nop, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // environment cell functions
 static function_info_s builtin_envcell_env_inf = {
@@ -187,6 +189,7 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {"exit", builtin_common_exit_inf},
      {"eval", builtin_common_eval_inf},
      {"quote", builtin_common_quote_inf},
+     {"nop", builtin_common_nop_inf},
      {"bw-lsh", builtin_bitwise_lsh_inf},
      {"bw-rsh", builtin_bitwise_rsh_inf},
      {"bw-and", builtin_bitwise_and_inf},

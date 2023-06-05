@@ -1,0 +1,18 @@
+
+(fn _new::tile [x y] [
+  (assert (eq "int" (type x)) "x must be an int")
+  (assert (eq "int" (type y)) "y must be an int")
+  (assert (>= x 0) "x must be >= 0")
+  (assert (>= y 0) "y must be >= 0")
+  (env
+    # The value to display on the tile
+    (:= tile_value " ")
+
+    # The tile's coordinates
+    (:= coord (proc [x y]))
+
+    # A data variable that the tile owner can use to 
+    # store whatever they want
+    (:= data nil)
+  )])
+

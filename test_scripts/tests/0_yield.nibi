@@ -21,7 +21,7 @@
 
 (fn checkl [in] [
   (:= result [])
-  (iter in x (|< x result))
+  (iter in x (|< result x))
   (<- result)
 ])
 

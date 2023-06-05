@@ -121,7 +121,7 @@ cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
     return ci.execute_cell((*it), if_env, true);
   }
 
-  return allocate_cell((int64_t)0);
+  return ci.get_last_result();
 }
 
 cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
@@ -243,6 +243,11 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
       .evaluate(ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
 
   return eval_ci.get_last_result();
+}
+
+cell_ptr builtin_fn_common_nop(interpreter_c &ci, cell_list_t &list,
+                               env_c &env) {
+  return allocate_cell(cell_type_e::NIL);
 }
 
 } // namespace builtins

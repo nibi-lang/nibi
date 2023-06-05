@@ -14,3 +14,24 @@
 
 # Ensure that it was updated 
 (assert (eq 906 x) "x was not updated by set")
+
+# Set was having an issue with the cell update_from(..) where
+# the data wasn't being cloned - This verifies the fix
+(:= double nil)
+(set double (<|> (<|> "_" 10) 5))
+
+(set (at (at double 0) 0) "X")
+(set (at (at double 1) 0) "+")
+(set (at (at double 0) 9) "#")
+
+(assert (eq "X" (at (at double 0) 0)))
+(assert (eq "+" (at (at double 1) 0)))
+(assert (eq "_" (at (at double 2) 0)))
+(assert (eq "_" (at (at double 3) 0)))
+(assert (eq "_" (at (at double 4) 0)))
+
+(assert (eq "#" (at (at double 0) 9)))
+(assert (eq "_" (at (at double 1) 9)))
+(assert (eq "_" (at (at double 2) 9)))
+(assert (eq "_" (at (at double 3) 9)))
+(assert (eq "_" (at (at double 4) 9)))

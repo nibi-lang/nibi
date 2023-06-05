@@ -1,0 +1,5 @@
+(:= screen::init {screen init})
+(:= screen::clear {screen clear})
+(:= screen::set_pixel {screen set_pixel})
+(:= screen::draw {screen draw})
+(:= screen::get_size {screen get_size})

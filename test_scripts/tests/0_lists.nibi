@@ -3,22 +3,22 @@
 # Chain together push_fronts to ensure lists being returned by each
 # Implicitly convert the list to string for checking
 
-(assert (eq "[10 20 30]" (>| 10 (>| 20 (>| 30 x)))) "No dice")
+(assert (eq "[10 20 30]" (>| (>| (>| x 30) 20) 10)) "No dice")
 
 (:= y [])
 
-(assert (eq "[30 20 10]" (|< 10 (|< 20 (|< 30 y)))) "No dice")
+(assert (eq "[30 20 10]" (|< (|< (|< y 30) 20) 10)) "No dice")
 
 # push y into x
 
-(assert (eq "[10 20 30 [30 20 10]]" (|< y x)) "No dice")
+(assert (eq "[10 20 30 [30 20 10]]" (|< x y)) "No dice")
 
 (:= values [])
 
 # Iterate over y and collect the values and indicies that
 # exist to check later
 (iter y temp_iter_val [
-  (|< temp_iter_val values)
+  (|< values temp_iter_val)
 ])
 
 (:= did_drop 0)
@@ -87,7 +87,7 @@
 
 # put the item into the list by value
 
-(|< new_target other_list)
+(|< other_list new_target)
 
 (assert (eq 5 (at other_list 2)) "Nope")
 
