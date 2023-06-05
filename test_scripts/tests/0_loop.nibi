@@ -19,4 +19,14 @@
 
 (assert (eq 100 (check_ret)))
 
+(fn check_ret_0 [] 
+(loop (:= valid false) (eq false valid) (nop) [
+    (:= input 10)
+    (? (eq "int" (type input)) 
+          (<- input)
+          (exit 1))
+  ]))
+
+(assert (eq 10 (check_ret_0)))
+
 (putln "COMPLETE")
