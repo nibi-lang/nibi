@@ -67,6 +67,7 @@ any other piece of data in the instructions below.
 | float   | Convert an item to a float type | converted value 
 | split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
 | type    | Retrieve a string detailing the type of a given item | string
+| nop     | Do nothing | nil
 
 | list commands | description | returns
 |----   |---- |----
@@ -505,6 +506,8 @@ Note: A value of `0` passed as argument 2 when argument 1 is a list
 
 ### Type
 
+Keyword `type`
+
 | arg 1 |
 |----
 | Item to get the type of
@@ -537,6 +540,16 @@ or you are working on extending the language with a module or working on nibi it
 ```
 ( type < S () [] RD > ) 
 
+```
+
+### Nop
+
+Keyword `nop`
+
+No arguments given. Does nothing.
+
+```
+(nop)
 ```
 
 ----
@@ -674,6 +687,8 @@ with the exception of `-` which will subtract the given value from 0 by default.
 ```
 ( op < S () .. > .. )
 ```
+
+**Note:** `*` and `+` work on strings iff the first item given to them is a string.
 
 ----
 
