@@ -10,7 +10,7 @@
 
 #include <filesystem>
 #include <optional>
-#include <set>
+#include <unordered_map>
 
 namespace nibi {
 
@@ -32,12 +32,16 @@ public:
   //! already been loaded
   void load_module(cell_ptr &module_name, env_c &target_env);
 
-  //! \brief Check if a module has already been loaded
-  //! \param module_name the name of the module
-  //! \returns true iff the module has been loaded already
-  inline bool is_module_loaded(const std::string &module_name) const {
-    return loaded_modules_.contains(module_name);
-  };
+  inline bool is_module_loaded(const std::string &module_name) {
+    if (loaded_modules_.find(module_name) == loaded_modules_.end()) {
+      return false;
+    }
+    if (loaded_modules_.at(module_name) == 0) {
+      loaded_modules_.erase(module_name);
+      return false;
+    }
+    return true;
+  }
 
 private:
   std::filesystem::path get_module_path(cell_ptr &module_name);
@@ -52,7 +56,7 @@ private:
   void execute_post_import_actions(cell_ptr &post_list,
                                    std::filesystem::path &module_path);
 
-  std::set<std::string> loaded_modules_;
+  std::unordered_map<std::string, uint8_t> loaded_modules_;
   source_manager_c &source_manager_;
   interpreter_c &ci_;
 };

@@ -53,6 +53,7 @@ public:
   virtual std::string represent_as_string() override {
     return "EXTERNAL_MODULE";
   }
+  virtual aberrant_cell_if *clone() override { return new module_cell_c(lib_); }
 
 private:
   rll_ptr lib_;
@@ -62,11 +63,28 @@ private:
 // so this is just a death callback cell
 class import_cell_c final : public aberrant_cell_if {
 public:
+  import_cell_c() = delete;
+  import_cell_c(std::unordered_map<std::string, uint8_t> &mods,
+                std::string name)
+      : mods_(mods), name_(name) {}
+  ~import_cell_c() {
+    if (mods_.count(name_) == 0) {
+      mods_.erase(name_);
+      return;
+    }
+    mods_[name_] -= 1;
+  }
   virtual std::string represent_as_string() override {
     return "EXTERNAL_IMPORT";
   }
+  virtual aberrant_cell_if *clone() override {
+    mods_[name_] += 1;
+    return new import_cell_c(mods_, name_);
+  }
 
 private:
+  std::unordered_map<std::string, uint8_t> &mods_;
+  std::string name_;
 };
 
 std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
@@ -184,7 +202,7 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
 
   // Mark as loaded immediately so that we don't try to load it again
   // and cause a recursion issue
-  loaded_modules_.insert(name);
+  loaded_modules_[name] = 1;
 
   auto path = get_module_path(module_name);
   auto module_file = path / config::NIBI_MODULE_FILE_NAME;
@@ -335,8 +353,8 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
 
   // Create a death callback to remove the module from the interpreter's
   // list of imported modules
-  auto import_cell =
-      allocate_cell(static_cast<aberrant_cell_if *>(new import_cell_c()));
+  auto import_cell = allocate_cell(static_cast<aberrant_cell_if *>(
+      new import_cell_c(loaded_modules_, name)));
 
   // We store in the environment so it stays alive as long as the import is
   // loaded and is removed if the import is dropped by the user or otherwise
