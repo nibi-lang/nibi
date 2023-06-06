@@ -135,6 +135,9 @@ public:
   //! \note If an exception occurs, throw a cell_access_exception_c
   //!       with the message
   virtual std::string represent_as_string() = 0;
+
+  //! \brief Clone the cell
+  virtual aberrant_cell_if *clone() = 0;
 };
 
 //! \brief A cell
