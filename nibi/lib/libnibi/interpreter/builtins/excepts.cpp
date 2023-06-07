@@ -3,7 +3,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
-
+#include "libnibi/keywords.hpp"
 #include "macros.hpp"
 
 #include <iterator>
@@ -15,9 +15,9 @@ namespace {
 cell_ptr handle_thrown_error_in_try(std::string message, cell_ptr recover_cell,
                                     interpreter_c &ci, env_c &env) {
   auto e_cell = allocate_cell(message);
-  env.set("$e", e_cell);
+  env.set(nibi::kw::TERR, e_cell);
   auto result = ci.execute_cell(recover_cell, env, true);
-  env.drop("$e");
+  env.drop(nibi::kw::TERR);
   return result;
 }
 } // namespace
@@ -39,7 +39,7 @@ cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
 
   */
 
-  NIBI_LIST_ENFORCE_SIZE("try", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::TRY, ==, 3)
 
   auto it = list.begin();
 
@@ -63,7 +63,7 @@ cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_except_throw(interpreter_c &ci, cell_list_t &list,
                                  env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("throw", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::THROW, ==, 2)
 
   auto it = list.begin();
 

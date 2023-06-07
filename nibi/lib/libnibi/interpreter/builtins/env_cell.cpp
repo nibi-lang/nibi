@@ -2,7 +2,7 @@
 
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
-
+#include "libnibi/keywords.hpp"
 #include "macros.hpp"
 
 namespace nibi {
@@ -12,7 +12,7 @@ namespace builtins {
 cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("env", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ENV, ==, 3)
 
   auto it = list.begin();
   std::advance(it, 1);

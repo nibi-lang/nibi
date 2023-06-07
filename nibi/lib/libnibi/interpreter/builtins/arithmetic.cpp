@@ -4,6 +4,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
+#include "libnibi/keywords.hpp"
 #include "macros.hpp"
 
 #include <cmath>
@@ -37,7 +38,7 @@ namespace builtins {
 
 cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("+", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ADD, >=, 2)
 
   auto first_item = list_get_nth_arg(ci, 1, list, env);
   if (first_item->type == cell_type_e::STRING) {
@@ -51,15 +52,17 @@ cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_arithmetic_sub(interpreter_c &ci, cell_list_t &list,
                                    env_c &env){
-    NIBI_LIST_ENFORCE_SIZE("-", >=, 2) PERFORM_OPERATION(list_perform_sub)}
+    NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
+        PERFORM_OPERATION(list_perform_sub)}
 
 cell_ptr
     builtin_fn_arithmetic_div(interpreter_c &ci, cell_list_t &list, env_c &env){
-        NIBI_LIST_ENFORCE_SIZE("/", >=, 2) PERFORM_OPERATION(list_perform_div)}
+        NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
+            PERFORM_OPERATION(list_perform_div)}
 
 cell_ptr builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("*", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MUL, >=, 2)
 
   auto first_item = list_get_nth_arg(ci, 1, list, env);
   if (first_item->type == cell_type_e::STRING) {
@@ -77,7 +80,7 @@ cell_ptr builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("%", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MOD, >=, 2)
   auto first_arg = list_get_nth_arg(ci, 1, list, env);
   if (first_arg->type == cell_type_e::DOUBLE) {
     double accumulate{first_arg->to_double()};
@@ -93,7 +96,7 @@ cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_arithmetic_pow(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("**", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::POW, >=, 2)
   PERFORM_OPERATION(list_perform_pow)
 }
 

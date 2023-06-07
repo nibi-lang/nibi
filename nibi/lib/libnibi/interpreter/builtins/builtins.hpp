@@ -13,7 +13,7 @@ namespace builtins {
 
 //! \brief Retrieve a reference to a map that ties symbols to their
 //!        corresponding builtin function.
-function_router_t get_builtin_symbols_map();
+function_router_t &get_builtin_symbols_map();
 
 //! \brief A function similar to the builtins that
 //!        will load a lambda function and execute it

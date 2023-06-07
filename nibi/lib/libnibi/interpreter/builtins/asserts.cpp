@@ -2,6 +2,7 @@
 
 #include "interpreter/builtins/builtins.hpp"
 #include "libnibi/cell.hpp"
+#include "libnibi/keywords.hpp"
 
 #include "macros.hpp"
 
@@ -12,7 +13,7 @@ namespace builtins {
 cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("assert", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, >=, 2)
 
   auto value = list_get_nth_arg(ci, 1, list, env);
   if (value->type != cell_type_e::INTEGER) {
@@ -27,7 +28,7 @@ cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
     return allocate_cell(cell_type_e::NIL);
   }
 
-  NIBI_LIST_ENFORCE_SIZE("assert", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, ==, 3)
 
   if (value->as_integer() == 0) {
     auto message = list_get_nth_arg(ci, 2, list, env);
