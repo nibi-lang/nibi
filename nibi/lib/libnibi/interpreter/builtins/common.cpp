@@ -29,7 +29,7 @@ cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::LEN, ==, 2)
 
-  auto target_list = list_get_nth_arg(ci, 1, list, env);
+  auto target_list = ci.execute_cell(list[1], env);
 
   if (target_list->type != cell_type_e::LIST) {
     return allocate_cell((int64_t)(target_list->to_string(false).size()));
@@ -49,7 +49,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::YIELD, ==, 2)
 
-  auto target = list_get_nth_arg(ci, 1, list, env)->clone(env);
+  auto target = ci.execute_cell(list[1], env)->clone(env);
   ci.set_yield_value(target);
   return target;
 }
