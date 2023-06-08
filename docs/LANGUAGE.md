@@ -390,10 +390,6 @@ Keyword: `throw`
 Note: Whatever is returned from the execution of arg 1 will be forcefully converted to a string for the given
 exception. If the result can not be turned into a string it will throw a cell_access_exception instead.
 
-This means that if you want to directly update the cell that `$it` points to, you NEED to use `set`
-and not `:=`. The former will find where it points and update it, the latter will overwrite $it into env
-and be overwritten at the end of the instruction list.
-
 ```
 ( throw < [*] () S RD > )
 ```
