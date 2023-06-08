@@ -3,7 +3,7 @@
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
-
+#include "libnibi/keywords.hpp"
 #include "macros.hpp"
 
 #include <iterator>
@@ -14,17 +14,22 @@ namespace builtins {
 cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE(":=", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSIGN, ==, 3)
 
   auto it = list.begin();
   std::advance(it, 1);
 
   if ((*it)->type != cell_type_e::SYMBOL) {
-    throw interpreter_c::exception_c("Expected symbol as first argument to :=",
-                                     (*it)->locator);
+    throw interpreter_c::exception_c(
+        "Expected symbol as first argument to assign", (*it)->locator);
   }
 
   auto &target_variable_name = (*it)->as_string();
+
+  if (target_variable_name[0] == '$') {
+    throw interpreter_c::exception_c(
+        "Cannot assign to a variable starting with '$'", (*it)->locator);
+  }
 
   auto target_assignment_value =
       ci.execute_cell(list_get_nth_arg(ci, 2, list, env), env);
@@ -42,7 +47,7 @@ cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("set", ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::SET, ==, 3)
 
   auto target_assignment_cell =
       ci.execute_cell(list_get_nth_arg(ci, 1, list, env), env);
@@ -57,7 +62,7 @@ cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
 }
 
 cell_ptr builtin_fn_env_drop(interpreter_c &ci, cell_list_t &list, env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("drop", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DROP, >=, 2)
   NIBI_LIST_ITER_SKIP_N(1, {
     if (!env.drop((*it)->as_symbol())) {
       throw interpreter_c::exception_c("Could not find symbol with name :" +
@@ -70,7 +75,7 @@ cell_ptr builtin_fn_env_drop(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
 cell_ptr builtin_fn_env_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("fn", ==, 4)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::FN, ==, 4)
 
   auto it = list.begin();
 

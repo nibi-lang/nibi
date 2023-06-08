@@ -34,8 +34,8 @@
   "Inner env not cloned correctly"
   )
 
-(assert (eq {outer-env inner-pub-env inner_pub_x} 0) "Unable to access public item?")
+(assert (eq {outer-env inner-pub-env inner_pub_x} 0) "Unable to access public itemif")
 
 (set {outer-env inner-pub-env inner_pub_x} 8192)
 
-(assert (eq {outer-env inner-pub-env inner_pub_x} 8192) "Unable to access public item?")
+(assert (eq {outer-env inner-pub-env inner_pub_x} 8192) "Unable to access public itemif")

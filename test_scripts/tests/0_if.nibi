@@ -1,11 +1,11 @@
 
 (:= x 1)
-(assert (eq 42 (? (eq 1 x) (set x 42) [
+(assert (eq 42 (if (eq 1 x) (set x 42) [
   (throw "Well that wasn't supposed to happen")
 ])) "No dice")
 
 
 (set x 0)
-(assert (eq 42 (? (eq 1 x) [(throw "UGH")] [
+(assert (eq 42 (if (eq 1 x) [(throw "UGH")] [
   (set x 42)
 ])) "No dice")

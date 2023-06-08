@@ -5,6 +5,7 @@
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/front/file_interpreter.hpp"
+#include "libnibi/keywords.hpp"
 #include "macros.hpp"
 #include "platform.hpp"
 
@@ -14,7 +15,7 @@ namespace builtins {
 cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
                                  env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("clone", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::CLONE, ==, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -26,7 +27,7 @@ cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("len", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::LEN, ==, 2)
 
   auto target_list = list_get_nth_arg(ci, 1, list, env);
 
@@ -46,7 +47,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
     return ci.get_yield_value();
   }
 
-  NIBI_LIST_ENFORCE_SIZE("<-", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::YIELD, ==, 2)
 
   auto target = list_get_nth_arg(ci, 1, list, env)->clone(env);
   ci.set_yield_value(target);
@@ -56,7 +57,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
   // (loop (pre) (cond) (post) (body))
-  NIBI_LIST_ENFORCE_SIZE("loop", ==, 5)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::LOOP, ==, 5)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -98,7 +99,7 @@ cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("?", >=, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::IF, >=, 3)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -126,7 +127,7 @@ cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("put", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUT, >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -146,7 +147,7 @@ cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
     return allocate_cell((int64_t)0);
   }
 
-  NIBI_LIST_ENFORCE_SIZE("putln", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUTLN, >=, 2)
   auto result = builtin_fn_common_put(ci, list, env);
   std::cout << std::endl;
   return result;
@@ -155,7 +156,7 @@ cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("import", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::IMPORT, >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -197,7 +198,7 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
 
-  NIBI_LIST_ENFORCE_SIZE("use", >=, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::USE, >=, 2)
 
   auto it = list.begin();
   std::advance(it, 1);
@@ -211,7 +212,7 @@ cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("exit", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXIT, ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
   std::exit(ci.execute_cell((*it), env)->as_integer());
@@ -219,7 +220,7 @@ cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_quote(interpreter_c &ci, cell_list_t &list,
                                  env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("quote", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::QUOTE, ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
   return allocate_cell((*it)->to_string(false, true));
@@ -227,7 +228,7 @@ cell_ptr builtin_fn_common_quote(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE("eval", ==, 2)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::EVAL, ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
 

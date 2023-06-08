@@ -9,7 +9,7 @@
 
 (fn check_nest [x] [
   (loop (:= k 0) (< k x) (set k (+ k 1)) [
-    (? (eq 0 k) (<- k))
+    (if (eq 0 k) (<- k))
     (putln "You shouldn't see this")
   ])
   (<- x)

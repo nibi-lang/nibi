@@ -9,14 +9,14 @@
   (fn ceil [x] [
     (:= x_dbl (force_double x))
     (:= remains (% x_dbl 1.00))
-    (? (> remains 0.00) (<- (+ 1.00 (- x_dbl remains))))
+    (if (> remains 0.00) (<- (+ 1.00 (- x_dbl remains))))
     (<- x_dbl)
   ])
 
   (fn floor [x] [
     (:= x_dbl (force_double x))
     (:= remains (% x_dbl 1.00))
-    (? (> remains 0.00) (<- (- x_dbl remains)))
+    (if (> remains 0.00) (<- (- x_dbl remains)))
     (<- x_dbl)
   ])
 ])
@@ -29,9 +29,9 @@
   (:= _last_page_size 0)
 
   (fn _calculate_page_count [] [
-    (? (<= _count 0) (<- -1))
-    (? (>= _count _data_len) (<- 1))
-    (? (not (% _data_len _count)) [
+    (if (<= _count 0) (<- -1))
+    (if (>= _count _data_len) (<- 1))
+    (if (not (% _data_len _count)) [
       (set _last_page_size _count)
       (<- ({math force_integer} (/ _data_len _count)))
     ])
@@ -52,15 +52,15 @@
   (fn item_count [] (<- (len _data)))
 
   (fn page_item_count [x] [
-    (? (>= x _total_pages) (<- -1))
+    (if (>= x _total_pages) (<- -1))
     (:= idx (* x _count))
-    (? (< ( - _data_len idx) _count) (<- ({math force_integer} _last_page_size)))
+    (if (< ( - _data_len idx) _count) (<- ({math force_integer} _last_page_size)))
     (<- ({math force_integer} _count))
   ])
 
   (fn page_index [x] [
-    (? (> 0 x) (<- -1))
-    (? (>= x _data_len) (<- -1))
+    (if (> 0 x) (<- -1))
+    (if (>= x _data_len) (<- -1))
     (:= page_to_idx_factor (/ ({math force_double} _total_pages) _data_len))
     (<- ({math force_integer} ({math floor} (* ({math force_double} x) page_to_idx_factor))))
   ])

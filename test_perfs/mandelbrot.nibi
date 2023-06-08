@@ -7,7 +7,7 @@
   (loop (:= k 0) (< k limit) (set k (+ k 1)) [
     (set r2 (* z_real z_real))
     (set i2 (* z_image z_image))
-    (? (> (+ r2 i2) 4.0) (<- k))
+    (if (> (+ r2 i2) 4.0) (<- k))
     (set z_image (+ (* z_real (* z_image 2.0)) image))
     (set z_real (+ real (- r2 i2)))
   ])
@@ -33,7 +33,7 @@
     (set x (+ x_start (* j dx)))
     (set y (- y_end (* i dy)))
     (set value (mandelbrot x y))
-    (? (eq 0 value) 
+    (if (eq 0 value) 
        (put " ")
        (put (at pixels (% value num_pixels))))
   ])

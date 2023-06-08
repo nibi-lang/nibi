@@ -16,11 +16,11 @@ For documentation on the language please see `docs/LANGUAGE.md`
 
 ```lisp
 (loop (:= x 1) (< x 20) (set x (+ 1 x)) [
-  (? (and (not (% x 3)) (not (% x 5)))
+  (if (and (not (% x 3)) (not (% x 5)))
       (putln "FizzBuzz")
-        (? (not (% x 3)) 
+        (if (not (% x 3)) 
           (putln "Fizz")
-          (? (not (% x 5)) 
+          (if (not (% x 5)) 
             (putln "Buzz") 
             (putln x))))])
 ```
@@ -54,12 +54,12 @@ For documentation on the language please see `docs/LANGUAGE.md`
 (:= num_guesses 1)
 (loop (:= i 0) (eq 0 i) (set num_guesses (+ 1 num_guesses)) [
    (:= guess (io::prompt "guess: " io::get::int))
-   (? (eq magic_number guess) [
+   (if (eq magic_number guess) [
       (putln "Correct!")
       (putln "You got the number correct in " num_guesses " guesses!")
       (exit 0)
    ])
-   (? (< magic_number guess) (putln "Lower!") (putln "Higher!"))
+   (if (< magic_number guess) (putln "Lower!") (putln "Higher!"))
 ])
 ```
 

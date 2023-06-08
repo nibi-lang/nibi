@@ -51,7 +51,7 @@ any other piece of data in the instructions below.
 | assert  | Assert a given condition to be true or throw an error | nil
 | len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
 | <-      | Return the value of a cell, yielding whatever execution may be happening | variable
-| ?       | If statement | variable
+| if       | If statement | variable
 | loop    | A loop | variable
 | clone   | clone a variable | variable
 | put     | Output a string representation of N cells | 0
@@ -220,19 +220,19 @@ Keyword: `<-`
 
 ### If / Else
 
-Keyword: `?`
+Keyword: `if`
 
 | arg 1               | arg 2                    | arg3 (optional)
 |----                |----                     |----
 | Condition to check | Body to execute if true | Body to execute if false
 
 ```
-( ? <() RD [*]> <() RD [*]> )
+( if <() RD [*]> <() RD [*]> )
 ```
 
 ### Loop
 
-Keyword: `?`
+Keyword: `if`
 
 | arg 1          | arg 2               | arg3           | arg4
 |----           |----                |----            |----
@@ -389,10 +389,6 @@ Keyword: `throw`
 
 Note: Whatever is returned from the execution of arg 1 will be forcefully converted to a string for the given
 exception. If the result can not be turned into a string it will throw a cell_access_exception instead.
-
-This means that if you want to directly update the cell that `$it` points to, you NEED to use `set`
-and not `:=`. The former will find where it points and update it, the latter will overwrite $it into env
-and be overwritten at the end of the instruction list.
 
 ```
 ( throw < [*] () S RD > )
