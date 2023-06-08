@@ -1,0 +1,37 @@
+(try 
+  (assert_eq "foo" "bar")
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_eq "foo" 10)
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_eq 10 "foo")
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_eq 3.14 3.141)
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_eq 3.14 3)
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_eq 10 11)
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_neq "x" "x")
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_neq 40 40)
+  (putln "Expected >>> " $e))
+
+(try
+  (assert_neq 3.14 3.14)
+  (putln "Expected >>> " $e))
+
+(putln "COMPLETE")

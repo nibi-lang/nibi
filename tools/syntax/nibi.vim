@@ -20,9 +20,9 @@ syn match nibiComment "#.*$"
 syn match nibiIdentifier '[a-zA-Z_][a-zA-Z0-9_]*' contained
 syn match nibiNumber '\d\+' contained
 
-syn keyword nibiFunc set fn drop try throw assert len clone put putln nop
+syn keyword nibiFunc set fn drop try throw assert assert_eq assert_neq
 syn keyword nibiFunc env at iter eval quote loop exit quote import use
-syn keyword nibiFunc int str float split type
+syn keyword nibiFunc int str float split type len clone put putln nop
 syn keyword nibiQuickType true false nil nan inf
 
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|?\|+\|-\|*\|/\)' contained

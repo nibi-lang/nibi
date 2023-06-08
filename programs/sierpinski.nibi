@@ -7,7 +7,7 @@
     (loop (:= i 0) (< i y) (set i (+ i 1)) 
       (put " "))
     (loop (:= x 0) (< (+ x y) n) (set x (+ x 1))
-      (? (eq true (bw-and x y))
+      (if (eq true (bw-and x y))
         (put "  ")
         (put "* ")))
     (putln "")
@@ -15,8 +15,8 @@
 ])
 
 # Check for user params
-(? ( > (len (sys::args)) 1) [
-  (? (neq 2 (len (sys::args))) [
+(if ( > (len (sys::args)) 1) [
+  (if (neq 2 (len (sys::args))) [
     (putln "Usage:" (at (sys::args) 0) " <size>")
     (exit 1)
   ])

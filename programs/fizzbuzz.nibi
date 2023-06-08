@@ -1,9 +1,9 @@
 
 (loop (:= x 1) (< x 20) (set x (+ 1 x)) [
-  (? (and (not (% x 3)) (not (% x 5)))
+  (if (and (not (% x 3)) (not (% x 5)))
       (putln "FizzBuzz")
-        (? (not (% x 3)) 
+        (if (not (% x 3)) 
           (putln "Fizz")
-          (? (not (% x 5)) 
+          (if (not (% x 5)) 
             (putln "Buzz") 
             (putln x))))])

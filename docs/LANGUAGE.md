@@ -51,7 +51,7 @@ any other piece of data in the instructions below.
 | assert  | Assert a given condition to be true or throw an error | nil
 | len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
 | <-      | Return the value of a cell, yielding whatever execution may be happening | variable
-| ?       | If statement | variable
+| if       | If statement | variable
 | loop    | A loop | variable
 | clone   | clone a variable | variable
 | put     | Output a string representation of N cells | 0
@@ -220,19 +220,19 @@ Keyword: `<-`
 
 ### If / Else
 
-Keyword: `?`
+Keyword: `if`
 
 | arg 1               | arg 2                    | arg3 (optional)
 |----                |----                     |----
 | Condition to check | Body to execute if true | Body to execute if false
 
 ```
-( ? <() RD [*]> <() RD [*]> )
+( if <() RD [*]> <() RD [*]> )
 ```
 
 ### Loop
 
-Keyword: `?`
+Keyword: `if`
 
 | arg 1          | arg 2               | arg3           | arg4
 |----           |----                |----            |----
