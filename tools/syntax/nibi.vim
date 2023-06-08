@@ -33,6 +33,7 @@ syn match nibiFunc '|>>' contained
 syn match nibiFunc "<|>" contained
 syn match nibiFunc '>|' contained
 syn match nibiFunc '|<' contained
+syn match nibiKeyword '|<' contained
 
 hi def link nibiFunc Function
 hi def link nibiQuickType Type
@@ -43,6 +44,7 @@ hi def link nibiString String
 hi def link nibiInsList Keyword
 hi def link nibiDataList Keyword
 hi def link nibiAccessList Keyword
+hi def link nibiKeyword Keyword
 
 let b:current_syntax = "nibi"
 
