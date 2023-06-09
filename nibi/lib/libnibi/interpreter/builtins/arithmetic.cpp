@@ -36,7 +36,7 @@ namespace builtins {
   }                                                                            \
   return allocate_cell(cell_type_e::NIL);
 
-cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_add(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ADD, >=, 2)
 
@@ -50,17 +50,17 @@ cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
   }
 }
 
-cell_ptr builtin_fn_arithmetic_sub(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_sub(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env){
     NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
         PERFORM_OPERATION(list_perform_sub)}
 
-cell_ptr
-    builtin_fn_arithmetic_div(interpreter_c &ci, cell_list_t &list, env_c &env){
-        NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
-            PERFORM_OPERATION(list_perform_div)}
+cell_ptr builtin_fn_arithmetic_div(cell_processor_if &ci, cell_list_t &list,
+                                   env_c &env){
+    NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
+        PERFORM_OPERATION(list_perform_div)}
 
-cell_ptr builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_mul(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MUL, >=, 2)
 
@@ -78,7 +78,7 @@ cell_ptr builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list,
   }
 }
 
-cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_mod(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MOD, >=, 2)
   auto first_arg = ci.process_cell(list[1], env);
@@ -94,7 +94,7 @@ cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
   }
 }
 
-cell_ptr builtin_fn_arithmetic_pow(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_pow(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POW, >=, 2)
   PERFORM_OPERATION(list_perform_pow)

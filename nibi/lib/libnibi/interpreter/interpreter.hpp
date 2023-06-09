@@ -62,29 +62,23 @@ public:
   virtual cell_ptr process_cell(cell_ptr instruction, env_c &env,
                                 bool process_data_cell = false) override;
 
-  //! \brief Stop recursing on the current instruction and return a value
-  inline void set_yield_value(cell_ptr value) { yield_value_ = value; }
+  virtual void set_yield_value(cell_ptr value) override {
+    yield_value_ = value;
+  }
 
-  //! \brief Check if the interpreter is yielding a value
-  inline bool is_yielding() const { return yield_value_ != nullptr; }
+  virtual bool is_yielding() override { return yield_value_ != nullptr; }
 
-  //! \brief Get the yield valueq
-  inline cell_ptr get_yield_value() const { return yield_value_; }
+  virtual cell_ptr get_yield_value() override { return yield_value_; }
 
-  //! \brief Get the source manager
-  inline source_manager_c &get_source_manager() { return source_manager_; }
+  virtual source_manager_c &get_source_manager() override {
+    return source_manager_;
+  }
 
-  //! \brief Load a module
-  //! \param module_name The name of the module to load
-  void load_module(cell_ptr &module_name);
+  virtual void load_module(cell_ptr &module_name) override;
 
-  //! \brief Get the last result of the interpreter
-  //! \return The last result
-  inline cell_ptr get_last_result() const { return last_result_; }
+  virtual cell_ptr get_last_result() override { return last_result_; }
 
-  //! \brief Get the interpreter environment
-  //! \return The interpreter environment
-  inline env_c &get_env() { return interpreter_env; }
+  virtual env_c &get_env() override { return interpreter_env; }
 
 private:
   // The last item that was processed

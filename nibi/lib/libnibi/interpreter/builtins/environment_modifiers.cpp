@@ -11,7 +11,7 @@
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSIGN, ==, 3)
@@ -45,7 +45,8 @@ cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
   return target_assignment_value;
 }
 
-cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_set(cell_processor_if &ci, cell_list_t &list,
+                            env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SET, ==, 3)
 
@@ -61,7 +62,8 @@ cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
   return target_assignment_cell;
 }
 
-cell_ptr builtin_fn_env_drop(interpreter_c &ci, cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_drop(cell_processor_if &ci, cell_list_t &list,
+                             env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DROP, >=, 2)
 
   for (auto it = std::next(list.begin()); it != list.end(); ++it) {
@@ -74,7 +76,8 @@ cell_ptr builtin_fn_env_drop(interpreter_c &ci, cell_list_t &list, env_c &env) {
   return allocate_cell((int64_t)0);
 }
 
-cell_ptr builtin_fn_env_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
+cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
+                           env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::FN, ==, 4)
 

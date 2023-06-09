@@ -10,7 +10,7 @@ namespace nibi {
 
 namespace builtins {
 
-cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
                                 env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, >=, 2)
@@ -42,7 +42,7 @@ cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_assert_eq(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_eq(cell_processor_if &ci, cell_list_t &list,
                               env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_EQ, ==, 3)
@@ -74,7 +74,7 @@ cell_ptr builtin_fn_assert_eq(interpreter_c &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_assert_neq(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_neq(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_NEQ, ==, 3)

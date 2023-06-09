@@ -9,7 +9,7 @@ namespace nibi {
 
 namespace builtins {
 
-cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_envcell_env(cell_processor_if &ci, cell_list_t &list,
                                 env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ENV, ==, 3)
