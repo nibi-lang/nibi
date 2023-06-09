@@ -20,11 +20,11 @@ namespace nibi {
 // you should pass 3
 #define NIBI_LIST_ENFORCE_SIZE(___cmd, ___op, ___size)                         \
   if (!(list.size() ___op ___size)) {                                          \
-    ci.halt_with_error(                                                        \
-        nibi::error_c(list.front()->locator,                                   \
-                      std::string(___cmd) + " instruction expects " +          \
-                          std::to_string(___size - 1) + " parameters, got " +  \
-                          std::to_string(list.size() - 1) + "."));             \
+    throw nibi::interpreter_c::exception_c(                                    \
+        std::string(___cmd) + " instruction expects " +                        \
+            std::to_string(___size - 1) + " parameters, got " +                \
+            std::to_string(list.size() - 1) + ".",                             \
+        list.front()->locator);                                                \
     return nibi::allocate_cell(nibi::cell_type_e::NIL);                        \
   }
 

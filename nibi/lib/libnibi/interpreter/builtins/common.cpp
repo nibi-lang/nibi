@@ -164,7 +164,8 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
   auto &gsm = ci.get_source_manager();
 
   error_callback_f error_callback = [&](error_c error) {
-    ci.halt_with_error(error);
+    error.draw();
+    throw interpreter_c::exception_c("Import error");
   };
 
   while (it != list.end()) {
@@ -179,10 +180,11 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 
     // Locate the item
     auto item = global_platform->locate_file(target, from);
+
     if (!item.has_value()) {
-      ci.halt_with_error(
-          error_c((*it)->locator,
-                  "Could not locate file for import: " + target.string()));
+      throw interpreter_c::exception_c("Could not locate file for import: " +
+                                           target.string(),
+                                       (*it)->locator);
     }
 
     // Check that the item hasn't already been imported
@@ -239,8 +241,12 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
   interpreter_c eval_ci(env, sm);
 
   intake_c(
-      eval_ci, [&](error_c error) { ci.halt_with_error(error); }, sm,
-      builtins::get_builtin_symbols_map())
+      eval_ci,
+      [&](error_c error) {
+        error.draw();
+        throw interpreter_c::exception_c("Eval error");
+      },
+      sm, builtins::get_builtin_symbols_map())
       .evaluate(ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
 
   return eval_ci.get_last_result();

@@ -20,6 +20,12 @@ public:
   //! \brief A runtime exception
   class exception_c final : public std::exception {
   public:
+    exception_c() = delete;
+
+    //! \brief Construct a new exception
+    //! \param message The message that will be printed
+    exception_c(std::string message) : message_(message) {}
+
     //! \brief Construct a new exception
     //! \param message The message that will be printed
     //! \param source_location The location in the source code
@@ -30,7 +36,7 @@ public:
 
   private:
     std::string message_;
-    locator_ptr source_location_;
+    locator_ptr source_location_{nullptr};
   };
 
   //! \brief Construct a new interpreter object
@@ -59,11 +65,6 @@ public:
   cell_ptr execute_cell(cell_ptr instruction, env_c &env,
                         bool process_data_cell = false);
 
-  //! \brief Halt execution and print an error message
-  //! \param error The error that will be printed
-  //! \post The program will shutdown
-  void halt_with_error(error_c error);
-
   //! \brief Stop recursing on the current instruction and return a value
   inline void set_yield_value(cell_ptr value) { yield_value_ = value; }
 
@@ -89,8 +90,10 @@ public:
   inline env_c &get_env() { return interpreter_env; }
 
 private:
+  // The last item that was processed
   cell_ptr last_result_{nullptr};
 
+  // Module loader / manager
   modules_c modules_;
 
   // The environment that will be used to store and execute
@@ -106,7 +109,12 @@ private:
   // Handle a list cell
   cell_ptr handle_list_cell(cell_ptr cell, env_c &env, bool process_data_cell);
 
+  // Indicates if we are in repl mode
   bool repl_mode_{false};
+
+  // Halt the interpreter with an error
+  void halt_with_error(error_c error);
+
 #if PROFILE_INTERPRETER
   struct profile_info_s {
     int64_t calls{0};

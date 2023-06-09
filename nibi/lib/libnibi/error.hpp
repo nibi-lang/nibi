@@ -26,6 +26,8 @@ public:
   //! \brief Get the error message.
   const std::string get_message() const { return message_; }
 
+  //! \brief Draw the error to the console.
+  //! \param markup Whether to use markup source or not
   void draw(bool markup = true) const;
 
 private:

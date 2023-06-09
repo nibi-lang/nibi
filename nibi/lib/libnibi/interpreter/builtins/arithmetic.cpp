@@ -30,7 +30,7 @@ namespace builtins {
   default: {                                                                   \
     std::string msg = "Incorrect argument type for arithmetic function: ";     \
     msg += cell_type_to_string(first_arg->type);                               \
-    ci.halt_with_error(error_c(list[0]->locator, msg));                        \
+    throw interpreter_c::exception_c(msg, list[0]->locator);                   \
     break;                                                                     \
   }                                                                            \
   }                                                                            \
