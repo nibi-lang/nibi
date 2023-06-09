@@ -72,7 +72,7 @@ void interpreter_c::halt_with_error(error_c error) {
   std::exit(1);
 }
 
-cell_ptr interpreter_c::execute_cell(cell_ptr cell, env_c &env,
+cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
                                      bool process_data_list) {
 
   if (yield_value_) {
@@ -155,7 +155,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
     if (process_data_list) {
       cell_ptr last_result = allocate_cell(cell_type_e::NIL);
       for (auto &list_cell : list) {
-        last_result = execute_cell(list_cell, env);
+        last_result = process_cell(list_cell, env);
         if (this->is_yielding()) {
           return yield_value_;
         }
@@ -172,7 +172,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
     auto *current_env = &env;
     cell_ptr result = allocate_cell(cell_type_e::NIL);
     for (std::size_t i = 0; i < list.size() - 1; i++) {
-      result = execute_cell(*it, *current_env);
+      result = process_cell(*it, *current_env);
       if (result->type == cell_type_e::ENVIRONMENT) {
         current_env = result->as_environment_info().env;
         if (considered_private(result) && i != 0) {
@@ -192,7 +192,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
                               "Private members can only be accessed from "
                               "the root of an access list"));
     }
-    return execute_cell(*it, *current_env);
+    return process_cell(*it, *current_env);
   }
   case list_types_e::INSTRUCTION: {
     // All lists' first item should be a function of some sort,
@@ -202,7 +202,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
 
       // If the operation is a symbol then we need to
       // look it up in the environment
-      operation = execute_cell(operation, env);
+      operation = process_cell(operation, env);
     }
 
     // If the operation is a list then we need to

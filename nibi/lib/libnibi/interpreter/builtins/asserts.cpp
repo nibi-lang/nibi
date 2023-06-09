@@ -15,7 +15,7 @@ cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, >=, 2)
 
-  auto value = ci.execute_cell(list[1], env);
+  auto value = ci.process_cell(list[1], env);
   if (value->type != cell_type_e::INTEGER) {
     throw interpreter_c::exception_c(
         "Expected item to evaluate to integer type", value->locator);
@@ -31,7 +31,7 @@ cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, ==, 3)
 
   if (value->as_integer() == 0) {
-    auto message = ci.execute_cell(list[2], env);
+    auto message = ci.process_cell(list[2], env);
     if (message->type != cell_type_e::STRING) {
       throw interpreter_c::exception_c(
           "Expected string value for assertion message", message->locator);
@@ -47,8 +47,8 @@ cell_ptr builtin_fn_assert_eq(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_EQ, ==, 3)
 
-  auto lhs = ci.execute_cell(list[1], env);
-  auto rhs = ci.execute_cell(list[2], env);
+  auto lhs = ci.process_cell(list[1], env);
+  auto rhs = ci.process_cell(list[2], env);
 
   if (lhs->type != rhs->type) {
     std::string err = "Expected types to be equal, but got (lhs) `";
@@ -79,8 +79,8 @@ cell_ptr builtin_fn_assert_neq(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_NEQ, ==, 3)
 
-  auto lhs = ci.execute_cell(list[1], env)->to_string();
-  auto rhs = ci.execute_cell(list[2], env)->to_string();
+  auto lhs = ci.process_cell(list[1], env)->to_string();
+  auto rhs = ci.process_cell(list[2], env)->to_string();
 
   if (lhs == rhs) {
     std::string err = "Expected values to be not equal, but got (lhs) `";

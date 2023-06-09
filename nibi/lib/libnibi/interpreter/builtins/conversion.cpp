@@ -12,7 +12,7 @@ namespace nibi {
 namespace builtins {
 
 #define NIBI_CONVERSION_TO_TYPE(type, conversion_method)                       \
-  auto value = ci.execute_cell(list[1], env);                                  \
+  auto value = ci.process_cell(list[1], env);                                  \
   try {                                                                        \
     type result = std::stoll(value->to_string());                              \
     return allocate_cell(result);                                              \
@@ -38,7 +38,7 @@ cell_ptr builtin_fn_cvt_to_string(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::STR, ==, 2)
-  return allocate_cell(ci.execute_cell(list[1], env)->to_string());
+  return allocate_cell(ci.process_cell(list[1], env)->to_string());
 }
 
 cell_ptr builtin_fn_cvt_to_integer(interpreter_c &ci, cell_list_t &list,
@@ -54,7 +54,7 @@ cell_ptr
 cell_ptr
     builtin_fn_cvt_to_split(interpreter_c &ci, cell_list_t &list, env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SPLIT, >=, 2)
-  auto value = ci.execute_cell(list[1], env);
+  auto value = ci.process_cell(list[1], env);
 
   if (value->type == cell_type_e::LIST) {
     NIBI_LIST_ENFORCE_SIZE(nibi::kw::SPLIT, ==, 3)
@@ -62,7 +62,7 @@ cell_ptr
 
     int64_t count = 0;
 
-    auto target = ci.execute_cell(list[2], env)->to_integer();
+    auto target = ci.process_cell(list[2], env)->to_integer();
 
     if (0 == target) {
       return value->clone(env);

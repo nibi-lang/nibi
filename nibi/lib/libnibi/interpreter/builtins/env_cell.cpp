@@ -29,7 +29,7 @@ cell_ptr builtin_fn_envcell_env(interpreter_c &ci, cell_list_t &list,
 
   // Populate the env by executing their instructions
   std::advance(it, 1);
-  ci.execute_cell((*it), *new_env_info.env, true);
+  ci.process_cell((*it), *new_env_info.env, true);
 
   // Create a cell that will hold the env we just built
   auto new_cell = allocate_cell(new_env_info);

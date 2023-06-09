@@ -13,7 +13,7 @@ namespace builtins {
 namespace {
 inline nibi::cell_ptr type(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                            nibi::env_c &env) {
-  auto resolved = ci.execute_cell(list[1], env);
+  auto resolved = ci.process_cell(list[1], env);
   switch (resolved->type) {
   case nibi::cell_type_e::ABERRANT:
     return nibi::allocate_cell(nibi::types::ABERRANT);

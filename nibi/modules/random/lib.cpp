@@ -49,8 +49,8 @@ nibi::cell_ptr rand_double(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 nibi::cell_ptr rand_range_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                               nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{random rand_range_int}", ==, 3)
-  auto min = ci.execute_cell(list[1], env);
-  auto max = ci.execute_cell(list[2], env);
+  auto min = ci.process_cell(list[1], env);
+  auto max = ci.process_cell(list[2], env);
   return nibi::allocate_cell((int64_t)generate_random_c<int64_t>().get_range(
       min->to_integer(), max->to_integer()));
 }
@@ -58,8 +58,8 @@ nibi::cell_ptr rand_range_int(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 nibi::cell_ptr rand_range_double(nibi::interpreter_c &ci,
                                  nibi::cell_list_t &list, nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{random rand_range_double}", ==, 3)
-  auto min = ci.execute_cell(list[1], env);
-  auto max = ci.execute_cell(list[2], env);
+  auto min = ci.process_cell(list[1], env);
+  auto max = ci.process_cell(list[2], env);
   return nibi::allocate_cell(
       (double)generate_random_c<double>().get_floating_point_range(
           min->to_double(), max->to_double()));

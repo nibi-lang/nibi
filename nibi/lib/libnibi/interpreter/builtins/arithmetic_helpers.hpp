@@ -22,7 +22,7 @@ static inline T list_perform_sub(T base_value, interpreter_c &ci,
   T accumulate{base_value};
 
   if (list.size() == 2) {
-    return 0 - conversion_method(ci.execute_cell(list[1], env));
+    return 0 - conversion_method(ci.process_cell(list[1], env));
   }
 
   NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate -= conversion_method(arg); })

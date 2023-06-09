@@ -11,7 +11,7 @@ namespace nibi {
 // into an "arg" variable
 #define NIBI_LIST_ITER_AND_LOAD_SKIP_N(___n, ___loop_body)                     \
   for (auto i = std::next(list.begin(), ___n); i != list.end(); ++i) {         \
-    nibi::cell_ptr arg = ci.execute_cell(*i, env);                             \
+    nibi::cell_ptr arg = ci.process_cell(*i, env);                             \
     ___loop_body                                                               \
   }
 

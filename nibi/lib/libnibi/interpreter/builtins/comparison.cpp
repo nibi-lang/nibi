@@ -121,57 +121,57 @@ cell_ptr builtin_fn_comparison_eq(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::EQ, ==, 3)
   return perform_op(list.front()->locator, op_e::EQ,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env), false);
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env), false);
 }
 cell_ptr builtin_fn_comparison_neq(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::NEQ, ==, 3)
   return perform_op(list.front()->locator, op_e::NEQ,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env), false);
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env), false);
 }
 cell_ptr builtin_fn_comparison_lt(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::LT, ==, 3)
   return perform_op(list.front()->locator, op_e::LT,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env));
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env));
 }
 cell_ptr builtin_fn_comparison_gt(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::GT, ==, 3)
   return perform_op(list.front()->locator, op_e::GT,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env));
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env));
 }
 cell_ptr builtin_fn_comparison_lte(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::LTE, ==, 3)
   return perform_op(list.front()->locator, op_e::LTE,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env));
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env));
 }
 cell_ptr builtin_fn_comparison_gte(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::GTE, ==, 3)
   return perform_op(list.front()->locator, op_e::GTE,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env));
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env));
 }
 cell_ptr builtin_fn_comparison_and(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::AND, ==, 3)
   return perform_op(list.front()->locator, op_e::AND,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env));
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env));
 }
 cell_ptr builtin_fn_comparison_or(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::OR, ==, 3)
   return perform_op(list.front()->locator, op_e::OR,
-                    *ci.execute_cell(list[1], env),
-                    *ci.execute_cell(list[2], env));
+                    *ci.process_cell(list[1], env),
+                    *ci.process_cell(list[2], env));
 }
 
 cell_ptr builtin_fn_comparison_not(interpreter_c &ci, cell_list_t &list,
@@ -179,7 +179,7 @@ cell_ptr builtin_fn_comparison_not(interpreter_c &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::NOT, ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
-  auto item_to_negate = ci.execute_cell(*it, env, true);
+  auto item_to_negate = ci.process_cell(*it, env, true);
   auto value = item_to_negate->to_integer();
   return allocate_cell((int64_t)(!value));
 }

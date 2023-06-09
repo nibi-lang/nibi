@@ -20,7 +20,7 @@ cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
   auto it = list.begin();
   std::advance(it, 1);
 
-  auto loaded_cell = ci.execute_cell(*it, env);
+  auto loaded_cell = ci.process_cell(*it, env);
 
   return loaded_cell->clone(env);
 }
@@ -29,7 +29,7 @@ cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::LEN, ==, 2)
 
-  auto target_list = ci.execute_cell(list[1], env);
+  auto target_list = ci.process_cell(list[1], env);
 
   if (target_list->type != cell_type_e::LIST) {
     return allocate_cell((int64_t)(target_list->to_string(false).size()));
@@ -49,7 +49,7 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::YIELD, ==, 2)
 
-  auto target = ci.execute_cell(list[1], env)->clone(env);
+  auto target = ci.process_cell(list[1], env)->clone(env);
   ci.set_yield_value(target);
   return target;
 }
@@ -75,23 +75,23 @@ cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
 
   auto loop_env = env_c(&env);
 
-  ci.execute_cell(pre_condition, loop_env);
+  ci.process_cell(pre_condition, loop_env);
 
   cell_ptr result = allocate_cell(cell_type_e::NIL);
   while (true) {
-    auto condition_result = ci.execute_cell(condition, loop_env);
+    auto condition_result = ci.process_cell(condition, loop_env);
 
     if (condition_result->to_integer() <= 0) {
       return result;
     }
 
-    result = ci.execute_cell(body, loop_env, true);
+    result = ci.process_cell(body, loop_env, true);
 
     if (ci.is_yielding()) {
       return ci.get_yield_value();
     }
 
-    ci.execute_cell(post_condition, loop_env);
+    ci.process_cell(post_condition, loop_env);
   }
 
   return result;
@@ -111,15 +111,15 @@ cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
 
   auto if_env = env_c(&env);
 
-  auto condition_result = ci.execute_cell(condition, if_env);
+  auto condition_result = ci.process_cell(condition, if_env);
 
   if (condition_result->as_integer() > 0) {
-    return ci.execute_cell(true_condition, if_env, true);
+    return ci.process_cell(true_condition, if_env, true);
   }
 
   if (list.size() == 4) {
     std::advance(it, 1);
-    return ci.execute_cell((*it), if_env, true);
+    return ci.process_cell((*it), if_env, true);
   }
 
   return ci.get_last_result();
@@ -133,7 +133,7 @@ cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
   std::advance(it, 1);
 
   while (it != list.end()) {
-    std::cout << ci.execute_cell((*it), env)->to_string();
+    std::cout << ci.process_cell((*it), env)->to_string();
     std::advance(it, 1);
   }
   return allocate_cell((int64_t)0);
@@ -217,7 +217,7 @@ cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXIT, ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
-  std::exit(ci.execute_cell((*it), env)->as_integer());
+  std::exit(ci.process_cell((*it), env)->as_integer());
 }
 
 cell_ptr builtin_fn_common_quote(interpreter_c &ci, cell_list_t &list,
@@ -247,7 +247,7 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
         throw interpreter_c::exception_c("Eval error");
       },
       sm, builtins::get_builtin_symbols_map())
-      .evaluate(ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
+      .evaluate(ci.process_cell((*it), env)->as_string(), so, list[0]->locator);
 
   return eval_ci.get_last_result();
 }

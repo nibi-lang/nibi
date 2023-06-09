@@ -32,7 +32,7 @@ cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
   }
 
   auto target_assignment_value =
-      ci.execute_cell(ci.execute_cell(list[2], env), env);
+      ci.process_cell(ci.process_cell(list[2], env), env);
 
   // Explicitly clone the value as we might be reading from
   // an instruction that will be mutated later
@@ -50,10 +50,10 @@ cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SET, ==, 3)
 
   auto target_assignment_cell =
-      ci.execute_cell(ci.execute_cell(list[1], env), env);
+      ci.process_cell(ci.process_cell(list[1], env), env);
 
   auto target_assignment_value =
-      ci.execute_cell(ci.execute_cell(list[2], env), env);
+      ci.process_cell(ci.process_cell(list[2], env), env);
 
   // Then update that cell directly
   target_assignment_cell->update_from(*target_assignment_value, env);
