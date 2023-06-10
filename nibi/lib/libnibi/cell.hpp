@@ -49,6 +49,7 @@ enum class list_types_e {
 class env_c;
 class cell_c;
 class interpreter_c;
+class cell_processor_if;
 
 //! \brief A cell pointer type
 using cell_ptr = std::shared_ptr<cell_c>;
@@ -62,7 +63,7 @@ using cell_list_t = std::deque<cell_ptr>;
 
 //! \brief A function that takes a list of cells and an environment
 using cell_fn_t =
-    std::function<cell_ptr(interpreter_c &ci, cell_list_t &, env_c &)>;
+    std::function<cell_ptr(cell_processor_if &ci, cell_list_t &, env_c &)>;
 
 //! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {

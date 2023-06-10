@@ -12,7 +12,7 @@
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_clone(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::CLONE, ==, 2)
@@ -20,16 +20,16 @@ cell_ptr builtin_fn_common_clone(interpreter_c &ci, cell_list_t &list,
   auto it = list.begin();
   std::advance(it, 1);
 
-  auto loaded_cell = ci.execute_cell(*it, env);
+  auto loaded_cell = ci.process_cell(*it, env);
 
   return loaded_cell->clone(env);
 }
 
-cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_len(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::LEN, ==, 2)
 
-  auto target_list = list_get_nth_arg(ci, 1, list, env);
+  auto target_list = ci.process_cell(list[1], env);
 
   if (target_list->type != cell_type_e::LIST) {
     return allocate_cell((int64_t)(target_list->to_string(false).size()));
@@ -39,7 +39,7 @@ cell_ptr builtin_fn_common_len(interpreter_c &ci, cell_list_t &list,
   return allocate_cell((int64_t)list_info.list.size());
 }
 
-cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_yield(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
 
   if (list.size() == 1) {
@@ -49,12 +49,12 @@ cell_ptr builtin_fn_common_yield(interpreter_c &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::YIELD, ==, 2)
 
-  auto target = list_get_nth_arg(ci, 1, list, env)->clone(env);
+  auto target = ci.process_cell(list[1], env)->clone(env);
   ci.set_yield_value(target);
   return target;
 }
 
-cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_loop(cell_processor_if &ci, cell_list_t &list,
                                 env_c &env) {
   // (loop (pre) (cond) (post) (body))
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::LOOP, ==, 5)
@@ -75,29 +75,29 @@ cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
 
   auto loop_env = env_c(&env);
 
-  ci.execute_cell(pre_condition, loop_env);
+  ci.process_cell(pre_condition, loop_env);
 
   cell_ptr result = allocate_cell(cell_type_e::NIL);
   while (true) {
-    auto condition_result = ci.execute_cell(condition, loop_env);
+    auto condition_result = ci.process_cell(condition, loop_env);
 
     if (condition_result->to_integer() <= 0) {
       return result;
     }
 
-    result = ci.execute_cell(body, loop_env, true);
+    result = ci.process_cell(body, loop_env, true);
 
     if (ci.is_yielding()) {
       return ci.get_yield_value();
     }
 
-    ci.execute_cell(post_condition, loop_env);
+    ci.process_cell(post_condition, loop_env);
   }
 
   return result;
 }
 
-cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_if(cell_processor_if &ci, cell_list_t &list,
                               env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::IF, >=, 3)
 
@@ -111,21 +111,21 @@ cell_ptr builtin_fn_common_if(interpreter_c &ci, cell_list_t &list,
 
   auto if_env = env_c(&env);
 
-  auto condition_result = ci.execute_cell(condition, if_env);
+  auto condition_result = ci.process_cell(condition, if_env);
 
   if (condition_result->as_integer() > 0) {
-    return ci.execute_cell(true_condition, if_env, true);
+    return ci.process_cell(true_condition, if_env, true);
   }
 
   if (list.size() == 4) {
     std::advance(it, 1);
-    return ci.execute_cell((*it), if_env, true);
+    return ci.process_cell((*it), if_env, true);
   }
 
   return ci.get_last_result();
 }
 
-cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_put(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUT, >=, 2)
 
@@ -133,13 +133,13 @@ cell_ptr builtin_fn_common_put(interpreter_c &ci, cell_list_t &list,
   std::advance(it, 1);
 
   while (it != list.end()) {
-    std::cout << ci.execute_cell((*it), env)->to_string();
+    std::cout << ci.process_cell((*it), env)->to_string();
     std::advance(it, 1);
   }
   return allocate_cell((int64_t)0);
 }
 
-cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_putln(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
 
   if (list.size() == 1) {
@@ -153,7 +153,7 @@ cell_ptr builtin_fn_common_putln(interpreter_c &ci, cell_list_t &list,
   return result;
 }
 
-cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_import(cell_processor_if &ci, cell_list_t &list,
                                   env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::IMPORT, >=, 2)
@@ -164,7 +164,8 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
   auto &gsm = ci.get_source_manager();
 
   error_callback_f error_callback = [&](error_c error) {
-    ci.halt_with_error(error);
+    error.draw();
+    throw interpreter_c::exception_c("Import error");
   };
 
   while (it != list.end()) {
@@ -179,10 +180,11 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
 
     // Locate the item
     auto item = global_platform->locate_file(target, from);
+
     if (!item.has_value()) {
-      ci.halt_with_error(
-          error_c((*it)->locator,
-                  "Could not locate file for import: " + target.string()));
+      throw interpreter_c::exception_c("Could not locate file for import: " +
+                                           target.string(),
+                                       (*it)->locator);
     }
 
     // Check that the item hasn't already been imported
@@ -195,7 +197,7 @@ cell_ptr builtin_fn_common_import(interpreter_c &ci, cell_list_t &list,
   return allocate_cell((int64_t)1);
 }
 
-cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_use(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::USE, >=, 2)
@@ -210,15 +212,15 @@ cell_ptr builtin_fn_common_use(interpreter_c &ci, cell_list_t &list,
   return allocate_cell((int64_t)1);
 }
 
-cell_ptr builtin_fn_common_exit(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_exit(cell_processor_if &ci, cell_list_t &list,
                                 env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXIT, ==, 2)
   auto it = list.begin();
   std::advance(it, 1);
-  std::exit(ci.execute_cell((*it), env)->as_integer());
+  std::exit(ci.process_cell((*it), env)->as_integer());
 }
 
-cell_ptr builtin_fn_common_quote(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_quote(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::QUOTE, ==, 2)
   auto it = list.begin();
@@ -226,7 +228,7 @@ cell_ptr builtin_fn_common_quote(interpreter_c &ci, cell_list_t &list,
   return allocate_cell((*it)->to_string(false, true));
 }
 
-cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_eval(cell_processor_if &ci, cell_list_t &list,
                                 env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::EVAL, ==, 2)
   auto it = list.begin();
@@ -239,14 +241,18 @@ cell_ptr builtin_fn_common_eval(interpreter_c &ci, cell_list_t &list,
   interpreter_c eval_ci(env, sm);
 
   intake_c(
-      eval_ci, [&](error_c error) { ci.halt_with_error(error); }, sm,
-      builtins::get_builtin_symbols_map())
-      .evaluate(ci.execute_cell((*it), env)->as_string(), so, list[0]->locator);
+      eval_ci,
+      [&](error_c error) {
+        error.draw();
+        throw interpreter_c::exception_c("Eval error");
+      },
+      sm, builtins::get_builtin_symbols_map())
+      .evaluate(ci.process_cell((*it), env)->as_string(), so, list[0]->locator);
 
   return eval_ci.get_last_result();
 }
 
-cell_ptr builtin_fn_common_nop(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_common_nop(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
   return allocate_cell(cell_type_e::NIL);
 }

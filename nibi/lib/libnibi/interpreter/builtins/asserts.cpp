@@ -10,12 +10,12 @@ namespace nibi {
 
 namespace builtins {
 
-cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
                                 env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, >=, 2)
 
-  auto value = list_get_nth_arg(ci, 1, list, env);
+  auto value = ci.process_cell(list[1], env);
   if (value->type != cell_type_e::INTEGER) {
     throw interpreter_c::exception_c(
         "Expected item to evaluate to integer type", value->locator);
@@ -31,7 +31,7 @@ cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, ==, 3)
 
   if (value->as_integer() == 0) {
-    auto message = list_get_nth_arg(ci, 2, list, env);
+    auto message = ci.process_cell(list[2], env);
     if (message->type != cell_type_e::STRING) {
       throw interpreter_c::exception_c(
           "Expected string value for assertion message", message->locator);
@@ -42,13 +42,13 @@ cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_assert_eq(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_eq(cell_processor_if &ci, cell_list_t &list,
                               env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_EQ, ==, 3)
 
-  auto lhs = list_get_nth_arg(ci, 1, list, env);
-  auto rhs = list_get_nth_arg(ci, 2, list, env);
+  auto lhs = ci.process_cell(list[1], env);
+  auto rhs = ci.process_cell(list[2], env);
 
   if (lhs->type != rhs->type) {
     std::string err = "Expected types to be equal, but got (lhs) `";
@@ -74,13 +74,13 @@ cell_ptr builtin_fn_assert_eq(interpreter_c &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_assert_neq(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_neq(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_NEQ, ==, 3)
 
-  auto lhs = list_get_nth_arg(ci, 1, list, env)->to_string();
-  auto rhs = list_get_nth_arg(ci, 2, list, env)->to_string();
+  auto lhs = ci.process_cell(list[1], env)->to_string();
+  auto rhs = ci.process_cell(list[2], env)->to_string();
 
   if (lhs == rhs) {
     std::string err = "Expected values to be not equal, but got (lhs) `";

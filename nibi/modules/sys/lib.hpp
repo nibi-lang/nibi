@@ -11,14 +11,14 @@
 extern "C" {
 
 API_EXPORT
-extern nibi::cell_ptr get_argv(nibi::interpreter_c &ci, nibi::cell_list_t &list,
-                               nibi::env_c &env);
+extern nibi::cell_ptr get_argv(nibi::cell_processor_if &ci,
+                               nibi::cell_list_t &list, nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr get_stdin(nibi::interpreter_c &ci,
+extern nibi::cell_ptr get_stdin(nibi::cell_processor_if &ci,
                                 nibi::cell_list_t &list, nibi::env_c &env);
 
 API_EXPORT
-extern nibi::cell_ptr get_platform(nibi::interpreter_c &ci,
+extern nibi::cell_ptr get_platform(nibi::cell_processor_if &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env);
 }

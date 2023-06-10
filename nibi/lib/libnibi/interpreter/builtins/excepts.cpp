@@ -13,16 +13,16 @@ namespace builtins {
 
 namespace {
 cell_ptr handle_thrown_error_in_try(std::string message, cell_ptr recover_cell,
-                                    interpreter_c &ci, env_c &env) {
+                                    cell_processor_if &ci, env_c &env) {
   auto e_cell = allocate_cell(message);
   env.set(nibi::kw::TERR, e_cell);
-  auto result = ci.execute_cell(recover_cell, env, true);
+  auto result = ci.process_cell(recover_cell, env, true);
   env.drop(nibi::kw::TERR);
   return result;
 }
 } // namespace
 
-cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_except_try(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
 
   /*
@@ -52,7 +52,7 @@ cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
   try {
     // Call execute with the process_data_cell flag set to true
     // which will allow us to walk over multiple cells and catch on them
-    return ci.execute_cell(attempt_cell, env, true);
+    return ci.process_cell(attempt_cell, env, true);
   } catch (interpreter_c::exception_c &e) {
     return handle_thrown_error_in_try(e.what(), recover_cell, ci, env);
   } catch (cell_access_exception_c &e) {
@@ -61,7 +61,7 @@ cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_except_throw(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_except_throw(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::THROW, ==, 2)
 
@@ -70,7 +70,7 @@ cell_ptr builtin_fn_except_throw(interpreter_c &ci, cell_list_t &list,
   std::advance(it, 1);
   auto exec_cell = (*it);
 
-  auto thrown = ci.execute_cell(exec_cell, env, true);
+  auto thrown = ci.process_cell(exec_cell, env, true);
 
   throw interpreter_c::exception_c(thrown->to_string(), list.front()->locator);
 }

@@ -11,9 +11,9 @@ namespace nibi {
 namespace builtins {
 
 namespace {
-inline nibi::cell_ptr type(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+inline nibi::cell_ptr type(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
                            nibi::env_c &env) {
-  auto resolved = ci.execute_cell(list[1], env);
+  auto resolved = ci.process_cell(list[1], env);
   switch (resolved->type) {
   case nibi::cell_type_e::ABERRANT:
     return nibi::allocate_cell(nibi::types::ABERRANT);
@@ -51,7 +51,7 @@ inline nibi::cell_ptr type(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 
 } // namespace
 
-cell_ptr builtin_fn_reflect_type(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_reflect_type(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::TYPE, ==, 2)
   return type(ci, list, env);

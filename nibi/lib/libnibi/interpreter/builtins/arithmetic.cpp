@@ -14,7 +14,7 @@ namespace nibi {
 namespace builtins {
 
 #define PERFORM_OPERATION(___op_fn)                                            \
-  auto first_arg = list_get_nth_arg(ci, 1, list, env);                         \
+  auto first_arg = ci.process_cell(list[1], env);                              \
   switch (first_arg->type) {                                                   \
   case cell_type_e::INTEGER: {                                                 \
     return allocate_cell(___op_fn<int64_t>(                                    \
@@ -30,17 +30,17 @@ namespace builtins {
   default: {                                                                   \
     std::string msg = "Incorrect argument type for arithmetic function: ";     \
     msg += cell_type_to_string(first_arg->type);                               \
-    ci.halt_with_error(error_c(list[0]->locator, msg));                        \
+    throw interpreter_c::exception_c(msg, list[0]->locator);                   \
     break;                                                                     \
   }                                                                            \
   }                                                                            \
   return allocate_cell(cell_type_e::NIL);
 
-cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_add(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ADD, >=, 2)
 
-  auto first_item = list_get_nth_arg(ci, 1, list, env);
+  auto first_item = ci.process_cell(list[1], env);
   if (first_item->type == cell_type_e::STRING) {
     std::string accumulate{first_item->to_string()};
     NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, { accumulate += arg->to_string(); })
@@ -50,21 +50,21 @@ cell_ptr builtin_fn_arithmetic_add(interpreter_c &ci, cell_list_t &list,
   }
 }
 
-cell_ptr builtin_fn_arithmetic_sub(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_sub(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env){
     NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
         PERFORM_OPERATION(list_perform_sub)}
 
-cell_ptr
-    builtin_fn_arithmetic_div(interpreter_c &ci, cell_list_t &list, env_c &env){
-        NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
-            PERFORM_OPERATION(list_perform_div)}
+cell_ptr builtin_fn_arithmetic_div(cell_processor_if &ci, cell_list_t &list,
+                                   env_c &env){
+    NIBI_LIST_ENFORCE_SIZE(nibi::kw::SUB, >=, 2)
+        PERFORM_OPERATION(list_perform_div)}
 
-cell_ptr builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_mul(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MUL, >=, 2)
 
-  auto first_item = list_get_nth_arg(ci, 1, list, env);
+  auto first_item = ci.process_cell(list[1], env);
   if (first_item->type == cell_type_e::STRING) {
     std::string accumulate{first_item->to_string()};
     NIBI_LIST_ITER_AND_LOAD_SKIP_N(2, {
@@ -78,10 +78,10 @@ cell_ptr builtin_fn_arithmetic_mul(interpreter_c &ci, cell_list_t &list,
   }
 }
 
-cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_mod(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MOD, >=, 2)
-  auto first_arg = list_get_nth_arg(ci, 1, list, env);
+  auto first_arg = ci.process_cell(list[1], env);
   if (first_arg->type == cell_type_e::DOUBLE) {
     double accumulate{first_arg->to_double()};
     NIBI_LIST_ITER_AND_LOAD_SKIP_N(
@@ -94,7 +94,7 @@ cell_ptr builtin_fn_arithmetic_mod(interpreter_c &ci, cell_list_t &list,
   }
 }
 
-cell_ptr builtin_fn_arithmetic_pow(interpreter_c &ci, cell_list_t &list,
+cell_ptr builtin_fn_arithmetic_pow(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POW, >=, 2)
   PERFORM_OPERATION(list_perform_pow)

@@ -13,7 +13,9 @@ void error_c::draw(bool markup) const {
     return;
   }
 
-  draw_locator(*locator_);
+  if (locator_) {
+    draw_locator(*locator_);
+  }
 
   std::cout << rang::fg::cyan << "\nMessage: " << rang::fg::reset << message_
             << "\n"
