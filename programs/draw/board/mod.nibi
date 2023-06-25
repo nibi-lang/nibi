@@ -1,7 +1,6 @@
 
 
 (:= sources [
-  "tile.nibi"
   "board.nibi"
 ])
 

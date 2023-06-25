@@ -51,7 +51,6 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/bitwise.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/comparison.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/common.cpp
-  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/env_cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/excepts.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/reflect.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.cpp

@@ -1,6 +1,6 @@
 (import "importable/a.nibi" "importable/b.nibi")
 
-(assert ( eq {a value} 42) "Unable to load from import a")
+(assert ( eq value 42) "Unable to load from import a")
 
 (assert ( eq b 1024) "Unable to load from import b")
 

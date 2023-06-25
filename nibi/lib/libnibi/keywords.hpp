@@ -55,7 +55,6 @@ static constexpr const char *BW_AND = "bw-and";
 static constexpr const char *BW_OR = "bw-or";
 static constexpr const char *BW_XOR = "bw-xor";
 static constexpr const char *BW_NOT = "bw_not";
-static constexpr const char *ENV = "env";
 static constexpr const char *STR = "str";
 static constexpr const char *INT = "int";
 static constexpr const char *FLOAT = "float";
