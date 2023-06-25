@@ -104,6 +104,8 @@ long run.
 
 Removal of env command and some refactoring of how interpreter is passed around.
 
+git hash **be2acfa80c45e75b0fb715fd1bd76d59bce5b502**
+
 | test            | time (s)  | time (ms)
 |----             |----       |----
 | mandelbrot.nibi | 0.1108s   | 110.8305ms  |
