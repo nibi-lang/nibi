@@ -108,17 +108,7 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::ENVIRONMENT: {
-    auto &einf = this->as_environment_info();
-    auto &other = new_cell->as_environment_info();
-    other.env = new env_c(einf.env->get_parent_env());
-    for (auto &&[key, val] : einf.env->get_map()) {
-      if (val->type == cell_type_e::ENVIRONMENT) {
-        other.env->set(key, val);
-      } else {
-        auto cloned = val->clone(env);
-        other.env->set(key, cloned);
-      }
-    }
+    throw cell_access_exception_c("Cannot clone an environment", this->locator);
     break;
   }
   case cell_type_e::ABERRANT: {

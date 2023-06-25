@@ -100,6 +100,22 @@ passing behavior that won't make sense when the language becomes compiled
 to bytecode. So while it hits the raw list walking, it will benefit in the 
 long run.
 
+### 25-June-2023
+
+Removal of env command and some refactoring of how interpreter is passed around.
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1129s   | 112.8935ms  |
+| primality.nibi  | 1.0699s   | 1069.8978ms |
+| 4sieve.nibi     | 1.2396s   | 1239.5926ms |
+| leibniz.nibi    | 0.1214s   | 121.4486ms  |
+
+
+
+
+
+
 
 
 
