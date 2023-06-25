@@ -5,7 +5,6 @@
 (:= board::draw_square {board draw_square})
 (:= board::draw_line {board draw_line})
 (:= board::draw_triangle {board draw_triangle})
-(:= board::coord {board coord}) 
 (fn board::set_tile [symbol] 
   (set {board tile_symbol} symbol))
 (fn board::toggle_row_col [show] [

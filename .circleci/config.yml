@@ -5,21 +5,18 @@ jobs:
     environment: 
       NIBI_PATH: /tmp/nibi_path
     docker:
-      - image: "debian:latest"
+      - image: "cimg/base:2023.06-20.04"
     steps:
       - checkout
       - run:
-          name: Installing SUDO
-          command: 'apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*'
-      - run:
           name: Install build tools
-          command: 'bash ci_scripts/setup_ci.sh'
+          command: 'sudo apt update && sudo apt upgrade && sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3'
       - run:
           name: Construct NIBI_PATH
           command: 'mkdir /tmp/nibi_path'
       - run:
           name: Submodules
-          command: 'git submodule update --init --recursive'
+          command: 'sudo apt install -y git && git submodule update --init --recursive'
       - run:
           name: Build and install libnibi, and nibi
           command: 'python3 commander.py -n'

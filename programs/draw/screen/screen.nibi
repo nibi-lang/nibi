@@ -28,8 +28,8 @@
 (fn set_pixel [x y value] [
   (assert (eq "int" (type x)) "Pixel X value must be an integer")
   (assert (eq "int" (type y)) "Pixel Y value must be an integer")
-  (? ( or (>= y _height) (< y 0 )) (<-))
-  (? ( or (>= x _width) (< x 0)) (<-))
+  (if ( or (>= y _height) (< y 0 )) (<-))
+  (if ( or (>= x _width) (< x 0)) (<-))
   (set (at (at _display y) x) value)
 ])
 
@@ -44,13 +44,13 @@
 (fn _draw_with_rows_cols [] [
   (put _lhs_buffer)
   (loop (:= x 0) (< x _width) (:= x (+ x 1)) 
-    (? (eq 2 (len (split x))) (put " " x) (put "  " x)))
+    (if (eq 2 (len (split x))) (put " " x) (put "  " x)))
 
   (putln "")
   
   (:= i 0)
   (iter _display row [
-    (? (eq 2 (len (split i))) (put i " ") (put i "  "))
+    (if (eq 2 (len (split i))) (put i " ") (put i "  "))
     (iter row col [
       (put col "  ")
     ])
@@ -65,7 +65,7 @@
 ])
 
 (fn draw [show_rows_and_cols]
-  (? (eq true show_rows_and_cols)
+  (if (eq true show_rows_and_cols)
     (_draw_with_rows_cols) 
     (_draw_simple)))
 

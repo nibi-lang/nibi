@@ -173,11 +173,6 @@ static function_info_s builtin_common_nop_inf = {
     nibi::kw::NOP, builtin_fn_common_nop,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
-// environment cell functions
-static function_info_s builtin_envcell_env_inf = {
-    nibi::kw::ENV, builtin_fn_envcell_env,
-    function_type_e::BUILTIN_CPP_FUNCTION};
-
 // conversion functions
 
 static function_info_s builtin_cvt_string_inf = {
@@ -251,7 +246,6 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::BW_OR, builtin_bitwise_or_inf},
      {nibi::kw::BW_XOR, builtin_bitwise_xor_inf},
      {nibi::kw::BW_NOT, builtin_bitwise_not_inf},
-     {nibi::kw::ENV, builtin_envcell_env_inf},
      {nibi::kw::STR, builtin_cvt_string_inf},
      {nibi::kw::INT, builtin_cvt_int_inf},
      {nibi::kw::FLOAT, builtin_cvt_float_inf},

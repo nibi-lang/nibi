@@ -57,8 +57,8 @@ any other piece of data in the instructions below.
 | put     | Output a string representation of N cells | 0
 | putln   | put, but with a following newline         | 0
 | fn      | Define a function | variable
-| env     | Define an environment | new env
 | import  | Import files | 0
+| use     | Use a module | 0
 | exit    | Exit the program | N/A
 | eval    | Evaluate a given string | variable
 | quote   | Quote a a list into a string | variable
@@ -295,54 +295,7 @@ the parameters to clone.
 ( fn <S> <[]> <() [*]> )
 ```
 
-### Environment
-
-Keyword: `env`
-
-Create an environment with functions and data members
-that can be isolated from other information.
-
-
-```
-( env <S> <() [*]>)
-```
-
-Accessing an environment from outside is done so with an accessor list `{}`
-that details all environments and sub envrionments up-to the desired cell
-is located.
-
-All environmnet members with a leading `_` are considered private and can not
-be accessed from any other enviornment than the one they are defined in.
-
-Example: 
-
-```
-(env dummy_env [
-  (:= public_data 0)
-  (:= _private_data 0)
-  (fn public_accessor_private_data [] (<- _private_data))
-  (fn public_setter_private_data [value] (set _private_data value))
-])
-
-# Accessing dummy_env's public data:
-
-(assert (eq {dummy_env public_data} 0) "Could not access public item")
-
-# Setting the public data
-
-(set {dummy_env public_data} 1024)
-
-(assert (eq {dummy_env public_data} 1024) "Could not access public item")
-
-(assert (eq ({dummy_env public_accessor_private_data}) 0) "Could not retrieve private data from public accessor")
-
-({dummy_env public_setter_private_data} 2048)
-
-(assert (eq ({dummy_env public_accessor_private_data}) 2048) "Private data not updated")
-
-```
-
-### Environment
+### Import
 
 Keyword: `import`
 
@@ -363,6 +316,19 @@ to be included that are not immediatly present. The search priority is as follow
 
 3) The home directory under the directory `~/.nibi` iff the directory exists 
 
+### Use
+
+Keyword: `use`
+
+Indicate that we want to use an installed, or relative module.
+
+```
+( use <S ...> )
+```
+
+Items brought in via `use` will be constructed in their own environment that must be
+accessed with an accessor list unless that module specifies an export that ties a new
+symbol to the inner items. See docs/example_modules for more information on module construction.
 
 ### Try
 

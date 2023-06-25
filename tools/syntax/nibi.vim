@@ -25,7 +25,7 @@ syn keyword nibiFunc env at iter eval quote loop exit quote import use
 syn keyword nibiFunc int str float split type len clone put putln nop
 syn keyword nibiQuickType true false nil nan inf
 
-syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|?\|+\|-\|*\|/\)' contained
+syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
 syn match nibiFunc '\(bw-and\|bw-or\|bw-xor\|bw-not\|bw-lsh\|bw-rsh\|<-\)' contained
 syn match nibiFunc ':=' contained
 syn match nibiFunc '<<|' contained
