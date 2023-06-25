@@ -1,3 +1,4 @@
+(use "io")
 (fn mandelbrot [real image] [
   (:= limit 100)
   (:= z_image (clone image))
@@ -34,8 +35,8 @@
     (set y (- y_end (* i dy)))
     (set value (mandelbrot x y))
     (if (eq 0 value) 
-       (put " ")
-       (put (at pixels (% value num_pixels))))
+       (io::print " ")
+       (io::print (at pixels (% value num_pixels))))
   ])
-  (putln)
+  (io::println)
 ])

@@ -15,14 +15,15 @@ For documentation on the language please see `docs/LANGUAGE.md`
 ### Fizzbuzz
 
 ```lisp
+(use "io")
 (loop (:= x 1) (< x 20) (set x (+ 1 x)) [
   (if (and (not (% x 3)) (not (% x 5)))
-      (putln "FizzBuzz")
+      (io::println "FizzBuzz")
         (if (not (% x 3)) 
-          (putln "Fizz")
+          (io::println "Fizz")
           (if (not (% x 5)) 
-            (putln "Buzz") 
-            (putln x))))])
+            (io::println "Buzz") 
+            (io::println x))))])
 ```
 
 ### Leibniz pi estimation
@@ -48,18 +49,18 @@ For documentation on the language please see `docs/LANGUAGE.md`
 
 (:= magic_number (random::range::int 0 100))
 
-(putln "We've generated a random number between 0 and 100!")
-(putln "Go ahead and guess until you get it right!")
+(io::println "We've generated a random number between 0 and 100!")
+(io::println "Go ahead and guess until you get it right!")
 
 (:= num_guesses 1)
 (loop (:= i 0) (eq 0 i) (set num_guesses (+ 1 num_guesses)) [
    (:= guess (io::prompt "guess: " io::get::int))
    (if (eq magic_number guess) [
-      (putln "Correct!")
-      (putln "You got the number correct in " num_guesses " guesses!")
+      (io::println "Correct!")
+      (io::println "You got the number correct in " num_guesses " guesses!")
       (exit 0)
    ])
-   (if (< magic_number guess) (putln "Lower!") (putln "Higher!"))
+   (if (< magic_number guess) (io::println "Lower!") (io::println "Higher!"))
 ])
 ```
 

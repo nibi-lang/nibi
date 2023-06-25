@@ -15,20 +15,17 @@ jobs:
           name: Construct NIBI_PATH
           command: 'mkdir /tmp/nibi_path'
       - run:
-          name: Submodules
-          command: 'sudo apt install -y git && git submodule update --init --recursive'
-      - run:
           name: Build and install libnibi, and nibi
           command: 'python3 commander.py -n'
       - run:
           name: ldconfig
           command: 'sudo ldconfig'
       - run:
-          name: Run NIBI script tests
-          command: 'python3 commander.py -t'
-      - run:
           name: Build and install modules
           command: 'python3 commander.py -m'
       - run:
           name: Check all modules
           command: 'python3 commander.py -c'
+      - run:
+          name: Run NIBI script tests
+          command: 'python3 commander.py -t'

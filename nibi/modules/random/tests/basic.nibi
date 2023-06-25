@@ -1,4 +1,8 @@
 (use "random")
 
-(putln (random::int) " " (random::double))
-(putln (random::range::int 0 100) " " (random::range::double 0 100))
+
+(assert (eq (type (random::int)) "int"))
+(assert (eq (type (random::double)) "float"))
+
+(assert (eq (type (random::range::int 0 100)) "int"))
+(assert (eq (type (random::range::double 0 100)) "float"))

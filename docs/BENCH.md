@@ -100,9 +100,17 @@ passing behavior that won't make sense when the language becomes compiled
 to bytecode. So while it hits the raw list walking, it will benefit in the 
 long run.
 
+### 25-June-2023
 
+Removal of env command and some refactoring of how interpreter is passed around.
 
+git hash **be2acfa80c45e75b0fb715fd1bd76d59bce5b502**
 
-
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1108s   | 110.8305ms  |
+| primality.nibi  | 1.0571s   | 1057.0616ms |
+| 4sieve.nibi     | 1.2172s   | 1217.2355ms |
+| leibniz.nibi    | 0.1192s   | 119.2178ms  |
 
 

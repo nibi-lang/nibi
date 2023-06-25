@@ -3,4 +3,4 @@
 
 (use "module")
 
-(putln {module _private})
+(assert (eq {module _private} {module _private}) "Expected >> private members not able to be accessed")

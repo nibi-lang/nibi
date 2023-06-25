@@ -13,5 +13,3 @@
 (loop (:= i 0) (< i 100000) (set i (+ i 1)) [
   (is_prime primes i)
 ])
-
-#(putln primes)

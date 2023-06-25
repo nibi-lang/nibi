@@ -2,3 +2,5 @@
 (:= io::get::int {io get_int})
 (:= io::get::double {io get_double})
 (:= io::prompt {io prompt_for})
+(:= io::print {io print})
+(:= io::println {io println})

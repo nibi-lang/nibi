@@ -1,4 +1,4 @@
-
+(use "io")
 (fn nsieve [max] [
   (:= count 0)
   (:= flags (<|> 0 max))
@@ -10,7 +10,7 @@
       ])
     ])
   ])
-  (putln "primes up to " max " : " count)
+  (io::println "primes up to " max " : " count)
 ])
 
 (loop (:= i 0) (< i 3) (set i (+ i 1))

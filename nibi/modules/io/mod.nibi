@@ -7,6 +7,8 @@
 ])
 
 (:= dylib [
+  "print"
+  "println"
   "get_str"
   "get_int"
   "get_double"

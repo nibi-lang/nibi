@@ -148,12 +148,6 @@ static function_info_s builtin_common_if_inf = {
 static function_info_s builtin_common_clone_inf = {
     nibi::kw::CLONE, builtin_fn_common_clone,
     function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_common_put_inf = {
-    nibi::kw::PUT, builtin_fn_common_put,
-    function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_common_putln_inf = {
-    nibi::kw::PUTLN, builtin_fn_common_putln,
-    function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_common_import_inf = {
     nibi::kw::IMPORT, builtin_fn_common_import,
     function_type_e::BUILTIN_CPP_FUNCTION};
@@ -232,8 +226,6 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::LOOP, builtin_common_loop_inf},
      {nibi::kw::IF, builtin_common_if_inf},
      {nibi::kw::CLONE, builtin_common_clone_inf},
-     {nibi::kw::PUT, builtin_common_put_inf},
-     {nibi::kw::PUTLN, builtin_common_putln_inf},
      {nibi::kw::IMPORT, builtin_common_import_inf},
      {nibi::kw::USE, builtin_common_use_inf},
      {nibi::kw::EXIT, builtin_common_exit_inf},

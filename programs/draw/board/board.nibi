@@ -1,5 +1,6 @@
 (use "screen")
 (use "math")
+(use "io")
 
 (:= show_rows_cols true)
 (:= tile_symbol "◻")
@@ -12,7 +13,7 @@
 (fn clear [] (screen::clear))
 
 (fn _plot_line_low [x0 y0 x1 y1] [
-  (putln "line low")
+  (io::println "line low")
   (:= yi 1)
   (:= y y0)
   (:= dx (- x1 x0))
