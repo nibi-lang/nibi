@@ -42,6 +42,8 @@ void interpreter_c::instruction_ind(cell_ptr &cell) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
   } catch (cell_access_exception_c &error) {
     halt_with_error(error_c(error.get_source_location(), error.what()));
+  } catch (std::exception &error) {
+    halt_with_error(error_c(cell->locator, error.what()));
   }
 }
 

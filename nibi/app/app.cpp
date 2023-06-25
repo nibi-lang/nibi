@@ -8,7 +8,6 @@
 
 #include <libnibi/nibi.hpp>
 
-#include "arger.hpp"
 #include "repl/repl.hpp"
 
 #ifndef NIBI_BUILD_HASH
@@ -217,19 +216,17 @@ void run_tests(std::string &dir) {
 
   // Check installed modules
   {
-    auto info = module_factory_c::module_viewer()->get_module_info(dir);
-    pdc->reset();
-
-    if (info.test_files.has_value()) {
-      return run_each_test(info.test_files.value());
+    try {
+      auto info = module_factory_c::module_viewer()->get_module_info(dir);
+      if (info.test_files.has_value()) {
+        return run_each_test(info.test_files.value());
+      }
+    } catch (nibi::interpreter_c::exception_c &e) {
+      std::cout << "Error: " << e.what() << std::endl;
+      return;
     }
+    pdc->reset();
   }
-}
-
-void args_error_cb(args::errors_e error, const std::string &arg) {
-  std::cout << "Error [" << args::error_to_string(error) << "] " << arg
-            << std::endl;
-  std::exit(1);
 }
 
 int main(int argc, char **argv) {
@@ -244,69 +241,60 @@ int main(int argc, char **argv) {
   std::string launch_target;
 
   {
-    args::arger_c arger;
-    arger.set_error_cb(args_error_cb);
-    arger.add_flag({"-h", "--help"}, "Show help", false);
-    arger.add_flag({"-v", "--version"}, "Show version information", false);
-    arger.add_argument({"-t", "--test"},
-                       "Run module tests for a single module");
-    arger.add_argument({"-i", "--include"},
-                       "Add an include directories. `:` delimited");
-    arger.add_argument({"-m", "--module"},
-                       "Display module information for given module");
-
-    arger.parse(argc, argv);
-
     pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
 
-    {
-      auto do_action = arger.get_arg<bool>("--help");
-      if (do_action.has_value() && (*do_action)) {
+    std::vector<std::string> args = std::vector<std::string>(argv + 1, argv + argc);
+    for(std::size_t i = 0; i < args.size(); i++) {
+
+      if (args[i] == "-h" || args[i] == "--help") {
         show_help();
         return 0;
       }
-    }
 
-    {
-      auto do_action = arger.get_arg<bool>("--version");
-      if (do_action.has_value() && (*do_action)) {
+      if (args[i] == "-v" || args[i] == "--version") {
         show_version();
         return 0;
       }
-    }
 
-    {
-      auto do_action = arger.get_arg<std::string>("--test");
-      if (do_action.has_value() && (*do_action).size() > 0) {
+      if (args[i] == "-t" || args[i] == "--test") {
+        if (i+1 >= args.size()) {
+          std::cout << "Error: Expected value for [-t | --test]" << std::endl;
+          return 1;
+        }
         pdc->add_include_dir(std::filesystem::current_path());
-        run_tests(*do_action);
+        run_tests(args[++i]);
         return 0;
       }
-    }
-
-    {
-      auto do_action = arger.get_arg<std::string>("--module");
-      if (do_action.has_value() && (*do_action).size() > 0) {
+      if (args[i] == "-m" || args[i] == "--module") {
+        if (i+1 >= args.size()) {
+          std::cout << "Error: Expected value for [-m | --module]" << std::endl;
+          return 1;
+        }
         pdc->add_include_dir(std::filesystem::current_path());
-        show_module_info(*do_action);
+        show_module_info(args[++i]);
         return 0;
       }
-    }
 
-    {
-      auto do_action = arger.get_arg<std::string>("--include");
-      if (do_action.has_value() && (*do_action).size() > 0) {
-        std::stringstream ss(*do_action);
+      if (args[i] == "-i" || args[i] == "--include") {
+        if (i+1 >= args.size()) {
+          std::cout << "Error: Expected value for [-i | --include]" << std::endl;
+          return 1;
+        }
+        std::stringstream ss(args[++i]);
         std::string item;
         while (std::getline(ss, item, ':')) {
           pdc->add_include_dir(item);
         }
+        continue;
       }
-    }
 
-    auto unmatched = arger.get_unmatched_args();
-    if (unmatched.size() >= 1) {
-      launch_target = arger.get_unmatched_args()[0];
+      if (!launch_target.empty()) {
+        std::cout << "Launch target already specified as " << launch_target << std::endl;
+        std::cout << "Skipping argument: " << args[i] << std::endl;
+        continue;
+      }
+
+      launch_target = args[i];
     }
   }
 
