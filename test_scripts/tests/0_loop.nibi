@@ -29,4 +29,5 @@
 
 (assert (eq 10 (check_ret_0)))
 
-(putln "COMPLETE")
+(use "io")
+(io::println "COMPLETE")

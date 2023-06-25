@@ -106,19 +106,9 @@ Removal of env command and some refactoring of how interpreter is passed around.
 
 | test            | time (s)  | time (ms)
 |----             |----       |----
-| mandelbrot.nibi | 0.1129s   | 112.8935ms  |
-| primality.nibi  | 1.0699s   | 1069.8978ms |
-| 4sieve.nibi     | 1.2396s   | 1239.5926ms |
-| leibniz.nibi    | 0.1214s   | 121.4486ms  |
-
-
-
-
-
-
-
-
-
-
+| mandelbrot.nibi | 0.1108s   | 110.8305ms  |
+| primality.nibi  | 1.0571s   | 1057.0616ms |
+| 4sieve.nibi     | 1.2172s   | 1217.2355ms |
+| leibniz.nibi    | 0.1192s   | 119.2178ms  |
 
 

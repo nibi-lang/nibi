@@ -1,6 +1,6 @@
 (:= x 0)
 (drop x)
-(try (drop x) (put ""))
+(try (drop x) (nop))
 
 (try [
   (:= a 0)

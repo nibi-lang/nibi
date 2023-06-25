@@ -1,3 +1,5 @@
+(use "io")
+
 (fn evaluate_item [x] [
   (<- (+ x 10))
   (throw "OH NO!")
@@ -10,7 +12,7 @@
 (fn check_nest [x] [
   (loop (:= k 0) (< k x) (set k (+ k 1)) [
     (if (eq 0 k) (<- k))
-    (putln "You shouldn't see this")
+    (io::println "You shouldn't see this")
   ])
   (<- x)
 ])
@@ -35,4 +37,4 @@
 
 (assert (eq [9 13 3 4] (data_list 13)) "Failed to return data list")
 
-(putln "COMPLETE")
+(io::println "COMPLETE")

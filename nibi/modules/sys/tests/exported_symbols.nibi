@@ -1,4 +1,4 @@
 (use "sys")
-(putln (sys::args))
-(putln (sys::platform))
-(putln (sys::stdin))
+(len (sys::args))
+(len (sys::platform))
+(len (sys::stdin))

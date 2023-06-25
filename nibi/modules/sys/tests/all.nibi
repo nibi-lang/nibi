@@ -1,4 +1,4 @@
 (use "sys")
-(putln ({sys get_argv}))
-(putln ({sys get_platform}))
-(putln ({sys get_stdin}))
+(len ({sys get_argv}))
+(len ({sys get_platform}))
+(len ({sys get_stdin}))

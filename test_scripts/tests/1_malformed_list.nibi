@@ -1,4 +1,4 @@
 (try [
   (:= x (int "THIS NO WORK")
   (assert (eq 1 0) "Should not get here")
-] (putln "A"))
+] (nop))

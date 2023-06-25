@@ -125,34 +125,6 @@ cell_ptr builtin_fn_common_if(cell_processor_if &ci, cell_list_t &list,
   return ci.get_last_result();
 }
 
-cell_ptr builtin_fn_common_put(cell_processor_if &ci, cell_list_t &list,
-                               env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUT, >=, 2)
-
-  auto it = list.begin();
-  std::advance(it, 1);
-
-  while (it != list.end()) {
-    std::cout << ci.process_cell((*it), env)->to_string();
-    std::advance(it, 1);
-  }
-  return allocate_cell((int64_t)0);
-}
-
-cell_ptr builtin_fn_common_putln(cell_processor_if &ci, cell_list_t &list,
-                                 env_c &env) {
-
-  if (list.size() == 1) {
-    std::cout << std::endl;
-    return allocate_cell((int64_t)0);
-  }
-
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUTLN, >=, 2)
-  auto result = builtin_fn_common_put(ci, list, env);
-  std::cout << std::endl;
-  return result;
-}
-
 cell_ptr builtin_fn_common_import(cell_processor_if &ci, cell_list_t &list,
                                   env_c &env) {
 

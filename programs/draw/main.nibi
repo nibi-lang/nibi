@@ -12,7 +12,7 @@
     (if (eq "int" (type input)) [
       (set valid true)
       ]
-      (putln "Invalid integer"))
+      (io::println "Invalid integer"))
   ])
   (<- input)
 ])
@@ -56,12 +56,12 @@
 (fn cmd_help [] [
   (board::clear)
 
-  (putln "Commands:")
-  (putln "  help - show this help")
-  (putln "  line - draw a line")
-  (putln "  square - draw a square")
-  (putln "  clear - clear the board")
-  (putln "  exit - exit the program")
+  (io::println "Commands:")
+  (io::println "  help - show this help")
+  (io::println "  line - draw a line")
+  (io::println "  square - draw a square")
+  (io::println "  clear - clear the board")
+  (io::println "  exit - exit the program")
 
   (io::prompt "Press enter to continue" io::get::str)
 ])
@@ -79,7 +79,7 @@
   (loop (nop) (eq true true) (nop) [
     (board::refresh)
     (if (eq true show_invalid_command) [
-      (putln "Invalid command - use `help` for more info")
+      (io::println "Invalid command - use `help` for more info")
       (set show_invalid_command false)
     ])
     (:= cmd (io::prompt prompt io::get::str) )

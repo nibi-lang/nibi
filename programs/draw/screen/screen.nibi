@@ -1,3 +1,5 @@
+(use "io")
+
 (:= _width  nil)
 (:= _height nil)
 (:= _display nil)
@@ -36,32 +38,32 @@
 (fn _draw_simple [] [
   (iter _display row [
     (iter row col
-      (put col "  "))
-    (putln "")
+      (io::print col "  "))
+    (io::println "")
   ])
 ])
 
 (fn _draw_with_rows_cols [] [
-  (put _lhs_buffer)
+  (io::print _lhs_buffer)
   (loop (:= x 0) (< x _width) (:= x (+ x 1)) 
-    (if (eq 2 (len (split x))) (put " " x) (put "  " x)))
+    (if (eq 2 (len (split x))) (io::print " " x) (io::print "  " x)))
 
-  (putln "")
+  (io::println "")
   
   (:= i 0)
   (iter _display row [
-    (if (eq 2 (len (split i))) (put i " ") (put i "  "))
+    (if (eq 2 (len (split i))) (io::print i " ") (io::print i "  "))
     (iter row col [
-      (put col "  ")
+      (io::print col "  ")
     ])
     (set i (+ i 1))
-    (putln "")
+    (io::println "")
   ])
 ])
 
 (fn clear [] [
   (loop (:= x 0) (neq x 100) (:= x (+ x 1)) 
-    (putln ""))
+    (io::println ""))
 ])
 
 (fn draw [show_rows_and_cols]

@@ -1,3 +1,5 @@
+(use "io")
+
 (:= pi ["3" "." "1" "4" "1" "5" "9" "0"])
 
 (assert (eq pi (split 3.14159)) "")
@@ -10,12 +12,12 @@
 (try [
   (:= x (int "THIS NO WORK"))
   (assert (eq 1 0) "Should not get here")
-] (putln "We expected this error >>> " $e))
+] (io::println "We expected this error >>> " $e))
   
 (try [
   (:= x (float "THIS NO WORK"))
   (assert (eq 1 0) "Should not get here")
-] (putln "We expected this error >>> " $e))
+] (io::println "We expected this error >>> " $e))
 
 
 (:= x 88)
@@ -29,4 +31,4 @@
 (assert (eq "float" (type (float "33.33"))))
 
 
-(putln "complete")
+(io::println "complete")
