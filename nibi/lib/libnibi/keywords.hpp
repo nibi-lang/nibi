@@ -33,6 +33,7 @@ static constexpr const char *PUSH_FRONT = ">|";
 static constexpr const char *PUSH_BACK = "|<";
 static constexpr const char *POP_FRONT = "<<|";
 static constexpr const char *POP_BACK = "|>>";
+static constexpr const char *EXECUTE = "execute_list";
 static constexpr const char *SPAWN = "<|>";
 static constexpr const char *ITER = "iter";
 static constexpr const char *AT = "at";

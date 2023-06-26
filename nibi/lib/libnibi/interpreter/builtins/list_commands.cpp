@@ -57,6 +57,32 @@ cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci, cell_list_t &list,
   return target;
 }
 
+cell_ptr builtin_fn_list_execute(cell_processor_if &ci, cell_list_t &list,
+                                  env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXECUTE, ==, 2)
+
+  auto target = list[1];
+
+  if (target->type == cell_type_e::SYMBOL) {
+     target = ci.process_cell(list[1], env);
+  }
+
+  if (target->type != cell_type_e::LIST) {
+    throw interpreter_c::exception_c(
+        std::string("Expected list for ") + nibi::kw::EXECUTE,
+        list[1]->locator);
+  }
+  auto &list_info = target->as_list_info();
+
+  if (list_info.type != list_types_e::DATA) {
+    throw interpreter_c::exception_c(
+        std::string("Expected a data list `[]` for ") + nibi::kw::EXECUTE,
+        list[1]->locator);
+  }
+
+  return ci.process_cell(target, env, true);
+}
+
 cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POP_FRONT, ==, 2)

@@ -1,15 +1,17 @@
-(fn while [pred body] [
+(fn std::while [pred body] [
   (assert (eq (type body) "list:data")
     "While loop body must be a data list of instructions")
   (loop
     (nop) 
     (eq true pred) 
     (nop) 
-    (std::process_list body))
+    (execute_list body))
 ])
 
-(fn forever [body] [
+(fn std::forever [body] [
   (assert (eq (type body) "list:data")
     "Forever loop body must be a data list of instructions")
-  (while (eq true true) body)
+  (std::while (eq true true) execute_list)
 ])
+
+
