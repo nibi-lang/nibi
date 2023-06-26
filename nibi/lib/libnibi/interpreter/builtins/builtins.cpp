@@ -169,6 +169,9 @@ static function_info_s builtin_common_quote_inf = {
 static function_info_s builtin_common_nop_inf = {
     nibi::kw::NOP, builtin_fn_common_nop,
     function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_macro_inf = {
+    nibi::kw::NOP, builtin_fn_common_macro,
+    function_type_e::BUILTIN_CPP_FUNCTION};
 
 // conversion functions
 
@@ -236,6 +239,7 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::EVAL, builtin_common_eval_inf},
      {nibi::kw::QUOTE, builtin_common_quote_inf},
      {nibi::kw::NOP, builtin_common_nop_inf},
+     {nibi::kw::MACRO, builtin_common_macro_inf},
      {nibi::kw::BW_LSH, builtin_bitwise_lsh_inf},
      {nibi::kw::BW_RSH, builtin_bitwise_rsh_inf},
      {nibi::kw::BW_AND, builtin_bitwise_and_inf},
