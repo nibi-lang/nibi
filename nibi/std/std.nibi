@@ -1,0 +1,14 @@
+
+# Standard definitions that the members of the standard
+# library require to function properly
+
+(fn std::process_list [_std_list] [
+  (assert (eq (type _std_list) "list:data")
+    "std::process_list: argument must be a data list of instruction lists.")
+  # Iterating over the list will trigger list
+  # evaluation on each member by nature of
+  # how iterators work
+  (iter _std_list _tmp_sym (nop))
+])
+
+

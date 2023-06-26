@@ -22,7 +22,7 @@ syn match nibiNumber '\d\+' contained
 
 syn keyword nibiFunc set fn drop try throw assert assert_eq assert_neq
 syn keyword nibiFunc env at iter eval quote loop exit quote import use
-syn keyword nibiFunc int str float split type len clone put putln nop
+syn keyword nibiFunc int str float split type len clone nop
 syn keyword nibiQuickType true false nil nan inf
 
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
