@@ -47,6 +47,7 @@ public:
 
   //! \brief Indicate the end of a file
   void end_of_file();
+
 private:
   /*
       Simple grammar that defines list building

@@ -59,8 +59,6 @@ inline void print_cell(nibi::cell_ptr &cell) {
         if (i == target.size() - 1) {
           buffer += '\\';
           break;
-       //   throw nibi::interpreter_c::exception_c(
-       //       "formated string ends with escape character", cell->locator);
         }
         check_buffer(buffer, target[i + 1]);
         i++;
