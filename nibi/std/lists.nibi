@@ -1,0 +1,34 @@
+# Filter a list by a function
+#   The function must return `true` of `false` for each 
+#   member that it is passed.
+(fn filter [_list _fn] [
+  (:= result [])
+  (iter _list _x [
+    (if (eq true (_fn _x)) (|< result _x))
+  ])
+  (<- result)
+])
+
+# Filter a list and return even numbers
+(macro filter_even [_list]
+  (filter %_list (fn [_x] (eq false (% _x 2)))))
+
+# Filter a list and return odd numbers
+(macro filter_odd [_list]
+  (filter %_list (fn [_x] (eq true (% _x 2)))))
+
+# Iterate over a map and apply a function to each value
+#   this function modifies the input, it does
+#   not return a new list
+(fn map [_list _action]
+  (iter _list _x (set _x (_action _x))))
+
+# Examples
+
+#(use "io")
+#(io::println 
+#  (filter_even [1 2 3 4 5 6 7 8 9 10]))
+#(io::println 
+#  (filter_odd [1 2 3 4 5 6 7 8 9 10]))
+#(io::println (map [1 2 3 4] (fn [x] (<- (* x 2)))))
+
