@@ -1,17 +1,7 @@
-(fn std::while [pred body] [
-  (assert (eq (type body) "list:data")
-    "While loop body must be a data list of instructions")
-  (loop
-    (nop) 
-    (eq true pred) 
-    (nop) 
-    (execute_list body))
-])
+(macro while [condition body]
+  (loop (nop) %condition (nop) %body))
 
-(fn std::forever [body] [
-  (assert (eq (type body) "list:data")
-    "Forever loop body must be a data list of instructions")
-  (std::while (eq true true) execute_list)
-])
+(macro forever [body]
+  (while (eq true true) %body))
 
 
