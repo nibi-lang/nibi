@@ -36,7 +36,8 @@ enum class function_type_e {
   UNSET,                // Function type is not set
   BUILTIN_CPP_FUNCTION, // Function implemented in C++
   EXTERNAL_FUNCTION,    // Function imported from shared lib
-  LAMBDA_FUNCTION       // Function defined in source code by user
+  LAMBDA_FUNCTION,      // Function defined in source code by user
+  MACRO                 // Macro
 };
 
 enum class list_types_e {

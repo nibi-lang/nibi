@@ -1,0 +1,43 @@
+(fn is_nil [_x] 
+  (eq (type _x) "nil"))
+
+(fn is_int [_x] 
+  (eq (type _x) "int"))
+
+(fn is_float [_x] 
+  (eq (type _x) "float"))
+
+(fn is_string [_x]
+  (eq (type _x) "string"))
+
+(fn is_bool [_x]
+  (and (is_int _x) (or (eq _x 0) (eq _x 1))))
+
+(fn is_data_list [_x]
+  (eq (type _x) "list:data"))
+
+(fn is_ins_list [_x]
+  (eq (type _x) "list:instruction"))
+
+(fn is_list [_x]
+  (or (eq (type _x) "list")
+    (or (is_data_list _x) (is_ins_list _x))))
+
+(fn is_symbol [_x]
+  (eq (type _x) "symbol"))
+
+(fn is_fn [_x]
+  (eq (type _x) "function"))
+
+(fn is_env [_x]
+  (eq (type _x) "environment"))
+
+(fn is_aberrant [_x]
+  (eq (type _x) "aberrant"))
+
+(fn is_unknown [_x]
+  (eq (type _x) "unknown"))
+
+(fn is_numeric [_x]
+  (or (is_int _x) (is_float _x)))
+

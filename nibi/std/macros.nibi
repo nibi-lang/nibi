@@ -1,0 +1,6 @@
+(macro always []
+  (eq true true))
+
+(macro never []
+  (eq true false))
+

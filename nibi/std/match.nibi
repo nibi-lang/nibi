@@ -1,0 +1,70 @@
+# Example usage:
+#
+#
+#   (use "io")
+#   
+#   (match 3 [
+#     ["x" (io::println "Incorrect value")]
+#     ["y" (io::println "Incorrect value")]
+#     ["3" (io::println "Correct")]
+#   ])
+#   
+#   # This will fail as types can not be mixed 
+#   # within the same list
+#   (strict_match 3 [
+#     ["x" (io::println "Incorrect value")]
+#     ["y" (io::println "Incorrect value")]
+#     ["3" (io::println "Incorrect value")]
+#     [3 (io::println "Correct")]
+#   ])
+
+
+# Match pattern against value and execute the matching function
+#  This match function is not strict, and will convert the 
+#  potential matches to string form to ensure that comparisons are
+#  done by string. this means "3" will match 3, or 3.0.
+(fn std::match [value list] [
+  (assert 
+    (eq (type list) "list:data") 
+    "Expected data list")
+
+  (iter list entry [
+    (assert 
+      (eq (type entry) "list:data") 
+        "Expected data list for each entry")
+    (assert 
+      (eq (len entry) 2) 
+      "Expected 2 items in each entry")
+  ])
+
+  (loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
+    (if (eq (str (at (at list i) 0)) value) (<- (at (at list i) 1))) 
+  ])
+])
+
+# Strict match pattern against value and execute the matching function
+#  This match function is strict, and will not perform any 
+#  conversions on the potential matches. this means "3" will not
+#  match 3, or 3.0.
+(fn std::strict_match [value list] [
+  (assert 
+    (eq (type list) "list:data") 
+    "Expected data list")
+
+  (iter list entry [
+    (assert 
+      (eq (type entry) "list:data") 
+        "Expected data list for each entry")
+    (assert 
+      (eq (len entry) 2) 
+      "Expected 2 items in each entry")
+    (assert 
+      (eq (type (at entry 0)) (type value)) 
+      "Expected each entry to be the same type as the value")
+  ])
+
+  (loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
+    (if (eq value (at (at list i) 0)) (<- (at (at list i) 1))) 
+  ])
+])
+
