@@ -68,6 +68,8 @@ any other piece of data in the instructions below.
 | split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
 | type    | Retrieve a string detailing the type of a given item | string
 | nop     | Do nothing | nil
+| macro   | Define a macro | 0
+| execute_list | Execute all instructions in a data list | last execution result
 
 | list commands | description | returns
 |----   |---- |----
@@ -259,26 +261,6 @@ Keyword: `clone`
 
 ```
 ( clone <RD [] () S> )
-```
-
-### Put
-
-Keyword: `put`
-
-Variable number of arguments supported, at least 1 required
-
-```
-( put <RD [] () S> ... )
-```
-
-### Putln
-
-Keyword: `putln`
-
-Variable number of arguments supported, `0+`
-
-```
-( putln <RD [] () S> ... )
 ```
 
 ### Function
@@ -724,6 +706,69 @@ keyword: `bw-not`
 ```
 ( bw-not <() NU> )
 ```
+
+### Execute List
+
+keyword: `execute_list`
+
+| arg 1 |
+|----   |
+| List to execute over |
+
+The argument given must resolve to a data list. 
+Each item within the data list will be processed.
+
+```
+( execute_list <() S []> )
+```
+
+### Macro
+
+keyword: `macro`
+
+| arg 1 | arg 2       | arg 3 .. n |
+|----   |----         |---         |
+| name  | params list | macro body |
+
+Example:
+
+```lisp
+
+# Create a macro that defines a `while` loop
+
+(macro while [condition body]
+    (loop (nop) %condition (nop) %body))
+
+# Usable as :
+
+(while (eq true true) (io::println "ayyy"))
+```
+
+The first argument of the macro is the name that can
+be utilized like a function call to invoke it.
+
+The second argument must resolve to a data list `[]`
+and contain symbols that will be used to subsitute 
+into the macro.
+
+Every substitution of the word must be prefized with `%`.
+These substitutions are 1-for-1 so all expected symbols
+must fulfill syntax requirements for their position.
+
+If a substitution symbol with the same name and form
+as a parameter is to be omitted, prefixing it with `\`
+will ensure that the symbol is ignored like so:
+
+```lisp
+(use "io")
+(macro example [param] (io::println "Hey look its a: \%param"))
+(example "nope")
+```
+
+will output the following:
+
+    Hey look its a %param
+
 
 # Modules
 

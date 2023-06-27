@@ -59,7 +59,7 @@ extern cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci,
 extern cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci,
                                          cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_list_execute(cell_processor_if &ci,
-                                         cell_list_t &list, env_c &env);
+                                        cell_list_t &list, env_c &env);
 
 // Common functions
 
@@ -85,8 +85,8 @@ extern cell_ptr builtin_fn_common_eval(cell_processor_if &ci, cell_list_t &list,
                                        env_c &env);
 extern cell_ptr builtin_fn_common_nop(cell_processor_if &ci, cell_list_t &list,
                                       env_c &env);
-extern cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
-                                      env_c &env);
+extern cell_ptr builtin_fn_common_macro(cell_processor_if &ci,
+                                        cell_list_t &list, env_c &env);
 
 // Assertions
 

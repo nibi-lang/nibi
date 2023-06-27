@@ -101,7 +101,7 @@ struct symbol_s {
 //! \brief Environment information that can be encoded into a cell
 struct environment_info_s {
   std::string name;
-  // The environment that this cell points to, 
+  // The environment that this cell points to,
   // may be owned, my not be so we use a raw pointer
   env_c *env{nullptr};
 };

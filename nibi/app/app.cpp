@@ -243,8 +243,9 @@ int main(int argc, char **argv) {
   {
     pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
 
-    std::vector<std::string> args = std::vector<std::string>(argv + 1, argv + argc);
-    for(std::size_t i = 0; i < args.size(); i++) {
+    std::vector<std::string> args =
+        std::vector<std::string>(argv + 1, argv + argc);
+    for (std::size_t i = 0; i < args.size(); i++) {
 
       if (args[i] == "-h" || args[i] == "--help") {
         show_help();
@@ -257,7 +258,7 @@ int main(int argc, char **argv) {
       }
 
       if (args[i] == "-t" || args[i] == "--test") {
-        if (i+1 >= args.size()) {
+        if (i + 1 >= args.size()) {
           std::cout << "Error: Expected value for [-t | --test]" << std::endl;
           return 1;
         }
@@ -266,7 +267,7 @@ int main(int argc, char **argv) {
         return 0;
       }
       if (args[i] == "-m" || args[i] == "--module") {
-        if (i+1 >= args.size()) {
+        if (i + 1 >= args.size()) {
           std::cout << "Error: Expected value for [-m | --module]" << std::endl;
           return 1;
         }
@@ -276,8 +277,9 @@ int main(int argc, char **argv) {
       }
 
       if (args[i] == "-i" || args[i] == "--include") {
-        if (i+1 >= args.size()) {
-          std::cout << "Error: Expected value for [-i | --include]" << std::endl;
+        if (i + 1 >= args.size()) {
+          std::cout << "Error: Expected value for [-i | --include]"
+                    << std::endl;
           return 1;
         }
         std::stringstream ss(args[++i]);
@@ -289,7 +291,8 @@ int main(int argc, char **argv) {
       }
 
       if (!launch_target.empty()) {
-        std::cout << "Launch target already specified as " << launch_target << std::endl;
+        std::cout << "Launch target already specified as " << launch_target
+                  << std::endl;
         std::cout << "Skipping argument: " << args[i] << std::endl;
         continue;
       }

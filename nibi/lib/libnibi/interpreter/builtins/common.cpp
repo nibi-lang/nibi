@@ -229,8 +229,7 @@ cell_ptr builtin_fn_common_nop(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr assemble_macro(cell_processor_if &ci, cell_list_t &list,
-                                 env_c &env) {
+cell_ptr assemble_macro(cell_processor_if &ci, cell_list_t &list, env_c &env) {
 
   auto definition = env.get(list[0]->as_symbol());
   auto macro_env = definition->as_function_info().operating_env;
@@ -239,38 +238,32 @@ cell_ptr assemble_macro(cell_processor_if &ci, cell_list_t &list,
 
   if (list.size() != macro_params.list.size() + 1) {
     throw interpreter_c::exception_c(
-        std::string("Macro `") + 
-        list[0]->as_symbol() + 
-        "` expected " + 
-        std::to_string(macro_params.list.size()) + 
-        " parameters, but " +
-        std::to_string(list.size()-1) +
-        " were given",
+        std::string("Macro `") + list[0]->as_symbol() + "` expected " +
+            std::to_string(macro_params.list.size()) + " parameters, but " +
+            std::to_string(list.size() - 1) + " were given",
         list[0]->locator);
   }
 
-
-  for(auto &param : macro_params.list) {
-    std::cout << "param: " << param->as_symbol() << std::endl;
-
+  for (std::size_t i = 0; i < macro_params.list.size(); i++) {
+    auto &param = macro_params.list[i];
+    auto &arg = list[i + 1];
     auto target_replacement = "%" + param->as_symbol();
-
-    std::cout << "Targeting: " << target_replacement
-              << " replace in: " << macro_body << std::endl;
-
-
-
-    // TODO: Replace all instances of each target_replacement 
-    //       with the actual given parameter in list. 
-    //
-    //       Ensure to do a look back to ensure `\` doesn't exist
-    //       so we don't accidentally replace something we 
-    //       aren't supposed to
+    auto found = macro_body.find(target_replacement);
+    while (found != std::string::npos) {
+      if (found > 0 && macro_body[found - 1] == '\\') {
+        found = macro_body.find(target_replacement, found + 1);
+        continue;
+      }
+      macro_body.replace(found, target_replacement.size(),
+                         arg->to_string(true, true));
+      found = macro_body.find(target_replacement);
+    }
   }
 
-
-
-  return allocate_cell((int64_t)0);
+  cell_list_t eval_list;
+  eval_list.push_back(list[0]);
+  eval_list.push_back(allocate_cell(macro_body));
+  return builtin_fn_common_eval(ci, eval_list, env);
 }
 
 cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
@@ -282,28 +275,28 @@ cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
      For macros, we will construct a callable function that has an owned
      cell environment.
 
-     We will store the parameter list into the 
+     We will store the parameter list into the
      function enviornment wholesale as they should just be symbols
-     that will be replaced in the body of the macro. 
+     that will be replaced in the body of the macro.
 
-     We will also store the function body in this environment 
+     We will also store the function body in this environment
      as a quoted list.
 
-     Once we create this function object we will store it in 
+     Once we create this function object we will store it in
      the current operating enviornment as the macro_name.
 
      This will allow us to not modify any other part of the code base
-     to gain macro functionality. When a macro is called, 
-     the call will be interpreted as a function pointing to the 
-     function above (assemble_macro). From there, 
-     the macro will be assembled and then executed in 
+     to gain macro functionality. When a macro is called,
+     the call will be interpreted as a function pointing to the
+     function above (assemble_macro). From there,
+     the macro will be assembled and then executed in
      the environment that is given.
    */
 
   auto macro_name = list[1]->as_symbol();
 
   // Expect param list even it its empty
-  
+
   auto params = list[2]->as_list_info();
 
   if (params.type != list_types_e::DATA) {
@@ -313,18 +306,19 @@ cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
   }
 
   function_info_s macro_assembler_fn("assemble_macro", assemble_macro,
-                                function_type_e::LAMBDA_FUNCTION, new env_c());
+                                     function_type_e::LAMBDA_FUNCTION,
+                                     new env_c());
 
   macro_assembler_fn.operating_env->set("$params", list[2]);
-  
+
   // Everything else should be considered part of the body
-  // and should be quoted and concatenated 
+  // and should be quoted and concatenated
 
   auto it = list.begin();
   std::advance(it, 3);
 
   std::string macro_string_body;
-  while(it != list.end()) {
+  while (it != list.end()) {
     macro_string_body += (*it)->to_string(true, true);
     std::advance(it, 1);
   }

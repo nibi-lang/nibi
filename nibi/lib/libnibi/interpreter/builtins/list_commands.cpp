@@ -58,19 +58,19 @@ cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci, cell_list_t &list,
 }
 
 cell_ptr builtin_fn_list_execute(cell_processor_if &ci, cell_list_t &list,
-                                  env_c &env) {
+                                 env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXECUTE, ==, 2)
 
   auto target = list[1];
 
   if (target->type == cell_type_e::SYMBOL) {
-     target = ci.process_cell(list[1], env);
+    target = ci.process_cell(list[1], env);
   }
 
   if (target->type != cell_type_e::LIST) {
-    throw interpreter_c::exception_c(
-        std::string("Expected list for ") + nibi::kw::EXECUTE,
-        list[1]->locator);
+    throw interpreter_c::exception_c(std::string("Expected list for ") +
+                                         nibi::kw::EXECUTE,
+                                     list[1]->locator);
   }
   auto &list_info = target->as_list_info();
 
