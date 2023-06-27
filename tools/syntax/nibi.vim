@@ -21,7 +21,7 @@ syn match nibiIdentifier '[a-zA-Z_][a-zA-Z0-9_]*' contained
 syn match nibiNumber '\d\+' contained
 
 syn keyword nibiFunc set fn drop try throw assert assert_eq assert_neq execute_list
-syn keyword nibiFunc env at iter eval quote loop exit quote import use
+syn keyword nibiFunc env at iter eval quote loop exit quote import use macro
 syn keyword nibiFunc int str float split type len clone nop
 syn keyword nibiQuickType true false nil nan inf
 
