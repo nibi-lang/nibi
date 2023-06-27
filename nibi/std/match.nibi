@@ -1,33 +1,47 @@
+# Author: Josh Bosley
+#
+# About:
+# Simple pattern matching functionality
+# similar to a switch statement, but mixed types
+# can be used in the pattern list, and each match
+# returnes the result of the matching function
+#
+# Note:
+# This depends on std/macros.nibi for `strict_eq`
+# - It should be auto included along with this file
+#   but if you attempt to run this file by itself
+#   with an example, you will need to include it
+#   manually using (import "macros.nibi")
+#
 # Example usage:
-#
-#
-#   (use "io")
+# (use "io")
+# (fn test_match [value] [
+# 
+#   (io::print "Testing match for value: " value ": ")
+# 
+#   (:= ret (match value [
+#            ["x" (io::println "Got `x`")]
+#            ["y" (io::println "Got `y`")]
+#            [3   (io::println "Got literal `3`")]
+#            ["3" (io::println "Got stringed `3`")]
+#            ["4" (io::println "Got stringed `4`")]
+#            ["moot" "toot"]
+# 
+#          ]))
 #   
-#   (match 3 [
-#     ["x" (io::println "Incorrect value")]
-#     ["y" (io::println "Incorrect value")]
-#     ["3" (io::println "Correct")]
-#   ])
-#   
-#   # This will fail as types can not be mixed 
-#   # within the same list
-#   (strict_match 3 [
-#     ["x" (io::println "Incorrect value")]
-#     ["y" (io::println "Incorrect value")]
-#     ["3" (io::println "Incorrect value")]
-#     [3 (io::println "Correct")]
-#   ])
-
+#   (io::println "Returned: " ret)
+# ])
+# 
+# (iter ["x" "4" "y" "3" 3 "moot"] x (test_match x))
 
 # Match pattern against value and execute the matching function
-#  This match function is not strict, and will convert the 
-#  potential matches to string form to ensure that comparisons are
-#  done by string. this means "3" will match 3, or 3.0.
 (fn match [value list] [
   (assert 
     (eq (type list) "list:data") 
     "Expected data list")
 
+  # Pre-check the list to make sure it's valid and won't
+  # cause an access violation below 
   (iter list entry [
     (assert 
       (eq (type entry) "list:data") 
@@ -37,34 +51,12 @@
       "Expected 2 items in each entry")
   ])
 
+  # Iterate over the list and check each entry against the value
+  # If the entry matches, execute the function and return the result
   (loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
-    (if (eq (str (at (at list i) 0)) value) (<- (at (at list i) 1))) 
+    (if (strict_eq (at (at list i) 0) value) (<- (at (at list i) 1))) 
   ])
+
+  # If no matches were found, return nil
+  (<- nil)
 ])
-
-# Strict match pattern against value and execute the matching function
-#  This match function is strict, and will not perform any 
-#  conversions on the potential matches. this means "3" will not
-#  match 3, or 3.0.
-(fn strict_match [value list] [
-  (assert 
-    (eq (type list) "list:data") 
-    "Expected data list")
-
-  (iter list entry [
-    (assert 
-      (eq (type entry) "list:data") 
-        "Expected data list for each entry")
-    (assert 
-      (eq (len entry) 2) 
-      "Expected 2 items in each entry")
-    (assert 
-      (eq (type (at entry 0)) (type value)) 
-      "Expected each entry to be the same type as the value")
-  ])
-
-  (loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
-    (if (eq value (at (at list i) 0)) (<- (at (at list i) 1))) 
-  ])
-])
-

@@ -1,3 +1,12 @@
+# Author: Josh Bosley
+#
+# About:
+# Simplify type checking functions for the interpreter
+# by ensuring that the user doesn't have to remember
+# each possible type name in its string form.
+# It also adds some functionality like `is_numeric`
+# etc
+
 (fn is_nil [_x] 
   (eq (type _x) "nil"))
 

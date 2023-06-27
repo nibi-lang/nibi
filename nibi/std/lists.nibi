@@ -1,3 +1,17 @@
+# Author: Josh Bosley
+#
+# About:
+# List function extensions and filters
+# on lists.
+#
+# Example usage:
+# (use "io")
+# (io::println 
+#   (filter_even [1 2 3 4 5 6 7 8 9 10]))
+# (io::println 
+#   (filter_odd [1 2 3 4 5 6 7 8 9 10]))
+# (io::println (map [1 2 3 4] (fn [x] (<- (* x 2)))))
+
 # Filter a list by a function
 #   The function must return `true` of `false` for each 
 #   member that it is passed.
@@ -22,13 +36,4 @@
 #   not return a new list
 (fn map [_list _action]
   (iter _list _x (set _x (_action _x))))
-
-# Examples
-
-#(use "io")
-#(io::println 
-#  (filter_even [1 2 3 4 5 6 7 8 9 10]))
-#(io::println 
-#  (filter_odd [1 2 3 4 5 6 7 8 9 10]))
-#(io::println (map [1 2 3 4] (fn [x] (<- (* x 2)))))
 

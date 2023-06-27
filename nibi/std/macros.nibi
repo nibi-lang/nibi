@@ -1,6 +1,22 @@
+# Author: Josh Bosley
+#
+# About:
+# Simple expansion macros for the language
+# that are used in the standard library
+# and can be used to simplify user code 
+
+# Expand to an always true conditional expression
 (macro always []
   (eq true true))
 
+# Expand to an always false conditional expression
 (macro never []
   (eq true false))
+
+# Expand to an expression that ensures that the type
+#  AND value of two things are equivalent
+(macro strict_eq [_a _b] 
+  (and (eq (type %_a) (type %_b))
+       (eq (str %_a)  (str %_b))))
+
 

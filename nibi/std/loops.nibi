@@ -1,3 +1,9 @@
+# Author: Josh Bosley
+#
+# About:
+# These macros provide specialized loop 
+# structures based on the `loop` keyword
+
 (macro while [condition body]
   (loop (nop) %condition (nop) %body))
 
