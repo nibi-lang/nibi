@@ -118,6 +118,10 @@ void intake_c::evaluate(std::string_view data,
   check_for_complete_expression();
 }
 
+void intake_c::end_of_file() {
+  tracker_ = tracker_s();
+}
+
 void intake_c::check_for_complete_expression() {
   if (tokens_.size()) {
     error_cb_(error_c(tokens_.back().get_locator(), "Incomplete expression"));

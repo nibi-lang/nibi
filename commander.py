@@ -67,6 +67,7 @@ def scrub():
   target_dest = NIBI_PATH + "/modules"
   if os.path.exists(target_dest):
     shutil.rmtree(target_dest)
+  os.chdir(cwd)
 
 def install_std():
   target_dest = NIBI_PATH + "/std"

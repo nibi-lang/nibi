@@ -60,6 +60,7 @@ public:
     if (file_.is_open()) {
       file_.close();
     }
+    intake_.end_of_file();
   }
 
 private:
