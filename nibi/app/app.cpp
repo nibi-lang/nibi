@@ -47,10 +47,11 @@ public:
   std::filesystem::path get_config_file_path() { return config_file_path_; }
 
   std::optional<std::string> get_repl_prelude() const {
-    if (!use_std_) { return std::nullopt; }
+    if (!use_std_) {
+      return std::nullopt;
+    }
     std::string prelude = std::string("(import \"") +
-                          config_file_path_.string() +
-                          std::string("\")");
+                          config_file_path_.string() + std::string("\")");
     return prelude;
   }
 
@@ -62,7 +63,9 @@ private:
       exit(1);
     }
 
-    if (!use_std_) { return; }
+    if (!use_std_) {
+      return;
+    }
 
     if (!global_platform->get_nibi_path().has_value()) {
       std::cout << "Warning: nibi path not set, but `use_std` enabled.\n"
@@ -73,7 +76,7 @@ private:
       return;
     }
     config_file_path_ = global_platform->get_nibi_path().value() /
-                        nibi::config::NIBI_SYSTEM_CONFIG_FILE_NAME; 
+                        nibi::config::NIBI_SYSTEM_CONFIG_FILE_NAME;
   }
 
   std::vector<std::filesystem::path> &include_dirs_;
@@ -99,8 +102,7 @@ void run_from_file(std::filesystem::path file_name) {
 
   // Bring in the standard library if enabled
   if (pdc->use_std()) {
-    file_interpreter->interpret_file(
-        pdc->get_config_file_path());
+    file_interpreter->interpret_file(pdc->get_config_file_path());
     file_interpreter->indicate_complete();
   }
 
@@ -124,7 +126,8 @@ void show_help() {
   std::cout << "  -v, --version         Show version info" << std::endl;
   std::cout << "  -m, --module <name>   Show module info" << std::endl;
   std::cout << "  -t, --test            Run tests" << std::endl;
-  std::cout << "  -n, --no-std          Do not include standard symbols" << std::endl;
+  std::cout << "  -n, --no-std          Do not include standard symbols"
+            << std::endl;
   std::cout << "  -i, --include <dirs>  Add include directory (`:` delimited)"
             << std::endl;
 }
@@ -351,9 +354,7 @@ int main(int argc, char **argv) {
 
   if (launch_target.empty()) {
 
-    app::repl_config_s config {
-      pdc->get_repl_prelude()
-    };
+    app::repl_config_s config{pdc->get_repl_prelude()};
 
     app::start_repl(config);
     return 0;

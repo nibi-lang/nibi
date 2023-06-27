@@ -77,7 +77,7 @@ cell_ptr builtin_fn_env_drop(cell_processor_if &ci, cell_list_t &list,
 }
 
 cell_ptr assemble_anonymous_function(cell_processor_if &ci, cell_list_t &list,
-                           env_c &env) {
+                                     env_c &env) {
   auto it = list.begin();
 
   std::advance(it, 1);

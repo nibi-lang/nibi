@@ -13,4 +13,4 @@ struct repl_config_s {
 
 extern void start_repl(repl_config_s config);
 
-}
+} // namespace app
