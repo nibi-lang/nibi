@@ -19,4 +19,16 @@
   (and (eq (type %_a) (type %_b))
        (eq (str %_a)  (str %_b))))
 
+# Check it a symbol exists in the current scope
+# and return true if it does, false otherwise
+# - This macro makes and calls an anonymous function
+#   that tries to get the type of the symbol and
+#   if it succeeds, it returns true, otherwise it
+#   returns false
+(macro sym_exists [_sym]
+  ((fn [] 
+    (try [
+      (type %_sym)
+      (<- true)]
+      (<- false)))))
 

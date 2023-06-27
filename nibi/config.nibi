@@ -11,3 +11,9 @@
   "std/loops.nibi"
   "std/match.nibi"
   "std/types.nibi")
+
+# This is a special symbol that is used to determine
+# whether or not the standard library has been loaded.
+# - If it doesn't exist, then the std lbirary hasn't been loaded.
+(:= NIBI_STD 1)
+
