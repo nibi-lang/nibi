@@ -23,7 +23,7 @@
 #  This match function is not strict, and will convert the 
 #  potential matches to string form to ensure that comparisons are
 #  done by string. this means "3" will match 3, or 3.0.
-(fn std::match [value list] [
+(fn match [value list] [
   (assert 
     (eq (type list) "list:data") 
     "Expected data list")
@@ -46,7 +46,7 @@
 #  This match function is strict, and will not perform any 
 #  conversions on the potential matches. this means "3" will not
 #  match 3, or 3.0.
-(fn std::strict_match [value list] [
+(fn strict_match [value list] [
   (assert 
     (eq (type list) "list:data") 
     "Expected data list")

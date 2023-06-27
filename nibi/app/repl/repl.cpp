@@ -1,3 +1,4 @@
+#include "app/repl/repl.hpp"
 #include "app/linenoise/linenoise.hpp"
 
 #include <filesystem>
@@ -58,7 +59,7 @@ std::optional<std::string> input_buffer_c::submit(std::string &line) {
 
 } // namespace
 
-void start_repl() {
+void start_repl(repl_config_s config) {
 
   std::unordered_map<std::string, std::vector<std::string>> completion_map = {
       {"(e", {"(exit "}},        {"(ex", {"(exit "}},
@@ -106,6 +107,10 @@ void start_repl() {
 
   auto interpreter = nibi::interpreter_factory_c::line_interpreter(
       [](nibi::error_c e) { e.draw(); });
+
+  if (config.prelude.has_value()) {
+    interpreter->interpret_line(*config.prelude);
+  }
 
   uint64_t line_number{0};
   bool show_prompt{true};

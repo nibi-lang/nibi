@@ -1,0 +1,13 @@
+# config.nibi
+
+# This file is installed into NIBI_PATH/config.nibi
+# and is loaded by the compiler before any other files.
+# It is used to ensure that standard symbols are available
+# in all Nibi programs.
+
+(import
+  "std/macros.nibi"
+  "std/lists.nibi"
+  "std/loops.nibi"
+  "std/match.nibi"
+  "std/types.nibi")
