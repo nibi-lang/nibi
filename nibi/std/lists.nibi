@@ -37,3 +37,20 @@
 (fn map [_list _action]
   (iter _list _x (set _x (_action _x))))
 
+# Return the last element of a list
+# as an editable reference
+(macro list_back [_list]
+  (at %_list (- (len %_list) 1)))
+
+# Return the nth element of a list
+# as an editable reference
+# Note: If the index is out of bounds
+#       this will return a nil
+#       and not throw an error
+#       this allows for easy appending
+#       to a list without risk of throwing
+(macro list_nth [_list _n]
+  (if (eq true (>= %_n (len %_list)))
+      (nop) # Returns a nil
+      (at %_list %_n)))
+
