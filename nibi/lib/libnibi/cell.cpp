@@ -108,8 +108,6 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   case cell_type_e::FUNCTION: {
 
-    // Note -> This will store a reference to the function info
-    //        which is fine because the function info is stored
     auto &func_info = this->as_function_info();
 
     new_cell->data =
@@ -120,6 +118,11 @@ cell_ptr cell_c::clone(env_c &env) {
         new_cell->as_function_info().operating_env = new env_c();
         *new_cell->as_function_info().operating_env = *func_info.operating_env;
       }
+    }
+
+    // Copy lambda stuff over
+    if (func_info.lambda.has_value()) {
+      new_cell->as_function_info().lambda = func_info.lambda;
     }
     break;
   }

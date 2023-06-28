@@ -1,0 +1,10 @@
+(fn a [] (<- true))
+(fn b [_b] (<- _b))
+
+(:= c (fn [] (<- true)))
+(:= d (fn [_b] (<- _b)))
+
+(assert (eq true (a)))
+(assert (eq true (b true)))
+(assert (eq true (c)))
+(assert (eq true (d true)))
