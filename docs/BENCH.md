@@ -113,4 +113,19 @@ git hash **be2acfa80c45e75b0fb715fd1bd76d59bce5b502**
 | 4sieve.nibi     | 1.2172s   | 1217.2355ms |
 | leibniz.nibi    | 0.1192s   | 119.2178ms  |
 
+### 28-June-2023
+
+Added macros and started making nibi pull in "standard" imports on startup.
+
+git hash **30ca5c4c0913ca7171a8f323510dbefee1c8ece5**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1122s   | 112.1821ms  |
+| primality.nibi  | 1.055s    | 1054.9819ms |
+| 4sieve.nibi     | 1.2322s   | 1232.1547ms |
+| leibniz.nibi    | 0.1223s   | 122.2559ms  |
+
+Thankfully no slow downs at all :-)
+
 
