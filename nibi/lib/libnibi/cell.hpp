@@ -36,7 +36,8 @@ enum class function_type_e {
   UNSET,                // Function type is not set
   BUILTIN_CPP_FUNCTION, // Function implemented in C++
   EXTERNAL_FUNCTION,    // Function imported from shared lib
-  LAMBDA_FUNCTION       // Function defined in source code by user
+  LAMBDA_FUNCTION,      // Function defined in source code by user
+  MACRO                 // Macro
 };
 
 enum class list_types_e {
@@ -73,6 +74,12 @@ struct lambda_info_s {
 
 //! \brief Function wrapper that holds the function
 //!        pointer, the name, and the type of the function
+//! \note  The operating env is a raw pointer as it may
+//!        be owned by the cell or not. Lambdas for instance
+//!        point to the environment they were defined in
+//!        but do not own it, while MACROS own the environment
+//!        to hold onto construction data. While two pointers
+//!        or a further wrapper could be used, this is lighter
 struct function_info_s {
   std::string name;
   cell_fn_t fn;
@@ -101,7 +108,7 @@ struct symbol_s {
 //! \brief Environment information that can be encoded into a cell
 struct environment_info_s {
   std::string name;
-  // The environment that this cell points to, 
+  // The environment that this cell points to,
   // may be owned, my not be so we use a raw pointer
   env_c *env{nullptr};
 };

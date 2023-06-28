@@ -229,5 +229,112 @@ cell_ptr builtin_fn_common_nop(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
+cell_ptr assemble_macro(cell_processor_if &ci, cell_list_t &list, env_c &env) {
+
+  auto definition = env.get(list[0]->as_symbol());
+  auto macro_env = definition->as_function_info().operating_env;
+  auto macro_params = macro_env->get("$params")->as_list_info();
+  auto macro_body = macro_env->get("$body")->as_string();
+
+  if (list.size() != macro_params.list.size() + 1) {
+    throw interpreter_c::exception_c(
+        std::string("Macro `") + list[0]->as_symbol() + "` expected " +
+            std::to_string(macro_params.list.size()) + " parameters, but " +
+            std::to_string(list.size() - 1) + " were given",
+        list[0]->locator);
+  }
+
+  for (std::size_t i = 0; i < macro_params.list.size(); i++) {
+    auto &param = macro_params.list[i];
+    auto &arg = list[i + 1];
+    auto target_replacement = "%" + param->as_symbol();
+    auto found = macro_body.find(target_replacement);
+    while (found != std::string::npos) {
+      if (found > 0 && macro_body[found - 1] == '\\') {
+        found = macro_body.find(target_replacement, found + 1);
+        continue;
+      }
+      macro_body.replace(found, target_replacement.size(),
+                         arg->to_string(true, true));
+      found = macro_body.find(target_replacement);
+    }
+  }
+
+  cell_list_t eval_list;
+  eval_list.emplace_back(macro_env->get("$body_start"));
+  eval_list.emplace_back(allocate_cell(macro_body));
+  return builtin_fn_common_eval(ci, eval_list, env);
+}
+
+cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
+                                 env_c &env) {
+
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MACRO, >=, 4)
+
+  /*
+     For macros, we will construct a callable function that has an owned
+     cell environment.
+
+     We will store the parameter list into the
+     function enviornment wholesale as they should just be symbols
+     that will be replaced in the body of the macro.
+
+     We will also store the function body in this environment
+     as a quoted list.
+
+     Once we create this function object we will store it in
+     the current operating enviornment as the macro_name.
+
+     This will allow us to not modify any other part of the code base
+     to gain macro functionality. When a macro is called,
+     the call will be interpreted as a function pointing to the
+     function above (assemble_macro). From there,
+     the macro will be assembled and then executed in
+     the environment that is given.
+   */
+
+  auto macro_name = list[1]->as_symbol();
+
+  // Expect param list even it its empty
+
+  auto params = list[2]->as_list_info();
+
+  if (params.type != list_types_e::DATA) {
+    throw interpreter_c::exception_c(
+        "Macro parameters are expected to be a data list '[]'",
+        list[2]->locator);
+  }
+
+  function_info_s macro_assembler_fn("assemble_macro", assemble_macro,
+                                     function_type_e::MACRO, new env_c());
+
+  macro_assembler_fn.operating_env->set("$params", list[2]);
+
+  // Everything else should be considered part of the body
+  // and should be quoted and concatenated
+
+  auto it = list.begin();
+  std::advance(it, 3);
+
+  auto body_start = (*it);
+
+  std::string macro_string_body;
+  while (it != list.end()) {
+    macro_string_body += (*it)->to_string(true, true);
+    std::advance(it, 1);
+  }
+
+  auto body = allocate_cell(macro_string_body);
+
+  macro_assembler_fn.operating_env->set("$body", body);
+  macro_assembler_fn.operating_env->set("$body_start", body_start);
+
+  auto resulting_macro = allocate_cell(macro_assembler_fn);
+
+  env.set(macro_name, resulting_macro);
+
+  return allocate_cell((int64_t)1);
+}
+
 } // namespace builtins
 } // namespace nibi

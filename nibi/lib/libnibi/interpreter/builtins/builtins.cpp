@@ -75,12 +75,6 @@ static function_info_s builtin_throw_inf = {
 static function_info_s builtin_assert_inf = {
     nibi::kw::ASSERT, builtin_fn_assert_true,
     function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_assert_eq_inf = {
-    nibi::kw::ASSERT_EQ, builtin_fn_assert_eq,
-    function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_assert_neq_inf = {
-    nibi::kw::ASSERT_NEQ, builtin_fn_assert_neq,
-    function_type_e::BUILTIN_CPP_FUNCTION};
 
 // comparison
 static function_info_s builtin_comparison_eq_inf = {
@@ -132,6 +126,9 @@ static function_info_s builtin_list_pop_front_inf = {
 static function_info_s builtin_list_pop_back_inf = {
     nibi::kw::POP_BACK, builtin_fn_list_pop_back,
     function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_list_execute_inf = {
+    nibi::kw::EXECUTE, builtin_fn_list_execute,
+    function_type_e::BUILTIN_CPP_FUNCTION};
 
 // common functions
 static function_info_s builtin_common_len_inf = {
@@ -165,6 +162,9 @@ static function_info_s builtin_common_quote_inf = {
     function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_common_nop_inf = {
     nibi::kw::NOP, builtin_fn_common_nop,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_macro_inf = {
+    nibi::kw::NOP, builtin_fn_common_macro,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
 // conversion functions
@@ -212,12 +212,11 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::TRY, builtin_try_inf},
      {nibi::kw::THROW, builtin_throw_inf},
      {nibi::kw::ASSERT, builtin_assert_inf},
-     {nibi::kw::ASSERT_EQ, builtin_assert_eq_inf},
-     {nibi::kw::ASSERT_NEQ, builtin_assert_neq_inf},
      {nibi::kw::PUSH_FRONT, builtin_list_push_front_inf},
      {nibi::kw::PUSH_BACK, builtin_list_push_back_inf},
      {nibi::kw::POP_FRONT, builtin_list_pop_front_inf},
      {nibi::kw::POP_BACK, builtin_list_pop_back_inf},
+     {nibi::kw::EXECUTE, builtin_list_execute_inf},
      {nibi::kw::SPAWN, builtin_list_spawn_inf},
      {nibi::kw::ITER, builtin_list_iter_inf},
      {nibi::kw::AT, builtin_list_at_inf},
@@ -232,6 +231,7 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::EVAL, builtin_common_eval_inf},
      {nibi::kw::QUOTE, builtin_common_quote_inf},
      {nibi::kw::NOP, builtin_common_nop_inf},
+     {nibi::kw::MACRO, builtin_common_macro_inf},
      {nibi::kw::BW_LSH, builtin_bitwise_lsh_inf},
      {nibi::kw::BW_RSH, builtin_bitwise_rsh_inf},
      {nibi::kw::BW_AND, builtin_bitwise_and_inf},

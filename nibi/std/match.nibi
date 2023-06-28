@@ -1,0 +1,62 @@
+# Author: Josh Bosley
+#
+# About:
+# Simple pattern matching functionality
+# similar to a switch statement, but mixed types
+# can be used in the pattern list, and each match
+# returnes the result of the matching function
+#
+# Note:
+# This depends on std/macros.nibi for `strict_eq`
+# - It should be auto included along with this file
+#   but if you attempt to run this file by itself
+#   with an example, you will need to include it
+#   manually using (import "macros.nibi")
+#
+# Example usage:
+# (use "io")
+# (fn test_match [value] [
+# 
+#   (io::print "Testing match for value: " value ": ")
+# 
+#   (:= ret (match value [
+#            ["x" (io::println "Got `x`")]
+#            ["y" (io::println "Got `y`")]
+#            [3   (io::println "Got literal `3`")]
+#            ["3" (io::println "Got stringed `3`")]
+#            ["4" (io::println "Got stringed `4`")]
+#            ["moot" "toot"]
+# 
+#          ]))
+#   
+#   (io::println "Returned: " ret)
+# ])
+# 
+# (iter ["x" "4" "y" "3" 3 "moot"] x (test_match x))
+
+# Match pattern against value and execute the matching function
+(fn match [value list] [
+  (assert 
+    (eq (type list) "list:data") 
+    "Expected data list")
+
+  # Pre-check the list to make sure it's valid and won't
+  # cause an access violation below 
+  (iter list entry [
+    (assert 
+      (eq (type entry) "list:data") 
+        "Expected data list for each entry")
+    (assert 
+      (eq (len entry) 2) 
+      "Expected 2 items in each entry")
+  ])
+
+  # Iterate over the list and check each entry against the value
+  # If the entry matches, execute the function and return the result
+  (loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
+    (if (strict_eq (at (at list i) 0) value) (<- (at (at list i) 1))) 
+  ])
+
+  # If no matches were found, return nil
+  (<- nil)
+])

@@ -40,6 +40,21 @@ public:
     include_dirs_.push_back(dir);
   }
 
+  void disable_std() { use_std_ = false; }
+
+  bool use_std() { return use_std_; }
+
+  std::filesystem::path get_config_file_path() { return config_file_path_; }
+
+  std::optional<std::string> get_repl_prelude() const {
+    if (!use_std_) {
+      return std::nullopt;
+    }
+    std::string prelude = std::string("(import \"") +
+                          config_file_path_.string() + std::string("\")");
+    return prelude;
+  }
+
 private:
   void reinit_platform() {
     global_platform_destroy();
@@ -47,10 +62,28 @@ private:
       std::cerr << "Failed to initialize global platform" << std::endl;
       exit(1);
     }
+
+    if (!use_std_) {
+      return;
+    }
+
+    if (!global_platform->get_nibi_path().has_value()) {
+      std::cout << "Warning: nibi path not set, but `use_std` enabled.\n"
+                   "This may cause errors if the standard library is not "
+                   "installed."
+                << std::endl;
+      disable_std();
+      return;
+    }
+    config_file_path_ = global_platform->get_nibi_path().value() /
+                        nibi::config::NIBI_SYSTEM_CONFIG_FILE_NAME;
   }
 
   std::vector<std::filesystem::path> &include_dirs_;
   std::vector<std::string> &args_;
+  bool use_std_{true};
+
+  std::filesystem::path config_file_path_;
 };
 
 std::unique_ptr<program_data_controller_c> pdc{nullptr};
@@ -66,6 +99,13 @@ void error_callback_function(nibi::error_c error) {
 void run_from_file(std::filesystem::path file_name) {
   auto file_interpreter =
       interpreter_factory_c::file_interpreter(error_callback_function);
+
+  // Bring in the standard library if enabled
+  if (pdc->use_std()) {
+    file_interpreter->interpret_file(pdc->get_config_file_path());
+    file_interpreter->indicate_complete();
+  }
+
   file_interpreter->interpret_file(file_name);
   file_interpreter->indicate_complete();
 }
@@ -86,6 +126,8 @@ void show_help() {
   std::cout << "  -v, --version         Show version info" << std::endl;
   std::cout << "  -m, --module <name>   Show module info" << std::endl;
   std::cout << "  -t, --test            Run tests" << std::endl;
+  std::cout << "  -n, --no-std          Do not include standard symbols"
+            << std::endl;
   std::cout << "  -i, --include <dirs>  Add include directory (`:` delimited)"
             << std::endl;
 }
@@ -238,13 +280,14 @@ int main(int argc, char **argv) {
   std::vector<std::string> args =
       std::vector<std::string>(argv + 1, argv + argc);
 
+  bool use_std{true};
   std::string launch_target;
-
   {
     pdc = std::make_unique<program_data_controller_c>(args, include_dirs);
 
-    std::vector<std::string> args = std::vector<std::string>(argv + 1, argv + argc);
-    for(std::size_t i = 0; i < args.size(); i++) {
+    std::vector<std::string> args =
+        std::vector<std::string>(argv + 1, argv + argc);
+    for (std::size_t i = 0; i < args.size(); i++) {
 
       if (args[i] == "-h" || args[i] == "--help") {
         show_help();
@@ -256,8 +299,13 @@ int main(int argc, char **argv) {
         return 0;
       }
 
+      if (args[i] == "-n" || args[i] == "--no-std") {
+        use_std = false;
+        continue;
+      }
+
       if (args[i] == "-t" || args[i] == "--test") {
-        if (i+1 >= args.size()) {
+        if (i + 1 >= args.size()) {
           std::cout << "Error: Expected value for [-t | --test]" << std::endl;
           return 1;
         }
@@ -266,7 +314,7 @@ int main(int argc, char **argv) {
         return 0;
       }
       if (args[i] == "-m" || args[i] == "--module") {
-        if (i+1 >= args.size()) {
+        if (i + 1 >= args.size()) {
           std::cout << "Error: Expected value for [-m | --module]" << std::endl;
           return 1;
         }
@@ -276,8 +324,9 @@ int main(int argc, char **argv) {
       }
 
       if (args[i] == "-i" || args[i] == "--include") {
-        if (i+1 >= args.size()) {
-          std::cout << "Error: Expected value for [-i | --include]" << std::endl;
+        if (i + 1 >= args.size()) {
+          std::cout << "Error: Expected value for [-i | --include]"
+                    << std::endl;
           return 1;
         }
         std::stringstream ss(args[++i]);
@@ -288,9 +337,9 @@ int main(int argc, char **argv) {
         continue;
       }
 
+      // Launch target already set, now we assume
+      // that the rest will be arguments to the program
       if (!launch_target.empty()) {
-        std::cout << "Launch target already specified as " << launch_target << std::endl;
-        std::cout << "Skipping argument: " << args[i] << std::endl;
         continue;
       }
 
@@ -298,8 +347,15 @@ int main(int argc, char **argv) {
     }
   }
 
+  if (!use_std) {
+    pdc->disable_std();
+  }
+
   if (launch_target.empty()) {
-    app::start_repl();
+
+    app::repl_config_s config{pdc->get_repl_prelude()};
+
+    app::start_repl(config);
     return 0;
   }
 

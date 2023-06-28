@@ -73,7 +73,7 @@ inline std::string closing_sym_from_token(const token_e token) {
           tracker, "Invalid instruction - Unexpected end of file/input"));     \
       return nullptr;                                                          \
     }                                                                          \
-    list.push_back(next_cell);                                                 \
+    list.emplace_back(next_cell);                                              \
     tracker = current_location();                                              \
   }                                                                            \
   if (current_token() != ___sym_close) {                                       \
@@ -117,6 +117,8 @@ void intake_c::evaluate(std::string_view data,
   process_line(data, origin, location);
   check_for_complete_expression();
 }
+
+void intake_c::end_of_file() { tracker_ = tracker_s(); }
 
 void intake_c::check_for_complete_expression() {
   if (tokens_.size()) {
@@ -321,18 +323,19 @@ cell_ptr intake_c::parser_c::instruction_list() {
 
   switch (current_token()) {
   case token_e::SYMBOL:
-    list.push_back(symbol());
+    list.emplace_back(symbol());
     break;
   case token_e::L_BRACE:
-    list.push_back(access_list());
+    list.emplace_back(access_list());
     break;
   case token_e::L_PAREN:
-    list.push_back(instruction_list());
+    list.emplace_back(instruction_list());
     break;
   default:
     error_cb_(error_c(current_location(),
                       "Invalid instruction list - Expected symbol, access "
-                      "list, or instruction list"));
+                      "list, or instruction list. Got: " +
+                          std::string(token_to_string((*tokens_)[index_]))));
     return nullptr;
   }
 

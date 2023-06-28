@@ -4,8 +4,8 @@
 #include <memory>
 #include <string>
 
-#include <libnibi/nibi.hpp>
 #include <libnibi/macros.hpp>
+#include <libnibi/nibi.hpp>
 
 inline void check_buffer(std::string &buffer, char c) {
   switch (c) {
@@ -57,8 +57,8 @@ inline void print_cell(nibi::cell_ptr &cell) {
       auto c = target[i];
       if (c == '\\') {
         if (i == target.size() - 1) {
-          throw nibi::interpreter_c::exception_c(
-              "formated string ends with escape character", cell->locator);
+          buffer += '\\';
+          break;
         }
         check_buffer(buffer, target[i + 1]);
         i++;
@@ -75,7 +75,7 @@ inline void print_cell(nibi::cell_ptr &cell) {
 }
 
 nibi::cell_ptr print(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
-                       nibi::env_c &env) {
+                     nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{io print}", >, 1)
   for (auto it = list.begin() + 1; it != list.end(); ++it) {
     auto processed = ci.process_cell(*it, env);

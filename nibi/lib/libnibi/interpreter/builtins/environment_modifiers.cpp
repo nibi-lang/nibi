@@ -76,8 +76,49 @@ cell_ptr builtin_fn_env_drop(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell((int64_t)0);
 }
 
+cell_ptr assemble_anonymous_function(cell_processor_if &ci, cell_list_t &list,
+                                     env_c &env) {
+  auto it = list.begin();
+
+  std::advance(it, 1);
+
+  auto &function_argument_list = (*it)->as_list_info();
+
+  if (function_argument_list.type != list_types_e::DATA) {
+    throw interpreter_c::exception_c(
+        "Expected data list `[]` for function arguments", (*it)->locator);
+  }
+
+  lambda_info_s lambda_info;
+
+  lambda_info.arg_names.reserve(function_argument_list.list.size());
+
+  for (auto &&arg : function_argument_list.list) {
+    lambda_info.arg_names.push_back(arg->as_symbol());
+  }
+
+  std::advance(it, 1);
+  lambda_info.body = (*it);
+  if (lambda_info.body->type != cell_type_e::LIST) {
+    throw interpreter_c::exception_c("Expected list for function body",
+                                     lambda_info.body->locator);
+  }
+
+  function_info_s function_info("anon_fn", execute_suspected_lambda,
+                                function_type_e::LAMBDA_FUNCTION, &env);
+
+  function_info.lambda = {lambda_info};
+
+  auto fn_cell = allocate_cell(function_info);
+
+  return fn_cell;
+}
+
 cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
                            env_c &env) {
+  if (list.size() == 3) {
+    return assemble_anonymous_function(ci, list, env);
+  }
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::FN, ==, 4)
 
@@ -99,12 +140,6 @@ cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
   lambda_info_s lambda_info;
 
   lambda_info.arg_names.reserve(function_argument_list.list.size());
-
-  /*
-      Here we COULD check to ensure all parameter names are unique,
-      but that would take MORE time than letting stupid choices
-      lead to stupid ourcomes
-  */
 
   for (auto &&arg : function_argument_list.list) {
     lambda_info.arg_names.push_back(arg->as_symbol());

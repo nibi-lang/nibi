@@ -1,0 +1,15 @@
+(use "io")
+
+(fn cb_eq [lhs rhs] (io::println  "(EXPECTED) ASSERT_EQ FAILED:  " lhs " != " rhs))
+(fn cb_neq [lhs rhs] (io::println "(EXPECTED) ASSERT_NEQ FAILED: " lhs " == " rhs))
+
+(assert (eq true (assert_eq 1 1 nop)))
+(assert (eq false (assert_eq 1 2 nop)))
+(assert (eq true (assert_eq 1 1 cb_eq)))
+(assert (eq false (assert_eq 1 2 cb_eq)))
+
+(assert (eq true (assert_neq 1 2 nop)))
+(assert (eq false (assert_neq 1 1 nop)))
+(assert (eq true (assert_neq 1 2 cb_neq)))
+(assert (eq false (assert_neq 1 1 cb_neq)))
+

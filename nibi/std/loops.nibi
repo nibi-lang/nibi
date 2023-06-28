@@ -1,15 +1,13 @@
-(fn while [pred body] [
-  (assert (eq (type body) "list:data")
-    "While loop body must be a data list of instructions")
-  (loop
-    (nop) 
-    (eq true pred) 
-    (nop) 
-    (std::process_list body))
-])
+# Author: Josh Bosley
+#
+# About:
+# These macros provide specialized loop 
+# structures based on the `loop` keyword
 
-(fn forever [body] [
-  (assert (eq (type body) "list:data")
-    "Forever loop body must be a data list of instructions")
-  (while (eq true true) body)
-])
+(macro while [condition body]
+  (loop (nop) %condition (nop) %body))
+
+(macro forever [body]
+  (while (eq true true) %body))
+
+

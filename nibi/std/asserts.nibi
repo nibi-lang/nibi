@@ -1,0 +1,31 @@
+# Author: Josh Bosley
+#
+# About:
+#   This file contains the macros strict assertions
+#
+# For example usage see: test_scripts/tests/0_assert_macros.nibi
+
+# Asserts that the two values are strictly equal
+#  _lhs: The left hand side of the assertion
+#  _rhs: The right hand side of the assertion
+#  _cb: The callback to call if the assertion fails
+#  Note: If no callback is desired, pass `nop` as the callback
+(macro assert_eq [_lhs _rhs _cb]
+  ((fn [] 
+    (if (strict_eq %_lhs %_rhs) 
+      (<- true) 
+      [(%_cb %_lhs %_rhs) (<- false)])
+    )))
+
+# Asserts that the two values are strictly NOT equal
+#  _lhs: The left hand side of the assertion
+#  _rhs: The right hand side of the assertion
+#  _cb: The callback to call if the assertion fails
+#  Note: If no callback is desired, pass `nop` as the callback
+(macro assert_neq [_lhs _rhs _cb]
+  ((fn [] 
+    (if (not (strict_eq %_lhs %_rhs))
+      (<- true) 
+      [(%_cb %_lhs %_rhs) (<- false)])
+    )))
+

@@ -16,6 +16,8 @@ const char *function_type_to_string(function_type_e type) {
     return "EXTERNAL_FUNCTION";
   case function_type_e::LAMBDA_FUNCTION:
     return "LAMBDA_FUNCTION";
+  case function_type_e::MACRO:
+    return "MACRO";
   }
   return "UNKNOWN";
 }
@@ -58,6 +60,18 @@ cell_c::~cell_c() {
     }
     break;
   }
+  // Check if the function is a macro, if so,
+  // we need to clean the operating environment
+  // as well because macros own their own
+  case cell_type_e::FUNCTION: {
+    auto &func_info = this->as_function_info();
+    if (func_info.type == function_type_e::MACRO) {
+      if (func_info.operating_env) {
+        delete func_info.operating_env;
+      }
+    }
+    break;
+  }
   default: {
     break;
   }
@@ -92,12 +106,26 @@ cell_ptr cell_c::clone(env_c &env) {
   case cell_type_e::STRING:
     new_cell->data = this->to_string();
     break;
-  case cell_type_e::FUNCTION:
+  case cell_type_e::FUNCTION: {
 
-    // Note -> This will store a reference to the function info
-    //        which is fine because the function info is stored
-    new_cell->data = this->as_function_info();
+    auto &func_info = this->as_function_info();
+
+    new_cell->data =
+        function_info_s(func_info.name, func_info.fn, func_info.type);
+
+    if (func_info.type == function_type_e::MACRO) {
+      if (func_info.operating_env) {
+        new_cell->as_function_info().operating_env = new env_c();
+        *new_cell->as_function_info().operating_env = *func_info.operating_env;
+      }
+    }
+
+    // Copy lambda stuff over
+    if (func_info.lambda.has_value()) {
+      new_cell->as_function_info().lambda = func_info.lambda;
+    }
     break;
+  }
   case cell_type_e::LIST: {
     auto &linf = this->as_list_info();
     auto &other = new_cell->as_list_info();

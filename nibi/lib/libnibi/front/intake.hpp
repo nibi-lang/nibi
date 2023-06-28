@@ -45,6 +45,9 @@ public:
   void evaluate(std::string_view line, std::shared_ptr<source_origin_c> origin,
                 locator_ptr location);
 
+  //! \brief Indicate the end of a file
+  void end_of_file();
+
 private:
   /*
       Simple grammar that defines list building

@@ -42,58 +42,6 @@ cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_assert_eq(cell_processor_if &ci, cell_list_t &list,
-                              env_c &env) {
-
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_EQ, ==, 3)
-
-  auto lhs = ci.process_cell(list[1], env);
-  auto rhs = ci.process_cell(list[2], env);
-
-  if (lhs->type != rhs->type) {
-    std::string err = "Expected types to be equal, but got (lhs) `";
-    err += cell_type_to_string(lhs->type);
-    err += "` and (rhs) `";
-    err += cell_type_to_string(rhs->type);
-    err += "`";
-    throw interpreter_c::exception_c(err, list[0]->locator);
-  }
-
-  auto lhs_as_string = lhs->to_string();
-  auto rhs_as_string = rhs->to_string();
-
-  if (lhs_as_string != rhs_as_string) {
-    std::string err = "Expected values to be equal, but got (lhs) `";
-    err += lhs_as_string;
-    err += "` and (rhs) `";
-    err += rhs_as_string;
-    err += "`";
-    throw interpreter_c::exception_c(err, list[0]->locator);
-  }
-
-  return allocate_cell(cell_type_e::NIL);
-}
-
-cell_ptr builtin_fn_assert_neq(cell_processor_if &ci, cell_list_t &list,
-                               env_c &env) {
-
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT_NEQ, ==, 3)
-
-  auto lhs = ci.process_cell(list[1], env)->to_string();
-  auto rhs = ci.process_cell(list[2], env)->to_string();
-
-  if (lhs == rhs) {
-    std::string err = "Expected values to be not equal, but got (lhs) `";
-    err += lhs;
-    err += "` and (rhs) `";
-    err += rhs;
-    err += "`";
-    throw interpreter_c::exception_c(err, list[0]->locator);
-  }
-
-  return allocate_cell(cell_type_e::NIL);
-}
-
 } // namespace builtins
 
 } // namespace nibi

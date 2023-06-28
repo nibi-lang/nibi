@@ -67,6 +67,26 @@ def scrub():
   target_dest = NIBI_PATH + "/modules"
   if os.path.exists(target_dest):
     shutil.rmtree(target_dest)
+  os.chdir(cwd)
+
+def install_std():
+  target_dest = NIBI_PATH + "/std"
+  if os.path.exists(target_dest):
+    print("Updating existing std library")
+    shutil.rmtree(target_dest)
+
+  # copy std dir to target_dest
+  shutil.copytree("./std", target_dest)
+
+  print("Adding config.nibi")
+  target_dest = NIBI_PATH + "/config.nibi"
+
+  if os.path.exists(target_dest):
+    print("Updating existing config.nibi")
+    os.remove(target_dest)
+
+  shutil.copyfile("./config.nibi", target_dest)
+  
 
 def build_and_install_nibi():
   print("Building and installing Nibi library and application")
@@ -80,6 +100,11 @@ def build_and_install_nibi():
   execute_command(["make", "-j4"])
   execute_command(["sudo", "make", "install"])
   print("SUCCESS")
+  
+  os.chdir("../")
+  print("Installing std library")
+  install_std()
+
   os.chdir(cwd)
 
 def build_current_module(module):

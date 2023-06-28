@@ -27,12 +27,11 @@ static constexpr const char *DROP = "drop";
 static constexpr const char *TRY = "try";
 static constexpr const char *THROW = "throw";
 static constexpr const char *ASSERT = "assert";
-static constexpr const char *ASSERT_EQ = "assert_eq";
-static constexpr const char *ASSERT_NEQ = "assert_neq";
 static constexpr const char *PUSH_FRONT = ">|";
 static constexpr const char *PUSH_BACK = "|<";
 static constexpr const char *POP_FRONT = "<<|";
 static constexpr const char *POP_BACK = "|>>";
+static constexpr const char *EXECUTE = "execute_list";
 static constexpr const char *SPAWN = "<|>";
 static constexpr const char *ITER = "iter";
 static constexpr const char *AT = "at";
@@ -58,6 +57,7 @@ static constexpr const char *INT = "int";
 static constexpr const char *FLOAT = "float";
 static constexpr const char *SPLIT = "split";
 static constexpr const char *TYPE = "type";
+static constexpr const char *MACRO = "macro";
 
 } // namespace kw
 } // namespace nibi
