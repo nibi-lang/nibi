@@ -32,17 +32,6 @@ public:
   //! already been loaded
   void load_module(cell_ptr &module_name, env_c &target_env);
 
-  inline bool is_module_loaded(const std::string &module_name) {
-    if (loaded_modules_.find(module_name) == loaded_modules_.end()) {
-      return false;
-    }
-    if (loaded_modules_.at(module_name) == 0) {
-      loaded_modules_.erase(module_name);
-      return false;
-    }
-    return true;
-  }
-
 private:
   std::filesystem::path get_module_path(cell_ptr &module_name);
 
@@ -56,7 +45,6 @@ private:
   void execute_post_import_actions(cell_ptr &post_list,
                                    std::filesystem::path &module_path);
 
-  std::unordered_map<std::string, uint8_t> loaded_modules_;
   source_manager_c &source_manager_;
   interpreter_c &ci_;
 };

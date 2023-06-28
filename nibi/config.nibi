@@ -7,6 +7,7 @@
 
 (import
   "std/macros.nibi"
+  "std/asserts.nibi"
   "std/lists.nibi"
   "std/loops.nibi"
   "std/match.nibi"

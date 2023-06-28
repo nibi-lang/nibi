@@ -75,12 +75,6 @@ static function_info_s builtin_throw_inf = {
 static function_info_s builtin_assert_inf = {
     nibi::kw::ASSERT, builtin_fn_assert_true,
     function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_assert_eq_inf = {
-    nibi::kw::ASSERT_EQ, builtin_fn_assert_eq,
-    function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_assert_neq_inf = {
-    nibi::kw::ASSERT_NEQ, builtin_fn_assert_neq,
-    function_type_e::BUILTIN_CPP_FUNCTION};
 
 // comparison
 static function_info_s builtin_comparison_eq_inf = {
@@ -218,8 +212,6 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::TRY, builtin_try_inf},
      {nibi::kw::THROW, builtin_throw_inf},
      {nibi::kw::ASSERT, builtin_assert_inf},
-     {nibi::kw::ASSERT_EQ, builtin_assert_eq_inf},
-     {nibi::kw::ASSERT_NEQ, builtin_assert_neq_inf},
      {nibi::kw::PUSH_FRONT, builtin_list_push_front_inf},
      {nibi::kw::PUSH_BACK, builtin_list_push_back_inf},
      {nibi::kw::POP_FRONT, builtin_list_pop_front_inf},

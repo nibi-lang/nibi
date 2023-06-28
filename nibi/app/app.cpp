@@ -337,10 +337,9 @@ int main(int argc, char **argv) {
         continue;
       }
 
+      // Launch target already set, now we assume 
+      // that the rest will be arguments to the program
       if (!launch_target.empty()) {
-        std::cout << "Launch target already specified as " << launch_target
-                  << std::endl;
-        std::cout << "Skipping argument: " << args[i] << std::endl;
         continue;
       }
 

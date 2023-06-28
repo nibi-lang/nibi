@@ -2,6 +2,7 @@
 
 #include "cell.hpp"
 
+#include <set>
 #include <string>
 
 #include "parallel_hashmap/phmap.hpp"
@@ -55,8 +56,25 @@ public:
 
   env_c *get_parent_env() { return parent_env_; }
 
+  void indicate_loaded_module(std::string module_name) {
+    loaded_modules_.insert(module_name);
+  }
+
+  bool is_module_loaded(std::string module_name) {
+    if (loaded_modules_.contains(module_name)) {
+      return true;
+    }
+
+    if (parent_env_ != nullptr) {
+      return parent_env_->is_module_loaded(module_name);
+    }
+
+    return false;
+  }
+
 private:
   env_c *parent_env_{nullptr};
   phmap::parallel_node_hash_map<std::string, cell_ptr> cell_map_;
+  std::set<std::string> loaded_modules_;
 };
 } // namespace nibi

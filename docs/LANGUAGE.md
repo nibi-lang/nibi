@@ -54,8 +54,6 @@ any other piece of data in the instructions below.
 | if       | If statement | variable
 | loop    | A loop | variable
 | clone   | clone a variable | variable
-| put     | Output a string representation of N cells | 0
-| putln   | put, but with a following newline         | 0
 | fn      | Define a function | variable
 | import  | Import files | 0
 | use     | Use a module | 0

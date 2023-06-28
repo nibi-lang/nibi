@@ -261,8 +261,8 @@ cell_ptr assemble_macro(cell_processor_if &ci, cell_list_t &list, env_c &env) {
   }
 
   cell_list_t eval_list;
-  eval_list.push_back(list[0]);
-  eval_list.push_back(allocate_cell(macro_body));
+  eval_list.emplace_back(macro_env->get("$body_start"));
+  eval_list.emplace_back(allocate_cell(macro_body));
   return builtin_fn_common_eval(ci, eval_list, env);
 }
 
@@ -316,6 +316,8 @@ cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
   auto it = list.begin();
   std::advance(it, 3);
 
+  auto body_start = (*it);
+
   std::string macro_string_body;
   while (it != list.end()) {
     macro_string_body += (*it)->to_string(true, true);
@@ -325,6 +327,7 @@ cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
   auto body = allocate_cell(macro_string_body);
 
   macro_assembler_fn.operating_env->set("$body", body);
+  macro_assembler_fn.operating_env->set("$body_start", body_start);
 
   auto resulting_macro = allocate_cell(macro_assembler_fn);
 

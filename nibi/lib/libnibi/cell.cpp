@@ -16,6 +16,8 @@ const char *function_type_to_string(function_type_e type) {
     return "EXTERNAL_FUNCTION";
   case function_type_e::LAMBDA_FUNCTION:
     return "LAMBDA_FUNCTION";
+  case function_type_e::MACRO:
+    return "MACRO";
   }
   return "UNKNOWN";
 }
@@ -55,6 +57,18 @@ cell_c::~cell_c() {
     auto *aberrant = this->as_aberrant();
     if (aberrant != nullptr) {
       delete aberrant;
+    }
+    break;
+  }
+  // Check if the function is a macro, if so,
+  // we need to clean the operating environment
+  // as well because macros own their own
+  case cell_type_e::FUNCTION: {
+    auto &func_info = this->as_function_info();
+    if (func_info.type == function_type_e::MACRO) {
+      if (func_info.operating_env) {
+        delete func_info.operating_env;
+      }
     }
     break;
   }

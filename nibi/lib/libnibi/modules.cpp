@@ -60,34 +60,6 @@ private:
   rll_ptr lib_;
 };
 
-// Similar as above, but external imported files don't have an RLL in tow
-// so this is just a death callback cell
-class import_cell_c final : public aberrant_cell_if {
-public:
-  import_cell_c() = delete;
-  import_cell_c(std::unordered_map<std::string, uint8_t> &mods,
-                std::string name)
-      : mods_(mods), name_(name) {}
-  ~import_cell_c() {
-    if (mods_.count(name_) == 0) {
-      mods_.erase(name_);
-      return;
-    }
-    mods_[name_] -= 1;
-  }
-  virtual std::string represent_as_string() override {
-    return "EXTERNAL_IMPORT";
-  }
-  virtual aberrant_cell_if *clone() override {
-    mods_[name_] += 1;
-    return new import_cell_c(mods_, name_);
-  }
-
-private:
-  std::unordered_map<std::string, uint8_t> &mods_;
-  std::string name_;
-};
-
 std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
 
   std::string name = module_name->as_string();
@@ -200,13 +172,13 @@ module_info_s modules_c::get_module_info(std::string &module_name) {
 void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   std::string name = module_name->as_string();
 
-  if (is_module_loaded(name)) {
+  if (target_env.is_module_loaded(name)) {
     return;
   }
 
   // Mark as loaded immediately so that we don't try to load it again
   // and cause a recursion issue
-  loaded_modules_[name] = 1;
+  target_env.indicate_loaded_module(name);
 
   auto path = get_module_path(module_name);
   auto module_file = path / config::NIBI_MODULE_FILE_NAME;
@@ -357,17 +329,6 @@ inline void modules_c::load_source_list(std::string &name, env_c &module_env,
     file_interpreter_c(error_callback, module_env, source_manager_)
         .interpret_file(source_file_path);
   }
-
-  // Create a death callback to remove the module from the interpreter's
-  // list of imported modules
-  auto import_cell = allocate_cell(static_cast<aberrant_cell_if *>(
-      new import_cell_c(loaded_modules_, name)));
-
-  // We store in the environment so it stays alive as long as the import is
-  // loaded and is removed if the import is dropped by the user or otherwise
-  // made unreachable
-
-  module_env.set(name + generate_random_id(), import_cell);
 }
 
 } // namespace nibi

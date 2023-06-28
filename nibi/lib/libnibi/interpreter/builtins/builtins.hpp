@@ -92,10 +92,6 @@ extern cell_ptr builtin_fn_common_macro(cell_processor_if &ci,
 
 extern cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
                                        env_c &env);
-extern cell_ptr builtin_fn_assert_eq(cell_processor_if &ci, cell_list_t &list,
-                                     env_c &env);
-extern cell_ptr builtin_fn_assert_neq(cell_processor_if &ci, cell_list_t &list,
-                                      env_c &env);
 
 // Arithmetic functions
 
