@@ -337,7 +337,7 @@ int main(int argc, char **argv) {
         continue;
       }
 
-      // Launch target already set, now we assume 
+      // Launch target already set, now we assume
       // that the rest will be arguments to the program
       if (!launch_target.empty()) {
         continue;

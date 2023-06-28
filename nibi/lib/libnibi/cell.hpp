@@ -74,7 +74,7 @@ struct lambda_info_s {
 
 //! \brief Function wrapper that holds the function
 //!        pointer, the name, and the type of the function
-//! \note  The operating env is a raw pointer as it may 
+//! \note  The operating env is a raw pointer as it may
 //!        be owned by the cell or not. Lambdas for instance
 //!        point to the environment they were defined in
 //!        but do not own it, while MACROS own the environment
@@ -85,7 +85,7 @@ struct function_info_s {
   cell_fn_t fn;
   function_type_e type;
   std::optional<lambda_info_s> lambda{std::nullopt};
-  env_c* operating_env{nullptr};
+  env_c *operating_env{nullptr};
   function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
   function_info_s(std::string name, cell_fn_t fn, function_type_e type,
                   env_c *env = nullptr)

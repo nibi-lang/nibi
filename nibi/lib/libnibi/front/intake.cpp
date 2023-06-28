@@ -334,8 +334,8 @@ cell_ptr intake_c::parser_c::instruction_list() {
   default:
     error_cb_(error_c(current_location(),
                       "Invalid instruction list - Expected symbol, access "
-                      "list, or instruction list. Got: " + std::string(token_to_string(
-                          (*tokens_)[index_]))));
+                      "list, or instruction list. Got: " +
+                          std::string(token_to_string((*tokens_)[index_]))));
     return nullptr;
   }
 
