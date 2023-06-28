@@ -106,12 +106,23 @@ cell_ptr cell_c::clone(env_c &env) {
   case cell_type_e::STRING:
     new_cell->data = this->to_string();
     break;
-  case cell_type_e::FUNCTION:
+  case cell_type_e::FUNCTION: {
 
     // Note -> This will store a reference to the function info
     //        which is fine because the function info is stored
-    new_cell->data = this->as_function_info();
+    auto &func_info = this->as_function_info();
+
+    new_cell->data =
+        function_info_s(func_info.name, func_info.fn, func_info.type);
+
+    if (func_info.type == function_type_e::MACRO) {
+      if (func_info.operating_env) {
+        new_cell->as_function_info().operating_env = new env_c();
+        *new_cell->as_function_info().operating_env = *func_info.operating_env;
+      }
+    }
     break;
+  }
   case cell_type_e::LIST: {
     auto &linf = this->as_list_info();
     auto &other = new_cell->as_list_info();

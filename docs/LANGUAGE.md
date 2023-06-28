@@ -275,6 +275,12 @@ the parameters to clone.
 ( fn <S> <[]> <() [*]> )
 ```
 
+Anonymous functions can be created without provifind a `<S>` for a name.
+
+```
+( fn <[]> <() [*]> )
+```
+
 ### Import
 
 Keyword: `import`
