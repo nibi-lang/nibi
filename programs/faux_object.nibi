@@ -1,0 +1,20 @@
+(use "io")
+
+(:= faux (dict [
+  ["sayhi" (fn [name] (io::println "hi " name))]
+  ["saybye" (fn [name] (io::println "bye " name))]
+  ["vars" (dict [
+    ["a" 1]
+    ["b" 2]
+    ["c" 3]
+  ])]
+]))
+
+((faux :get "sayhi") "developer")
+
+(io::println "a: " ((faux :get "vars") :get "a"))
+(io::println "b: " ((faux :get "vars") :get "b"))
+(io::println "c: " ((faux :get "vars") :get "c"))
+
+((faux :get "saybye") "developer")
+

@@ -168,7 +168,12 @@ cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
 cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
                             env_c &env) {
 
-  auto definition = env.get(list[0]->as_symbol());
+  auto definition = list[0];
+
+  if (definition->type == cell_type_e::SYMBOL) {
+    definition = env.get(definition->as_symbol());
+  }
+
   auto fn_info = definition->as_function_info();
   auto dict = fn_info.operating_env->get("$data");
 
@@ -262,9 +267,13 @@ cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
 
   // No-value dict
   if (list.size() == 1) {
-    function_info.operating_env->set_new_alloc("$data",
-                                               allocate_cell(dict_actual));
-    return allocate_cell(function_info);
+
+    auto cell_actual = allocate_cell(dict_actual);
+    cell_actual->locator = list[0]->locator;
+    function_info.operating_env->set_new_alloc("$data", cell_actual);
+
+    auto fn_actual = allocate_cell(function_info);
+    return fn_actual;
   }
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, ==, 2)
@@ -310,9 +319,14 @@ cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
     }
   }
 
-  function_info.operating_env->set_new_alloc("$data",
-                                             allocate_cell(dict_actual));
-  return allocate_cell(function_info);
+  auto cell_actual = allocate_cell(dict_actual);
+  cell_actual->locator = list[0]->locator;
+
+  function_info.operating_env->set_new_alloc("$data", cell_actual);
+
+  auto fn_actual = allocate_cell(function_info);
+  fn_actual->locator = list[0]->locator;
+  return fn_actual;
 }
 
 } // namespace builtins
