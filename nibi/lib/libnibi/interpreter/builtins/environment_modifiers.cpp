@@ -165,42 +165,154 @@ cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
   return fn_cell;
 }
 
+cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
+                            env_c &env) {
+
+  auto definition = env.get(list[0]->as_symbol());
+  auto fn_info = definition->as_function_info();
+  auto dict = fn_info.operating_env->get("$data");
+
+  // If its just the item then we will load and string the dict
+  if (list.size() == 1) {
+    return allocate_cell(dict->to_string(true, true));
+  }
+
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, >=, 2)
+
+  auto command = list[1]->as_symbol();
+
+  auto &dict_value = dict->as_dict();
+
+  if (command == ":keys") {
+    list_info_s keys(list_types_e::DATA, {});
+    for (auto &&dit : dict_value) {
+      keys.list.push_back(allocate_cell(dit.first));
+    }
+    return allocate_cell(keys);
+  }
+
+  // Note: by not cloning the value we are allowing the user to
+  // modify the value in the dict directly
+  if (command == ":vals") {
+    list_info_s vals(list_types_e::DATA, {});
+    for (auto &&dit : dict_value) {
+      vals.list.push_back(dit.second);
+    }
+    return allocate_cell(vals);
+  }
+
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, >=, 3)
+
+  auto key = ci.process_cell(ci.process_cell(list[2], env), env)->to_string();
+
+  /*
+      OPTIMIZATION
+
+
+      TODO: A potential optimization here would be to have
+      these commands stored in the function info's operating env
+      or a separate env that is shared between all dict functions
+      where these commands exist as symbols of cell_fn_t
+      that tie into a lambda that performs the operation
+
+  */
+
+  if (command == ":let") {
+    NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, ==, 4)
+
+    auto value = ci.process_cell(list[3], env);
+    dict_value[key] = value;
+    return dict_value[key];
+  }
+
+  if (command == ":get") {
+    auto dit = dict_value.find(key);
+    if (dit == dict_value.end()) {
+      throw interpreter_c::exception_c(
+          "Dict does not contain key `" + key + "`", list[2]->locator);
+    }
+
+    return dit->second;
+  }
+
+  if (command == ":del") {
+    auto dit = dict_value.find(key);
+    if (dit == dict_value.end()) {
+      return allocate_cell((int64_t)0);
+    }
+
+    dict_value.erase(dit);
+    return allocate_cell((int64_t)1);
+  }
+
+  throw interpreter_c::exception_c("Unknown dict command `" + command + "`",
+                                   list[1]->locator);
+}
+
 cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
                             env_c &env) {
 
   // If its size 1 then we make just an empty dict.
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, >=, 1)
 
-  // Like macro we want a function cell that points to a function that
-  // will load the dict with the values we want.
+  function_info_s function_info("dict", handle_dict_access,
+                                function_type_e::FAUX, new env_c());
 
-  // Then we will return the function that contains a dict
-  // that function must take in one arg and it must evaluate to be a string
-  // so we can do the following
-  //
-  //      (x "key")  ->   return the value
-  //
+  cell_dict_t dict_actual;
 
-  // if there is more than one arg there HAS to be 2.
+  // No-value dict
+  if (list.size() == 1) {
+    function_info.operating_env->set_new_alloc("$data",
+                                               allocate_cell(dict_actual));
+    return allocate_cell(function_info);
+  }
 
-  // the second one MUST be a [], with each existing member
-  // a max size of 2.
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, ==, 2)
 
-  // Each first item is the key, and it must evaluate to a string.
+  // If the next item is a symbol we should resolve it
+  // because it may hold a list of key value pairs.
+  cell_ptr dict_value{nullptr};
+  if (list[1]->type == cell_type_e::SYMBOL) {
+    dict_value = ci.process_cell(list[1], env);
+  } else {
+    dict_value = list[1];
+  }
 
-  // Each second item is the value, and it can be anything.
+  auto &list_info = dict_value->as_list_info();
 
-  // ---------------------
+  if (list_info.type != list_types_e::DATA) {
+    throw interpreter_c::exception_c("Expected data list `[]` for dict values",
+                                     list[1]->locator);
+  }
 
-  // Then we need to ensure that the following works:
-  //
-  //    (set (x "key") "value")
-  //
+  if (list_info.list.size() != 0) {
+    // Walk the list and ensure that each item is a list of size 2
 
-  // Note: Need to think of a way we can iter dicts.
-  //       Maybe we can make a macro that does it... but
-  //       given that its a special cell type we may need a "dict-iter"
-  //       builtin
-  return nullptr;
+    for (auto &value : list_info.list) {
+      auto resolved_value = ci.process_cell(value, env);
+      auto &resolved_list_info = resolved_value->as_list_info();
+      if (resolved_list_info.type != list_types_e::DATA) {
+        throw interpreter_c::exception_c(
+            "Expected data list `[]` for dict values", value->locator);
+      }
+      if (resolved_list_info.list.size() != 2) {
+        throw interpreter_c::exception_c(
+            "Expected list of size 2 for dict values [key value]",
+            value->locator);
+      }
+      if (resolved_list_info.list[0]->type != cell_type_e::STRING) {
+        throw interpreter_c::exception_c("Expected string for dict key",
+                                         resolved_list_info.list[0]->locator);
+      }
+
+      dict_actual[resolved_list_info.list[0]->to_string()] =
+          ci.process_cell(resolved_list_info.list[1], env);
+    }
+  }
+
+  function_info.operating_env->set_new_alloc("$data",
+                                             allocate_cell(dict_actual));
+  return allocate_cell(function_info);
 }
 
 } // namespace builtins

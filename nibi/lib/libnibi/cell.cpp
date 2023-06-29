@@ -16,8 +16,8 @@ const char *function_type_to_string(function_type_e type) {
     return "EXTERNAL_FUNCTION";
   case function_type_e::LAMBDA_FUNCTION:
     return "LAMBDA_FUNCTION";
-  case function_type_e::MACRO:
-    return "MACRO";
+  case function_type_e::FAUX:
+    return "FAUX";
   }
   return "UNKNOWN";
 }
@@ -55,12 +55,12 @@ cell_c::~cell_c() {
     }
     break;
   }
-  // Check if the function is a macro, if so,
+  // Check if the function is faux, if so,
   // we need to clean the operating environment
-  // as well because macros own their own
+  // as well because fauxs own their own
   case cell_type_e::FUNCTION: {
     auto &func_info = this->as_function_info();
-    if (func_info.type == function_type_e::MACRO) {
+    if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         delete func_info.operating_env;
       }
@@ -108,7 +108,7 @@ cell_ptr cell_c::clone(env_c &env) {
     new_cell->data =
         function_info_s(func_info.name, func_info.fn, func_info.type);
 
-    if (func_info.type == function_type_e::MACRO) {
+    if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         new_cell->as_function_info().operating_env = new env_c();
         *new_cell->as_function_info().operating_env = *func_info.operating_env;
@@ -290,6 +290,9 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
     for (auto &pair : dict) {
       result += pair.first + ":" + pair.second->to_string(quote_strings) + " ";
     }
+    if (result.size() > 1)
+      result.pop_back();
+    result += "}";
     return result;
   }
   case cell_type_e::LIST: {

@@ -306,7 +306,7 @@ cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
   }
 
   function_info_s macro_assembler_fn("assemble_macro", assemble_macro,
-                                     function_type_e::MACRO, new env_c());
+                                     function_type_e::FAUX, new env_c());
 
   macro_assembler_fn.operating_env->set("$params", list[2]);
 

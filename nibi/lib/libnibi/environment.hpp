@@ -40,6 +40,11 @@ public:
   //! \param cell The cell to set
   void set(std::string name, cell_ptr &cell);
 
+  //! \brief Set a cell in the environment
+  //! \param name The name of the cell
+  //! \param cell The cell to set
+  void set_new_alloc(std::string name, cell_ptr cell);
+
   //! \brief Drop a cell from the environment, or parent environment(s)
   //! \param name The name of the cell
   //! \returns True if the cell was dropped, false if item not found

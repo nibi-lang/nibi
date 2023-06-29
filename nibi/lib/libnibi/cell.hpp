@@ -38,7 +38,8 @@ enum class function_type_e {
   BUILTIN_CPP_FUNCTION, // Function implemented in C++
   EXTERNAL_FUNCTION,    // Function imported from shared lib
   LAMBDA_FUNCTION,      // Function defined in source code by user
-  MACRO                 // Macro
+  FAUX                  // Function used to redirect keywords for special
+                        // processing
 };
 
 enum class list_types_e {
