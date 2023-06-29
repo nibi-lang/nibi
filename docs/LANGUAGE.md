@@ -66,8 +66,9 @@ any other piece of data in the instructions below.
 | split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
 | type    | Retrieve a string detailing the type of a given item | string
 | nop     | Do nothing | nil
-| macro   | Define a macro | 0
+| macro   | Define a macro | variable
 | execute_list | Execute all instructions in a data list | last execution result
+| dict | Create a dictionary | the new dictionary
 
 | list commands | description | returns
 |----   |---- |----
@@ -773,6 +774,106 @@ will output the following:
 
     Hey look its a %param
 
+## Dictionary
+
+keyword: `dict`
+
+The dict call takes a variable number of arguments depending
+on the intended action.
+
+Creating a dict:
+
+```
+
+# Variant 1 (empty)
+
+(:= my_dict (dict))
+
+# Variant 2 (empty)
+(:= my_dict (dict []))
+
+# Variant 3 (populated)
+
+(:= my_dict (dict [
+    [ "a" 33 ]
+    [ "b" 44 ]
+]))
+
+# Variant 4 (populated)
+
+(:= non_dict_list [
+    [ "a" 33 ]
+    [ "b" 44 ]
+])
+
+(:= my_dict (dict non_dict_list))
+
+```
+
+All dictionary keys MUST be literal strings, and the values can be anything.
+Each entry in a list that constructs a dictionary must be a data list of size 2
+with a literal string in slot 0, and the value in slot 1. 
+
+Accessing a dict / creating entries:
+
+```
+
+# Create a new entry / overwrite existing
+# without checking
+
+(my_dict :let "key" some_value) # Anything is permitted in value
+
+(set something (x :get "key"))  # Retrieve an existing value (throws if no-exist)
+
+# Set something and ensure that it exists first
+
+(set (x :get "key") "some new value")
+
+# Delete a value
+
+(x :del "key")
+
+# Retrieve a list of keys
+
+(:= the_keys (x :keys))
+
+# Retrieve a list of values
+
+(:= the_vals (x :vals))
+
+```
+
+As can be seen above, a created dictionary acts like a function for
+accessing and updating with a command-like parameter that starts with a `:`
+
+Dict commands:
+
+| command | action
+|---- |----
+| :let | Create an item in the dict, will overwrite |
+| :get | Retrieve a reference to a keys value |
+| :del | Delete a key iff it exists. Returns 0 if key didn't exist, 1 otherwise |
+| :keys | Get a list of keys |
+| :vals | Get a list of references to values |
+
+*Note:* The order that keys are printed or exist are not required to
+fit any particular order. A list of values or keys retrieved may vary
+in order.
+
+Printing a dict:
+
+Since dict symbols are essentially functions, stringing them has to be
+done via a different method than `str`.
+
+Calling a dict symbol with NO parameters as so:
+
+```
+
+    (my_dict)
+
+```
+
+will prompt it to return a fully formed, quoted string of the dict.
 
 # Modules
 

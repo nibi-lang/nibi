@@ -47,3 +47,21 @@
 (assert (eq 0 (len (x :keys))))
 (assert (eq 0 (len (x :vals))))
 
+(drop x)
+
+(:= value [
+  ["a" 1]
+  ["b" 2]
+  ["c" 3]
+  ["d" [100 101 102]]
+  ["e" "delta"]
+])
+
+(:= x (dict value))
+
+(assert (eq (x :get "a") 1))
+(assert (eq (x :get "b") 2))
+(assert (eq (x :get "c") 3))
+(assert (eq (x :get "d") [100 101 102]))
+(assert (eq (x :get "e") "delta"))
+
