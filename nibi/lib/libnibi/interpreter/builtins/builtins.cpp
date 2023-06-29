@@ -62,6 +62,8 @@ static function_info_s builtin_drop_inf = {
     nibi::kw::DROP, builtin_fn_env_drop, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_fn_inf = {nibi::kw::FN, builtin_fn_env_fn,
                                          function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_dict_inf = {
+    nibi::kw::DICT, builtin_fn_dict_fn, function_type_e::BUILTIN_CPP_FUNCTION};
 
 // exceptions
 static function_info_s builtin_try_inf = {
@@ -208,6 +210,7 @@ static phmap::parallel_node_hash_map<std::string, function_info_s> keyword_map =
      {nibi::kw::ASSIGN, builtin_assignment_inf},
      {nibi::kw::SET, builtin_set_inf},
      {nibi::kw::FN, builtin_fn_inf},
+     {nibi::kw::DICT, builtin_dict_inf},
      {nibi::kw::DROP, builtin_drop_inf},
      {nibi::kw::TRY, builtin_try_inf},
      {nibi::kw::THROW, builtin_throw_inf},

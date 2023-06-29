@@ -23,6 +23,7 @@ static constexpr const char *POW = "**";
 static constexpr const char *ASSIGN = ":=";
 static constexpr const char *SET = "set";
 static constexpr const char *FN = "fn";
+static constexpr const char *DICT = "dict";
 static constexpr const char *DROP = "drop";
 static constexpr const char *TRY = "try";
 static constexpr const char *THROW = "throw";

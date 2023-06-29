@@ -188,7 +188,7 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
 
   // Env that everything will be dumped into and
   // then put into a cell
-  environment_info_s module_cell_env = {name, new env_c()};
+  environment_info_s module_cell_env = {name, std::make_shared<env_c>()};
 
   bool loaded_something{false};
 

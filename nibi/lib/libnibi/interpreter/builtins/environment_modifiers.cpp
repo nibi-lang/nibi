@@ -165,5 +165,43 @@ cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
   return fn_cell;
 }
 
+cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
+                            env_c &env) {
+
+  // If its size 1 then we make just an empty dict.
+
+  // Like macro we want a function cell that points to a function that
+  // will load the dict with the values we want.
+
+  // Then we will return the function that contains a dict
+  // that function must take in one arg and it must evaluate to be a string
+  // so we can do the following
+  //
+  //      (x "key")  ->   return the value
+  //
+
+  // if there is more than one arg there HAS to be 2.
+
+  // the second one MUST be a [], with each existing member
+  // a max size of 2.
+
+  // Each first item is the key, and it must evaluate to a string.
+
+  // Each second item is the value, and it can be anything.
+
+  // ---------------------
+
+  // Then we need to ensure that the following works:
+  //
+  //    (set (x "key") "value")
+  //
+
+  // Note: Need to think of a way we can iter dicts.
+  //       Maybe we can make a macro that does it... but
+  //       given that its a special cell type we may need a "dict-iter"
+  //       builtin
+  return nullptr;
+}
+
 } // namespace builtins
 } // namespace nibi
