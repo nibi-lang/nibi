@@ -18,12 +18,12 @@ cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
   auto value = ci.process_cell(list[1], env);
   if (value->type != cell_type_e::INTEGER) {
     throw interpreter_c::exception_c(
-        "Expected item to evaluate to integer type", value->locator);
+        "Expected item to evaluate to integer type", list[1]->locator);
   }
 
   if (list.size() == 2) {
     if (value->as_integer() == 0) {
-      throw interpreter_c::exception_c("Assertion failed", value->locator);
+      throw interpreter_c::exception_c("Assertion failed", list[0]->locator);
     }
     return allocate_cell(cell_type_e::NIL);
   }
@@ -36,7 +36,7 @@ cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
       throw interpreter_c::exception_c(
           "Expected string value for assertion message", message->locator);
     }
-    throw interpreter_c::exception_c(message->as_string(), value->locator);
+    throw interpreter_c::exception_c(message->as_string(), list[0]->locator);
   }
 
   return allocate_cell(cell_type_e::NIL);

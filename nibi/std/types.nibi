@@ -10,6 +10,9 @@
 (fn is_nil [_x] 
   (eq (type _x) "nil"))
 
+(fn is_dict [_x]
+  (eq (type _x) "dict"))
+
 (fn is_int [_x] 
   (eq (type _x) "int"))
 

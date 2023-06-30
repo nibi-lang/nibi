@@ -1,0 +1,30 @@
+# Author: Josh Bosley
+#
+# About:
+# Dictionary extension macros
+
+# \brief Check if a dictionary contains a key
+# \param _dict The dictionary to check
+# \param _key The key to check for
+# \return True if the dictionary contains the key, false otherwise
+(macro dict_has_key [_dict _key]
+  (list_contains (%_dict :keys) %_key))
+
+# \brief Check if a dictionary is empty
+# \param _dict The dictionary to check
+# \return True if the dictionary is empty, false otherwise
+(macro dict_empty [_dict]
+  (eq 0 (len (%_dict :keys))))
+
+# \brief Retrieve a key from a dictionary given a value
+# \param _dict The dictionary to search
+# \param _value The value to search for
+# \return The key associated with the value, or nil if not found
+(macro dict_key_from_value [_dict _value]
+  ((fn [] [
+    (iter (%_dict :keys) key (if (eq (%_dict :get key) %_value) (<- key)))
+    (<- nil) ])))
+
+# TODO:
+# - dict_merge
+

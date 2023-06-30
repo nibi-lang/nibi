@@ -54,3 +54,7 @@
       (nop) # Returns a nil
       (at %_list %_n)))
 
+# Check if a list contains at least one instance of an item
+(macro list_contains [_list _item]
+  (< 0 (len (filter %_list (fn [_x] (eq _x %_item))))))
+

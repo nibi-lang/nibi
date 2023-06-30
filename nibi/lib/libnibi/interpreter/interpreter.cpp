@@ -99,8 +99,8 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
       throw exception_c(error, cell->locator);
       return nullptr;
     }
-    // Return the loaded cell
 
+    // Return the loaded cell
     return loaded_cell;
   }
   case cell_type_e::ABERRANT:

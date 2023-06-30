@@ -38,8 +38,13 @@ inline nibi::cell_ptr type(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
       return nibi::allocate_cell(nibi::types::LIST);
     }
   }
-  case nibi::cell_type_e::FUNCTION:
+  case nibi::cell_type_e::FUNCTION: {
+    auto &fn_info = resolved->as_function_info();
+    if (fn_info.operating_env && fn_info.operating_env->get_env("$is_dict")) {
+      return nibi::allocate_cell("dict");
+    }
     return nibi::allocate_cell(nibi::types::FUNCTION);
+  }
   case nibi::cell_type_e::ENVIRONMENT:
     return nibi::allocate_cell(nibi::types::ENVIRONMENT);
   case nibi::cell_type_e::SYMBOL:

@@ -16,37 +16,25 @@
   c_char_ptr
 ])
 
-# Checks if a type is valid (private)
-(fn _type_is_valid [_type] [
-  (iter _valid_c_types _valid_type [
-    (if (eq _type _valid_type) [
-      (<- true)
-    ])
-  ])
-  (<- false)
-])
-
-# Creates a C function definition (public)
-# name: string
-# args: list:data [[type name] [type name] ... ]
-# return_type: string
-# returns: dictionary that represents a C function definition
+# \brief Creates a C function definition
+# \param name string
+# \param args list:data [[type name] [type name] ... ]
+# \param return_type string
+# \return dictionary that represents a C function definition
 (fn c_fn [name args return_type] [
-  (assert (eq "string" (type name)) "Function name expected to be string")
-  (assert (eq "string" (type return_type)) "Function return type expected to be string")
-  (assert (eq "list:data" (type args)) "Function args expected to be data list `[]`")
-  (assert 
-    (eq true (_type_is_valid return_type)) 
-    (+ "Function return type is not a valid c type: " return_type))
+  (assert (is_string name) "Function name expected to be string")
+  (assert (is_string return_type) "Function return type expected to be string")
+  (assert (is_data_list args) "Function args expected to be data list `[]`")
+  (assert (list_contains _valid_c_types return_type) 
+    ( + "Function return type is not a known valid c type: " return_type))
 
   (iter args arg [
-    (assert (eq "list:data" (type arg)) "Function arg expected to be data list `[type name]`")
+    (assert (is_data_list arg) "Function arg expected to be data list `[type name]`")
     (assert (eq 2 (len arg)) "Function arg expected to be data list `[type name]`")
-    (assert (eq "string" (type (at arg 0))) "Function arg type expected to be string")
-    (assert (eq "string" (type (at arg 1))) "Function arg name expected to be string")
-    (assert 
-      (eq true (_type_is_valid (at arg 0))) 
-      ( + "Function arg type is not a valid c type: " (at arg 0))) 
+    (assert (is_string (at arg 0)) "Function arg type expected to be string")
+    (assert (is_string (at arg 1)) "Function arg name expected to be string")
+    (assert (list_contains _valid_c_types (at arg 0)) 
+      ( + "Function arg type is not a known valid c type: " (at arg 0)))
   ])
 
   (dict [
@@ -56,10 +44,120 @@
   ])
 ])
 
-# (use "io")
-# (:= def (c_fn "foo" [
-#   ["void*" "ooga"]
-#   ["void*" "booga"]
-# ] c_int))
-# (io::println (def))
+# \brief Creates a library definition
+# \param name string
+# \param location string
+(fn define_lib [name location] [
+  (assert (is_string name) "Library name expected to be string")
+  (assert (is_string location) "Library location expected to be string")
+  (dict [
+    ["name" name]
+    ["location" location]
+  ])
+])
 
+# \brief Loads a library and binds the functions to the local scope
+# \param library_defn dictionary
+# \param c_fns list:data [c_fn c_fn ... ]
+# \return true iff the library was able to be loaded, false otherwise
+(fn load_library [library_defn c_fns] [
+
+  # Since we are calling into a library to load the library, we need to
+  # type check everything. It could take place within that library, but 
+  # digging into nibi types for validation of everything would be a 
+  # non-trivial task. So we do it here.
+  (assert (is_data_list c_fns) "C function definitions expected to be data list")
+  (assert (is_dict library_defn) "Library definition expected to be dictionary")
+
+  (fn is_c_fn [x] [
+    (assert (is_dict x) "C function definition expected to be dictionary")
+    (iter ["name" "args" "return_type"] expected
+      (assert (dict_has_key x expected) (+ "C function definition missing key: " expected)))
+
+    (assert (is_string (x :get "name")) "C function name expected to be string")
+    (assert (is_data_list (x :get "args")) "C function args expected to be data list")
+    (assert (is_string (x :get "return_type")) "C function return type expected to be string")
+
+    (iter (x :get "args") arg [
+      (assert (eq 2 (len arg)) "C function arg expected to be data list `[type name]`")
+      (assert (is_string (at arg 0)) "C function arg type expected to be string")
+      (assert (is_string (at arg 1)) "C function arg name expected to be string")
+      (assert (list_contains _valid_c_types (at arg 0)) 
+        ( + "C function arg type is not a known valid c type: " (at arg 0)))
+    ])
+    (<- true)
+  ])    
+
+  (iter c_fns c_fn [
+    (assert (is_c_fn c_fn) "C function definition expected to be dictionary")
+  ])
+
+  (assert (dict_has_key library_defn "name") "Library definition missing key: name")
+  (assert (dict_has_key library_defn "location") "Library definition missing key: location")
+  (assert (is_string (library_defn :get "name")) "Library name expected to be string")
+  (assert (is_string (library_defn :get "location")) "Library location expected to be string")
+
+  # The library definition dictionary and the list of function dictionaries
+  # has now had their individual elements validated. Now we can attempt to
+  # bind the library and the functions to the local scope.
+
+  # Attempt to create an RLL containing cell for the library definition
+  # by calling into the C++ dylib library. If it fails we throw with assert
+
+
+
+
+  # TODO: We return here because the symbols:
+  #
+  #       _dylib_create_rll and _dylib_bind_fn
+  # 
+  #   Are not yet defined in the C++ dylib library. Once they are, we can
+  #   remove this return statement and the code will work as expected (lol)
+  (<- true)
+
+
+
+
+  (:= rll (_dylib_create_rll (library_defn :get "name") (library_defn :get "location")))
+  (assert (neq nil rll) "Unable to load library: " (library_defn :get "name"))
+
+  # Attempt to bind each function to the library. If it fails we throw with assert
+  (iter c_fns c_fn [
+    (:= fn_name (c_fn :get "name"))
+    (:= fn_args (c_fn :get "args"))
+    (:= fn_return_type (c_fn :get "return_type"))
+    (assert
+      (eq true (_dylib_bind_fn rll fn_name fn_args fn_return_type))
+      ( + "Unable to bind function: " fn_name " to library: " (library_defn :get "name")
+          " with args: " fn_args " and return type: " fn_return_type))
+  ])
+
+  (<- true)
+])
+
+
+
+
+(use "io")
+(:= def (c_fn "foo" [
+  ["void*" "ooga"]
+  ["void*" "booga"]
+] c_int))
+
+(:= fake_lib (dict [
+  ["name" "libFake"]
+  ["location" "/tmp/loot.lib"]
+]))
+
+(:= fake_fn (dict [
+  ["name" "foo"]
+  ["args" [
+    ["void*" "ooga"]
+    ["void*" "booga"]
+  ]]
+  ["return_type" "int"]
+]))
+
+(load_library fake_lib [fake_fn] )
+
+(io::println "END OF FILE :)")

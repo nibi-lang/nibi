@@ -65,3 +65,5 @@
 (assert (eq (x :get "d") [100 101 102]))
 (assert (eq (x :get "e") "delta"))
 
+
+(assert (eq "dict" (type x)))
