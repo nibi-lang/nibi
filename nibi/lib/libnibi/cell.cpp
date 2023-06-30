@@ -16,8 +16,8 @@ const char *function_type_to_string(function_type_e type) {
     return "EXTERNAL_FUNCTION";
   case function_type_e::LAMBDA_FUNCTION:
     return "LAMBDA_FUNCTION";
-  case function_type_e::MACRO:
-    return "MACRO";
+  case function_type_e::FAUX:
+    return "FAUX";
   }
   return "UNKNOWN";
 }
@@ -39,6 +39,8 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "SYMBOL";
   case cell_type_e::LIST:
     return "LIST";
+  case cell_type_e::DICT:
+    return "DICT";
   }
   return "UNKNOWN";
 }
@@ -46,13 +48,6 @@ const char *cell_type_to_string(const cell_type_e type) {
 cell_c::~cell_c() {
   // Different types of cells may need to be manually cleaned up
   switch (this->type) {
-  case cell_type_e::ENVIRONMENT: {
-    auto &env_info = this->as_environment_info();
-    if (env_info.env != nullptr) {
-      delete env_info.env;
-    }
-    break;
-  }
   case cell_type_e::ABERRANT: {
     auto *aberrant = this->as_aberrant();
     if (aberrant != nullptr) {
@@ -60,12 +55,12 @@ cell_c::~cell_c() {
     }
     break;
   }
-  // Check if the function is a macro, if so,
+  // Check if the function is faux, if so,
   // we need to clean the operating environment
-  // as well because macros own their own
+  // as well because fauxs own their own
   case cell_type_e::FUNCTION: {
     auto &func_info = this->as_function_info();
-    if (func_info.type == function_type_e::MACRO) {
+    if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         delete func_info.operating_env;
       }
@@ -113,7 +108,7 @@ cell_ptr cell_c::clone(env_c &env) {
     new_cell->data =
         function_info_s(func_info.name, func_info.fn, func_info.type);
 
-    if (func_info.type == function_type_e::MACRO) {
+    if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         new_cell->as_function_info().operating_env = new env_c();
         *new_cell->as_function_info().operating_env = *func_info.operating_env;
@@ -137,6 +132,14 @@ cell_ptr cell_c::clone(env_c &env) {
   }
   case cell_type_e::ENVIRONMENT: {
     throw cell_access_exception_c("Cannot clone an environment", this->locator);
+    break;
+  }
+  case cell_type_e::DICT: {
+    auto &dinf = this->as_dict();
+    auto &other = new_cell->as_dict();
+    for (auto &pair : dinf) {
+      other[pair.first] = pair.second->clone(env);
+    }
     break;
   }
   case cell_type_e::ABERRANT: {
@@ -229,6 +232,14 @@ environment_info_s &cell_c::as_environment_info() {
   }
 }
 
+cell_dict_t &cell_c::as_dict() {
+  try {
+    return std::any_cast<cell_dict_t &>(this->data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Cell is not a dict", this->locator);
+  }
+}
+
 std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
   switch (this->type) {
   case cell_type_e::NIL:
@@ -271,6 +282,17 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
     std::string result = "<environment:";
     result += env.name;
     result += ">";
+    return result;
+  }
+  case cell_type_e::DICT: {
+    auto &dict = this->as_dict();
+    std::string result = "{";
+    for (auto &pair : dict) {
+      result += pair.first + ":" + pair.second->to_string(quote_strings) + " ";
+    }
+    if (result.size() > 1)
+      result.pop_back();
+    result += "}";
     return result;
   }
   case cell_type_e::LIST: {

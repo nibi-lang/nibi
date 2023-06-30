@@ -27,6 +27,7 @@ enum class cell_type_e {
   FUNCTION,
   SYMBOL,
   ENVIRONMENT,
+  DICT,
 };
 
 extern const char *cell_type_to_string(const cell_type_e type);
@@ -37,7 +38,8 @@ enum class function_type_e {
   BUILTIN_CPP_FUNCTION, // Function implemented in C++
   EXTERNAL_FUNCTION,    // Function imported from shared lib
   LAMBDA_FUNCTION,      // Function defined in source code by user
-  MACRO                 // Macro
+  FAUX                  // Function used to redirect keywords for special
+                        // processing
 };
 
 enum class list_types_e {
@@ -65,6 +67,8 @@ using cell_list_t = std::deque<cell_ptr>;
 //! \brief A function that takes a list of cells and an environment
 using cell_fn_t =
     std::function<cell_ptr(cell_processor_if &ci, cell_list_t &, env_c &)>;
+
+using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
 //! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {
@@ -108,9 +112,7 @@ struct symbol_s {
 //! \brief Environment information that can be encoded into a cell
 struct environment_info_s {
   std::string name;
-  // The environment that this cell points to,
-  // may be owned, my not be so we use a raw pointer
-  env_c *env{nullptr};
+  std::shared_ptr<env_c> env{nullptr};
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -192,6 +194,7 @@ public:
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
   cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT), data(env) {}
+  cell_c(cell_dict_t dict) : type(cell_type_e::DICT), data(dict) {}
 
   cell_c() = delete;
   cell_c(const cell_c &other) = delete;
@@ -273,6 +276,10 @@ public:
   //! \brief Get a reference of the cell value
   //! \throws cell_access_exception_c if the cell is not an environment type
   environment_info_s &as_environment_info();
+
+  // \brief Get a reference of the cell value
+  // \throws cell_access_exception_c if the cell is not a dict type
+  cell_dict_t &as_dict();
 
   //! \brief Check if a cell is a numeric type
   inline bool is_numeric() const {

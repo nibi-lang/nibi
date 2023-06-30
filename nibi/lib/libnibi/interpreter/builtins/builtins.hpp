@@ -34,6 +34,8 @@ extern cell_ptr builtin_fn_env_drop(cell_processor_if &ci, cell_list_t &list,
                                     env_c &env);
 extern cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
                                   env_c &env);
+extern cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
+                                   env_c &env);
 
 // Exception throwing and handling functions
 

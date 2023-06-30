@@ -176,7 +176,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
     for (std::size_t i = 0; i < list.size() - 1; i++) {
       result = process_cell(*it, *current_env);
       if (result->type == cell_type_e::ENVIRONMENT) {
-        current_env = result->as_environment_info().env;
+        current_env = result->as_environment_info().env.get();
         if (considered_private(result) && i != 0) {
           halt_with_error(error_c(cell->locator,
                                   "Private members can only be accessed "
