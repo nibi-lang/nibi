@@ -1,0 +1,19 @@
+
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "C FFI for Nibi")
+(:= licenses [
+  "MIT"
+])
+
+(:= dylib [
+  "load_lib"
+])
+
+(:= sources [
+  "dylib.nibi"
+])
+
+(:= post [
+  "export.nibi"
+])

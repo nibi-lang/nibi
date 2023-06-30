@@ -1,0 +1,65 @@
+
+# Valid C types that nibi dylib will recognize
+(:= c_int "int")
+(:= c_float "float")
+(:= c_double "double")
+(:= c_char "char")
+(:= c_void "void")
+(:= c_void_ptr "void*")
+(:= c_char_ptr "char*")
+
+# List of the valid C types for checking against (private)
+(:= _valid_c_types [
+  c_int c_float 
+  c_double c_char 
+  c_void c_void_ptr
+  c_char_ptr
+])
+
+# Checks if a type is valid (private)
+(fn _type_is_valid [_type] [
+  (iter _valid_c_types _valid_type [
+    (if (eq _type _valid_type) [
+      (<- true)
+    ])
+  ])
+  (<- false)
+])
+
+# Creates a C function definition (public)
+# name: string
+# args: list:data [[type name] [type name] ... ]
+# return_type: string
+# returns: dictionary that represents a C function definition
+(fn c_fn [name args return_type] [
+  (assert (eq "string" (type name)) "Function name expected to be string")
+  (assert (eq "string" (type return_type)) "Function return type expected to be string")
+  (assert (eq "list:data" (type args)) "Function args expected to be data list `[]`")
+  (assert 
+    (eq true (_type_is_valid return_type)) 
+    (+ "Function return type is not a valid c type: " return_type))
+
+  (iter args arg [
+    (assert (eq "list:data" (type arg)) "Function arg expected to be data list `[type name]`")
+    (assert (eq 2 (len arg)) "Function arg expected to be data list `[type name]`")
+    (assert (eq "string" (type (at arg 0))) "Function arg type expected to be string")
+    (assert (eq "string" (type (at arg 1))) "Function arg name expected to be string")
+    (assert 
+      (eq true (_type_is_valid (at arg 0))) 
+      ( + "Function arg type is not a valid c type: " (at arg 0))) 
+  ])
+
+  (dict [
+    ["name" name]
+    ["args" args]
+    ["return_type" return_type]
+  ])
+])
+
+# (use "io")
+# (:= def (c_fn "foo" [
+#   ["void*" "ooga"]
+#   ["void*" "booga"]
+# ] c_int))
+# (io::println (def))
+
