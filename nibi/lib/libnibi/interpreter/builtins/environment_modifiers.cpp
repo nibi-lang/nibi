@@ -26,9 +26,9 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
 
   auto &target_variable_name = (*it)->as_string();
 
-  if (target_variable_name[0] == '$') {
+  if (target_variable_name[0] == '$' || target_variable_name[0] == ':') {
     throw interpreter_c::exception_c(
-        "Cannot assign to a variable starting with '$'", (*it)->locator);
+        "Cannot assign to a variable starting with '$' or ':'", (*it)->locator);
   }
 
   auto target_assignment_value =

@@ -159,7 +159,8 @@ Keyword: `:=`
 | symbol to designate | symbol or list that will yield the value to set
 
 ```
-  Note: Variables starting with `$` will not be allowed. 
+  Note: Variables starting with `$` and `:` will not be allowed
+        as they are reserved for error tokens and meta commands
 ```
 
 ```

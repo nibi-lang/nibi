@@ -35,3 +35,15 @@
 (assert (eq "_" (at (at double 2) 9)))
 (assert (eq "_" (at (at double 3) 9)))
 (assert (eq "_" (at (at double 4) 9)))
+
+# Ensure we can't assign a `$` prefixed variable
+(try [
+  (:= $forbidden nil)
+  (exit 1)
+] [])
+
+# Ensure we can't assign a `:` prefixed variable
+(try [
+  (:= :forbidden nil)
+  (exit 1)
+] [])
