@@ -11,6 +11,10 @@
 extern "C" {
 
 API_EXPORT
-extern nibi::cell_ptr load_lib(nibi::cell_processor_if &ci,
+extern nibi::cell_ptr _dylib_create_rll(nibi::cell_processor_if &ci,
+                               nibi::cell_list_t &list, nibi::env_c &env);
+
+API_EXPORT
+extern nibi::cell_ptr _dylib_bind_fn(nibi::cell_processor_if &ci,
                                nibi::cell_list_t &list, nibi::env_c &env);
 }

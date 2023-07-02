@@ -1,4 +1,6 @@
 
+(assert (eq true NIBI_STD_LIB) "Nibi std lib required")
+
 # Valid C types that nibi dylib will recognize
 (:= c_int "int")
 (:= c_float "float")
@@ -21,7 +23,7 @@
 # \param args list:data [[type name] [type name] ... ]
 # \param return_type string
 # \return dictionary that represents a C function definition
-(fn c_fn [name args return_type] [
+(fn define_fn [name args return_type] [
   (assert (is_string name) "Function name expected to be string")
   (assert (is_string return_type) "Function return type expected to be string")
   (assert (is_data_list args) "Function args expected to be data list `[]`")
@@ -113,13 +115,18 @@
   # 
   #   Are not yet defined in the C++ dylib library. Once they are, we can
   #   remove this return statement and the code will work as expected (lol)
+
+
+
   (<- true)
-
-
-
 
   (:= rll (_dylib_create_rll (library_defn :get "name") (library_defn :get "location")))
   (assert (neq nil rll) "Unable to load library: " (library_defn :get "name"))
+
+
+
+
+
 
   # Attempt to bind each function to the library. If it fails we throw with assert
   (iter c_fns c_fn [
@@ -139,7 +146,7 @@
 
 
 (use "io")
-(:= def (c_fn "foo" [
+(:= def (define_fn "foo" [
   ["void*" "ooga"]
   ["void*" "booga"]
 ] c_int))

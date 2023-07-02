@@ -110,7 +110,7 @@ module_info_s modules_c::get_module_info(std::string &module_name) {
 
   auto expected_test_directory = path / config::NIBI_MODULE_TEST_DIR;
 
-  env_c module_env;
+  env_c module_env(&ci_.get_env());
   populate_env(module_file, ci_, module_env);
 
   module_info_s result;
@@ -183,12 +183,12 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   auto path = get_module_path(module_name);
   auto module_file = path / config::NIBI_MODULE_FILE_NAME;
 
-  env_c module_env;
+  env_c module_env(&ci_.get_env());
   populate_env(module_file, ci_, module_env);
 
   // Env that everything will be dumped into and
   // then put into a cell
-  environment_info_s module_cell_env = {name, std::make_shared<env_c>()};
+  environment_info_s module_cell_env = {name, std::make_shared<env_c>(&ci_.get_env())};
 
   bool loaded_something{false};
 
