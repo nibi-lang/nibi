@@ -479,6 +479,7 @@ The possible strings returned are as follows:
 | function      | Function |
 | environment   | An environment of cells |
 | symbol        | A symbol  |
+| dict          | A dictionary |
 | unknown       | Unknown type |
 
 The following cells will only show up if either something goes terribly wrong, 
