@@ -141,3 +141,15 @@ git hash **74da7ad78d57ec956d0081827fab7fffbd32609c**
 | 4sieve.nibi     | 1.3043s   | 1304.3069ms |
 | leibniz.nibi    | 0.1247s   | 124.6889ms  |
 
+Minor improvements
+
+git hash **10561b9da5c80c5996b8fd5a05eb4084e493b9b7**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1148s   | 114.8487ms  |
+| primality.nibi  | 1.076s    | 1076.0419ms |
+| 4sieve.nibi     | 1.2633s   | 1263.2533ms |
+| leibniz.nibi    | 0.1215s   | 121.548ms   |
+
+

@@ -38,7 +38,7 @@ public:
   //! \brief Set a cell in the environment
   //! \param name The name of the cell
   //! \param cell The cell to set
-  void set(std::string name, cell_ptr &cell);
+  void set(std::string name, cell_ptr const &cell);
 
   //! \brief Set a cell in the environment
   //! \param name The name of the cell

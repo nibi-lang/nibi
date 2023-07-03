@@ -347,7 +347,7 @@ cell_ptr intake_c::parser_c::instruction_list() {
       allocate_cell(list_info_s{list_types_e::INSTRUCTION, std::move(list)});
 
   instruction->locator = instruction_start_locator;
-  return instruction;
+  return std::move(instruction);
 }
 
 cell_ptr intake_c::parser_c::access_list() {
@@ -368,7 +368,7 @@ cell_ptr intake_c::parser_c::access_list() {
   auto nlist =
       allocate_cell(list_info_s{list_types_e::ACCESS, std::move(list)});
   nlist->locator = locator;
-  return nlist;
+  return std::move(nlist);
 }
 
 cell_ptr intake_c::parser_c::data_list() {
@@ -388,24 +388,24 @@ cell_ptr intake_c::parser_c::data_list() {
 
   auto nlist = allocate_cell(list_info_s{list_types_e::DATA, std::move(list)});
   nlist->locator = locator;
-  return nlist;
+  return std::move(nlist);
 }
 
 cell_ptr intake_c::parser_c::list() {
 
   auto cell = instruction_list();
   if (cell) {
-    return cell;
+    return std::move(cell);
   }
 
   cell = data_list();
   if (cell) {
-    return cell;
+    return std::move(cell);
   }
 
   cell = access_list();
   if (cell) {
-    return cell;
+    return std::move(cell);
   }
 
   return nullptr;
@@ -415,22 +415,22 @@ cell_ptr intake_c::parser_c::data() {
 
   auto data = symbol();
   if (data) {
-    return data;
+    return std::move(data);
   }
 
   data = number();
   if (data) {
-    return data;
+    return std::move(data);
   }
 
   data = string();
   if (data) {
-    return data;
+    return std::move(data);
   }
 
   data = nil();
   if (data) {
-    return data;
+    return std::move(data);
   }
 
   return nullptr;
@@ -439,12 +439,12 @@ cell_ptr intake_c::parser_c::data() {
 cell_ptr intake_c::parser_c::element() {
   auto element = data();
   if (element) {
-    return element;
+    return std::move(element);
   }
 
   element = list();
   if (element) {
-    return element;
+    return std::move(element);
   }
   return nullptr;
 }
@@ -465,7 +465,7 @@ cell_ptr intake_c::parser_c::symbol() {
 
     next();
 
-    return cell;
+    return std::move(cell);
   }
 
   auto cell = allocate_cell(router_location->second);
@@ -473,21 +473,21 @@ cell_ptr intake_c::parser_c::symbol() {
 
   next();
 
-  return cell;
+  return std::move(cell);
 }
 
 cell_ptr intake_c::parser_c::number() {
   auto num = integer();
   if (num) {
-    return num;
+    return std::move(num);
   }
   num = real();
   if (num) {
-    return num;
+    return std::move(num);
   }
   num = boolean();
   if (num) {
-    return num;
+    return std::move(num);
   }
   return nullptr;
 }
@@ -514,7 +514,7 @@ cell_ptr intake_c::parser_c::integer() {
 
   next();
 
-  return cell;
+  return std::move(cell);
 }
 
 cell_ptr intake_c::parser_c::boolean() {
@@ -528,7 +528,7 @@ cell_ptr intake_c::parser_c::boolean() {
 
   next();
 
-  return cell;
+  return std::move(cell);
 }
 
 cell_ptr intake_c::parser_c::real() {
@@ -554,7 +554,7 @@ cell_ptr intake_c::parser_c::real() {
 
   next();
 
-  return cell;
+  return std::move(cell);
 }
 
 cell_ptr intake_c::parser_c::string() {
@@ -567,7 +567,7 @@ cell_ptr intake_c::parser_c::string() {
 
   next();
 
-  return cell;
+  return std::move(cell);
 }
 
 cell_ptr intake_c::parser_c::nil() {
@@ -580,7 +580,7 @@ cell_ptr intake_c::parser_c::nil() {
 
   next();
 
-  return cell;
+  return std::move(cell);
 }
 
 } // namespace nibi

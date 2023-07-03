@@ -1,6 +1,4 @@
 
-#include <iostream>
-
 #include "interpreter/builtins/builtins.hpp"
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"

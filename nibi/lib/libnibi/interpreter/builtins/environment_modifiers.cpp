@@ -31,8 +31,8 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
         "Cannot assign to a variable starting with '$' or ':'", (*it)->locator);
   }
 
-  auto target_assignment_value =
-      ci.process_cell(ci.process_cell(list[2], env), env);
+  auto target_assignment_value = ci.process_cell(list[2], env);
+  // ci.process_cell(ci.process_cell(list[2], env), env);
 
   // Explicitly clone the value as we might be reading from
   // an instruction that will be mutated later
@@ -50,11 +50,11 @@ cell_ptr builtin_fn_env_set(cell_processor_if &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SET, ==, 3)
 
-  auto target_assignment_cell =
-      ci.process_cell(ci.process_cell(list[1], env), env);
+  auto target_assignment_cell = ci.process_cell(list[1], env);
+  // ci.process_cell(ci.process_cell(list[1], env), env);
 
-  auto target_assignment_value =
-      ci.process_cell(ci.process_cell(list[2], env), env);
+  auto target_assignment_value = ci.process_cell(list[2], env);
+  // ci.process_cell(ci.process_cell(list[2], env), env);
 
   // Then update that cell directly
   target_assignment_cell->update_from(*target_assignment_value, env);
@@ -110,14 +110,15 @@ cell_ptr assemble_anonymous_function(cell_processor_if &ci, cell_list_t &list,
   function_info.lambda = {lambda_info};
 
   auto fn_cell = allocate_cell(function_info);
+  fn_cell->locator = list[0]->locator;
 
-  return fn_cell;
+  return std::move(fn_cell);
 }
 
 cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
                            env_c &env) {
   if (list.size() == 3) {
-    return assemble_anonymous_function(ci, list, env);
+    return std::move(assemble_anonymous_function(ci, list, env));
   }
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::FN, ==, 4)
@@ -158,11 +159,12 @@ cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
   function_info.lambda = {lambda_info};
 
   auto fn_cell = allocate_cell(function_info);
+  fn_cell->locator = list[0]->locator;
 
   // Set the variable
   env.set(target_function_name, fn_cell);
 
-  return fn_cell;
+  return std::move(fn_cell);
 }
 
 cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
@@ -179,7 +181,9 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
 
   // If its just the item then we will load and string the dict
   if (list.size() == 1) {
-    return allocate_cell(dict->to_string(true, true));
+    auto c = allocate_cell(dict->to_string(true, true));
+    c->locator = list[0]->locator;
+    return std::move(c);
   }
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, >=, 2)
@@ -193,7 +197,9 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
     for (auto &&dit : dict_value) {
       keys.list.push_back(allocate_cell(dit.first));
     }
-    return allocate_cell(keys);
+    auto c = allocate_cell(keys);
+    c->locator = list[1]->locator;
+    return std::move(c);
   }
 
   // Note: by not cloning the value we are allowing the user to
@@ -203,12 +209,16 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
     for (auto &&dit : dict_value) {
       vals.list.push_back(dit.second);
     }
-    return allocate_cell(vals);
+    auto c = allocate_cell(vals);
+    c->locator = list[1]->locator;
+    return std::move(c);
   }
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, >=, 3)
 
-  auto key = ci.process_cell(ci.process_cell(list[2], env), env)->to_string();
+  auto key = ci.process_cell(list[2], env)->to_string();
+  // auto key = ci.process_cell(ci.process_cell(list[2], env),
+  // env)->to_string();
 
   /*
       OPTIMIZATION
@@ -226,6 +236,7 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
     NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, ==, 4)
 
     auto value = ci.process_cell(list[3], env);
+    value->locator = list[3]->locator;
     dict_value[key] = value;
     return dict_value[key];
   }
@@ -274,7 +285,8 @@ cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
     function_info.operating_env->set_new_alloc("$is_dict",
                                                allocate_cell((int64_t)1));
     auto fn_actual = allocate_cell(function_info);
-    return fn_actual;
+    fn_actual->locator = list[0]->locator;
+    return std::move(fn_actual);
   }
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, ==, 2)
@@ -329,7 +341,7 @@ cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
 
   auto fn_actual = allocate_cell(function_info);
   fn_actual->locator = list[0]->locator;
-  return fn_actual;
+  return std::move(fn_actual);
 }
 
 } // namespace builtins

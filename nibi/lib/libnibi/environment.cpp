@@ -37,7 +37,7 @@ void env_c::set_new_alloc(std::string name, cell_ptr cell) {
   env->cell_map_[name] = cell;
 }
 
-void env_c::set(std::string name, cell_ptr &cell) {
+void env_c::set(std::string name, cell_ptr const &cell) {
 
   auto env = get_env(name);
   if (!env) {
