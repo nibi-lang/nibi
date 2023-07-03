@@ -9,7 +9,6 @@
 #include "libnibi/platform.hpp"
 #include <fstream>
 #include <random>
-#include <iostream>
 
 /*
     Modules loaded into the system have a lifetime that is managed by
@@ -99,7 +98,6 @@ void populate_env(std::filesystem::path module_file, interpreter_c &ci,
   };
   file_interpreter_c(error_callback, env, ci.get_source_manager())
       .interpret_file(module_file);
-  std::cout << "Imported: " << module_file << std::endl;
 }
 
 module_info_s modules_c::get_module_info(std::string &module_name) {

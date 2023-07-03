@@ -102,4 +102,4 @@
 ])
 
 (fn init [width height]
-  ({screen init} tile_symbol width height))
+  (screen::init tile_symbol width height))

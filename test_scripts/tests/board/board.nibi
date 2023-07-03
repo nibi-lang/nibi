@@ -1,0 +1,7 @@
+(use "screen")
+(use "io")
+
+# Screen is another submodule so we want to ensure we can
+# call it
+(fn init [width height]
+  (screen::init "x" width height))

@@ -1,0 +1,6 @@
+(use "io")
+
+(fn init [fill width height] [
+  (<- true)
+])
+

@@ -113,6 +113,10 @@ cell_ptr cell_c::clone(env_c &env) {
         new_cell->as_function_info().operating_env = new env_c();
         *new_cell->as_function_info().operating_env = *func_info.operating_env;
       }
+    } else if (func_info.operating_env) {
+      // Other functions may be pointing to an env that they don't own
+      // so we need to set o set the pointer
+      new_cell->as_function_info().operating_env = func_info.operating_env;
     }
 
     // Copy lambda stuff over

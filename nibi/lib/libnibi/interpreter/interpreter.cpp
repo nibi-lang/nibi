@@ -71,14 +71,14 @@ void interpreter_c::halt_with_error(error_c error) {
             << rang::fg::reset << std::endl;
   error.draw();
 
-  std::cout << rang::fg::yellow << "\n[ STACK TRACE ]\n"
+  std::cout << rang::fg::yellow << "\n[ CALL TRACE ]\n"
             << rang::fg::reset << std::endl;
 
   // Print the stack trace
   while (!call_stack_.empty()) {
     auto top_cell = call_stack_.top();
 
-    std::cout << "Function: "
+    std::cout << ">>> "
               << rang::fg::cyan << top_cell->to_string(true, true)
               << rang::fg::reset;
 
