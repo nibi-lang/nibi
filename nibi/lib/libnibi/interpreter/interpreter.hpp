@@ -8,8 +8,8 @@
 #include "libnibi/interfaces/instruction_processor_if.hpp"
 #include "libnibi/modules.hpp"
 #include "libnibi/source.hpp"
-#include <filesystem>
-#include <set>
+
+#include <stack>
 
 #define PROFILE_INTERPRETER 0
 
@@ -105,6 +105,8 @@ private:
 
   // Halt the interpreter with an error
   void halt_with_error(error_c error);
+
+  std::stack<cell_ptr> call_stack_;
 
 #if PROFILE_INTERPRETER
   struct profile_info_s {

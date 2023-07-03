@@ -128,4 +128,16 @@ git hash **30ca5c4c0913ca7171a8f323510dbefee1c8ece5**
 
 Thankfully no slow downs at all :-)
 
+### 03-July-2023
+
+Added call stack recording and fixed a function clone issue.
+
+git hash **74da7ad78d57ec956d0081827fab7fffbd32609c**
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.1176s   | 117.6493ms  |
+| primality.nibi  | 1.0805s   | 1080.4997ms |
+| 4sieve.nibi     | 1.3043s   | 1304.3069ms |
+| leibniz.nibi    | 0.1247s   | 124.6889ms  |
 

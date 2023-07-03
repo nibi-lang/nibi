@@ -1,0 +1,3 @@
+(:= board::init {board init})
+
+

@@ -53,11 +53,13 @@ def ensure_nibi_installed():
     print("Nibi is not installed yet. Please install it with -n and try again.")
     exit(1)
 
-def execute_command(cmd):
+def execute_command(cmd, show_output=False):
   result = subprocess.run(cmd, stdout=subprocess.PIPE)
   if result.returncode != 0:
     print("\nCommand failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
     exit(1)
+  if show_output:
+    print("\nExecuted: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
   return result.stdout.decode("utf-8")
 
 def scrub():
@@ -182,7 +184,7 @@ def setup_tests():
 def run_tests():
   os.chdir("./test_scripts")
   print("Running tests...")
-  execute_command(["python3", "run.py", "nibi"])
+  execute_command(["python3", "run.py", "nibi"], True)
   print("SUCCESS")
   os.chdir(cwd)
 

@@ -1,0 +1,10 @@
+(use "board")
+(use "io")
+
+# This is to ensure that submodule "use"
+# works correctly - A bug was detected after a function
+# clone change in cell.cpp
+
+(board::init 30 30)
+
+(io::println "COMPLETE")

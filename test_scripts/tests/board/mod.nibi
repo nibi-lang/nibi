@@ -1,0 +1,9 @@
+
+
+(:= sources [
+  "board.nibi"
+])
+
+(:= post [
+  "export.nibi"
+])

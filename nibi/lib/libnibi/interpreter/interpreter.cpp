@@ -71,6 +71,29 @@ void interpreter_c::halt_with_error(error_c error) {
             << rang::fg::reset << std::endl;
   error.draw();
 
+  std::cout << rang::fg::yellow << "\n[ CALL TRACE ]\n"
+            << rang::fg::reset << std::endl;
+
+  // Print the stack trace
+  while (!call_stack_.empty()) {
+    auto top_cell = call_stack_.top();
+
+    std::cout << ">>> " << rang::fg::cyan << top_cell->to_string(true, true)
+              << rang::fg::reset;
+
+    if (top_cell->locator) {
+      std::cout << " in " << top_cell->locator->get_source_name() << ":("
+                << top_cell->locator->get_line() << ":"
+                << top_cell->locator->get_column() << ")";
+    } else {
+      std::cout << " in <location unknown>";
+    }
+
+    std::cout << std::endl;
+
+    call_stack_.pop();
+  }
+
   std::exit(1);
 }
 
@@ -218,12 +241,15 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
     }
 
     auto fn_info = operation->as_function_info();
+
+    call_stack_.push(list.front());
+
 #if PROFILE_INTERPRETER
     if (fn_call_data_.find(fn_info.name) == fn_call_data_.end()) {
       fn_call_data_[fn_info.name] = {0, 0};
     }
     auto start = std::chrono::high_resolution_clock::now();
-    auto value = fn_info.fn(list, env);
+    auto value = fn_info.fn(*this, list, env);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration =
         std::chrono::duration_cast<std::chrono::microseconds>(end - start)
@@ -232,11 +258,15 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
     t.time += duration;
     t.calls++;
 
+    call_stack_.pop();
     return value;
 #else
     // All functions point to a `cell_fn_t`, even lambda functions
     // so we can just call the function and return the result
-    return fn_info.fn(*this, list, env);
+    auto value = fn_info.fn(*this, list, env);
+
+    call_stack_.pop();
+    return value;
 #endif
   }
   }
