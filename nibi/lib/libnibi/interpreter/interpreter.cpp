@@ -78,14 +78,13 @@ void interpreter_c::halt_with_error(error_c error) {
   while (!call_stack_.empty()) {
     auto top_cell = call_stack_.top();
 
-    std::cout << ">>> "
-              << rang::fg::cyan << top_cell->to_string(true, true)
+    std::cout << ">>> " << rang::fg::cyan << top_cell->to_string(true, true)
               << rang::fg::reset;
 
     if (top_cell->locator) {
-      std::cout << " in "
-              << top_cell->locator->get_source_name() << ":("
-              << top_cell->locator->get_line() << ":" << top_cell->locator->get_column() << ")";
+      std::cout << " in " << top_cell->locator->get_source_name() << ":("
+                << top_cell->locator->get_line() << ":"
+                << top_cell->locator->get_column() << ")";
     } else {
       std::cout << " in <location unknown>";
     }
