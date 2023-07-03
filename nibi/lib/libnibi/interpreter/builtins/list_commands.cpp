@@ -12,49 +12,54 @@ cell_ptr builtin_fn_list_push_front(cell_processor_if &ci, cell_list_t &list,
                                     env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUSH_FRONT, ==, 3)
 
-  auto value_to_push = ci.process_cell(list[2], env);
+  auto value_to_push = std::move(ci.process_cell(list[2], env));
+  value_to_push->locator = list[2]->locator;
 
-  auto list_to_push_to = ci.process_cell(list[1], env);
+  auto list_to_push_to = std::move(ci.process_cell(list[1], env));
+  list_to_push_to->locator = list[1]->locator;
 
   auto &list_info = list_to_push_to->as_list_info();
 
   // Clone the target and push it back
-  list_info.list.push_front(value_to_push->clone(env));
+  list_info.list.push_front(std::move(value_to_push->clone(env)));
 
-  return list_to_push_to;
+  return std::move(list_to_push_to);
 }
 
 cell_ptr builtin_fn_list_push_back(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUSH_BACK, ==, 3)
 
-  auto value_to_push = ci.process_cell(list[2], env);
+  auto value_to_push = std::move(ci.process_cell(list[2], env));
+  value_to_push->locator = list[2]->locator;
 
-  auto list_to_push_to = ci.process_cell(list[1], env);
+  auto list_to_push_to = std::move(ci.process_cell(list[1], env));
+  list_to_push_to->locator = list[1]->locator;
 
   auto &list_info = list_to_push_to->as_list_info();
 
   // Clone the target and push it back
-  list_info.list.push_back(value_to_push->clone(env));
+  list_info.list.push_back(std::move(value_to_push->clone(env)));
 
-  return list_to_push_to;
+  return std::move(list_to_push_to);
 }
 
 cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POP_BACK, ==, 2)
 
-  auto target = ci.process_cell(list[1], env);
+  auto target = std::move(ci.process_cell(list[1], env));
+  target->locator = list[1]->locator;
 
   auto &list_info = target->as_list_info();
 
   if (list_info.list.empty()) {
-    return target;
+    return std::move(target);
   }
 
   list_info.list.pop_back();
 
-  return target;
+  return std::move(target);
 }
 
 cell_ptr builtin_fn_list_execute(cell_processor_if &ci, cell_list_t &list,
@@ -64,7 +69,8 @@ cell_ptr builtin_fn_list_execute(cell_processor_if &ci, cell_list_t &list,
   auto target = list[1];
 
   if (target->type == cell_type_e::SYMBOL) {
-    target = ci.process_cell(list[1], env);
+    target = std::move(ci.process_cell(list[1], env));
+    target->locator = list[1]->locator;
   }
 
   if (target->type != cell_type_e::LIST) {
@@ -80,24 +86,25 @@ cell_ptr builtin_fn_list_execute(cell_processor_if &ci, cell_list_t &list,
         list[1]->locator);
   }
 
-  return ci.process_cell(target, env, true);
+  return std::move(ci.process_cell(std::move(target), env, true));
 }
 
 cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POP_FRONT, ==, 2)
 
-  auto target = ci.process_cell(list[1], env);
+  auto target = std::move(ci.process_cell(list[1], env));
+  target->locator = list[1]->locator;
 
   auto &list_info = target->as_list_info();
 
   if (list_info.list.empty()) {
-    return target;
+    return std::move(target);
   }
 
   list_info.list.pop_front();
 
-  return target;
+  return std::move(target);
 }
 
 cell_ptr builtin_fn_list_iter(cell_processor_if &ci, cell_list_t &list,
@@ -105,7 +112,8 @@ cell_ptr builtin_fn_list_iter(cell_processor_if &ci, cell_list_t &list,
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ITER, ==, 4)
 
-  auto list_to_iterate = ci.process_cell(list[1], env);
+  auto list_to_iterate = std::move(ci.process_cell(list[1], env));
+  list_to_iterate->locator = list[1]->locator;
 
   auto &list_info = list_to_iterate->as_list_info();
 
@@ -123,22 +131,23 @@ cell_ptr builtin_fn_list_iter(cell_processor_if &ci, cell_list_t &list,
 
   for (auto cell : list_info.list) {
 
-    current_env_map[symbol_to_bind] = ci.process_cell(cell, iter_env);
+    current_env_map[symbol_to_bind] =
+        std::move(ci.process_cell(cell, iter_env));
 
     ci.process_cell(ins_to_exec_per_item, iter_env, true);
   }
 
   // Return the list we iterated
-  return list_to_iterate;
+  return std::move(list_to_iterate);
 }
 
 cell_ptr builtin_fn_list_at(cell_processor_if &ci, cell_list_t &list,
                             env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::AT, ==, 3)
 
-  auto requested_idx = ci.process_cell(list[2], env);
+  auto requested_idx = std::move(ci.process_cell(list[2], env));
 
-  auto target_list = ci.process_cell(list[1], env);
+  auto target_list = std::move(ci.process_cell(list[1], env));
 
   auto &list_info = target_list->as_list_info();
 
@@ -149,14 +158,14 @@ cell_ptr builtin_fn_list_at(cell_processor_if &ci, cell_list_t &list,
                                      list[2]->locator);
   }
 
-  return ci.process_cell(list_info.list[actual_idx_val], env);
+  return std::move(ci.process_cell(list_info.list[actual_idx_val], env));
 }
 
 cell_ptr builtin_fn_list_spawn(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SPAWN, ==, 3)
 
-  auto list_size = ci.process_cell(list[2], env);
+  auto list_size = std::move(ci.process_cell(list[2], env));
 
   if (list_size->as_integer() < 0) {
     auto it = list.begin();
@@ -165,10 +174,12 @@ cell_ptr builtin_fn_list_spawn(cell_processor_if &ci, cell_list_t &list,
                                      (*it)->locator);
   }
 
-  return allocate_cell(
-      list_info_s{list_types_e::DATA,
-                  cell_list_t(list_size->as_integer(),
-                              ci.process_cell(list[1], env)->clone(env))});
+  auto spawned = allocate_cell(list_info_s{
+      list_types_e::DATA,
+      cell_list_t(list_size->as_integer(),
+                  std::move(ci.process_cell(list[1], env)->clone(env)))});
+  spawned->locator = list[1]->locator;
+  return std::move(spawned);
 }
 
 } // namespace builtins

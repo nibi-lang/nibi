@@ -49,18 +49,6 @@ void interpreter_c::instruction_ind(cell_ptr &cell) {
 
 void interpreter_c::halt_with_error(error_c error) {
 
-  /*
-      TODO:
-      Need to create a "halt" or "abort" object that
-      the parser/ scanner/ builder all inherit an interface
-      "stoppable" or something like that so when we can
-      toss errors to from here, stop execution, and
-      print the error message
-
-      Once that is complete we will gracefully shutdown
-
-  */
-
   // We don't want to halt in repl mode. Just draw the error and keep truckin
   if (repl_mode_) {
     error.draw();
@@ -110,7 +98,7 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
 
   switch (cell->type) {
   case cell_type_e::LIST: {
-    return handle_list_cell(cell, env, process_data_list);
+    return std::move(handle_list_cell(cell, env, process_data_list));
   }
   case cell_type_e::SYMBOL: {
     // Load the symbol from the environment
@@ -123,12 +111,14 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
       return nullptr;
     }
 
+    // Cache the cell so we don't load it again later (potentially)
+    cell = loaded_cell;
+
     // Return the loaded cell
-    return loaded_cell;
+    return std::move(cell);
   }
   case cell_type_e::ABERRANT:
-    std::cout << "PROC ABERRANT" << std::endl;
-    break;
+    return cell;
   case cell_type_e::ENVIRONMENT:
     [[fallthrough]];
   case cell_type_e::INTEGER:
@@ -141,7 +131,7 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
     [[fallthrough]];
   case cell_type_e::STRING: {
     // Raw variable types can be loaded directly
-    return cell;
+    return std::move(cell);
   }
   default: {
     std::string msg = "Unhandled cell type: ";
@@ -168,11 +158,11 @@ inline bool considered_private(cell_ptr &cell) {
   return false;
 }
 
-inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
+inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
                                                 bool process_data_list) {
   auto &list = cell->as_list();
   if (!list.size()) {
-    return cell;
+    return std::move(cell);
   }
 
   switch (cell->as_list_info().type) {
@@ -185,9 +175,8 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
           return yield_value_;
         }
       }
-      return last_result;
+      return std::move(last_result);
     }
-
     break;
   }
   case list_types_e::ACCESS: {
@@ -217,7 +206,9 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
                               "Private members can only be accessed from "
                               "the root of an access list"));
     }
-    return process_cell(*it, *current_env);
+
+    cell = process_cell(*it, *current_env);
+    return std::move(cell);
   }
   case list_types_e::INSTRUCTION: {
     // All lists' first item should be a function of some sort,
@@ -227,7 +218,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
 
       // If the operation is a symbol then we need to
       // look it up in the environment
-      operation = process_cell(operation, env);
+      operation = process_cell(std::move(operation), env);
     }
 
     // If the operation is a list then we need to
@@ -266,14 +257,14 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr cell, env_c &env,
     auto value = fn_info.fn(*this, list, env);
 
     call_stack_.pop();
-    return value;
+    return std::move(value);
 #endif
   }
   }
 
   // If we get here then we have a list that is not a function
   // so we return it as is
-  return cell;
+  return std::move(cell);
 }
 
 void interpreter_c::load_module(cell_ptr &module_name) {

@@ -98,7 +98,7 @@ private:
   cell_ptr yield_value_{nullptr};
 
   // Handle a list cell
-  cell_ptr handle_list_cell(cell_ptr cell, env_c &env, bool process_data_cell);
+  cell_ptr handle_list_cell(cell_ptr &cell, env_c &env, bool process_data_cell);
 
   // Indicates if we are in repl mode
   bool repl_mode_{false};
