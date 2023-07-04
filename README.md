@@ -10,6 +10,8 @@ The Nibi programming language! Nibi is a list processing language that is under 
 
 For documentation on the language please see `docs/LANGUAGE.md` 
 
+[![asciicast](https://asciinema.org/a/594596.svg)](https://asciinema.org/a/594596)
+
 ## Demo applications
 
 ### Fizzbuzz
