@@ -161,5 +161,9 @@ extern cell_ptr builtin_fn_cvt_to_split(cell_processor_if &ci,
 extern cell_ptr builtin_fn_reflect_type(cell_processor_if &ci,
                                         cell_list_t &list, env_c &env);
 
+// External calling
+
+extern cell_ptr builtin_fn_extern_call(cell_processor_if &ci,
+                                       cell_list_t &list, env_c &env);
 } // namespace builtins
 } // namespace nibi
