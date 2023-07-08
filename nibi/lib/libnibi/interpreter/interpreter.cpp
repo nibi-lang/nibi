@@ -86,7 +86,7 @@ void interpreter_c::halt_with_error(error_c error) {
 }
 
 cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
-                                     bool process_data_list) {
+                                     const bool process_data_list) {
 
   if (yield_value_) {
     return yield_value_;
@@ -105,7 +105,7 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
     auto loaded_cell = env.get(cell->as_symbol());
     if (!loaded_cell) {
 
-      std::string error =
+      const std::string error =
           "Symbol not found in environment: " + cell->as_symbol();
       throw exception_c(error, cell->locator);
       return nullptr;

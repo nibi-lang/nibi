@@ -1,5 +1,7 @@
 **/tags
 
+**/perf.data*
+
 # Prerequisites
 *.d
 

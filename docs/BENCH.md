@@ -152,4 +152,25 @@ git hash **10561b9da5c80c5996b8fd5a05eb4084e493b9b7**
 | 4sieve.nibi     | 1.2633s   | 1263.2533ms |
 | leibniz.nibi    | 0.1215s   | 121.548ms   |
 
+### 08-July-2023
+
+Map/ Environment opts
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.0899s   | 89.923ms    |
+| primality.nibi  | 0.9276s   | 927.5601ms  |
+| 4sieve.nibi     | 1.0s      | 1000.0357ms |
+| leibniz.nibi    | 0.1002s   | 100.1686ms  |
+
+Full removal of phmaps and testing each map for most 
+efficient runs against test_perfs:
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.0843s   | 84.2987ms  |
+| primality.nibi  | 0.8581s   | 858.0874ms |
+| 4sieve.nibi     | 0.9207s   | 920.7101ms |
+| leibniz.nibi    | 0.0967s   | 96.7408ms  |
+
 

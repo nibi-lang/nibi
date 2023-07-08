@@ -282,8 +282,7 @@ cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
     auto cell_actual = allocate_cell(dict_actual);
     cell_actual->locator = list[0]->locator;
     function_info.operating_env->set("$data", cell_actual);
-    function_info.operating_env->set_new_alloc("$is_dict",
-                                               allocate_cell((int64_t)1));
+    function_info.operating_env->set("$is_dict", allocate_cell((int64_t)1));
     auto fn_actual = allocate_cell(function_info);
     fn_actual->locator = list[0]->locator;
     return std::move(fn_actual);
@@ -336,8 +335,7 @@ cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
   cell_actual->locator = list[0]->locator;
 
   function_info.operating_env->set("$data", cell_actual);
-  function_info.operating_env->set_new_alloc("$is_dict",
-                                             allocate_cell((int64_t)1));
+  function_info.operating_env->set("$is_dict", allocate_cell((int64_t)1));
 
   auto fn_actual = allocate_cell(function_info);
   fn_actual->locator = list[0]->locator;

@@ -60,7 +60,7 @@ public:
 
   // From cell_processor_if
   virtual cell_ptr process_cell(cell_ptr instruction, env_c &env,
-                                bool process_data_cell = false) override;
+                                const bool process_data_cell = false) override;
 
   virtual void set_yield_value(cell_ptr value) override {
     yield_value_ = value;
