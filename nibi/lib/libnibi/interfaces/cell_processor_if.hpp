@@ -17,7 +17,7 @@ public:
   //! item processed
   //! \return The result of executing the instruction
   virtual cell_ptr process_cell(cell_ptr instruction, env_c &env,
-                                bool process_data_cell = false) = 0;
+                                const bool process_data_cell = false) = 0;
 
   //! \brief Check if the interpreter is yielding a value
   virtual bool is_yielding() = 0;
