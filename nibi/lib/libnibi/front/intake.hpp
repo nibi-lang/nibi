@@ -3,7 +3,6 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/error.hpp"
 #include "libnibi/interfaces/instruction_processor_if.hpp"
-#include "libnibi/parallel_hashmap/phmap.hpp"
 #include "libnibi/source.hpp"
 #include "libnibi/types.hpp"
 #include "token.hpp"
@@ -26,7 +25,7 @@ public:
   //! \param sm Source manager to use for source tracking
   //! \param router Map of symbols to their implementations
   intake_c(instruction_processor_if &processor, error_callback_f error_cb,
-           source_manager_c &sm, function_router_t router);
+           source_manager_c &sm, function_router_t &router);
 
   //! \brief Read from a stream
   //! \param source Name of the source
@@ -68,7 +67,7 @@ private:
   class parser_c {
   public:
     parser_c() = delete;
-    parser_c(function_router_t router, error_callback_f ecb)
+    parser_c(function_router_t &router, error_callback_f ecb)
         : symbol_router_(router), error_cb_(ecb){};
     cell_ptr parse(std::vector<token_c> &tokens);
     bool has_next() { return index_ < tokens_->size(); }
@@ -91,7 +90,7 @@ private:
   private:
     std::size_t index_{0};
     std::vector<token_c> *tokens_{nullptr};
-    function_router_t symbol_router_;
+    function_router_t &symbol_router_;
     cell_list_t current_list_;
     error_callback_f error_cb_;
 
@@ -123,7 +122,7 @@ private:
   instruction_processor_if &processor_;
   error_callback_f error_cb_;
   source_manager_c &sm_;
-  function_router_t symbol_router_;
+  function_router_t &symbol_router_;
   std::vector<token_c> tokens_;
   std::unique_ptr<parser_c> parser_;
 

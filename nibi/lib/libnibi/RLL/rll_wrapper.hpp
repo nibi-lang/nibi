@@ -1,6 +1,5 @@
 #pragma once
 
-#include "libnibi/parallel_hashmap/phmap.hpp"
 #include <memory>
 #include <string>
 
@@ -53,5 +52,4 @@ constexpr auto allocate_rll = [](auto... args) -> nibi::rll_ptr {
   return std::make_shared<nibi::rll_wrapper_c>(args...);
 };
 
-using rll_map = phmap::parallel_node_hash_map<std::string, rll_ptr>;
 } // namespace nibi

@@ -5,7 +5,7 @@ env_c::~env_c() {}
 
 env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {}
 
-env_c *env_c::get_env(std::string name) {
+env_c *env_c::get_env(const std::string &name) {
 
   if (cell_map_.find(name) != cell_map_.end()) {
     return this;
@@ -18,44 +18,52 @@ env_c *env_c::get_env(std::string name) {
   return nullptr;
 }
 
-cell_ptr env_c::get(std::string name) {
-
-  auto env = get_env(name);
-  if (!env) {
-    return nullptr;
+cell_ptr env_c::get(const std::string &name) {
+  auto it = cell_map_.find(name);
+  if (it != cell_map_.end()) {
+    return it->second;
   }
-  return env->cell_map_[name];
+
+  if (parent_env_) {
+    return parent_env_->get(name);
+  }
+
+  return nullptr;
 }
 
-void env_c::set_new_alloc(std::string name, cell_ptr cell) {
+bool env_c::do_set(const std::string &name, const cell_ptr &cell) {
 
-  auto env = get_env(name);
-  if (!env) {
-    env = this;
+  auto it = cell_map_.find(name);
+  if (it != cell_map_.end()) {
+    it->second = cell;
+    return true;
   }
 
-  env->cell_map_[name] = cell;
+  if (parent_env_) {
+    return parent_env_->do_set(name, cell);
+  }
+
+  return false;
 }
 
-void env_c::set(std::string name, cell_ptr const &cell) {
-
-  auto env = get_env(name);
-  if (!env) {
-    env = this;
+void env_c::set(const std::string &name, const cell_ptr &cell) {
+  if (!do_set(name, cell)) {
+    cell_map_[name] = cell;
   }
-
-  env->cell_map_[name] = cell;
 }
 
-bool env_c::drop(std::string name) {
+bool env_c::drop(const std::string &name) {
 
-  auto env = get_env(name);
-  if (!env) {
-    return false;
+  auto it = cell_map_.find(name);
+  if (it != cell_map_.end()) {
+    cell_map_.erase(it);
+    return true;
   }
 
-  env->cell_map_.erase(name);
+  if (parent_env_) {
+    return parent_env_->drop(name);
+  }
 
-  return true;
+  return false;
 }
 } // namespace nibi

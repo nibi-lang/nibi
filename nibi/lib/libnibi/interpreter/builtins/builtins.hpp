@@ -6,7 +6,6 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/interfaces/cell_processor_if.hpp"
-#include "libnibi/parallel_hashmap/phmap.hpp"
 #include "libnibi/types.hpp"
 
 namespace nibi {

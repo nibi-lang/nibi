@@ -32,7 +32,7 @@ token_c generate_type_token(token_e token, locator_ptr locator) {
   }
 }
 
-static phmap::parallel_node_hash_map<std::string, token_e> type_map = {
+static std::map<std::string, token_e> type_map = {
     {"nil", token_e::NIL},
     {"true", token_e::TRUE},
     {"false", token_e::FALSE},
@@ -86,7 +86,7 @@ inline std::string closing_sym_from_token(const token_e token) {
 static std::regex is_number("[+-]?([0-9]*[.])?[0-9]+");
 
 intake_c::intake_c(instruction_processor_if &proc, error_callback_f error_cb,
-                   source_manager_c &sm, function_router_t router)
+                   source_manager_c &sm, function_router_t &router)
     : processor_(proc), error_cb_(error_cb), sm_(sm), symbol_router_(router) {
   parser_ = std::make_unique<parser_c>(symbol_router_, error_cb_);
 }

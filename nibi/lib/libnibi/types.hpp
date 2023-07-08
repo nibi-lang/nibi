@@ -9,7 +9,7 @@
 
 #include "libnibi/cell.hpp"
 
-#include "libnibi/parallel_hashmap/phmap.hpp"
+#include <unordered_map>
 
 namespace nibi {
 
@@ -30,6 +30,13 @@ using file_interpreter_ptr = std::unique_ptr<file_interpreter_if>;
 using line_interpreter_ptr = std::unique_ptr<line_interpreter_if>;
 using module_viewer_ptr = std::unique_ptr<module_viewer_if>;
 using error_callback_f = std::function<void(error_c)>;
-using function_router_t =
-    phmap::parallel_node_hash_map<std::string, function_info_s> &;
+
+// Function router was tested against test_perfs
+// with the following map types:
+// std::map<std::string, function_info_s>
+// phmap::parallel_node_hash_map<std::string, function_info_s>
+// std::unordered_map<std::string, function_info_s>
+//
+// std::unordered_map<std::string, function_info_s> was the fastest
+using function_router_t = std::unordered_map<std::string, function_info_s>;
 } // namespace nibi
