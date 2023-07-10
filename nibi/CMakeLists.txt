@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed")
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libffi REQUIRED libffi)
+
 #
 # Options
 #
@@ -49,6 +52,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   libnibi
+  ffi
   ${CMAKE_DL_LIBS})
 
 install (TARGETS ${PROJECT_NAME}
