@@ -1,0 +1,12 @@
+
+# Relative to run.py for tests ran by commander
+(:= _lib_relative_name "tests/ffi/module.lib")
+
+(:= _lib (dict [
+  ["do_return_true" (fn [] (extern-call _lib_relative_name "return_true" [] :int))]
+  ["do_echo_int" (fn [i] (extern-call _lib_relative_name "echo_int" [:int] :int i))]
+]))
+
+(:= return_true (_lib :get "do_return_true"))
+(:= echo_int (_lib :get "do_echo_int"))
+

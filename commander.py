@@ -181,6 +181,10 @@ def setup_tests():
   build_current_module("module")
   os.chdir(cwd)
 
+  os.chdir("./test_scripts/tests/ffi")
+  build_current_module("module")
+  os.chdir(cwd)
+
 def run_tests():
   os.chdir("./test_scripts")
   print("Running tests...")

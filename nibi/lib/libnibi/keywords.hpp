@@ -59,6 +59,7 @@ static constexpr const char *FLOAT = "float";
 static constexpr const char *SPLIT = "split";
 static constexpr const char *TYPE = "type";
 static constexpr const char *MACRO = "macro";
+static constexpr const char *EXTERN_CALL = "extern-call";
 
 } // namespace kw
 } // namespace nibi

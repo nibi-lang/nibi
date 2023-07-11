@@ -190,6 +190,12 @@ static function_info_s builtin_reflect_type_inf = {
     nibi::kw::TYPE, builtin_fn_reflect_type,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
+// extern call
+
+static function_info_s builtin_extern_call_inf = {
+    nibi::kw::EXTERN_CALL, builtin_fn_extern_call,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static function_router_t keyword_map = {
     {nibi::kw::EQ, builtin_comparison_eq_inf},
@@ -245,7 +251,8 @@ static function_router_t keyword_map = {
     {nibi::kw::INT, builtin_cvt_int_inf},
     {nibi::kw::FLOAT, builtin_cvt_float_inf},
     {nibi::kw::SPLIT, builtin_cvt_split_inf},
-    {nibi::kw::TYPE, builtin_reflect_type_inf}};
+    {nibi::kw::TYPE, builtin_reflect_type_inf},
+    {nibi::kw::EXTERN_CALL, builtin_extern_call_inf}};
 
 // Retrieve the map of symbols to function info structs
 function_router_t &get_builtin_symbols_map() { return keyword_map; }

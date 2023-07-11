@@ -1,0 +1,4 @@
+(use "ffi")
+
+(assert (ffi::return_true) "Library call did not return true")
+(assert (eq (ffi::echo_int 42) 42) "Library call did not echo given integer")

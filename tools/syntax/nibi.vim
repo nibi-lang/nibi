@@ -8,7 +8,7 @@ if exists('b:current_syntax')
   finish
 endif
 
-:highlight DictTags guifg=#87afaf
+:highlight CommandTags guifg=#87afaf
 :highlight NibiComment guifg=#afffff
 :highlight NibiDataList guifg=#8787ff
 :highlight NibiAccessList guifg=red
@@ -31,10 +31,13 @@ syn keyword nibiFunc env at iter eval quote loop exit quote import use macro
 syn keyword nibiFunc int str float split type len clone nop dict
 syn keyword nibiQuickType true false nil nan inf
 
-syn match nibiDictType ':let\|:get\|:del\|:keys\|:vals'
+syn match nibiDictType ':let\|:get\|:del\|:keys\|:vals' contained
+syn match nibiCType ':str\|:void\|:int\|:double\|:float' contained
+
 
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
 syn match nibiFunc '\(bw-and\|bw-or\|bw-xor\|bw-not\|bw-lsh\|bw-rsh\|<-\)' contained
+syn match nibiFunc '\(extern-call\)' contained
 syn match nibiFunc ':=' contained
 syn match nibiFunc '<<|' contained
 syn match nibiFunc '|>>' contained
@@ -53,7 +56,8 @@ hi def link nibiInsList NibiInstructionList
 hi def link nibiDataList NibiDataList
 hi def link nibiAccessList NibiAccessList
 hi def link nibiKeyword Keyword
-hi def link nibiDictType DictTags
+hi def link nibiDictType CommandTags
+hi def link nibiCType CommandTags
 
 let b:current_syntax = "nibi"
 

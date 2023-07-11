@@ -9,8 +9,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install build tools
-          command: 'sudo apt update && sudo apt upgrade && sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3'
+          name: Update and uprade
+          command: 'sudo apt update && sudo apt upgrade'
+      - run:
+          name: Install tools and libs
+          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3 libffi-dev'
       - run:
           name: Construct NIBI_PATH
           command: 'mkdir /tmp/nibi_path'
