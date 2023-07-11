@@ -1,0 +1,7 @@
+(:= sources [
+  "ffi.nibi"
+])
+
+(:= post [
+  "post.nibi"
+])
