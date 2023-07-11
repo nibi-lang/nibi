@@ -54,7 +54,7 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
 
   std::optional<std::string> lib_name = std::nullopt;
   if (list[1]->type != cell_type_e::NIL) {
-    lib_name = list[1]->as_string();
+    lib_name = ci.process_cell(list[1], env)->as_string();
   }
 
   const std::string fn_name = list[2]->as_string();
