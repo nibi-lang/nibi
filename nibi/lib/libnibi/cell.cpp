@@ -263,8 +263,13 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
     aberrant_cell_if *cell = this->as_aberrant();
     if (!cell)
       return "nil";
-    else
-      return cell->represent_as_string();
+    else {
+      // We prefix the string so external mods
+      // cant inject code into the interpreter
+      // by returning a string that can be evaluated
+      // using eval
+      return "Aberrant cell: " + cell->represent_as_string();
+    }
   }
   case cell_type_e::FUNCTION: {
     auto &fn = this->as_function_info();

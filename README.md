@@ -68,6 +68,12 @@ For documentation on the language please see `docs/LANGUAGE.md`
 
 ## Installing
 
+`Required Libs`:
+
+```
+libffi-dev
+```
+
 To get started, clone the repo and ensure you run:
 
 ```
