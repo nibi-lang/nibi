@@ -36,6 +36,7 @@ if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 set(NIBI_SOURCES
+  ${PROJECT_SOURCE_DIR}/libnibi/api.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/cell.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/environment.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/source.cpp

@@ -58,3 +58,7 @@
 (macro list_contains [_list _item]
   (< 0 (len (filter %_list (fn [_x] (eq _x %_item))))))
 
+# Walk a data list and execute each
+# item in the list
+(macro list_execute [_list]
+  (iter %_list _x (nop)))

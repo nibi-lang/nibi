@@ -3,6 +3,7 @@
 #include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/source.hpp"
 #include <any>
+#include <cassert>
 #include <cstdint>
 #include <deque>
 #include <exception>
@@ -142,6 +143,13 @@ private:
 //!       This is a callback interface that the external library
 class aberrant_cell_if {
 public:
+  //! \brief Create the cell
+  aberrant_cell_if() = default;
+
+  //! \brief Create the cell with a tag
+  //! \param tag The tag to set
+  aberrant_cell_if(std::size_t tag) : tag_(tag) {}
+
   virtual ~aberrant_cell_if() = default;
   //! \brief Convert the cell to a string
   //! \note If an exception occurs, throw a cell_access_exception_c
@@ -150,6 +158,24 @@ public:
 
   //! \brief Clone the cell
   virtual aberrant_cell_if *clone() = 0;
+
+  //! \brief Get the tag of the cell
+  std::size_t get_tag() const { return tag_; }
+
+  //! \brief Check if the cell is tagged
+  //! \return True if the cell is tagged
+  bool is_tagged() const { return tag_ != 0; }
+
+protected:
+  //! \brief Set the tag of the cell
+  //! \param tag The tag to set
+  void set_tag(const std::size_t tag) {
+    assert(0 != tag);
+    tag_ = tag;
+  }
+
+private:
+  std::size_t tag_{0};
 };
 
 //! \brief A cell

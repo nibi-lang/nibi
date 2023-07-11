@@ -59,8 +59,6 @@ extern cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci,
                                           cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci,
                                          cell_list_t &list, env_c &env);
-extern cell_ptr builtin_fn_list_execute(cell_processor_if &ci,
-                                        cell_list_t &list, env_c &env);
 
 // Common functions
 

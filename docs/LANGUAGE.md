@@ -67,7 +67,6 @@ any other piece of data in the instructions below.
 | type    | Retrieve a string detailing the type of a given item | string
 | nop     | Do nothing | nil
 | macro   | Define a macro | variable
-| execute_list | Execute all instructions in a data list | last execution result
 | dict | Create a dictionary | the new dictionary
 | extern-call | Call a c-function from a shared library | variable
 
@@ -713,21 +712,6 @@ keyword: `bw-not`
 
 ```
 ( bw-not <() NU> )
-```
-
-### Execute List
-
-keyword: `execute_list`
-
-| arg 1 |
-|----   |
-| List to execute over |
-
-The argument given must resolve to a data list. 
-Each item within the data list will be processed.
-
-```
-( execute_list <() S []> )
 ```
 
 ### Macro
