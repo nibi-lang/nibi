@@ -1,14 +1,73 @@
+/*
+
+
+
+    Right now this is a very basic ffi implementation that
+    only supports calling functions that utilize basic
+    c types [ int, double, float, char* ].
+
+    The below is a list of ideas for expanding this to
+    support more complicated c types and structs.
+
+
+    Ideas for expanding these externals:
+
+        Need a means to create, or at least, represent more complicated
+        C stuff (struct, memory mgmt, etc).
+
+        Option A:
+        Consider using a dictionary to represent a c-struct, adding
+        some stuff to command_tag_to_type to support this. May need
+        to add changes to setting up cfi to support this.
+
+        We could use abberant types to represent pointers to c stuff.
+        Maybe embedding an object that wraps a uniond set of data
+        and values that the ffi return can point to, along with a
+        death callback in the inner object to free the c-allocated
+        memory.
+
+        We may need to embed that abberant into a dict so we can
+        "bind a method" to the abberant so we can do a "from c type"
+        and other methods.
+
+        -----------------------------
+
+        Obtion B:
+        Another option would be to add a "c cell" type that could
+        be interoperable with all other cell types. We could
+        make a c_api.h to export cell processor and then
+        make a c-list and c-cell to represent the cell_c in
+        a c-friendly way. We then could have the c-list and
+        whatever available for external libs to use.
+
+        This means we could replace the whole module system
+        with an ffi-only system.. we could use an abberant type
+        to make an area for all created c cells to live in.
+
+        This level of c-interoperability would be a lot of work
+        but would be very worth it, especially if we ever
+        want to actually target c as a backend.
+
+        Plan:
+        These c-cells could be used to store all c-type data.
+        We could do this in multiple stages, where we start off
+        getting basic types working. Then we could upgrade
+        to structs-from-dicts, then we could do that c-list
+        and c-api stuff.
+
+
+
+*/
+
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/keywords.hpp"
 #include "macros.hpp"
 
-#include <iostream>
-
-#include <unordered_map>
-
 #include <dlfcn.h>
 #include <ffi.h>
+#include <iostream>
+#include <unordered_map>
 
 namespace {
 
@@ -36,6 +95,7 @@ struct c_data {
 // c types that users can use while mapping c types to nibi types
 std::unordered_map<std::string, c_types_s> command_tag_to_type = {
     {":int", {"int", nibi::cell_type_e::INTEGER, &ffi_type_sint64}},
+    {":void", {"void", nibi::cell_type_e::NIL, &ffi_type_void}},
     {":double", {"double", nibi::cell_type_e::DOUBLE, &ffi_type_double}},
     {":float", {"float", nibi::cell_type_e::DOUBLE, &ffi_type_float}},
     {":str", {"char*", nibi::cell_type_e::STRING, &ffi_type_pointer}}};
@@ -101,6 +161,9 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
       break;
     case cell_type_e::STRING:
       cd.data.s = cd.original_data->as_string().data();
+      break;
+    case cell_type_e::NIL:
+      cd.data.i = 0;
       break;
     default:
       throw interpreter_c::exception_c("extern-call: unsupported type",
@@ -190,6 +253,8 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
   // Using the return_data_info figure out how we should interpret
   // the data to allocate and return a cell
   switch (return_data_info.cell_type) {
+  case cell_type_e::NIL:
+    return allocate_cell(cell_type_e::NIL);
   case cell_type_e::INTEGER:
     return allocate_cell((int64_t)return_data.data.i);
   case cell_type_e::DOUBLE:

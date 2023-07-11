@@ -69,6 +69,7 @@ any other piece of data in the instructions below.
 | macro   | Define a macro | variable
 | execute_list | Execute all instructions in a data list | last execution result
 | dict | Create a dictionary | the new dictionary
+| extern-call | Call a c-function from a shared library | variable
 
 | list commands | description | returns
 |----   |---- |----
@@ -876,6 +877,47 @@ Calling a dict symbol with NO parameters as so:
 ```
 
 will prompt it to return a fully formed, quoted string of the dict.
+
+## External calls
+
+Keyword: `extern-call`
+
+Call and external library:
+
+```
+
+
+    (extern-call <library name> <function name> <[parameter c-types]> <return c-type>) 
+
+
+
+    If library name is `nil` the symbol will be searched for based on 
+    currently loaded symbols, otherwise it must be a bath to a library
+    file - as a string.
+
+    Function name is the function name as a string.
+
+    Parameters is a data list of c-type tags (listed below)
+
+    Return c-type is the c-type that represents the return
+    type of the function
+
+```
+
+| C-type tag | c type   |
+|----        |----      |
+| :int       | signed integer  |
+| :double    | double |
+| :float     | float  |
+| :str       | char*  |
+| :void      | void   |
+
+Examples:
+
+```lisp
+    (extern-cell nil "printf" [:str] :int "Hello, world!")
+```
+
 
 # Modules
 
