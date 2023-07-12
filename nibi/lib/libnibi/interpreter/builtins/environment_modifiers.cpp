@@ -193,7 +193,7 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
   auto &dict_value = dict->as_dict();
 
   if (command == ":keys") {
-    list_info_s keys(list_types_e::DATA, {});
+    list_info_s keys(list_types_e::DATA);
     for (auto &&dit : dict_value) {
       keys.list.push_back(allocate_cell(dit.first));
     }
@@ -205,7 +205,7 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
   // Note: by not cloning the value we are allowing the user to
   // modify the value in the dict directly
   if (command == ":vals") {
-    list_info_s vals(list_types_e::DATA, {});
+    list_info_s vals(list_types_e::DATA);
     for (auto &&dit : dict_value) {
       vals.list.push_back(dit.second);
     }

@@ -8,6 +8,14 @@
 namespace nibi {
 namespace builtins {
 
+#if CELL_LIST_USE_STD_VECTOR
+inline void pop_front(cell_list_t &list) { list.erase(list.begin()); }
+
+inline void push_front(cell_list_t &list, cell_ptr &&cell) {
+  list.insert(list.begin(), cell);
+}
+#endif
+
 cell_ptr builtin_fn_list_push_front(cell_processor_if &ci, cell_list_t &list,
                                     env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUSH_FRONT, ==, 3)
@@ -21,7 +29,11 @@ cell_ptr builtin_fn_list_push_front(cell_processor_if &ci, cell_list_t &list,
   auto &list_info = list_to_push_to->as_list_info();
 
   // Clone the target and push it back
+#if CELL_LIST_USE_STD_VECTOR
+  push_front(list_info.list, std::move(value_to_push->clone(env)));
+#else
   list_info.list.push_front(std::move(value_to_push->clone(env)));
+#endif
 
   return std::move(list_to_push_to);
 }
@@ -75,7 +87,11 @@ cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci, cell_list_t &list,
     return std::move(target);
   }
 
+#if CELL_LIST_USE_STD_VECTOR
+  pop_front(list_info.list);
+#else
   list_info.list.pop_front();
+#endif
 
   return std::move(target);
 }
