@@ -175,6 +175,8 @@ efficient runs against test_perfs:
 
 ### 11-July-2023
 
+git hash **5283e4a90e6b3724cd3b50b2b5d2f9066fc05a88**
+
 Setup a `#define` to switch beteween using a std::vector
 and a std::deque. The std::vector needed a couple of
 helpers to do some operations, but they were _somewhat_
