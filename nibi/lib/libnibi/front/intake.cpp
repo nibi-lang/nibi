@@ -321,6 +321,10 @@ cell_ptr intake_c::parser_c::instruction_list() {
 
   cell_list_t list;
 
+#if CELL_LIST_USE_STD_VECTOR
+  list.reserve(CELL_VEC_RESERVE_SIZE);
+#endif
+
   switch (current_token()) {
   case token_e::SYMBOL:
     list.emplace_back(symbol());
@@ -361,6 +365,10 @@ cell_ptr intake_c::parser_c::access_list() {
 
   cell_list_t list;
 
+#if CELL_LIST_USE_STD_VECTOR
+  list.reserve(CELL_VEC_RESERVE_SIZE);
+#endif
+
   NIBI_PARSER_SCAN_LIST(token_e::L_BRACE, token_e::R_BRACE, symbol);
 
   next();
@@ -381,6 +389,10 @@ cell_ptr intake_c::parser_c::data_list() {
   next();
 
   cell_list_t list;
+
+#if CELL_LIST_USE_STD_VECTOR
+  list.reserve(CELL_VEC_RESERVE_SIZE);
+#endif
 
   NIBI_PARSER_SCAN_LIST(token_e::L_BRACKET, token_e::R_BRACKET, element);
 

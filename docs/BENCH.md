@@ -173,4 +173,20 @@ efficient runs against test_perfs:
 | 4sieve.nibi     | 0.9207s   | 920.7101ms |
 | leibniz.nibi    | 0.0967s   | 96.7408ms  |
 
+### 11-July-2023
 
+Setup a `#define` to switch beteween using a std::vector
+and a std::deque. The std::vector needed a couple of
+helpers to do some operations, but they were _somewhat_
+better in performance than the deque.
+
+Until language is hashed out entirely this will remain
+to switch back and forth for performance tests in 
+the interpreter.
+
+ test             | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.0822s   | 82.2418ms  |
+| primality.nibi  | 0.8339s   | 833.8564ms |
+| 4sieve.nibi     | 0.8865s   | 886.4585ms |
+| leibniz.nibi    | 0.0944s   | 94.4019ms  |

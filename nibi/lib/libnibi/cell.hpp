@@ -5,15 +5,26 @@
 #include <any>
 #include <cassert>
 #include <cstdint>
-#include <deque>
 #include <exception>
 #include <functional>
-#include <list>
 #include <memory>
 #include <optional>
 #include <string>
 
+#define CELL_LIST_USE_STD_VECTOR 1
+
+#if CELL_LIST_USE_STD_VECTOR
+#include <vector>
+#else
+#include <deque>
+#endif
+
 namespace nibi {
+
+#if CELL_LIST_USE_STD_VECTOR
+static constexpr std::size_t CELL_VEC_RESERVE_SIZE = 1;
+#endif
+
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
 //!       meant to be used by external libraries that
@@ -63,7 +74,12 @@ constexpr auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
 };
 
 //! \brief A list of cells
+
+#if CELL_LIST_USE_STD_VECTOR
+using cell_list_t = std::vector<cell_ptr>;
+#else
 using cell_list_t = std::deque<cell_ptr>;
+#endif
 
 //! \brief A function that takes a list of cells and an environment
 using cell_fn_t =
@@ -102,6 +118,12 @@ struct list_info_s {
   list_types_e type;
   cell_list_t list;
   list_info_s(list_types_e type, cell_list_t list) : type(type), list(list) {}
+
+  list_info_s(list_types_e type) : type(type) {
+#if CELL_LIST_USE_STD_VECTOR
+    list.reserve(CELL_VEC_RESERVE_SIZE);
+#endif
+  }
 };
 
 // Temporary wrapper to distnguish strings from symbols
@@ -208,7 +230,7 @@ public:
       data = std::string();
       break;
     case cell_type_e::LIST:
-      data = list_info_s(list_types_e::DATA, cell_list_t());
+      data = list_info_s(list_types_e::DATA);
       break;
     }
   }
