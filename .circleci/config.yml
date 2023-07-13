@@ -13,7 +13,7 @@ jobs:
           command: 'sudo apt update && sudo apt upgrade'
       - run:
           name: Install tools and libs
-          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3 libffi-dev'
+          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3 libffi-dev valgrind'
       - run:
           name: Construct NIBI_PATH
           command: 'mkdir /tmp/nibi_path'
@@ -32,3 +32,6 @@ jobs:
       - run:
           name: Run NIBI script tests
           command: 'python3 commander.py -t'
+      - run:
+          name: Run NIBI valgrind tests
+          command: 'python3 commander.py -v'

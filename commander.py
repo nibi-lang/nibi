@@ -15,6 +15,7 @@ parser.add_argument("-n", "--install_nibi", action="store_true", help="Builds an
 parser.add_argument("-m", "--install_modules", action="store_true", help="Builds and installs Nibi modules")
 parser.add_argument("-d", "--debug", action="store_true", help="Builds Nibi and modules in debug mode")
 parser.add_argument("-t", "--test", action="store_true", help="Runs all tests for Nibi")
+parser.add_argument("-v", "--valgrind", action="store_true", help="Runs valgrind checks")
 parser.add_argument("-p", "--perf", action="store_true", help="Runs performance tests for Nibi")
 parser.add_argument("-c", "--check_modules", action="store_true", help="Details all modules installed, and runs their tests")
 parser.add_argument("-a", "--all_the_things", action="store_true", help="Installs Nibi, modules, runs tests, and runs performance tests")
@@ -177,24 +178,36 @@ def build_and_install_modules():
 
 def setup_tests():
   # One of the tests requires a module to be built, but not installed
-  os.chdir("./test_scripts/tests/module")
+  os.chdir("./tests/test_scripts/tests/module")
   build_current_module("module")
   os.chdir(cwd)
 
-  os.chdir("./test_scripts/tests/ffi")
+  os.chdir("./tests/test_scripts/tests/ffi")
   build_current_module("module")
   os.chdir(cwd)
 
 def run_tests():
-  os.chdir("./test_scripts")
+  os.chdir("./tests/test_scripts")
   print("Running tests...")
   execute_command(["python3", "run.py", "nibi"], True)
   print("SUCCESS")
   os.chdir(cwd)
 
 def run_perfs():
-  os.chdir("./test_perfs")
+  os.chdir("./tests/test_perfs")
   print("Running performance tests... this may take a couple of minutes...")
+  result = execute_command(["python3", "run.py", "nibi"])
+  print(result)
+  print("SUCCESS")
+  os.chdir(cwd)
+
+def run_valgrind():
+  if not program_exists("valgrind"):
+    print("valgrind is not installed. Please install it and try again.")
+    exit(1)
+
+  os.chdir("./tests/test_valgrind")
+  print("Running valgrind tests... this may take a couple of minutes...")
   result = execute_command(["python3", "run.py", "nibi"])
   print(result)
   print("SUCCESS")
@@ -251,6 +264,9 @@ if args.test or args.all_the_things:
 
   # Run tests
   run_tests()
+
+if args.valgrind or args.all_the_things:
+   run_valgrind()
 
 if args.check_modules or args.all_the_things:
   ensure_nibi_installed()
