@@ -51,10 +51,6 @@ public:
     return object_ != rhs.object_;
   }
 
-  bool operator==(std::nullptr_t) const { return object_ == nullptr; }
-
-  bool operator!=(std::nullptr_t) const { return object_ != nullptr; }
-
   operator bool() const { return object_ != nullptr; }
 
   ~ref_counted_ptr_c() { release(); }
