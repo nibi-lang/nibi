@@ -2,6 +2,7 @@
 
 #include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/source.hpp"
+#include "ref.hpp"
 #include <any>
 #include <cassert>
 #include <cstdint>
@@ -62,16 +63,12 @@ enum class list_types_e {
 
 // Forward declarations
 class env_c;
-class cell_c;
 class interpreter_c;
 class cell_processor_if;
+class cell_c;
 
 //! \brief A cell pointer type
-using cell_ptr = std::shared_ptr<cell_c>;
-
-constexpr auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
-  return std::make_shared<nibi::cell_c>(args...);
-};
+using cell_ptr = ref_counted_ptr_c<cell_c>;
 
 //! \brief A list of cells
 
@@ -201,7 +198,7 @@ private:
 };
 
 //! \brief A cell
-class cell_c {
+class cell_c : public ref_counted_c {
 public:
   //! \brief Create a cell with a given type
   cell_c(cell_type_e type) : type(type) {
@@ -325,8 +322,8 @@ public:
   //! \throws cell_access_exception_c if the cell is not an environment type
   environment_info_s &as_environment_info();
 
-  // \brief Get a reference of the cell value
-  // \throws cell_access_exception_c if the cell is not a dict type
+  //! \brief Get a reference of the cell value
+  //! \throws cell_access_exception_c if the cell is not a dict type
   cell_dict_t &as_dict();
 
   //! \brief Check if a cell is a numeric type
@@ -334,4 +331,13 @@ public:
     return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
   }
 };
+
+//! \brief Allocate a cell
+//! \params Ctor arguments for cell
+//! \note This is used to centralize allocations of cells
+//!       so we can swap memory management models
+constexpr auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
+  return new cell_c(args...);
+};
+
 } // namespace nibi

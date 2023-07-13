@@ -120,7 +120,7 @@ module_info_s modules_c::get_module_info(std::string &module_name) {
   auto description = module_env.get("description");
   auto version = module_env.get("version");
 
-  if (nullptr != authors) {
+  if (authors) {
     if (authors->type == cell_type_e::STRING) {
       result.authors = std::vector<std::string>(1, authors->as_string());
     } else {
@@ -132,7 +132,7 @@ module_info_s modules_c::get_module_info(std::string &module_name) {
     }
   }
 
-  if (nullptr != licenses) {
+  if (licenses) {
     if (licenses->type == cell_type_e::STRING) {
       result.licenses = std::vector<std::string>(1, licenses->as_string());
     } else {
@@ -144,11 +144,11 @@ module_info_s modules_c::get_module_info(std::string &module_name) {
     }
   }
 
-  if (nullptr != description) {
+  if (description) {
     result.description = description->as_string();
   }
 
-  if (nullptr != version) {
+  if (version) {
     result.version = version->as_string();
   }
 
@@ -193,13 +193,13 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   bool loaded_something{false};
 
   auto dylib = module_env.get("dylib");
-  if (nullptr != dylib) {
+  if (dylib) {
     load_dylib(name, *module_cell_env.env, path, dylib);
     loaded_something = true;
   }
 
   auto source_list = module_env.get("sources");
-  if (nullptr != source_list) {
+  if (source_list) {
     load_source_list(name, *module_cell_env.env, path, source_list);
     loaded_something = true;
   }
@@ -213,7 +213,7 @@ void modules_c::load_module(cell_ptr &module_name, env_c &target_env) {
   target_env.set(name, new_env_cell);
 
   auto post = module_env.get("post");
-  if (nullptr != post) {
+  if (post) {
     execute_post_import_actions(post, path);
   }
 }
