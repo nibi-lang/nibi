@@ -29,6 +29,7 @@ syn match nibiNumber '\d\+' contained
 syn keyword nibiFunc set fn drop try throw assert
 syn keyword nibiFunc env at iter eval quote loop exit quote import use macro
 syn keyword nibiFunc int str float split type len clone nop dict
+syn keyword nibiFunc i8 i16 i32 i64 u8 u16 u32 u64 f32 f64
 syn keyword nibiQuickType true false nil nan inf
 
 syn match nibiDictType ':let\|:get\|:del\|:keys\|:vals' contained
