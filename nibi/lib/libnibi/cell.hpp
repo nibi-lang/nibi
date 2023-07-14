@@ -98,6 +98,7 @@ using cell_list_t = std::deque<cell_ptr>;
 using cell_fn_t =
     std::function<cell_ptr(cell_processor_if &ci, cell_list_t &, env_c &)>;
 
+//! \brief A dictionary type 
 using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
 //! \brief Lambda information that can be encoded into a cell
@@ -149,6 +150,16 @@ struct symbol_s {
 struct environment_info_s {
   std::string name;
   std::shared_ptr<env_c> env{nullptr};
+};
+
+//! \brief Pointer information
+struct pointer_info_s {
+  bool is_owned{false};
+  // In the event of getting something from ffi we wont know
+  // the size. So even if we acquire ownership, we may not
+  // have access to this. We keep the size for what
+  // we create so we can bound check
+  std::optional<std::size_t> size_bytes{std::nullopt};
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -244,9 +255,14 @@ public:
     case cell_type_e::F64:
       this->data.f64 = double(0.00);
       break;
+    case cell_type_e::PTR:
+      this->data.ptr = nullptr;
+      this->complex_data = pointer_info_s{false, 0};
+      break;
     case cell_type_e::STRING:
     case cell_type_e::SYMBOL:
       complex_data = std::string();
+      this->data.cstr = as_c_string();
       break;
     case cell_type_e::LIST:
       complex_data = list_info_s(list_types_e::DATA);
@@ -267,11 +283,16 @@ public:
   cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
   cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
 
-  cell_c(std::string data) : type(cell_type_e::STRING) { complex_data = data; }
+  cell_c(std::string data) : type(cell_type_e::STRING) { 
+    complex_data = data;
+    this->data.cstr = as_c_string();
+  }
 
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
     complex_data = data.data;
+    this->data.cstr = as_c_string();
   }
+
   cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
     this->data.aberrant = acif;
@@ -296,6 +317,7 @@ public:
 
   union {
     void *ptr;
+    char *cstr;
     int8_t i8;
     int16_t i16;
     int32_t i32;
@@ -349,6 +371,10 @@ public:
   //! \throws cell_access_exception_c if the cell is not a string type
   std::string &as_string();
 
+  //! \brief Get the string data as a c string
+  //! \throws cell_access_exception_c if the cell is not a string type
+  char *as_c_string();
+  
   //! \brief Get the symbol value
   //! \throws cell_access_exception_c if the cell is not a symbol type
   std::string &as_symbol();
@@ -384,6 +410,14 @@ public:
   //! \brief Get a reference of the cell value
   //! \throws cell_access_exception_c if the cell is not a dict type
   cell_dict_t &as_dict();
+
+  //! \brief Get a reference to the cell c-pointer info
+  //! \throws cell_access_exception_c if the cell is not a pointer type
+  pointer_info_s &as_pointer_info();
+
+  //! \brief Get the c pointer being held on to by the cell
+  //! \throws cell_access_exception_c if the cell is not a pointer type
+  void *as_pointer();
 
   //! \brief Check if a cell is an integer
   inline bool is_integer() const {

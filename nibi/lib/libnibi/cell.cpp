@@ -280,6 +280,21 @@ environment_info_s &cell_c::as_environment_info() {
   }
 }
 
+pointer_info_s &cell_c::as_pointer_info() {
+  try {
+    return std::any_cast<pointer_info_s &>(this->complex_data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Cell does not contain a pointer", this->locator);
+  }
+}
+
+void * cell_c::as_pointer() {
+  if (type != cell_type_e::PTR) {
+    throw cell_access_exception_c("Cell does not contain a pointer", this->locator);
+  }
+  return data.ptr;
+}
+
 cell_dict_t &cell_c::as_dict() {
   try {
     return std::any_cast<cell_dict_t &>(this->complex_data);
@@ -414,6 +429,10 @@ std::string &cell_c::as_string() {
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Cell is not a string", this->locator);
   }
+}
+
+char* cell_c::as_c_string() {
+  return &*as_string().begin();
 }
 
 std::string &cell_c::as_symbol() {
