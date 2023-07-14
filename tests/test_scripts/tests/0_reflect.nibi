@@ -1,5 +1,5 @@
-(assert (eq (type 24) "int") "")
-(assert (eq (type 3.14159) "float") "")
+(assert (eq (type 24) "i64") "")
+(assert (eq (type 3.14159) "f64") "")
 (assert (eq (type "AYYYYLMAO") "string") "")
 (assert (eq (type [1 2 3]) "list:data") "")
 (assert (eq (type {}) "list:access") "")

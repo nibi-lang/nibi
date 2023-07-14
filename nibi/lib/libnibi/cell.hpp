@@ -30,7 +30,7 @@ static constexpr uint8_t CELL_TYPE_MIN_NUMERIC = 0x01;
 static constexpr uint8_t CELL_TYPE_MIN_INTEGER = CELL_TYPE_MIN_NUMERIC;
 static constexpr uint8_t CELL_TYPE_MAX_INTEGER = 0x10;
 static constexpr uint8_t CELL_TYPE_MAX_NUMERIC = 0xF0;
-static constexpr uint8_t CELL_TYPE_MIN_FLOAT = CELL_TYPE_MAX_NUMERIC -1;
+static constexpr uint8_t CELL_TYPE_MIN_FLOAT = CELL_TYPE_MAX_NUMERIC - 1;
 static constexpr uint8_t CELL_TYPE_MAX_FLOAT = CELL_TYPE_MAX_NUMERIC;
 
 //! \brief The type of a cell
@@ -254,7 +254,6 @@ public:
     }
   }
 
-  
   cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
   cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
   cell_c(int32_t data) : type(cell_type_e::I32) { this->data.i32 = data; }
@@ -270,12 +269,16 @@ public:
 
   cell_c(std::string data) : type(cell_type_e::STRING) { complex_data = data; }
 
-  cell_c(symbol_s data) : type(cell_type_e::SYMBOL) { complex_data = data.data; }
+  cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
+    complex_data = data.data;
+  }
   cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
     this->data.aberrant = acif;
   }
-  cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) { complex_data = fn; }
+  cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) {
+    complex_data = fn;
+  }
   cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
     complex_data = env;
   }

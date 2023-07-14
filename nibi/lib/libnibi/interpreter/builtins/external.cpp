@@ -263,17 +263,17 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
   switch (return_data_info.cell_type) {
   case cell_type_e::NIL:
     return allocate_cell(cell_type_e::NIL);
-    case cell_type_e::I8:
-    case cell_type_e::I16:
-    case cell_type_e::I32:
-    case cell_type_e::I64:
-    case cell_type_e::U8:
-    case cell_type_e::U16:
-    case cell_type_e::U32:
-    case cell_type_e::U64:
+  case cell_type_e::I8:
+  case cell_type_e::I16:
+  case cell_type_e::I32:
+  case cell_type_e::I64:
+  case cell_type_e::U8:
+  case cell_type_e::U16:
+  case cell_type_e::U32:
+  case cell_type_e::U64:
     return allocate_cell((int64_t)return_data.data.i);
-    case cell_type_e::F32:
-    case cell_type_e::F64:
+  case cell_type_e::F32:
+  case cell_type_e::F64:
     return allocate_cell((double)return_data.data.d);
   case cell_type_e::STRING:
     return allocate_cell(std::string(return_data.data.s));

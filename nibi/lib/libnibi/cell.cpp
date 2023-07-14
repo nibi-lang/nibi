@@ -203,7 +203,7 @@ cell_ptr cell_c::clone(env_c &env) {
 void cell_c::update_from(cell_c &other, env_c &env) {
   this->type = other.type;
   this->data = other.clone(env)->data;
-  this->complex_data = other.complex_data;
+  this->complex_data = other.clone(env)->complex_data;
 }
 
 int64_t cell_c::to_integer() {
@@ -230,8 +230,7 @@ double cell_c::to_double() {
 
 double &cell_c::as_double() {
   if (static_cast<uint8_t>(type) < CELL_TYPE_MIN_FLOAT ||
-      static_cast<uint8_t>(type) > CELL_TYPE_MAX_FLOAT
-      ) {
+      static_cast<uint8_t>(type) > CELL_TYPE_MAX_FLOAT) {
     throw cell_access_exception_c(
         "Cell is not a floating point: " + this->to_string(), this->locator);
   }
@@ -418,7 +417,7 @@ std::string &cell_c::as_string() {
 }
 
 std::string &cell_c::as_symbol() {
-    if (this->type != cell_type_e::SYMBOL) {
+  if (this->type != cell_type_e::SYMBOL) {
     throw cell_access_exception_c("Cell is not a symbol", this->locator);
   }
   try {
