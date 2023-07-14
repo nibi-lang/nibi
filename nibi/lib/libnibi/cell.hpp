@@ -98,7 +98,7 @@ using cell_list_t = std::deque<cell_ptr>;
 using cell_fn_t =
     std::function<cell_ptr(cell_processor_if &ci, cell_list_t &, env_c &)>;
 
-//! \brief A dictionary type 
+//! \brief A dictionary type
 using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
 //! \brief Lambda information that can be encoded into a cell
@@ -283,7 +283,7 @@ public:
   cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
   cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
 
-  cell_c(std::string data) : type(cell_type_e::STRING) { 
+  cell_c(std::string data) : type(cell_type_e::STRING) {
     complex_data = data;
     this->data.cstr = as_c_string();
   }
@@ -374,7 +374,7 @@ public:
   //! \brief Get the string data as a c string
   //! \throws cell_access_exception_c if the cell is not a string type
   char *as_c_string();
-  
+
   //! \brief Get the symbol value
   //! \throws cell_access_exception_c if the cell is not a symbol type
   std::string &as_symbol();
