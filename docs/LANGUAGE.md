@@ -62,7 +62,17 @@ any other piece of data in the instructions below.
 | quote   | Quote a a list into a string | variable
 | str     | Convert an item to a string type | converted value 
 | int     | Convert an item to an integer type | converted value 
+| i8      | Convert an item to the integer type | converted value 
+| i16     | Convert an item to the integer type | converted value 
+| i32     | Convert an item to the integer type | converted value 
+| i64     | Convert an item to the integer type | converted value 
+| u8      | Convert an item to the integer type | converted value 
+| u16     | Convert an item to the integer type | converted value 
+| u32     | Convert an item to the integer type | converted value 
+| u64     | Convert an item to the integer type | converted value 
 | float   | Convert an item to a float type | converted value 
+| f32     | Convert an item to the float type | converted value 
+| f64     | Convert an item to the float type | converted value 
 | split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
 | type    | Retrieve a string detailing the type of a given item | string
 | nop     | Do nothing | nil
