@@ -181,6 +181,38 @@ static function_info_s builtin_cvt_split_inf = {
     nibi::kw::SPLIT, builtin_fn_cvt_to_split,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
+static function_info_s builtin_cvt_i8_inf = {
+    nibi::kw::I8, builtin_fn_cvt_to_i8, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_i16_inf = {
+    nibi::kw::I16, builtin_fn_cvt_to_i16,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_i32_inf = {
+    nibi::kw::I32, builtin_fn_cvt_to_i32,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_i64_inf = {
+    nibi::kw::I64, builtin_fn_cvt_to_i64,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
+static function_info_s builtin_cvt_u8_inf = {
+    nibi::kw::U8, builtin_fn_cvt_to_u8, function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_u16_inf = {
+    nibi::kw::U16, builtin_fn_cvt_to_u16,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_u32_inf = {
+    nibi::kw::U32, builtin_fn_cvt_to_u32,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_u64_inf = {
+    nibi::kw::U64, builtin_fn_cvt_to_u64,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
+static function_info_s builtin_cvt_f32_inf = {
+    nibi::kw::F32, builtin_fn_cvt_to_f32,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
+static function_info_s builtin_cvt_f64_inf = {
+    nibi::kw::F64, builtin_fn_cvt_to_f64,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
 // reflection
 
 static function_info_s builtin_reflect_type_inf = {
@@ -245,6 +277,20 @@ static function_router_t keyword_map = {
     {nibi::kw::BW_NOT, builtin_bitwise_not_inf},
     {nibi::kw::STR, builtin_cvt_string_inf},
     {nibi::kw::INT, builtin_cvt_int_inf},
+
+    {nibi::kw::I8, builtin_cvt_i8_inf},
+    {nibi::kw::I16, builtin_cvt_i16_inf},
+    {nibi::kw::I32, builtin_cvt_i32_inf},
+    {nibi::kw::I64, builtin_cvt_i64_inf},
+
+    {nibi::kw::U8, builtin_cvt_u8_inf},
+    {nibi::kw::U16, builtin_cvt_u16_inf},
+    {nibi::kw::U32, builtin_cvt_u32_inf},
+    {nibi::kw::U64, builtin_cvt_u64_inf},
+
+    {nibi::kw::F32, builtin_cvt_f32_inf},
+    {nibi::kw::F64, builtin_cvt_f64_inf},
+
     {nibi::kw::FLOAT, builtin_cvt_float_inf},
     {nibi::kw::SPLIT, builtin_cvt_split_inf},
     {nibi::kw::TYPE, builtin_reflect_type_inf},
