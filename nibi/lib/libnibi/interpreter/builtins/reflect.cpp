@@ -41,6 +41,8 @@ inline nibi::cell_ptr type(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
     return nibi::allocate_cell(nibi::types::F64);
   case nibi::cell_type_e::STRING:
     return nibi::allocate_cell(nibi::types::STRING);
+  case nibi::cell_type_e::PTR:
+    return nibi::allocate_cell(nibi::types::PTR);
   case nibi::cell_type_e::LIST: {
     auto list_info = resolved->as_list_info();
     switch (list_info.type) {

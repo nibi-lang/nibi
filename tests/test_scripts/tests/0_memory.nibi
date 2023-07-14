@@ -1,0 +1,24 @@
+(use "io")
+
+(:= x (mem-new 16))
+
+(assert (eq true (mem-is-set x)))
+
+(assert (eq true (mem-owned x)))
+
+(mem-abandon x)
+
+(assert (eq false (mem-owned x)))
+
+(try [
+  (mem-del x)
+  (assert (eq true false) "Able to free non-owned memory")
+] (nop) )
+
+(mem-acquire x)
+
+(mem-del x)
+
+(assert (eq false (mem-is-set x)))
+
+(io::println "COMPLETE")

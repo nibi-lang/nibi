@@ -133,9 +133,12 @@ cell_ptr cell_c::clone(env_c &env) {
   case cell_type_e::F64:
     new_cell->data.f64 = this->data.f64;
     break;
-  case cell_type_e::PTR:
+  case cell_type_e::PTR: {
     new_cell->data.ptr = this->data.ptr;
+    auto &pi = this->as_pointer_info();
+    new_cell->complex_data = pointer_info_s{ pi.is_owned, pi.size_bytes };
     break;
+  }
   case cell_type_e::SYMBOL: {
     auto referenced_symbol = env.get(this->as_symbol());
     if (referenced_symbol == nullptr) {

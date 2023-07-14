@@ -225,6 +225,33 @@ static function_info_s builtin_extern_call_inf = {
     nibi::kw::EXTERN_CALL, builtin_fn_extern_call,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
+// memory
+
+static function_info_s builtin_memory_new_inf = {
+    nibi::kw::MEM_NEW, builtin_fn_memory_new,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_del_inf = {
+    nibi::kw::MEM_DEL, builtin_fn_memory_del,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_cpy_inf = {
+    nibi::kw::MEM_CPY, builtin_fn_memory_cpy,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_load_inf = {
+    nibi::kw::MEM_LOAD, builtin_fn_memory_load,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_owned_inf = {
+    nibi::kw::MEM_OWNED, builtin_fn_memory_owned,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_acquire_inf = {
+    nibi::kw::MEM_ACQUIRE, builtin_fn_memory_acquire,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_is_set_inf = {
+    nibi::kw::MEM_IS_SET, builtin_fn_memory_is_set,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_memory_abandon_inf = {
+    nibi::kw::MEM_ABANDON, builtin_fn_memory_abandon,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
 // This map is used to look up the function info struct for a given symbol
 static function_router_t keyword_map = {
     {nibi::kw::EQ, builtin_comparison_eq_inf},
@@ -277,24 +304,31 @@ static function_router_t keyword_map = {
     {nibi::kw::BW_NOT, builtin_bitwise_not_inf},
     {nibi::kw::STR, builtin_cvt_string_inf},
     {nibi::kw::INT, builtin_cvt_int_inf},
-
     {nibi::kw::I8, builtin_cvt_i8_inf},
     {nibi::kw::I16, builtin_cvt_i16_inf},
     {nibi::kw::I32, builtin_cvt_i32_inf},
     {nibi::kw::I64, builtin_cvt_i64_inf},
-
     {nibi::kw::U8, builtin_cvt_u8_inf},
     {nibi::kw::U16, builtin_cvt_u16_inf},
     {nibi::kw::U32, builtin_cvt_u32_inf},
     {nibi::kw::U64, builtin_cvt_u64_inf},
-
     {nibi::kw::F32, builtin_cvt_f32_inf},
     {nibi::kw::F64, builtin_cvt_f64_inf},
-
     {nibi::kw::FLOAT, builtin_cvt_float_inf},
     {nibi::kw::SPLIT, builtin_cvt_split_inf},
     {nibi::kw::TYPE, builtin_reflect_type_inf},
-    {nibi::kw::EXTERN_CALL, builtin_extern_call_inf}};
+    {nibi::kw::EXTERN_CALL, builtin_extern_call_inf},
+
+    {nibi::kw::MEM_NEW, builtin_memory_new_inf},
+    {nibi::kw::MEM_DEL, builtin_memory_del_inf},
+    {nibi::kw::MEM_CPY, builtin_memory_cpy_inf},
+    {nibi::kw::MEM_LOAD, builtin_memory_load_inf},
+    {nibi::kw::MEM_OWNED, builtin_memory_owned_inf},
+    {nibi::kw::MEM_ACQUIRE, builtin_memory_acquire_inf},
+    {nibi::kw::MEM_ABANDON, builtin_memory_abandon_inf},
+    {nibi::kw::MEM_IS_SET, builtin_memory_is_set_inf}
+
+};
 
 // Retrieve the map of symbols to function info structs
 function_router_t &get_builtin_symbols_map() { return keyword_map; }

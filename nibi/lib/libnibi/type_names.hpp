@@ -16,6 +16,7 @@ static constexpr const char *UINT32 = "u32";
 static constexpr const char *UINT64 = "u64";
 static constexpr const char *F32 = "f32";
 static constexpr const char *F64 = "f64";
+static constexpr const char *PTR = "ptr";
 static constexpr const char *STRING = "string";
 static constexpr const char *LIST_DATA = "list:data";
 static constexpr const char *LIST_ACCESS = "list:access";
