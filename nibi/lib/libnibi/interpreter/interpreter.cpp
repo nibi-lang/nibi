@@ -114,30 +114,10 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
     // Cache the cell so we don't load it again later (potentially)
     cell = loaded_cell;
 
-    // Return the loaded cell
-    return std::move(cell);
-  }
-  case cell_type_e::ABERRANT:
-    return cell;
-  case cell_type_e::ENVIRONMENT:
     [[fallthrough]];
-  case cell_type_e::INTEGER:
-    [[fallthrough]];
-  case cell_type_e::DOUBLE:
-    [[fallthrough]];
-  case cell_type_e::FUNCTION:
-    [[fallthrough]];
-  case cell_type_e::NIL:
-    [[fallthrough]];
-  case cell_type_e::STRING: {
-    // Raw variable types can be loaded directly
-    return std::move(cell);
   }
   default: {
-    std::string msg = "Unhandled cell type: ";
-    msg += cell_type_to_string(cell->type);
-    throw exception_c(msg, cell->locator);
-    return nullptr;
+    return std::move(cell);
   }
   }
   return nullptr;

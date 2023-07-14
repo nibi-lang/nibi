@@ -16,13 +16,21 @@ namespace builtins {
 #define PERFORM_OPERATION(___op_fn)                                            \
   auto first_arg = ci.process_cell(list[1], env);                              \
   switch (first_arg->type) {                                                   \
-  case cell_type_e::INTEGER: {                                                 \
+  case cell_type_e::U8: \
+  case cell_type_e::U16:\
+  case cell_type_e::U32:\
+  case cell_type_e::U64:\
+  case cell_type_e::I8:\
+  case cell_type_e::I16:\
+  case cell_type_e::I32:\
+  case cell_type_e::I64:{                                                      \
     return allocate_cell(___op_fn<int64_t>(                                    \
         first_arg->to_integer(), ci,                                           \
         [](cell_ptr arg) -> int64_t { return arg->to_integer(); }, list,       \
         env));                                                                 \
   }                                                                            \
-  case cell_type_e::DOUBLE: {                                                  \
+  case cell_type_e::F32:                                                       \
+  case cell_type_e::F64: {                                                  \
     return allocate_cell(___op_fn<double>(                                     \
         first_arg->to_double(), ci,                                            \
         [](cell_ptr arg) -> double { return arg->to_double(); }, list, env));  \
@@ -82,7 +90,7 @@ cell_ptr builtin_fn_arithmetic_mod(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MOD, >=, 2)
   auto first_arg = ci.process_cell(list[1], env);
-  if (first_arg->type == cell_type_e::DOUBLE) {
+  if (first_arg->type == cell_type_e::F32 || first_arg->type == cell_type_e::F64) {
     double accumulate{first_arg->to_double()};
     NIBI_LIST_ITER_AND_LOAD_SKIP_N(
         2, { accumulate = std::fmod(accumulate, arg->to_double()); })

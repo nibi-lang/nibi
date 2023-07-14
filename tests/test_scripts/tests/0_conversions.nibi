@@ -27,8 +27,8 @@
 (assert (eq [[1 2] [3 88] [5 6] [7 8] [9 10]] (split [1 2 3 x 5 6 7 8 9 10] 2)) "")
 
 (assert (eq "string" (type (str 33))))
-(assert (eq "int" (type (int 33.33))))
-(assert (eq "float" (type (float "33.33"))))
+(assert (eq "i64" (type (int 33.33))))
+(assert (eq "f64" (type (float "33.33"))))
 
 
 (io::println "complete")

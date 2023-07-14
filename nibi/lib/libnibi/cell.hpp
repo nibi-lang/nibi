@@ -26,14 +26,30 @@ namespace nibi {
 static constexpr std::size_t CELL_VEC_RESERVE_SIZE = 1;
 #endif
 
+static constexpr uint8_t CELL_TYPE_MIN_NUMERIC = 0x01;
+static constexpr uint8_t CELL_TYPE_MIN_INTEGER = CELL_TYPE_MIN_NUMERIC;
+static constexpr uint8_t CELL_TYPE_MAX_INTEGER = 0x10;
+static constexpr uint8_t CELL_TYPE_MAX_NUMERIC = 0xF0;
+static constexpr uint8_t CELL_TYPE_MIN_FLOAT = CELL_TYPE_MAX_NUMERIC -1;
+static constexpr uint8_t CELL_TYPE_MAX_FLOAT = CELL_TYPE_MAX_NUMERIC;
+
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
 //!       meant to be used by external libraries that
 //!       need to store data in the cell
-enum class cell_type_e {
-  NIL,
-  INTEGER,
-  DOUBLE,
+enum class cell_type_e : uint8_t {
+  NIL = 0x00,
+  U8 = CELL_TYPE_MIN_NUMERIC,
+  U16,
+  U32,
+  U64,
+  I8,
+  I16,
+  I32,
+  I64 = CELL_TYPE_MAX_INTEGER,
+  F32,
+  F64 = CELL_TYPE_MAX_NUMERIC,
+  PTR,
   STRING,
   LIST,
   ABERRANT,
@@ -57,7 +73,7 @@ enum class function_type_e {
 
 enum class list_types_e {
   INSTRUCTION, // A single list of instruction (+ 1 2 3)
-  DATA,        // A data list [1 2 3]
+  DATA,        // A complex_data [1 2 3]
   ACCESS       // An access list {a b c}
 };
 
@@ -96,7 +112,7 @@ struct lambda_info_s {
 //!        be owned by the cell or not. Lambdas for instance
 //!        point to the environment they were defined in
 //!        but do not own it, while MACROS own the environment
-//!        to hold onto construction data. While two pointers
+//!        to hold onto construction this->data. While two pointers
 //!        or a further wrapper could be used, this is lighter
 struct function_info_s {
   std::string name;
@@ -205,41 +221,65 @@ public:
     // Initialize the data based on given type
     switch (type) {
     case cell_type_e::NIL:
-      [[fallthrough]];
     case cell_type_e::ABERRANT:
-      data = nullptr;
+      this->data.ptr = nullptr;
       break;
     case cell_type_e::ENVIRONMENT:
-      data = environment_info_s{"", nullptr};
+      complex_data = environment_info_s{"", nullptr};
       break;
     case cell_type_e::FUNCTION:
-      data = function_info_s("", nullptr, function_type_e::UNSET);
+      complex_data = function_info_s("", nullptr, function_type_e::UNSET);
       break;
-    case cell_type_e::INTEGER:
-      data = int64_t(0);
+    case cell_type_e::I8:
+    case cell_type_e::I16:
+    case cell_type_e::I32:
+    case cell_type_e::I64:
+    case cell_type_e::U8:
+    case cell_type_e::U16:
+    case cell_type_e::U32:
+    case cell_type_e::U64:
+      this->data.i64 = int64_t(0);
       break;
-    case cell_type_e::DOUBLE:
-      data = double(0.00);
+    case cell_type_e::F32:
+    case cell_type_e::F64:
+      this->data.f64 = double(0.00);
       break;
     case cell_type_e::STRING:
-      [[fallthrough]];
     case cell_type_e::SYMBOL:
-      data = std::string();
+      complex_data = std::string();
       break;
     case cell_type_e::LIST:
-      data = list_info_s(list_types_e::DATA);
+      complex_data = list_info_s(list_types_e::DATA);
       break;
     }
   }
-  cell_c(int64_t data) : type(cell_type_e::INTEGER), data(data) {}
-  cell_c(double data) : type(cell_type_e::DOUBLE), data(data) {}
-  cell_c(std::string data) : type(cell_type_e::STRING), data(data) {}
-  cell_c(symbol_s data) : type(cell_type_e::SYMBOL), data(data.data) {}
-  cell_c(list_info_s list) : type(cell_type_e::LIST), data(list) {}
-  cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT), data(acif) {}
-  cell_c(function_info_s fn) : type(cell_type_e::FUNCTION), data(fn) {}
-  cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT), data(env) {}
-  cell_c(cell_dict_t dict) : type(cell_type_e::DICT), data(dict) {}
+
+  
+  cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
+  cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
+  cell_c(int32_t data) : type(cell_type_e::I32) { this->data.i32 = data; }
+  cell_c(int64_t data) : type(cell_type_e::I64) { this->data.i64 = data; }
+
+  cell_c(uint8_t data) : type(cell_type_e::U8) { this->data.u8 = data; }
+  cell_c(uint16_t data) : type(cell_type_e::U16) { this->data.u16 = data; }
+  cell_c(uint32_t data) : type(cell_type_e::U32) { this->data.u32 = data; }
+  cell_c(uint64_t data) : type(cell_type_e::U64) { this->data.u64 = data; }
+
+  cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
+  cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
+
+  cell_c(std::string data) : type(cell_type_e::STRING) { complex_data = data; }
+
+  cell_c(symbol_s data) : type(cell_type_e::SYMBOL) { complex_data = data.data; }
+  cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
+  cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
+    this->data.aberrant = acif;
+  }
+  cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) { complex_data = fn; }
+  cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
+    complex_data = env;
+  }
+  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) { complex_data = dict; }
 
   cell_c() = delete;
   cell_c(const cell_c &other) = delete;
@@ -249,8 +289,24 @@ public:
   virtual ~cell_c();
 
   cell_type_e type{cell_type_e::NIL};
-  std::any data{0};
   locator_ptr locator{nullptr};
+
+  union {
+    void *ptr;
+    int8_t i8;
+    int16_t i16;
+    int32_t i32;
+    int64_t i64;
+    uint8_t u8;
+    uint16_t u16;
+    uint32_t u32;
+    uint64_t u64;
+    float f32;
+    double f64;
+    aberrant_cell_if *aberrant;
+  } data;
+
+  std::any complex_data{0};
 
   //! \brief Deep copy the cell
   cell_ptr clone(env_c &env);
@@ -326,9 +382,22 @@ public:
   //! \throws cell_access_exception_c if the cell is not a dict type
   cell_dict_t &as_dict();
 
+  //! \brief Check if a cell is an integer
+  inline bool is_integer() const {
+    return static_cast<uint8_t>(type) >= CELL_TYPE_MIN_INTEGER &&
+           static_cast<uint8_t>(type) <= CELL_TYPE_MAX_INTEGER;
+  }
+
+  //! \brief Check if a cell is a floating point number
+  inline bool is_float() const {
+    return static_cast<uint8_t>(type) >= CELL_TYPE_MIN_FLOAT &&
+           static_cast<uint8_t>(type) <= CELL_TYPE_MAX_FLOAT;
+  }
+
   //! \brief Check if a cell is a numeric type
   inline bool is_numeric() const {
-    return type == cell_type_e::INTEGER || type == cell_type_e::DOUBLE;
+    return static_cast<uint8_t>(type) >= CELL_TYPE_MIN_NUMERIC &&
+           static_cast<uint8_t>(type) <= CELL_TYPE_MAX_NUMERIC;
   }
 };
 

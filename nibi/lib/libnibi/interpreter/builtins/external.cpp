@@ -94,10 +94,10 @@ struct c_data {
 // Command tag to type information so we can strictly enforce
 // c types that users can use while mapping c types to nibi types
 std::unordered_map<std::string, c_types_s> command_tag_to_type = {
-    {":int", {"int", nibi::cell_type_e::INTEGER, &ffi_type_sint64}},
+    {":int", {"int", nibi::cell_type_e::I64, &ffi_type_sint64}},
     {":void", {"void", nibi::cell_type_e::NIL, &ffi_type_void}},
-    {":double", {"double", nibi::cell_type_e::DOUBLE, &ffi_type_double}},
-    {":float", {"float", nibi::cell_type_e::DOUBLE, &ffi_type_float}},
+    {":double", {"double", nibi::cell_type_e::F64, &ffi_type_double}},
+    {":float", {"float", nibi::cell_type_e::F32, &ffi_type_float}},
     {":str", {"char*", nibi::cell_type_e::STRING, &ffi_type_pointer}}};
 
 } // namespace
@@ -153,10 +153,18 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
     c_data cd;
     cd.original_data = ci.process_cell(list[i], env);
     switch (cd.original_data->type) {
-    case cell_type_e::INTEGER:
+    case cell_type_e::I8:
+    case cell_type_e::I16:
+    case cell_type_e::I32:
+    case cell_type_e::I64:
+    case cell_type_e::U8:
+    case cell_type_e::U16:
+    case cell_type_e::U32:
+    case cell_type_e::U64:
       cd.data.i = cd.original_data->as_integer();
       break;
-    case cell_type_e::DOUBLE:
+    case cell_type_e::F32:
+    case cell_type_e::F64:
       cd.data.d = cd.original_data->as_double();
       break;
     case cell_type_e::STRING:
@@ -255,9 +263,17 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
   switch (return_data_info.cell_type) {
   case cell_type_e::NIL:
     return allocate_cell(cell_type_e::NIL);
-  case cell_type_e::INTEGER:
+    case cell_type_e::I8:
+    case cell_type_e::I16:
+    case cell_type_e::I32:
+    case cell_type_e::I64:
+    case cell_type_e::U8:
+    case cell_type_e::U16:
+    case cell_type_e::U32:
+    case cell_type_e::U64:
     return allocate_cell((int64_t)return_data.data.i);
-  case cell_type_e::DOUBLE:
+    case cell_type_e::F32:
+    case cell_type_e::F64:
     return allocate_cell((double)return_data.data.d);
   case cell_type_e::STRING:
     return allocate_cell(std::string(return_data.data.s));

@@ -19,10 +19,26 @@ inline nibi::cell_ptr type(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
     return nibi::allocate_cell(nibi::types::ABERRANT);
   case nibi::cell_type_e::NIL:
     return nibi::allocate_cell(nibi::types::NIL);
-  case nibi::cell_type_e::INTEGER:
-    return nibi::allocate_cell(nibi::types::INT);
-  case nibi::cell_type_e::DOUBLE:
-    return nibi::allocate_cell(nibi::types::FLOAT);
+  case nibi::cell_type_e::I8:
+    return nibi::allocate_cell(nibi::types::INT8);
+  case nibi::cell_type_e::I16:
+    return nibi::allocate_cell(nibi::types::INT16);
+  case nibi::cell_type_e::I32:
+    return nibi::allocate_cell(nibi::types::INT32);
+  case nibi::cell_type_e::I64:
+    return nibi::allocate_cell(nibi::types::INT64);
+  case nibi::cell_type_e::U8:
+    return nibi::allocate_cell(nibi::types::UINT8);
+  case nibi::cell_type_e::U16:
+    return nibi::allocate_cell(nibi::types::UINT16);
+  case nibi::cell_type_e::U32:
+    return nibi::allocate_cell(nibi::types::UINT32);
+  case nibi::cell_type_e::U64:
+    return nibi::allocate_cell(nibi::types::UINT64);
+  case nibi::cell_type_e::F32:
+    return nibi::allocate_cell(nibi::types::F32);
+  case nibi::cell_type_e::F64:
+    return nibi::allocate_cell(nibi::types::F64);
   case nibi::cell_type_e::STRING:
     return nibi::allocate_cell(nibi::types::STRING);
   case nibi::cell_type_e::LIST: {

@@ -14,7 +14,7 @@ namespace builtins {
 #define NIBI_CONVERSION_TO_TYPE(type, conversion_method)                       \
   auto value = ci.process_cell(list[1], env);                                  \
   try {                                                                        \
-    type result = std::stoll(value->to_string());                              \
+    type result = conversion_method(value->to_string());                              \
     return allocate_cell(result);                                              \
   } catch (std::invalid_argument & e) {                                        \
     throw interpreter_c::exception_c(                                          \
