@@ -64,14 +64,14 @@ enum class cell_type_e : uint8_t {
 extern const char *cell_type_to_string(const cell_type_e type);
 
 static std::unordered_map<std::string, cell_type_e> cell_trivial_type_tag_map =
-    {
-        {":u8", cell_type_e::U8},      {":u16", cell_type_e::U16},
-        {":u32", cell_type_e::U32},    {":u64", cell_type_e::U64},
-        {":i8", cell_type_e::I8},      {":i16", cell_type_e::I16},
-        {":i32", cell_type_e::I32},    {":i64", cell_type_e::I64},
-        {":f32", cell_type_e::F32},    {":f64", cell_type_e::F64},
-        {":str", cell_type_e::STRING},
-};
+    {{":u8", cell_type_e::U8},      {":u16", cell_type_e::U16},
+     {":u32", cell_type_e::U32},    {":u64", cell_type_e::U64},
+     {":i8", cell_type_e::I8},      {":i16", cell_type_e::I16},
+     {":i32", cell_type_e::I32},    {":i64", cell_type_e::I64},
+     {":f32", cell_type_e::F32},    {":f64", cell_type_e::F64},
+     {":str", cell_type_e::STRING}, {":nil", cell_type_e::NIL},
+     {":ptr", cell_type_e::PTR},    {":int", cell_type_e::I64},
+     {":float", cell_type_e::F64}};
 
 //! \brief The type of a function that a cell holds
 enum class function_type_e {
@@ -286,12 +286,10 @@ public:
   cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
   cell_c(int32_t data) : type(cell_type_e::I32) { this->data.i32 = data; }
   cell_c(int64_t data) : type(cell_type_e::I64) { this->data.i64 = data; }
-
   cell_c(uint8_t data) : type(cell_type_e::U8) { this->data.u8 = data; }
   cell_c(uint16_t data) : type(cell_type_e::U16) { this->data.u16 = data; }
   cell_c(uint32_t data) : type(cell_type_e::U32) { this->data.u32 = data; }
   cell_c(uint64_t data) : type(cell_type_e::U64) { this->data.u64 = data; }
-
   cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
   cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
 
