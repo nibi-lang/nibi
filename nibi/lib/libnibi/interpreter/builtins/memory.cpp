@@ -66,10 +66,13 @@ cell_ptr builtin_fn_memory_owned(cell_processor_if &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_memory_abandon(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_ABANDON, ==, 2)
-  auto ptr = ci.process_cell(list[1], env);
-  auto &ptr_info = ptr->as_pointer_info();
-  ptr_info.is_owned = false;
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_ABANDON, >=, 2)
+  auto ptr = allocate_cell(cell_type_e::PTR);
+  for (size_t i = 1; i < list.size(); i++) {
+    ptr = ci.process_cell(list[i], env);
+    auto &ptr_info = ptr->as_pointer_info();
+    ptr_info.is_owned = false;
+  }
   return ptr;
 }
 

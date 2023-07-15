@@ -25,6 +25,7 @@
 
 (fn is_f32 [_x] (eq (type _x) "f32"))
 (fn is_f64 [_x] (eq (type _x) "f64"))
+(fn is_ptr [_x] (eq (type _x) "ptr"))
 
 (fn is_int [_x] [
   (iter ["i8" "i16" "i32" "i64" "u8" "u16" "u32" "u64"] _t
