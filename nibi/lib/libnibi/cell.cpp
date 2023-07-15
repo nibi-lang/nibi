@@ -450,4 +450,13 @@ std::string &cell_c::as_symbol() {
   }
 }
 
+void cell_c::update_string(const std::string data) {
+  if (this->type != cell_type_e::STRING && this->type != cell_type_e::SYMBOL) {
+    throw cell_access_exception_c("Cell does not contain a string to update",
+                                  this->locator);
+  }
+  complex_data = data;
+  this->data.cstr = as_c_string();
+}
+
 } // namespace nibi

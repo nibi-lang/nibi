@@ -34,6 +34,7 @@ syn keyword nibiQuickType true false nil nan inf
 
 syn match nibiDictType ':let\|:get\|:del\|:keys\|:vals' contained
 syn match nibiCType ':str\|:void\|:int\|:double\|:float' contained
+syn match nibiTagType ':u8\|:u16\|:u32\|:u64\|:i8\|:i16\|:i32\|:i64\|:f32\|:f64' contained
 
 
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
@@ -59,6 +60,7 @@ hi def link nibiAccessList NibiAccessList
 hi def link nibiKeyword Keyword
 hi def link nibiDictType CommandTags
 hi def link nibiCType CommandTags
+hi def link nibiTagType CommandTags
 
 let b:current_syntax = "nibi"
 

@@ -11,6 +11,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
 
 #define CELL_LIST_USE_STD_VECTOR 1
 
@@ -29,9 +30,10 @@ static constexpr std::size_t CELL_VEC_RESERVE_SIZE = 1;
 static constexpr uint8_t CELL_TYPE_MIN_NUMERIC = 0x01;
 static constexpr uint8_t CELL_TYPE_MIN_INTEGER = CELL_TYPE_MIN_NUMERIC;
 static constexpr uint8_t CELL_TYPE_MAX_INTEGER = 0x10;
-static constexpr uint8_t CELL_TYPE_MAX_NUMERIC = 0xF0;
+static constexpr uint8_t CELL_TYPE_MAX_NUMERIC = 0xB0;
 static constexpr uint8_t CELL_TYPE_MIN_FLOAT = CELL_TYPE_MAX_NUMERIC - 1;
 static constexpr uint8_t CELL_TYPE_MAX_FLOAT = CELL_TYPE_MAX_NUMERIC;
+static constexpr uint8_t CELL_TYPE_MAX_TRIVIAL = 0xF0;
 
 //! \brief The type of a cell
 //! \note The aberrant type is Mysterious externally defined type
@@ -49,8 +51,8 @@ enum class cell_type_e : uint8_t {
   I64 = CELL_TYPE_MAX_INTEGER,
   F32,
   F64 = CELL_TYPE_MAX_NUMERIC,
+  STRING = CELL_TYPE_MAX_TRIVIAL,
   PTR,
-  STRING,
   LIST,
   ABERRANT,
   FUNCTION,
@@ -60,6 +62,16 @@ enum class cell_type_e : uint8_t {
 };
 
 extern const char *cell_type_to_string(const cell_type_e type);
+
+static std::unordered_map<std::string, cell_type_e> cell_trivial_type_tag_map =
+    {
+        {":u8", cell_type_e::U8},      {":u16", cell_type_e::U16},
+        {":u32", cell_type_e::U32},    {":u64", cell_type_e::U64},
+        {":i8", cell_type_e::I8},      {":i16", cell_type_e::I16},
+        {":i32", cell_type_e::I32},    {":i64", cell_type_e::I64},
+        {":f32", cell_type_e::F32},    {":f64", cell_type_e::F64},
+        {":str", cell_type_e::STRING},
+};
 
 //! \brief The type of a function that a cell holds
 enum class function_type_e {
@@ -283,14 +295,10 @@ public:
   cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
   cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
 
-  cell_c(std::string data) : type(cell_type_e::STRING) {
-    complex_data = data;
-    this->data.cstr = as_c_string();
-  }
+  cell_c(std::string data) : type(cell_type_e::STRING) { update_string(data); }
 
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
-    complex_data = data.data;
-    this->data.cstr = as_c_string();
+    update_string(data.data);
   }
 
   cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
@@ -418,6 +426,11 @@ public:
   //! \brief Get the c pointer being held on to by the cell
   //! \throws cell_access_exception_c if the cell is not a pointer type
   void *as_pointer();
+
+  //! \brief Update the cells string data
+  //! \param str The new string data
+  //! \throws cell_access_exception_c if the cell does not contain a string
+  void update_string(const std::string str);
 
   //! \brief Check if a cell is an integer
   inline bool is_integer() const {
