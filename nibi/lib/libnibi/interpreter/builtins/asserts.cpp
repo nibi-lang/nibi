@@ -16,7 +16,7 @@ cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, >=, 2)
 
   auto value = ci.process_cell(list[1], env);
-  if (value->type != cell_type_e::INTEGER) {
+  if (!value->is_integer()) {
     throw interpreter_c::exception_c(
         "Expected item to evaluate to integer type", list[1]->locator);
   }

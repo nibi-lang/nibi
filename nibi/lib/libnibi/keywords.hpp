@@ -54,11 +54,29 @@ static constexpr const char *BW_XOR = "bw-xor";
 static constexpr const char *BW_NOT = "bw-not";
 static constexpr const char *STR = "str";
 static constexpr const char *INT = "int";
+static constexpr const char *I8 = "i8";
+static constexpr const char *I16 = "i16";
+static constexpr const char *I32 = "i32";
+static constexpr const char *I64 = "i64";
+static constexpr const char *U8 = "u8";
+static constexpr const char *U16 = "u16";
+static constexpr const char *U32 = "u32";
+static constexpr const char *U64 = "u64";
 static constexpr const char *FLOAT = "float";
 static constexpr const char *SPLIT = "split";
+static constexpr const char *F32 = "f32";
+static constexpr const char *F64 = "f64";
 static constexpr const char *TYPE = "type";
 static constexpr const char *MACRO = "macro";
 static constexpr const char *EXTERN_CALL = "extern-call";
+static constexpr const char *MEM_NEW = "mem-new";
+static constexpr const char *MEM_DEL = "mem-del";
+static constexpr const char *MEM_CPY = "mem-cpy";
+static constexpr const char *MEM_LOAD = "mem-load";
+static constexpr const char *MEM_OWNED = "mem-owned";
+static constexpr const char *MEM_ACQUIRE = "mem-acquire";
+static constexpr const char *MEM_ABANDON = "mem-abandon";
+static constexpr const char *MEM_IS_SET = "mem-is-set";
 
 } // namespace kw
 } // namespace nibi

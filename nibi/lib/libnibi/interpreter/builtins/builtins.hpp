@@ -154,6 +154,27 @@ extern cell_ptr builtin_fn_cvt_to_float(cell_processor_if &ci,
 extern cell_ptr builtin_fn_cvt_to_split(cell_processor_if &ci,
                                         cell_list_t &list, env_c &env);
 
+extern cell_ptr builtin_fn_cvt_to_i8(cell_processor_if &ci, cell_list_t &list,
+                                     env_c &env);
+extern cell_ptr builtin_fn_cvt_to_i16(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_i32(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_i64(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_u8(cell_processor_if &ci, cell_list_t &list,
+                                     env_c &env);
+extern cell_ptr builtin_fn_cvt_to_u16(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_u32(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_u64(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_f32(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_cvt_to_f64(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+
 // Reflection
 
 extern cell_ptr builtin_fn_reflect_type(cell_processor_if &ci,
@@ -163,5 +184,24 @@ extern cell_ptr builtin_fn_reflect_type(cell_processor_if &ci,
 
 extern cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
                                        env_c &env);
+// Manual memory ops
+
+extern cell_ptr builtin_fn_memory_new(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_memory_del(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
+                                      env_c &env);
+extern cell_ptr builtin_fn_memory_load(cell_processor_if &ci, cell_list_t &list,
+                                       env_c &env);
+extern cell_ptr builtin_fn_memory_owned(cell_processor_if &ci,
+                                        cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_memory_acquire(cell_processor_if &ci,
+                                          cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_memory_abandon(cell_processor_if &ci,
+                                          cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_memory_is_set(cell_processor_if &ci,
+                                         cell_list_t &list, env_c &env);
+
 } // namespace builtins
 } // namespace nibi

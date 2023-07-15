@@ -24,7 +24,7 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
         "Expected symbol as first argument to assign", (*it)->locator);
   }
 
-  auto &target_variable_name = (*it)->as_string();
+  auto &target_variable_name = (*it)->as_symbol();
 
   if (target_variable_name[0] == '$' || target_variable_name[0] == ':') {
     throw interpreter_c::exception_c(

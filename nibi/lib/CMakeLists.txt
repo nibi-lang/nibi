@@ -55,6 +55,7 @@ set(NIBI_SOURCES
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/excepts.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/reflect.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/external.cpp
+  ${PROJECT_SOURCE_DIR}/libnibi/interpreter/builtins/memory.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/interpreter/interpreter.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/front/intake.cpp
   ${PROJECT_SOURCE_DIR}/libnibi/front/token.cpp

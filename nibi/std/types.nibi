@@ -13,11 +13,37 @@
 (fn is_dict [_x]
   (eq (type _x) "dict"))
 
-(fn is_int [_x] 
-  (eq (type _x) "int"))
+(fn is_i8 [_x] (eq (type _x) "i8"))
+(fn is_i16 [_x] (eq (type _x) "i16"))
+(fn is_i32 [_x] (eq (type _x) "i32"))
+(fn is_i64 [_x] (eq (type _x) "i64"))
 
-(fn is_float [_x] 
-  (eq (type _x) "float"))
+(fn is_u8 [_x] (eq (type _x) "u8"))
+(fn is_u16 [_x] (eq (type _x) "u16"))
+(fn is_u32 [_x] (eq (type _x) "u32"))
+(fn is_u64 [_x] (eq (type _x) "u64"))
+
+(fn is_f32 [_x] (eq (type _x) "f32"))
+(fn is_f64 [_x] (eq (type _x) "f64"))
+(fn is_ptr [_x] (eq (type _x) "ptr"))
+
+(fn is_int [_x] [
+  (iter ["i8" "i16" "i32" "i64" "u8" "u16" "u32" "u64"] _t
+    (if (eq _t (type _x)) (<- true)))
+  (<- false)
+])
+
+(fn is_f32 [_x]
+  (eq (type _x) "f32"))
+
+(fn is_f64 [_x]
+  (eq (type _x) "f64"))
+
+(fn is_float [_x] [
+  (iter ["f32" "f64"] _t
+    (if (eq _t (type _x)) (<- true)))
+  (<- false)
+])
 
 (fn is_string [_x]
   (eq (type _x) "string"))

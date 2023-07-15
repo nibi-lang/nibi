@@ -11,50 +11,42 @@ namespace nibi {
 
 #define PERFORM_OP_ALLOW_STRING(___op)                                         \
   {                                                                            \
-    switch (target_type) {                                                     \
-    case cell_type_e::INTEGER: {                                               \
+    if (lhs.is_integer()) {                                                    \
       auto r =                                                                 \
           allocate_cell((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
       r->locator = locator;                                                    \
       return std::move(r);                                                     \
-    }                                                                          \
-    case cell_type_e::DOUBLE: {                                                \
+    } else if (lhs.is_float()) {                                               \
       auto r =                                                                 \
           allocate_cell((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
       r->locator = locator;                                                    \
       return std::move(r);                                                     \
-    }                                                                          \
-    case cell_type_e::STRING: {                                                \
+    } else if (lhs.type == cell_type_e::STRING) {                              \
       auto r =                                                                 \
           allocate_cell((int64_t)(lhs.as_string() ___op rhs.to_string()));     \
       r->locator = locator;                                                    \
       return std::move(r);                                                     \
-    }                                                                          \
-    default: {                                                                 \
+    } else {                                                                   \
       auto r =                                                                 \
           allocate_cell((int64_t)(lhs.to_string() ___op rhs.to_string()));     \
       r->locator = locator;                                                    \
       return std::move(r);                                                     \
     }                                                                          \
-    }                                                                          \
   }
 
 #define PERFORM_OP_NO_STRING(___op)                                            \
   {                                                                            \
-    switch (target_type) {                                                     \
-    case cell_type_e::INTEGER: {                                               \
+    if (lhs.is_integer()) {                                                    \
       auto r =                                                                 \
           allocate_cell((int64_t)(lhs.as_integer() ___op rhs.to_integer()));   \
       r->locator = locator;                                                    \
       return std::move(r);                                                     \
-    }                                                                          \
-    case cell_type_e::DOUBLE: {                                                \
+    } else if (lhs.is_float()) {                                               \
       auto r =                                                                 \
           allocate_cell((int64_t)(lhs.as_double() ___op rhs.to_double()));     \
       r->locator = locator;                                                    \
       return std::move(r);                                                     \
-    }                                                                          \
-    default:                                                                   \
+    } else {                                                                   \
       throw interpreter_c::exception_c(                                        \
           "Expected numeric value, got " +                                     \
               std::string(cell_type_to_string(lhs.type)),                      \

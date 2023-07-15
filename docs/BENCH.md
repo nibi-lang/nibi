@@ -192,3 +192,18 @@ the interpreter.
 | primality.nibi  | 0.8339s   | 833.8564ms |
 | 4sieve.nibi     | 0.8865s   | 886.4585ms |
 | leibniz.nibi    | 0.0944s   | 94.4019ms  |
+
+### 15-July-2023
+
+git hash **63f99204374f6dab8cb3e240737e3050c81b911d**
+
+Refactor of cells and cell interaction for "better c interop"
+which meant finer grain integers and floats. New tags added
+for type info and c-ffi stuff. Big rework.
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.0781s   | 78.1179ms  |
+| primality.nibi  | 0.7938s   | 793.8415ms |
+| 4sieve.nibi     | 0.8073s   | 807.3446ms |
+| leibniz.nibi    | 0.0918s   | 91.7717ms  |

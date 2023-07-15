@@ -10,8 +10,6 @@ The Nibi programming language! Nibi is a list processing language that is under 
 
 For documentation on the language please see `docs/LANGUAGE.md` 
 
-[![asciicast](https://asciinema.org/a/594596.svg)](https://asciinema.org/a/594596)
-
 ## Demo applications
 
 ### Fizzbuzz
@@ -74,24 +72,53 @@ For documentation on the language please see `docs/LANGUAGE.md`
 libffi-dev
 ```
 
-To get started, clone the repo and ensure you run:
-
-```
-    git submodule update --init --recursive
-```
-
-Before installing `nibi` you will need to create the `NIBI_HOME` environment variable that directs
+Before installing `nibi` you will need to create the `NIBI_PATH` environment variable that directs
 to an area that modules and everything can be installed to. 
 
 Once that is done use `commander.py` to help build/ install Nibi and its default modules.
 
-You can use `-h` to see the options, or just use `-n -m -c -t` 
-to build nibi, build/ install the modules, run module checks, and automated tests to ensure
-that the system is setup correctly.
+You can use `-h` to see the options, or just use `-n -m` 
+to build nibi, build/ install the modules.
+
+Once nibi is built and installed, `ldconfig` may need to be ran so the application can locate the library `libnibi` that
+was just installed.
+
+Verify that the nibi application was installed by running `which nibi`. This should display something similar to
+`/usr/local/bin/nibi`. If nothing shows up there was an error in installing. Run commander again and see if any
+errors are prompted. 
+
+Once the intallation is confirmed, check the system to ensure nibi and modules are running correctly with `commander.py -c -t`.
+This will run checks on all installed nibi modules, and then run their respective test suites.
+
+# REPL
+
+Of course nibi has a repl! Just type in `nibi` once its installed and you will be prompted to start using the language.
+
+# Input
+
+Nibi can be setup to be executed by placing a shebang line at the top of the file that pointes to the application on disk:
+`#!/usr/local/bin/nibi` and `chmod`ing the file with the `-x` option. 
+
+If this is done, then nibi scripts can then take in data piped to it like so:
+
+```
+
+cat some_file.txt | cool_parser.nibi
+
+```
+
+Of course nibi applications/ scripts also take in input arguments as one might suspect:
+
+```
+./cool_parser.nibi some_file.txt
+
+
+nibi cool_parser.nibi some_file.txt
+```
 
 # Applications
 
-A Nibi application is any directory with a `main.nibi` located within it. From here, any `tests` directory will be associated with the application and any non-installed module described here
+A Nibi application is any directory with a `main.nibi` located within it. From here, any `tests` directory will be associated with the application (described below) and any non-installed module (described below) located here
 can be utilized within the application. Applications can be ran at the directory level as such:
 
 ```

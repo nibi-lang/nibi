@@ -1,0 +1,60 @@
+(use "io")
+
+(:= x (mem-new 16))
+
+(assert (eq true (mem-is-set x)))
+
+(assert (eq true (mem-owned x)))
+
+(mem-abandon x)
+
+(assert (eq false (mem-owned x)))
+
+(try [
+  (mem-del x)
+  (assert (eq true false) "Able to free non-owned memory")
+] (nop) )
+
+(mem-acquire x)
+
+(mem-del x)
+
+(assert (eq false (mem-is-set x)))
+
+(set x (mem-new 16))
+
+(:= y (mem-new nil))
+
+(mem-cpy x y)
+
+(assert (eq true (mem-is-set y)))
+(assert (eq true (mem-owned y)))
+
+(mem-del y)
+(mem-del x)
+
+(set x "Some string")
+(set y (mem-new nil))
+
+(mem-cpy x y)
+
+(assert (eq true (mem-is-set y)))
+(assert (eq true (mem-owned y)))
+
+(:= a (mem-cpy (u8 100) (mem-new 8)))
+(:= b (mem-load :u8 a))
+(assert (eq 100 b))
+
+
+(:= some_string "This is a new string")
+(:= c (mem-cpy some_string (mem-new (len some_string))))
+(:= d (mem-load :str c))
+
+
+(mem-del a y c)
+
+(io::println d)
+
+(assert (eq some_string d))
+
+(io::println "COMPLETE")

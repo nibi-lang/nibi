@@ -27,10 +27,28 @@ const char *cell_type_to_string(const cell_type_e type) {
   switch (type) {
   case cell_type_e::NIL:
     return "NIL";
-  case cell_type_e::INTEGER:
-    return "INTEGER";
-  case cell_type_e::DOUBLE:
-    return "DOUBLE";
+  case cell_type_e::I8:
+    return "I8";
+  case cell_type_e::I16:
+    return "I16";
+  case cell_type_e::I32:
+    return "I32";
+  case cell_type_e::I64:
+    return "I64";
+  case cell_type_e::U8:
+    return "U8";
+  case cell_type_e::U16:
+    return "U16";
+  case cell_type_e::U32:
+    return "U32";
+  case cell_type_e::U64:
+    return "U64";
+  case cell_type_e::F32:
+    return "F32";
+  case cell_type_e::F64:
+    return "F64";
+  case cell_type_e::PTR:
+    return "PTR";
   case cell_type_e::STRING:
     return "STRING";
   case cell_type_e::FUNCTION:
@@ -84,12 +102,43 @@ cell_ptr cell_c::clone(env_c &env) {
   switch (this->type) {
   case cell_type_e::NIL:
     return allocate_cell(cell_type_e::NIL);
-  case cell_type_e::INTEGER:
-    new_cell->data = this->to_integer();
+
+  case cell_type_e::I8:
+    new_cell->data.i8 = this->data.i8;
     break;
-  case cell_type_e::DOUBLE:
-    new_cell->data = this->to_double();
+  case cell_type_e::I16:
+    new_cell->data.i16 = this->data.i16;
     break;
+  case cell_type_e::I32:
+    new_cell->data.i32 = this->data.i32;
+    break;
+  case cell_type_e::I64:
+    new_cell->data.i64 = this->data.i64;
+    break;
+  case cell_type_e::U8:
+    new_cell->data.u8 = this->data.u8;
+    break;
+  case cell_type_e::U16:
+    new_cell->data.u16 = this->data.u16;
+    break;
+  case cell_type_e::U32:
+    new_cell->data.u32 = this->data.u32;
+    break;
+  case cell_type_e::U64:
+    new_cell->data.u64 = this->data.u64;
+    break;
+  case cell_type_e::F32:
+    new_cell->data.f32 = this->data.f32;
+    break;
+  case cell_type_e::F64:
+    new_cell->data.f64 = this->data.f64;
+    break;
+  case cell_type_e::PTR: {
+    new_cell->data.ptr = this->data.ptr;
+    auto &pi = this->as_pointer_info();
+    new_cell->complex_data = pointer_info_s{pi.is_owned, pi.size_bytes};
+    break;
+  }
   case cell_type_e::SYMBOL: {
     auto referenced_symbol = env.get(this->as_symbol());
     if (referenced_symbol == nullptr) {
@@ -99,13 +148,13 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::STRING:
-    new_cell->data = this->to_string();
+    new_cell->complex_data = this->to_string();
     break;
   case cell_type_e::FUNCTION: {
 
     auto &func_info = this->as_function_info();
 
-    new_cell->data =
+    new_cell->complex_data =
         function_info_s(func_info.name, func_info.fn, func_info.type);
 
     if (func_info.type == function_type_e::FAUX) {
@@ -147,7 +196,7 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::ABERRANT: {
-    new_cell->data = this->as_aberrant();
+    new_cell->data.aberrant = this->as_aberrant();
     break;
   }
   }
@@ -157,72 +206,70 @@ cell_ptr cell_c::clone(env_c &env) {
 void cell_c::update_from(cell_c &other, env_c &env) {
   this->type = other.type;
   this->data = other.clone(env)->data;
+  this->complex_data = other.clone(env)->complex_data;
 }
 
 int64_t cell_c::to_integer() {
-  if (this->type == cell_type_e::DOUBLE) {
+  if (is_float()) {
     return (int64_t)this->as_double();
   }
   return this->as_integer();
 }
 
 int64_t &cell_c::as_integer() {
-  try {
-    return std::any_cast<int64_t &>(this->data);
-  } catch (const std::bad_any_cast &e) {
+  if (!is_integer()) {
     throw cell_access_exception_c(
         "Cell is not an integer: " + this->to_string(), this->locator);
   }
+  return data.i64;
 }
 
 double cell_c::to_double() {
-  if (this->type == cell_type_e::INTEGER) {
+  if (is_integer()) {
     return (double)this->as_integer();
   }
   return this->as_double();
 }
 
 double &cell_c::as_double() {
-  try {
-    return std::any_cast<double &>(this->data);
-  } catch (const std::bad_any_cast &e) {
-    throw cell_access_exception_c("Cell is not a double", this->locator);
+  if (static_cast<uint8_t>(type) < CELL_TYPE_MIN_FLOAT ||
+      static_cast<uint8_t>(type) > CELL_TYPE_MAX_FLOAT) {
+    throw cell_access_exception_c(
+        "Cell is not a floating point: " + this->to_string(), this->locator);
   }
+  return data.f64;
 }
 
 cell_list_t cell_c::to_list() { return this->as_list(); }
 
 cell_list_t &cell_c::as_list() {
-  try {
-    auto &info = as_list_info();
-    return info.list;
-  } catch (const std::bad_any_cast &e) {
+  if (type != cell_type_e::LIST) {
     throw cell_access_exception_c("Cell is not a list", this->locator);
   }
+  return as_list_info().list;
 }
 
 list_info_s cell_c::to_list_info() { return this->as_list_info(); }
 
 list_info_s &cell_c::as_list_info() {
   try {
-    return std::any_cast<list_info_s &>(this->data);
+    return std::any_cast<list_info_s &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Cell is not a list", this->locator);
   }
 }
 
 aberrant_cell_if *cell_c::as_aberrant() {
-  try {
-    return std::any_cast<aberrant_cell_if *>(this->data);
-  } catch (const std::bad_any_cast &e) {
+  if (type != cell_type_e::ABERRANT) {
     throw cell_access_exception_c("Cell is not an aberrant cell",
                                   this->locator);
   }
+  return data.aberrant;
 }
 
 function_info_s &cell_c::as_function_info() {
   try {
-    return std::any_cast<function_info_s &>(this->data);
+    return std::any_cast<function_info_s &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Cell is not a function", this->locator);
   }
@@ -230,15 +277,32 @@ function_info_s &cell_c::as_function_info() {
 
 environment_info_s &cell_c::as_environment_info() {
   try {
-    return std::any_cast<environment_info_s &>(this->data);
+    return std::any_cast<environment_info_s &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Cell is not an environment", this->locator);
   }
 }
 
+pointer_info_s &cell_c::as_pointer_info() {
+  try {
+    return std::any_cast<pointer_info_s &>(this->complex_data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Cell does not contain a pointer",
+                                  this->locator);
+  }
+}
+
+void *cell_c::as_pointer() {
+  if (type != cell_type_e::PTR) {
+    throw cell_access_exception_c("Cell does not contain a pointer",
+                                  this->locator);
+  }
+  return data.ptr;
+}
+
 cell_dict_t &cell_c::as_dict() {
   try {
-    return std::any_cast<cell_dict_t &>(this->data);
+    return std::any_cast<cell_dict_t &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Cell is not a dict", this->locator);
   }
@@ -248,10 +312,28 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
   switch (this->type) {
   case cell_type_e::NIL:
     return "nil";
-  case cell_type_e::INTEGER:
-    return std::to_string(this->as_integer());
-  case cell_type_e::DOUBLE:
-    return std::to_string(this->as_double());
+  case cell_type_e::I8:
+    return std::to_string(this->data.i8);
+  case cell_type_e::I16:
+    return std::to_string(this->data.i16);
+  case cell_type_e::I32:
+    return std::to_string(this->data.i32);
+  case cell_type_e::I64:
+    return std::to_string(this->data.i64);
+  case cell_type_e::U8:
+    return std::to_string(this->data.u8);
+  case cell_type_e::U16:
+    return std::to_string(this->data.u16);
+  case cell_type_e::U32:
+    return std::to_string(this->data.u32);
+  case cell_type_e::U64:
+    return std::to_string(this->data.u64);
+  case cell_type_e::F32:
+    return std::to_string(this->data.f32);
+  case cell_type_e::F64:
+    return std::to_string(this->data.f64);
+  case cell_type_e::PTR:
+    return std::to_string((uint64_t)this->data.ptr);
   case cell_type_e::SYMBOL:
     return this->as_string();
   case cell_type_e::STRING:
@@ -348,21 +430,33 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
 
 std::string &cell_c::as_string() {
   try {
-    return std::any_cast<std::string &>(this->data);
+    return std::any_cast<std::string &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Cell is not a string", this->locator);
   }
 }
+
+char *cell_c::as_c_string() { return &*as_string().begin(); }
 
 std::string &cell_c::as_symbol() {
   if (this->type != cell_type_e::SYMBOL) {
     throw cell_access_exception_c("Cell is not a symbol", this->locator);
   }
   try {
-    return std::any_cast<std::string &>(this->data);
+    return std::any_cast<std::string &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
     throw cell_access_exception_c("Symbol cell does not contain a string",
                                   this->locator);
   }
 }
+
+void cell_c::update_string(const std::string data) {
+  if (this->type != cell_type_e::STRING && this->type != cell_type_e::SYMBOL) {
+    throw cell_access_exception_c("Cell does not contain a string to update",
+                                  this->locator);
+  }
+  complex_data = data;
+  this->data.cstr = as_c_string();
+}
+
 } // namespace nibi
