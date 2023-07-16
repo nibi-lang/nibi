@@ -1,0 +1,36 @@
+
+(fn _valid_mode [mode] [
+  (iter ["r" "rb" "w" "wb" "a" "ab" "r+" "rb+" "w+" "wb+" "a+" "ab+"] x 
+    (if (eq mode x) (<- true)))
+  (<- false)
+])
+
+(fn _fopen [path mode] [
+  (if (not (_valid_mode mode)) throw "Invalid file mode")
+  (:= fptr(extern-call nil "fopen" [:str :str] :ptr path mode))
+  (if (not (mem-is-set fptr))  (throw "Failed to open file"))
+  (<- fptr)
+])
+
+(fn _fclose [fptr]
+  (extern-call nil "fclose" [:ptr] :int fptr))
+
+(fn _write_str [fptr x]
+  (extern-call nil "fputs" [:str :ptr] :int x fptr))
+
+(fn _fprintf [fptr fmt x]
+  (extern-call nil "fprintf" [:ptr :str :str] :int fptr fmt x))
+
+(fn _is_eof [x]
+  (< x 0))
+
+(:= fptr (_fopen "/tmp/moot.txt" "a"))
+
+
+
+
+#(_write_str fptr "Hello World!\n")
+#(_fprintf fptr "%s" "Hello World!")
+
+(_fclose fptr)
+

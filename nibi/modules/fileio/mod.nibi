@@ -1,0 +1,14 @@
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "file i/o module")
+(:= licenses [
+  "MIT"
+])
+
+(:= sources [
+  "fileio.nibi"
+])
+
+(:= post [
+  "export.nibi"
+])
