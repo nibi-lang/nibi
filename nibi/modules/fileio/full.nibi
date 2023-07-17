@@ -1,0 +1,14 @@
+(use "fileio" "io")
+
+# TODO: Check the OS and change this
+(:= file "/tmp/nibi.txt")
+
+(:= fptr ({fileio fopen} "/tmp/moot.toot" "w"))
+
+(:= s "s")
+
+(:= written ({fileio fprintf} fptr "%s" "ALKMADAL"))
+
+(io::println written)
+
+({fileio fclose} fptr)

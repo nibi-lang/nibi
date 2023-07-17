@@ -15,7 +15,7 @@
 # \param path path to file
 # \param mode file mode
 # \return file pointer
-(fn _fopen [path mode] [
+(fn fopen [path mode] [
   (if (not (_valid_mode mode)) throw "Invalid file mode")
   (:= fptr(extern-call nil "fopen" [:str :str] :ptr path mode))
   (if (not (mem-is-set fptr))  (throw "Failed to open file"))
@@ -25,14 +25,18 @@
 # \brief fclose for files
 # \param fptr file pointer
 # \return 0 on success, EOF on failure
-(fn _fclose [fptr]
-  (extern-call nil "fclose" [:ptr] :int fptr))
+(fn fclose [fptr] [
+  (if (eq 0 fptr) (<- -1))
+  (if (eq 0 (extern-call nil "fclose" [:ptr] :int fptr))
+      (set fptr 0)
+      (<- -1))
+])
 
 # \brief fputs for files
 # \param fptr file pointer
 # \param x string to write
 # \return number of characters written
-(fn _write_str [fptr x]
+(fn fputs [fptr x]
   (extern-call nil "fputs" [:str :ptr] :int x fptr))
 
 # \brief printf for files
@@ -40,7 +44,7 @@
 # \param fmt format string
 # \param x data to print
 # \return number of characters printed
-(fn _fprintf [fptr fmt x]
+(fn fprintf [fptr fmt x]
   (extern-call nil "fprintf" [:ptr :str :str] :int fptr fmt x))
 
 # \brief fwrite for files
@@ -49,37 +53,64 @@
 # \param datum_size size of each datum
 # \param data_len number of data to write
 # \return number of data written
-(fn _fwrite [fptr data datum_size data_len]
-  (extern-call nil "fwrite" [:ptr :u64 :u64 :ptr] :u64 data datum_size data_len fptr))
+(fn fwrite [fptr data datum_size data_len]
+  (extern-call nil "fwrite" [:ptr :u64 :u64 :ptr] :int data datum_size data_len fptr))
 
-# \brief fgetc for files
+# \brief Retrieve n chars from file as string
 # \param fptr file pointer
-# \return character read
-(fn _fgetc [fptr]
-  (extern-call nil "fgetc" [:ptr] :int fptr))
-
-(fn _fgets [fptr in_str] [
-  (extern-call nil "fgets" [:str :u64 :ptr] :int in_str (u64 (len in_str)) fptr)
+# \param n_bytes number of bytes to read
+# \returns string of n bytes if data exists, empty
+#          string otherwise.
+# \note In the event n_bytes > remaining bytes remaining
+#       then a newline `\n` will be added via external lib
+(fn fgets [fptr n_bytes] [
+  (:= data (mem-new n_bytes))
+  (:= call_result (extern-call nil "fgets" [:ptr :u64 :ptr] :ptr data (u64 (+ 1 n_bytes)) fptr))
+  (:= result_cell (mem-load :str data))
+  (mem-del data)
+  (if (eq 0 call_result) (<- "") (<- result_cell))
 ])
 
-# Check if item is EOF
-# \brief checks if an item is EOF
-# \param x item to check
-# \return true if EOF, false otherwise
-(fn _is_eof [x]
-  (< x 0))
-
-(:= fptr (_fopen "/tmp/moot.txt" "r"))
-(use "io")
-(:= data " ")
-(while (eq true (_fgets fptr data)) [
-
-  # Not yet working
-  (io::print ">>" data)
+# \brief Retrieve 1 char from file
+# \param fptr file pointer
+# \returns char if success, emty string otherwise
+(fn fgetc [fptr] [
+  (:= result (fgets fptr 1))
+  (if (neq 0 (len result))
+    (<- (at (split result) 0)))
+  (<- result)
 ])
-(io::println "COMPLETE")
 
-#(_write_str fptr "---Hello World!\n")
-#(_fprintf fptr "\n\t%s\n" "Hello World!")
-(_fclose fptr)
+# \brief Check if at eof
+# \param fptr file pointer
+# \returns true iff pointer at eof
+(fn feof [fptr]
+  (extern-call nil "feof" [:ptr] :i64 fptr))
+
+# \brief Get the current offset of file
+# \param fptr file pointer
+(fn ftell [fptr]
+  (extern-call nil "ftell" [:ptr] :i64 fptr))
+
+# \brief Rewind file to beginning of file
+# \param fptr file pointer
+(fn rewind [fptr]
+  (extern-call nil "rewind" [:ptr] :nil fptr))
+
+# \brief Clear an error
+# \param ptr file pointer
+(fn clearerr [fptr]
+  (extern-call nil "clearerr" [:ptr] :nil fptr))
+
+# \brief Check if there is an error in the stream
+# \param fptr file pointer
+(fn ferror [fptr]
+  (extern-call nil "ferror" [:ptr] :i64 fptr))
+
+# \brief Seek to location
+# \param ptr file pointer
+# \param offset offset of location
+# \param whence where to start offset from
+(fn fseek [fptr offset whence]
+  (extern-call nil "fseek" [:ptr :i64 :int] :i64 fptr (i64 offset) (i64 whence)))
 

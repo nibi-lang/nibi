@@ -1,0 +1,58 @@
+(use "fileio" "io" "sys")
+
+(assert (sys::known_os) "Unknown Operating system")
+
+(:= file nil)
+
+(if (sys::nix)
+  (set file "/tmp/nibi.txt")
+  (set file "nibi.windows.fileio.text.tmp"))
+
+(:= fptr ({fileio fopen} file "w"))
+
+(:= s "some considerable amound of text I guess we just need some data")
+
+(:= written ({fileio fprintf} fptr "%s" s))
+
+(assert (eq (len s) written) "Unable to write suspected amount of text")
+
+# Attempt to read from write stream
+({fileio fgetc} fptr)
+
+# Ensure error set
+(assert (eq 1 ({fileio ferror} fptr)))
+
+(assert (eq 0 ({fileio fclose} fptr)))
+
+(:= fptr ({fileio fopen} file "r"))
+
+(assert (eq 0 ({fileio ferror} fptr)))
+(assert (eq 0 ({fileio feof} fptr)))
+(assert (eq 0 ({fileio ftell} fptr)))
+(assert (eq 0 ({fileio fseek} fptr 5 fileio::whence::start)))
+(assert (eq 5 ({fileio ftell} fptr)))
+(assert (eq 0 ({fileio fseek} fptr 2 fileio::whence::relative)))
+(assert (eq 7 ({fileio ftell} fptr)))
+(assert (eq 0 ({fileio feof} fptr)))
+(assert (eq nil ({fileio rewind} fptr)))
+(assert (eq 0 ({fileio ftell} fptr)))
+
+# Set to end
+(assert (eq 0 ({fileio fseek} fptr 0 fileio::whence::end)))
+
+# Attempt to read to set eof
+({fileio fgetc} fptr)
+
+# Eof set?
+(assert (eq 1 ({fileio feof} fptr)))
+
+# Clear error
+({fileio clearerr} fptr)
+
+# Check error is cleared
+(assert (eq 0 ({fileio feof} fptr)))
+
+# Close
+(assert (eq 0 ({fileio fclose} fptr)))
+
+(io::println "Complete")

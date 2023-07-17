@@ -1,0 +1,33 @@
+(use "fileio" "io" "sys")
+
+(assert (sys::known_os) "Unknown Operating system")
+
+(:= file nil)
+
+(if (sys::nix)
+  (set file "/tmp/nibi.txt")
+  (set file "nibi.windows.fileio.text.tmp"))
+
+(:= fptr ({fileio fopen} file "w"))
+
+(:= s "some test")
+
+(:= written ({fileio fprintf} fptr "%s" s))
+
+(assert (eq (len s) written) "Unable to write suspected amount of text")
+
+(assert (eq 0 ({fileio fclose} fptr)))
+
+(:= fptr ({fileio fopen} file "r"))
+
+(:= read_in ({fileio fgets} fptr written))
+
+(assert (eq 0 ({fileio fclose} fptr)))
+
+# closed files set to 0
+(assert (eq 0 fptr))
+
+# error on closing bad fptr
+(assert (eq -1 ({fileio fclose} fptr)))
+
+(assert (eq s read_in) "Data read in was not the same as the data written")
