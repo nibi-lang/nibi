@@ -205,15 +205,13 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 
     if (operation->type == cell_type_e::ALIAS) {
       operation = operation->get_alias();
+      list.front() = operation;
     }
 
     // If the operation is a list then we need to
     // execute it to get the function
     if (operation->type == cell_type_e::LIST) {
       operation = handle_list_cell(operation, env, true);
-
-      // Now that its loaded, we need to update the first item
-      // to be the loaded function
       list.front() = operation;
     }
 

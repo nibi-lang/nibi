@@ -282,6 +282,7 @@ function_info_s &cell_c::as_function_info() {
   try {
     return std::any_cast<function_info_s &>(this->complex_data);
   } catch (const std::bad_any_cast &e) {
+    std::cerr << "Cell type is: " << cell_type_to_string(type) << std::endl;
     throw cell_access_exception_c("Cell is not a function", this->locator);
   }
 }
