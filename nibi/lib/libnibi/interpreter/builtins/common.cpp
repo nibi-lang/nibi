@@ -293,6 +293,8 @@ cell_ptr builtin_fn_common_macro(cell_processor_if &ci, cell_list_t &list,
 
   auto macro_name = list[1]->as_symbol();
 
+  NIBI_VALIDATE_VAR_NAME(macro_name, list[1]->locator);
+
   // Expect param list even it its empty
 
   auto params = list[2]->as_list_info();

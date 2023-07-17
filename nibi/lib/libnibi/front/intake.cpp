@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <regex>
+#include <unordered_map>
 
 namespace nibi {
 
@@ -126,6 +127,21 @@ void intake_c::check_for_complete_expression() {
   }
 }
 
+inline bool check_buffer(std::string &buffer, char c) {
+
+  static std::unordered_map<char, char> escape_map = {
+      {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
+      {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
+      {'\'', '\''}, {'\\', '\\'}, {'0', '\0'}};
+
+  auto it = escape_map.find(c);
+  if (it != escape_map.end()) {
+    buffer += it->second;
+    return true;
+  }
+  return false;
+}
+
 bool intake_c::process_line(std::string_view data,
                             std::shared_ptr<source_origin_c> origin,
                             locator_ptr loc_override) {
@@ -185,6 +201,37 @@ bool intake_c::process_line(std::string_view data,
       process_token(token_c(locator, token_e::R_BRACE));
       break;
     }
+    case '\'': {
+      bool in_str{true};
+      std::string value = "'";
+      decltype(col) start = col++;
+      while (col < data.size()) {
+        if (data[col] == '\'') {
+          if (col > 0 && data[col - 1] != '\\') {
+            value += data[col];
+            break;
+          }
+        }
+        if (data[col] == '\\' && col + 1 < data.size()) {
+          if (check_buffer(value, data[col + 1])) {
+            col += 2;
+            continue;
+          }
+        }
+        value += data[col++];
+      }
+
+      if (!value.ends_with('\'')) {
+        error_cb_(error_c(locator, "Unterminated char"));
+        return false;
+      }
+
+      // Remove the quotes
+      value = value.substr(1, value.size() - 2);
+
+      process_token(token_c(locator, token_e::RAW_CHAR, value));
+      break;
+    }
     case '"': {
       bool in_str{true};
       std::string value = "\"";
@@ -194,6 +241,12 @@ bool intake_c::process_line(std::string_view data,
           if (col > 0 && data[col - 1] != '\\') {
             value += data[col];
             break;
+          }
+        }
+        if (data[col] == '\\' && col + 1 < data.size()) {
+          if (check_buffer(value, data[col + 1])) {
+            col += 2;
+            continue;
           }
         }
         value += data[col++];
@@ -440,6 +493,11 @@ cell_ptr intake_c::parser_c::data() {
     return std::move(data);
   }
 
+  data = cchar();
+  if (data) {
+    return std::move(data);
+  }
+
   data = nil();
   if (data) {
     return std::move(data);
@@ -575,6 +633,32 @@ cell_ptr intake_c::parser_c::string() {
   }
 
   auto cell = allocate_cell(current_data());
+  cell->locator = current_location();
+
+  next();
+
+  return std::move(cell);
+}
+
+cell_ptr intake_c::parser_c::cchar() {
+  if (current_token() != token_e::RAW_CHAR) {
+    return nullptr;
+  }
+
+  auto data = current_data();
+  char data_as_char = '\0';
+
+  if (data.size()) {
+    data_as_char = data[0];
+  }
+
+  if (data.size() != 1) {
+    error_cb_(
+        error_c(current_location(), {"Invalid character value: " + data}));
+    return nullptr;
+  }
+
+  auto cell = allocate_cell((char)data_as_char);
   cell->locator = current_location();
 
   next();

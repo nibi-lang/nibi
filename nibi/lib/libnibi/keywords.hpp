@@ -66,6 +66,7 @@ static constexpr const char *FLOAT = "float";
 static constexpr const char *SPLIT = "split";
 static constexpr const char *F32 = "f32";
 static constexpr const char *F64 = "f64";
+static constexpr const char *CHAR = "char";
 static constexpr const char *TYPE = "type";
 static constexpr const char *MACRO = "macro";
 static constexpr const char *EXTERN_CALL = "extern-call";
@@ -77,6 +78,7 @@ static constexpr const char *MEM_OWNED = "mem-owned";
 static constexpr const char *MEM_ACQUIRE = "mem-acquire";
 static constexpr const char *MEM_ABANDON = "mem-abandon";
 static constexpr const char *MEM_IS_SET = "mem-is-set";
+static constexpr const char *ALIAS = "alias";
 
 } // namespace kw
 } // namespace nibi

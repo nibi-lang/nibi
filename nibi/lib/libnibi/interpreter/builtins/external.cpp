@@ -15,6 +15,7 @@ constexpr std::size_t NIBI_FFI_ARG_MAX = 20;
 // Command tag to type information so we can strictly enforce
 // c types that users can use while mapping c types to nibi types
 std::unordered_map<nibi::cell_type_e, ffi_type *> cell_type_to_ffi = {
+    {nibi::cell_type_e::CHAR, &ffi_type_uchar},
     {nibi::cell_type_e::I8, &ffi_type_sint8},
     {nibi::cell_type_e::I16, &ffi_type_sint16},
     {nibi::cell_type_e::I32, &ffi_type_sint32},
@@ -127,7 +128,7 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
           "extern-call: argument " + std::to_string(i) + " is of type " +
           cell_type_to_string(args_supplied[i]->type) + " but should be type " +
           cell_type_to_string(arg_cell_types[i]);
-      throw interpreter_c::exception_c(err, args_supplied[i]->locator);
+      throw interpreter_c::exception_c(err, list[0]->locator);
     }
   }
 

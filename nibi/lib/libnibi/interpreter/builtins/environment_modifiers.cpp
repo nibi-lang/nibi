@@ -11,6 +11,32 @@
 namespace nibi {
 namespace builtins {
 
+cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
+                              env_c &env) {
+
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::ALIAS, ==, 3)
+
+  auto alias_target = ci.process_cell(list[1], env);
+  auto &target_variable_name = list[2]->as_symbol();
+
+  NIBI_VALIDATE_VAR_NAME(target_variable_name, list[2]->locator);
+
+  if (list[1]->type == cell_type_e::SYMBOL) {
+    auto source_variable_name = list[1]->as_symbol();
+    if (source_variable_name == target_variable_name) {
+      throw interpreter_c::exception_c("Cannot alias a variable to itself",
+                                       list[1]->locator);
+    }
+  }
+
+  auto cell = allocate_cell(alias_s{alias_target});
+  cell->locator = alias_target->locator;
+
+  env.set(target_variable_name, cell);
+
+  return allocate_cell(cell_type_e::NIL);
+}
+
 cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
 
@@ -26,10 +52,7 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
 
   auto &target_variable_name = (*it)->as_symbol();
 
-  if (target_variable_name[0] == '$' || target_variable_name[0] == ':') {
-    throw interpreter_c::exception_c(
-        "Cannot assign to a variable starting with '$' or ':'", (*it)->locator);
-  }
+  NIBI_VALIDATE_VAR_NAME(target_variable_name, (*it)->locator);
 
   auto target_assignment_value = ci.process_cell(list[2], env);
   // ci.process_cell(ci.process_cell(list[2], env), env);

@@ -15,6 +15,9 @@ inline nibi::cell_ptr type(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
                            nibi::env_c &env) {
   auto resolved = ci.process_cell(list[1], env);
   switch (resolved->type) {
+  case nibi::cell_type_e::ALIAS:
+    list[1] = resolved->get_alias();
+    return type(ci, list, env);
   case nibi::cell_type_e::ABERRANT:
     return nibi::allocate_cell(nibi::types::ABERRANT);
   case nibi::cell_type_e::NIL:
@@ -39,6 +42,8 @@ inline nibi::cell_ptr type(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
     return nibi::allocate_cell(nibi::types::F32);
   case nibi::cell_type_e::F64:
     return nibi::allocate_cell(nibi::types::F64);
+  case nibi::cell_type_e::CHAR:
+    return nibi::allocate_cell(nibi::types::CHAR);
   case nibi::cell_type_e::STRING:
     return nibi::allocate_cell(nibi::types::STRING);
   case nibi::cell_type_e::PTR:

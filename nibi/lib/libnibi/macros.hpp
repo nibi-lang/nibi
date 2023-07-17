@@ -6,6 +6,12 @@
 
 namespace nibi {
 
+#define NIBI_VALIDATE_VAR_NAME(___name, ___loc)                                \
+  if (___name[0] == '$' || ___name[0] == ':') {                                \
+    throw interpreter_c::exception_c(                                          \
+        "Cannot assign to a variable starting with '$' or ':'", ___loc);       \
+  }
+
 // Iterate over a list, executing the loop body for each element
 // after skipping the first n elements, and loading the value
 // into an "arg" variable

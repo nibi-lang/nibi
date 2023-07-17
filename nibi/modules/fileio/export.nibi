@@ -1,0 +1,18 @@
+(alias {fileio fopen} fileio::fopen)
+(alias {fileio fclose} fileio::fclose)
+(alias {fileio fprintf} fileio::fprintf)
+(alias {fileio fgets} fileio::fgets)
+(alias {fileio fputs} fileio::fputs)
+(alias {fileio fwrite} fileio::fwrite)
+(alias {fileio fgetc} fileio::fgetc)
+(alias {fileio feof} fileio::feof)
+(alias {fileio ftell} fileio::ftell)
+(alias {fileio rewind} fileio::rewind)
+(alias {fileio fseek} fileio::fseek)
+(alias {fileio ferror} fileio::ferror)
+(alias {fileio clearerr} fileio::clearerr)
+
+(:= fileio::whence::start 0)
+(:= fileio::whence::relative 1)
+(:= fileio::whence::end 2)
+
