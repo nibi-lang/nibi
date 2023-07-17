@@ -1,0 +1,23 @@
+(fn v [:args] [
+  (iter $args arg [
+    (set arg (+ arg 1))
+  ])
+])
+
+(:= test [1 2 3 4])
+
+(v 
+  (at test 0)
+  (at test 1)
+  (at test 2)
+  (at test 3)
+)
+
+(assert (eq [2 3 4 5] test))
+
+(v
+  (at test 1)
+  (at test 3)
+)
+
+(assert (eq [2 4 4 6] test))
