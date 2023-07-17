@@ -353,6 +353,31 @@ Anonymous functions can be created without provifind a `<S>` for a name.
 ( fn <[]> <() [*]> )
 ```
 
+Variable number of args:
+
+Using the `:args` tag as the only argument to a function, a list of arguments
+of any size may be given. Example:
+
+```
+(use "io")
+
+(fn vargs [:args] [
+
+  (io::println "Called")
+
+  (iter $args x [
+    (io::print x)
+  ])
+
+  (io::println)
+])
+
+(vargs "a" "b" "c")
+(vargs 1 2 3 4 5 6 7 8)
+(vargs 1)
+(vargs)
+```
+
 ### Import
 
 Keyword: `import`

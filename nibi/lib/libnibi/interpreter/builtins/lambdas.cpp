@@ -66,6 +66,7 @@ cell_ptr execute_suspected_lambda(cell_processor_if &ci, cell_list_t &list,
 
     for (auto &&arg_name : lambda_info.arg_names) {
       std::advance(it, 1);
+      NIBI_VALIDATE_VAR_NAME(arg_name, (*it)->locator);
       map[arg_name] = ci.process_cell((*it), env);
     }
   }
