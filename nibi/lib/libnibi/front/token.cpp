@@ -23,6 +23,8 @@ const char *token_to_string(const token_c &token) {
     return "RAW_FLOAT";
   case token_e::RAW_STRING:
     return "RAW_STRING";
+  case token_e::RAW_CHAR:
+    return "RAW_CHAR";
   case token_e::SYMBOL:
     return "SYMBOL";
   case token_e::NIL:

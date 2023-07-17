@@ -25,6 +25,8 @@ extern cell_ptr execute_suspected_lambda(cell_processor_if &ci,
 
 // Environment modification functions
 
+extern cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
+                                     env_c &env);
 extern cell_ptr builtin_fn_env_assignment(cell_processor_if &ci,
                                           cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_env_set(cell_processor_if &ci, cell_list_t &list,
@@ -174,6 +176,8 @@ extern cell_ptr builtin_fn_cvt_to_f32(cell_processor_if &ci, cell_list_t &list,
                                       env_c &env);
 extern cell_ptr builtin_fn_cvt_to_f64(cell_processor_if &ci, cell_list_t &list,
                                       env_c &env);
+extern cell_ptr builtin_fn_cvt_to_char(cell_processor_if &ci, cell_list_t &list,
+                                       env_c &env);
 
 // Reflection
 

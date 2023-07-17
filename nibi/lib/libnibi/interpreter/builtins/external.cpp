@@ -15,6 +15,7 @@ constexpr std::size_t NIBI_FFI_ARG_MAX = 20;
 // Command tag to type information so we can strictly enforce
 // c types that users can use while mapping c types to nibi types
 std::unordered_map<nibi::cell_type_e, ffi_type *> cell_type_to_ffi = {
+    {nibi::cell_type_e::CHAR, &ffi_type_uchar},
     {nibi::cell_type_e::I8, &ffi_type_sint8},
     {nibi::cell_type_e::I16, &ffi_type_sint16},
     {nibi::cell_type_e::I32, &ffi_type_sint32},

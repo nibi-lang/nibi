@@ -1,3 +1,3 @@
-(:= sys::args {sys get_argv})
-(:= sys::platform {sys get_platform})
-(:= sys::stdin {sys get_stdin})
+(alias {sys get_argv} sys::args)
+(alias {sys get_platform} sys::platform)
+(alias {sys get_stdin} sys::stdin)

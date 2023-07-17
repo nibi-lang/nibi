@@ -49,6 +49,8 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "F64";
   case cell_type_e::PTR:
     return "PTR";
+  case cell_type_e::CHAR:
+    return "CHAR";
   case cell_type_e::STRING:
     return "STRING";
   case cell_type_e::FUNCTION:
@@ -59,6 +61,8 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "LIST";
   case cell_type_e::DICT:
     return "DICT";
+  case cell_type_e::ALIAS:
+    return "ALIAS";
   }
   return "UNKNOWN";
 }
@@ -133,10 +137,17 @@ cell_ptr cell_c::clone(env_c &env) {
   case cell_type_e::F64:
     new_cell->data.f64 = this->data.f64;
     break;
+  case cell_type_e::CHAR:
+    new_cell->data.ch = this->data.ch;
+    break;
   case cell_type_e::PTR: {
     new_cell->data.ptr = this->data.ptr;
     auto &pi = this->as_pointer_info();
     new_cell->complex_data = pointer_info_s{pi.is_owned, pi.size_bytes};
+    break;
+  }
+  case cell_type_e::ALIAS: {
+    new_cell->data.ptr = this->data.ptr;
     break;
   }
   case cell_type_e::SYMBOL: {
@@ -259,7 +270,7 @@ list_info_s &cell_c::as_list_info() {
   }
 }
 
-aberrant_cell_if *cell_c::as_aberrant() {
+aberrant_cell_if *cell_c::as_aberrant() const {
   if (type != cell_type_e::ABERRANT) {
     throw cell_access_exception_c("Cell is not an aberrant cell",
                                   this->locator);
@@ -292,7 +303,7 @@ pointer_info_s &cell_c::as_pointer_info() {
   }
 }
 
-void *cell_c::as_pointer() {
+void *cell_c::as_pointer() const {
   if (type != cell_type_e::PTR) {
     throw cell_access_exception_c("Cell does not contain a pointer",
                                   this->locator);
@@ -332,6 +343,11 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
     return std::to_string(this->data.f32);
   case cell_type_e::F64:
     return std::to_string(this->data.f64);
+  case cell_type_e::CHAR:
+    if (quote_strings) {
+      return "'" + std::string(1, this->data.ch) + "'";
+    }
+    return std::string(1, this->data.ch);
   case cell_type_e::PTR:
     return std::to_string((uint64_t)this->data.ptr);
   case cell_type_e::SYMBOL:
@@ -384,6 +400,20 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
     if (result.size() > 1)
       result.pop_back();
     result += "}";
+    return result;
+  }
+  case cell_type_e::ALIAS: {
+    auto alias = this->get_alias();
+
+    auto ad = alias->to_string(quote_strings, flatten_complex);
+
+    if (flatten_complex) {
+      return ad;
+    }
+
+    std::string result = "<alias:";
+    result += ad;
+    result += ">";
     return result;
   }
   case cell_type_e::LIST: {
@@ -457,6 +487,21 @@ void cell_c::update_string(const std::string data) {
   }
   complex_data = data;
   this->data.cstr = as_c_string();
+}
+
+char cell_c::as_char() const {
+  if (this->type != cell_type_e::CHAR) {
+    throw cell_access_exception_c("Cell is not a char", this->locator);
+  }
+  return this->data.ch;
+}
+
+cell_ptr cell_c::get_alias() const {
+  try {
+    return std::any_cast<cell_ptr>(this->complex_data);
+  } catch (const std::bad_any_cast &e) {
+    throw cell_access_exception_c("Cell is not an alias", this->locator);
+  }
 }
 
 } // namespace nibi

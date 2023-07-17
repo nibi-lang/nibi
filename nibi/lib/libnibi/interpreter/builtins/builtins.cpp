@@ -53,6 +53,9 @@ static function_info_s builtin_bitwise_not_inf = {
     function_type_e::BUILTIN_CPP_FUNCTION};
 
 // environment
+static function_info_s builtin_alias_inf = {
+    nibi::kw::ALIAS, builtin_fn_env_alias,
+    function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_assignment_inf = {
     nibi::kw::ASSIGN, builtin_fn_env_assignment,
     function_type_e::BUILTIN_CPP_FUNCTION};
@@ -213,6 +216,10 @@ static function_info_s builtin_cvt_f64_inf = {
     nibi::kw::F64, builtin_fn_cvt_to_f64,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
+static function_info_s builtin_cvt_char_inf = {
+    nibi::kw::CHAR, builtin_fn_cvt_to_char,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+
 // reflection
 
 static function_info_s builtin_reflect_type_inf = {
@@ -269,6 +276,7 @@ static function_router_t keyword_map = {
     {nibi::kw::MUL, builtin_mul_inf},
     {nibi::kw::MOD, builtin_mod_inf},
     {nibi::kw::POW, builtin_pow_inf},
+    {nibi::kw::ALIAS, builtin_alias_inf},
     {nibi::kw::ASSIGN, builtin_assignment_inf},
     {nibi::kw::SET, builtin_set_inf},
     {nibi::kw::FN, builtin_fn_inf},
@@ -314,11 +322,11 @@ static function_router_t keyword_map = {
     {nibi::kw::U64, builtin_cvt_u64_inf},
     {nibi::kw::F32, builtin_cvt_f32_inf},
     {nibi::kw::F64, builtin_cvt_f64_inf},
+    {nibi::kw::CHAR, builtin_cvt_char_inf},
     {nibi::kw::FLOAT, builtin_cvt_float_inf},
     {nibi::kw::SPLIT, builtin_cvt_split_inf},
     {nibi::kw::TYPE, builtin_reflect_type_inf},
     {nibi::kw::EXTERN_CALL, builtin_extern_call_inf},
-
     {nibi::kw::MEM_NEW, builtin_memory_new_inf},
     {nibi::kw::MEM_DEL, builtin_memory_del_inf},
     {nibi::kw::MEM_CPY, builtin_memory_cpy_inf},
@@ -326,9 +334,7 @@ static function_router_t keyword_map = {
     {nibi::kw::MEM_OWNED, builtin_memory_owned_inf},
     {nibi::kw::MEM_ACQUIRE, builtin_memory_acquire_inf},
     {nibi::kw::MEM_ABANDON, builtin_memory_abandon_inf},
-    {nibi::kw::MEM_IS_SET, builtin_memory_is_set_inf}
-
-};
+    {nibi::kw::MEM_IS_SET, builtin_memory_is_set_inf}};
 
 // Retrieve the map of symbols to function info structs
 function_router_t &get_builtin_symbols_map() { return keyword_map; }

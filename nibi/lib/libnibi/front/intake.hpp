@@ -108,6 +108,7 @@ private:
     inline cell_ptr boolean();
     inline cell_ptr real();
     inline cell_ptr string();
+    inline cell_ptr cchar();
     inline cell_ptr nil();
   };
 

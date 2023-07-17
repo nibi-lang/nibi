@@ -36,7 +36,6 @@ namespace builtins {
 
 cell_ptr builtin_fn_cvt_to_string(cell_processor_if &ci, cell_list_t &list,
                                   env_c &env) {
-
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::STR, ==, 2)
   return allocate_cell(ci.process_cell(list[1], env)->to_string());
 }
@@ -100,6 +99,17 @@ cell_ptr
     builtin_fn_cvt_to_f64(cell_processor_if &ci, cell_list_t &list, env_c &env){
         NIBI_LIST_ENFORCE_SIZE(nibi::kw::F64, ==, 2)
             NIBI_CONVERSION_TO_TYPE(double, std::stod)}
+
+cell_ptr builtin_fn_cvt_to_char(cell_processor_if &ci, cell_list_t &list,
+                                env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::CHAR, ==, 2)
+  auto value = ci.process_cell(list[1], env);
+  auto str = value->to_string();
+  if (str.empty()) {
+    return allocate_cell((char)0);
+  }
+  return allocate_cell(str[0]);
+}
 
 cell_ptr builtin_fn_cvt_to_split(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {

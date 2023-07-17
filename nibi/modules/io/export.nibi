@@ -1,6 +1,7 @@
-(:= io::get::str {io get_str})
-(:= io::get::int {io get_int})
-(:= io::get::double {io get_double})
-(:= io::prompt {io prompt_for})
-(:= io::print {io print})
-(:= io::println {io println})
+(alias {io get_str} io::get::str)
+(alias {io get_int} io::get::int)
+(alias {io get_double} io::get::double)
+(alias {io prompt_for} io::prompt)
+(alias {io print} io::print)
+(alias {io println} io::println)
+

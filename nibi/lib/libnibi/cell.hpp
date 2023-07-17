@@ -51,6 +51,7 @@ enum class cell_type_e : uint8_t {
   I64 = CELL_TYPE_MAX_INTEGER,
   F32,
   F64 = CELL_TYPE_MAX_NUMERIC,
+  CHAR,
   STRING = CELL_TYPE_MAX_TRIVIAL,
   PTR,
   LIST,
@@ -59,19 +60,30 @@ enum class cell_type_e : uint8_t {
   SYMBOL,
   ENVIRONMENT,
   DICT,
+  ALIAS
 };
 
 extern const char *cell_type_to_string(const cell_type_e type);
 
 static std::unordered_map<std::string, cell_type_e> cell_trivial_type_tag_map =
-    {{":u8", cell_type_e::U8},      {":u16", cell_type_e::U16},
-     {":u32", cell_type_e::U32},    {":u64", cell_type_e::U64},
-     {":i8", cell_type_e::I8},      {":i16", cell_type_e::I16},
-     {":i32", cell_type_e::I32},    {":i64", cell_type_e::I64},
-     {":f32", cell_type_e::F32},    {":f64", cell_type_e::F64},
-     {":str", cell_type_e::STRING}, {":nil", cell_type_e::NIL},
-     {":ptr", cell_type_e::PTR},    {":int", cell_type_e::I64},
-     {":float", cell_type_e::F64}};
+    {{":u8", cell_type_e::U8},
+     {":u16", cell_type_e::U16},
+     {":u32", cell_type_e::U32},
+     {":u64", cell_type_e::U64},
+     {":i8", cell_type_e::I8},
+     {":i16", cell_type_e::I16},
+     {":i32", cell_type_e::I32},
+     {":i64", cell_type_e::I64},
+     {":f32", cell_type_e::F32},
+     {":f64", cell_type_e::F64},
+     {":str", cell_type_e::STRING},
+     {":nil", cell_type_e::NIL},
+     {":ptr", cell_type_e::PTR},
+     {":int", cell_type_e::I64},
+     {":float", cell_type_e::F64},
+     {":char", cell_type_e::CHAR}
+
+};
 
 //! \brief The type of a function that a cell holds
 enum class function_type_e {
@@ -156,6 +168,11 @@ struct list_info_s {
 // in the cell constructor
 struct symbol_s {
   std::string data;
+};
+
+// Temporary wrapper to distinguish aliases
+struct alias_s {
+  cell_ptr data;
 };
 
 //! \brief Environment information that can be encoded into a cell
@@ -279,6 +296,9 @@ public:
     case cell_type_e::LIST:
       complex_data = list_info_s(list_types_e::DATA);
       break;
+    case cell_type_e::CHAR:
+      this->data.ch = '\0';
+      break;
     }
   }
 
@@ -292,11 +312,13 @@ public:
   cell_c(uint64_t data) : type(cell_type_e::U64) { this->data.u64 = data; }
   cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
   cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
-
+  cell_c(char data) : type(cell_type_e::CHAR) { this->data.ch = data; }
   cell_c(std::string data) : type(cell_type_e::STRING) { update_string(data); }
-
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
     update_string(data.data);
+  }
+  cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
+    this->complex_data = alias.data;
   }
 
   cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
@@ -324,6 +346,7 @@ public:
   union {
     void *ptr;
     char *cstr;
+    char ch;
     int8_t i8;
     int16_t i16;
     int32_t i32;
@@ -403,7 +426,7 @@ public:
 
   //! \brief Get a copy of the cell value
   //! \throws cell_access_exception_c if the cell is not an aberrant type
-  aberrant_cell_if *as_aberrant();
+  aberrant_cell_if *as_aberrant() const;
 
   //! \brief Get a reference of the cell value
   //! \throws cell_access_exception_c if the cell is not a function type
@@ -423,12 +446,19 @@ public:
 
   //! \brief Get the c pointer being held on to by the cell
   //! \throws cell_access_exception_c if the cell is not a pointer type
-  void *as_pointer();
+  void *as_pointer() const;
 
   //! \brief Update the cells string data
   //! \param str The new string data
   //! \throws cell_access_exception_c if the cell does not contain a string
   void update_string(const std::string str);
+
+  //! \brief Return the data as a char
+  //! \throws cell_access_exception_c if the cell is not a char type
+  char as_char() const;
+
+  //! \brief Retuen the aliased cell
+  cell_ptr get_alias() const;
 
   //! \brief Check if a cell is an integer
   inline bool is_integer() const {

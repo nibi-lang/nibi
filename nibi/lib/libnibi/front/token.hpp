@@ -20,6 +20,7 @@ enum class token_e {
   RAW_INTEGER,
   RAW_FLOAT,
   RAW_STRING,
+  RAW_CHAR,
   SYMBOL,
 };
 

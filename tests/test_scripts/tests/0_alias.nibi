@@ -1,0 +1,18 @@
+
+
+(:= x "x")
+(:= y 3)
+
+(alias x something_new)
+(alias y something_blue)
+
+(assert (eq (type x) (type something_new)))
+(assert (eq (type y) (type something_blue)))
+
+(try [
+  (alias x x)
+  (exit 1)
+] (nop))
+
+(use "io")
+(io::println "Complete")

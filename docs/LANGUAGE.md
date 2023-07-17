@@ -64,7 +64,7 @@ any other piece of data in the instructions below.
 | macro   | Define a macro | variable
 | dict | Create a dictionary | the new dictionary
 | extern-call | Call a c-function from a shared library | variable
-
+| alias   | Use a new symbol to refer to the data behing another | nil
 
 | type commands | description | returns
 |----   |---- |----
@@ -202,6 +202,23 @@ The meta list `<>` encompasses only one parameter into the given keyword
 # Instruction Details
 
 ## keywords
+
+### Alias
+
+Keyword: `alias`
+
+| arg 1 | arg 2 |
+|----  |----
+| item to alias | symbol to use as alias
+
+```
+  Note: Variables starting with `$` and `:` will not be allowed
+        as they are reserved for error tokens and meta commands
+```
+
+```
+( alias < () S [] RD >  < S > )
+```
 
 ### Direct environment assignment
 

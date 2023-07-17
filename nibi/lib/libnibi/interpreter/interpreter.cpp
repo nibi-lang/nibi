@@ -100,6 +100,8 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
   case cell_type_e::LIST: {
     return std::move(handle_list_cell(cell, env, process_data_list));
   }
+  case cell_type_e::ALIAS:
+    return cell->get_alias();
   case cell_type_e::SYMBOL: {
     // Load the symbol from the environment
     auto loaded_cell = env.get(cell->as_symbol());
@@ -199,6 +201,10 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
       // If the operation is a symbol then we need to
       // look it up in the environment
       operation = process_cell(std::move(operation), env);
+    }
+
+    if (operation->type == cell_type_e::ALIAS) {
+      operation = operation->get_alias();
     }
 
     // If the operation is a list then we need to

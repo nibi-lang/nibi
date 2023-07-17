@@ -3,6 +3,7 @@
 #include <iostream>
 #include <limits>
 #include <regex>
+#include <unordered_map>
 
 namespace nibi {
 
@@ -183,6 +184,31 @@ bool intake_c::process_line(std::string_view data,
       }
       tracker_.access_stack_.pop();
       process_token(token_c(locator, token_e::R_BRACE));
+      break;
+    }
+    case '\'': {
+      bool in_str{true};
+      std::string value = "'";
+      decltype(col) start = col++;
+      while (col < data.size()) {
+        if (data[col] == '\'') {
+          if (col > 0 && data[col - 1] != '\\') {
+            value += data[col];
+            break;
+          }
+        }
+        value += data[col++];
+      }
+
+      if (!value.ends_with('\'')) {
+        error_cb_(error_c(locator, "Unterminated char"));
+        return false;
+      }
+
+      // Remove the quotes
+      value = value.substr(1, value.size() - 2);
+
+      process_token(token_c(locator, token_e::RAW_CHAR, value));
       break;
     }
     case '"': {
@@ -440,6 +466,11 @@ cell_ptr intake_c::parser_c::data() {
     return std::move(data);
   }
 
+  data = cchar();
+  if (data) {
+    return std::move(data);
+  }
+
   data = nil();
   if (data) {
     return std::move(data);
@@ -575,6 +606,44 @@ cell_ptr intake_c::parser_c::string() {
   }
 
   auto cell = allocate_cell(current_data());
+  cell->locator = current_location();
+
+  next();
+
+  return std::move(cell);
+}
+
+cell_ptr intake_c::parser_c::cchar() {
+  if (current_token() != token_e::RAW_CHAR) {
+    return nullptr;
+  }
+
+  auto data = current_data();
+  char data_as_char = '\0';
+
+  if (data.size()) {
+    data_as_char = data[0];
+  }
+
+  static std::unordered_map<std::string, char> char_map = {
+      {"\\n", '\n'}, {"\\t", '\t'}, {"\\r", '\r'}, {"\\0", '\0'},
+      {"\\", '\\'},  {"\v", '\v'},  {"\b", '\b'},  {"\f", '\f'},
+      {"\a", '\a'},  {"\e", '\e'},  {"\?", '\?'}};
+
+  if (data.size() == 2 && data[0] == '\\') {
+    auto char_map_location = char_map.find(data);
+    if (char_map_location != char_map.end()) {
+      data_as_char = char_map_location->second;
+    }
+  }
+
+  if (data.size() > 2) {
+    error_cb_(
+        error_c(current_location(), {"Invalid character value: " + data}));
+    return nullptr;
+  }
+
+  auto cell = allocate_cell((char)data_as_char);
   cell->locator = current_location();
 
   next();
