@@ -41,7 +41,8 @@ static constexpr uint8_t CELL_TYPE_MAX_TRIVIAL = 0xF0;
 //!       need to store data in the cell
 enum class cell_type_e : uint8_t {
   NIL = 0x00,
-  U8 = CELL_TYPE_MIN_NUMERIC,
+  PTR = CELL_TYPE_MIN_NUMERIC,
+  U8,
   U16,
   U32,
   U64,
@@ -53,7 +54,6 @@ enum class cell_type_e : uint8_t {
   F64 = CELL_TYPE_MAX_NUMERIC,
   CHAR,
   STRING = CELL_TYPE_MAX_TRIVIAL,
-  PTR,
   LIST,
   ABERRANT,
   FUNCTION,

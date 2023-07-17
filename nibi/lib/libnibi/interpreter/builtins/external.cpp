@@ -128,7 +128,7 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
           "extern-call: argument " + std::to_string(i) + " is of type " +
           cell_type_to_string(args_supplied[i]->type) + " but should be type " +
           cell_type_to_string(arg_cell_types[i]);
-      throw interpreter_c::exception_c(err, args_supplied[i]->locator);
+      throw interpreter_c::exception_c(err, list[0]->locator);
     }
   }
 

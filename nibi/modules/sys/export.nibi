@@ -1,3 +1,15 @@
 (alias {sys get_argv} sys::args)
 (alias {sys get_platform} sys::platform)
 (alias {sys get_stdin} sys::stdin)
+(alias {sys get_nibi_path} sys::home)
+
+(fn sys::linux []
+  (eq "linux" (sys::platform)))
+(fn sys::macos []
+  (eq "macos" (sys::platform)))
+(fn sys::windows []
+  (eq "windows" (sys::platform)))
+(fn sys::nix []
+  (or (sys::linux) (sys::macos)))
+(fn sys::known_os []
+  (not (eq "unknown" (sys::platform))))

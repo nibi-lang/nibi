@@ -130,9 +130,9 @@ void intake_c::check_for_complete_expression() {
 inline bool check_buffer(std::string &buffer, char c) {
 
   static std::unordered_map<char, char> escape_map = {
-      {'n', '\n'}, {'t', '\t'}, {'r', '\r'}, {'a', '\a'}, {'b', '\b'},
-      {'v', '\v'}, {'?', '\?'}, {'"', '\"'}, {'\'', '\''}, {'\\', '\\'},
-      {'0', '\0'} };
+      {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
+      {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
+      {'\'', '\''}, {'\\', '\\'}, {'0', '\0'}};
 
   auto it = escape_map.find(c);
   if (it != escape_map.end()) {

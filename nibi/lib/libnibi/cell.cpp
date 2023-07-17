@@ -147,7 +147,7 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::ALIAS: {
-    new_cell->data.ptr = this->data.ptr;
+    new_cell = this->get_alias()->clone(env);
     break;
   }
   case cell_type_e::SYMBOL: {
@@ -159,7 +159,7 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::STRING:
-    new_cell->complex_data = this->to_string();
+    new_cell->update_string(this->to_string());
     break;
   case cell_type_e::FUNCTION: {
 
@@ -404,17 +404,7 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
   }
   case cell_type_e::ALIAS: {
     auto alias = this->get_alias();
-
-    auto ad = alias->to_string(quote_strings, flatten_complex);
-
-    if (flatten_complex) {
-      return ad;
-    }
-
-    std::string result = "<alias:";
-    result += ad;
-    result += ">";
-    return result;
+    return alias->to_string(quote_strings, flatten_complex);
   }
   case cell_type_e::LIST: {
     std::string result;
