@@ -41,17 +41,34 @@ cell_ptr execute_suspected_lambda(cell_processor_if &ci, cell_list_t &list,
 
   auto &lambda_info = *fn_info.lambda;
 
-  NIBI_LIST_ENFORCE_SIZE((*it)->as_symbol(), ==,
-                         lambda_info.arg_names.size() + 1);
-
   // Create an environment for the lambda
   // and populate it with the arguments
   auto lambda_env = env_c(fn_info.operating_env);
   auto &map = lambda_env.get_map();
 
-  for (auto &&arg_name : lambda_info.arg_names) {
-    std::advance(it, 1);
-    map[arg_name] = ci.process_cell((*it), env);
+  if (lambda_info.arg_names.size() == 1 &&
+      lambda_info.arg_names[0] == ":args") {
+
+    list_info_s args = {list_types_e::DATA, {}};
+
+    while (it != list.end() - 1) {
+      std::advance(it, 1);
+      args.list.push_back(ci.process_cell((*it), env));
+    }
+
+    map["$args"] = allocate_cell(args);
+    map["$args"]->locator = lambda_info.body->locator;
+
+    // We have a variadic function
+  } else {
+    NIBI_LIST_ENFORCE_SIZE((*it)->as_symbol(), ==,
+                           lambda_info.arg_names.size() + 1);
+
+    for (auto &&arg_name : lambda_info.arg_names) {
+      std::advance(it, 1);
+      NIBI_VALIDATE_VAR_NAME(arg_name, (*it)->locator);
+      map[arg_name] = ci.process_cell((*it), env);
+    }
   }
 
   auto &body = lambda_info.body->as_list_info();

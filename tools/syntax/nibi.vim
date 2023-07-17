@@ -33,8 +33,9 @@ syn keyword nibiFunc i8 i16 i32 i64 u8 u16 u32 u64 f32 f64
 syn keyword nibiQuickType true false nil nan inf
 
 syn match nibiDictType ':let\|:get\|:del\|:keys\|:vals' contained
-syn match nibiTagType ':u8\|:u16\|:u32\|:u64\|:i8\|:i16\|:i32\|:i64\|:f32\|:f64\|:int\|:float\|:ptr\|:str' contained
+syn match nibiTagType ':args\|:u8\|:u16\|:u32\|:u64\|:i8\|:i16\|:i32\|:i64\|:f32\|:f64\|:int\|:float\|:ptr\|:str' contained
 
+syn match nibiKeyword '$args\|$e' contained
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
 syn match nibiFunc '\(bw-and\|bw-or\|bw-xor\|bw-not\|bw-lsh\|bw-rsh\|<-\)' contained
 syn match nibiFunc '\(extern-call\|mem-new\|mem-del\|mem-cpy\|mem-load\)' contained
