@@ -1,10 +1,20 @@
 
+# File I/O
+# \author Josh Bosley (2023)
+
+# \brief checks if a file mode is valid
+# \param mode file mode
+# \return true if valid, false otherwise
 (fn _valid_mode [mode] [
   (iter ["r" "rb" "w" "wb" "a" "ab" "r+" "rb+" "w+" "wb+" "a+" "ab+"] x 
     (if (eq mode x) (<- true)))
   (<- false)
 ])
 
+# \brief fopen for files
+# \param path path to file
+# \param mode file mode
+# \return file pointer
 (fn _fopen [path mode] [
   (if (not (_valid_mode mode)) throw "Invalid file mode")
   (:= fptr(extern-call nil "fopen" [:str :str] :ptr path mode))
@@ -12,25 +22,64 @@
   (<- fptr)
 ])
 
+# \brief fclose for files
+# \param fptr file pointer
+# \return 0 on success, EOF on failure
 (fn _fclose [fptr]
   (extern-call nil "fclose" [:ptr] :int fptr))
 
+# \brief fputs for files
+# \param fptr file pointer
+# \param x string to write
+# \return number of characters written
 (fn _write_str [fptr x]
   (extern-call nil "fputs" [:str :ptr] :int x fptr))
 
+# \brief printf for files
+# \param fptr file pointer
+# \param fmt format string
+# \param x data to print
+# \return number of characters printed
 (fn _fprintf [fptr fmt x]
   (extern-call nil "fprintf" [:ptr :str :str] :int fptr fmt x))
 
+# \brief fwrite for files
+# \param fptr file pointer
+# \param data data pointer to write
+# \param datum_size size of each datum
+# \param data_len number of data to write
+# \return number of data written
+(fn _fwrite [fptr data datum_size data_len]
+  (extern-call nil "fwrite" [:ptr :u64 :u64 :ptr] :u64 data datum_size data_len fptr))
+
+# \brief fgetc for files
+# \param fptr file pointer
+# \return character read
+(fn _fgetc [fptr]
+  (extern-call nil "fgetc" [:ptr] :int fptr))
+
+(fn _fgets [fptr in_str] [
+  (extern-call nil "fgets" [:str :u64 :ptr] :int in_str (u64 (len in_str)) fptr)
+])
+
+# Check if item is EOF
+# \brief checks if an item is EOF
+# \param x item to check
+# \return true if EOF, false otherwise
 (fn _is_eof [x]
   (< x 0))
 
-(:= fptr (_fopen "/tmp/moot.txt" "a"))
+(:= fptr (_fopen "/tmp/moot.txt" "r"))
+(use "io")
+(:= data " ")
+(while (eq true (_fgets fptr data)) [
 
+  # Not yet working
+  (io::print ">>" data)
+])
+(io::println "COMPLETE")
 
-
-
-#(_write_str fptr "Hello World!\n")
-#(_fprintf fptr "%s" "Hello World!")
-
+#(_write_str fptr "---Hello World!\n")
+#(_fprintf fptr "\n\t%s\n" "Hello World!")
 (_fclose fptr)
 

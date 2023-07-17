@@ -127,6 +127,21 @@ void intake_c::check_for_complete_expression() {
   }
 }
 
+inline bool check_buffer(std::string &buffer, char c) {
+
+  static std::unordered_map<char, char> escape_map = {
+      {'n', '\n'}, {'t', '\t'}, {'r', '\r'}, {'a', '\a'}, {'b', '\b'},
+      {'v', '\v'}, {'?', '\?'}, {'"', '\"'}, {'\'', '\''}, {'\\', '\\'},
+      {'0', '\0'} };
+
+  auto it = escape_map.find(c);
+  if (it != escape_map.end()) {
+    buffer += it->second;
+    return true;
+  }
+  return false;
+}
+
 bool intake_c::process_line(std::string_view data,
                             std::shared_ptr<source_origin_c> origin,
                             locator_ptr loc_override) {
@@ -197,6 +212,12 @@ bool intake_c::process_line(std::string_view data,
             break;
           }
         }
+        if (data[col] == '\\' && col + 1 < data.size()) {
+          if (check_buffer(value, data[col + 1])) {
+            col += 2;
+            continue;
+          }
+        }
         value += data[col++];
       }
 
@@ -220,6 +241,12 @@ bool intake_c::process_line(std::string_view data,
           if (col > 0 && data[col - 1] != '\\') {
             value += data[col];
             break;
+          }
+        }
+        if (data[col] == '\\' && col + 1 < data.size()) {
+          if (check_buffer(value, data[col + 1])) {
+            col += 2;
+            continue;
           }
         }
         value += data[col++];
@@ -625,19 +652,7 @@ cell_ptr intake_c::parser_c::cchar() {
     data_as_char = data[0];
   }
 
-  static std::unordered_map<std::string, char> char_map = {
-      {"\\n", '\n'}, {"\\t", '\t'}, {"\\r", '\r'}, {"\\0", '\0'},
-      {"\\", '\\'},  {"\v", '\v'},  {"\b", '\b'},  {"\f", '\f'},
-      {"\a", '\a'},  {"\e", '\e'},  {"\?", '\?'}};
-
-  if (data.size() == 2 && data[0] == '\\') {
-    auto char_map_location = char_map.find(data);
-    if (char_map_location != char_map.end()) {
-      data_as_char = char_map_location->second;
-    }
-  }
-
-  if (data.size() > 2) {
+  if (data.size() != 1) {
     error_cb_(
         error_c(current_location(), {"Invalid character value: " + data}));
     return nullptr;
