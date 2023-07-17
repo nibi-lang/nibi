@@ -18,17 +18,17 @@ namespace builtins {
     return allocate_cell((type)result);                                        \
   } catch (std::invalid_argument & e) {                                        \
     throw interpreter_c::exception_c(                                          \
-        std::string("Invalid argument to integer conversion: ") +              \
+        std::string("Invalid argument for conversion: ") +              \
             value->to_string(),                                                \
         value->locator);                                                       \
   } catch (std::out_of_range & e) {                                            \
     throw interpreter_c::exception_c(                                          \
-        std::string("Out of range argument to integer conversion: ") +         \
+        std::string("Out of range argument for conversion: ") +         \
             value->to_string(),                                                \
         value->locator);                                                       \
   } catch (...) {                                                              \
     throw interpreter_c::exception_c(                                          \
-        std::string("Unknown error in integer conversion: ") +                 \
+        std::string("Unknown error in conversion: ") +                 \
             value->to_string(),                                                \
         value->locator);                                                       \
   }                                                                            \

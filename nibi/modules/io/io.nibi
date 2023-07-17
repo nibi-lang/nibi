@@ -1,0 +1,52 @@
+
+(:= MAX_STRING 256)
+(:= stdin 0)
+(:= stdout 1)
+(:= stderr 2)
+
+(fn println [:args] [
+  (iter $args arg [
+    (extern-call nil "printf" [:str :str] :int "%s" (str arg)) 
+  ])
+  (extern-call nil "puts" [:str] :int "")
+  (<- nil)
+])
+
+(fn print [data] [
+  (extern-call nil "printf" [:str :str] :int "%s" (str data))
+])
+
+(fn get_str [] [
+  (:= temp (mem-new MAX_STRING))
+  (extern-call nil "gets" [:ptr :int] :nil temp stdin)
+  (:= result_cell (mem-load :str temp))
+  (mem-del temp)
+  (<- result_cell)
+])
+
+(fn get_int [] [
+  (:= temp (mem-new MAX_STRING))
+  (extern-call nil "gets" [:ptr :int] :nil temp stdin)
+  (:= result_cell (mem-load :str temp))
+  (mem-del temp)
+  (try
+    (<- (i64 result_cell))
+    (throw (+ "Invalid integer input: " $e))
+  )
+])
+
+(fn get_double [] [
+  (:= temp (mem-new MAX_STRING))
+  (extern-call nil "gets" [:ptr :int] :nil temp stdin)
+  (:= result_cell (mem-load :str temp))
+  (mem-del temp)
+  (try
+    (<- (f64 result_cell))
+    (throw (+ "Invalid double input: " $e))
+  )
+])
+
+(fn prompt_for [prompt function] [
+  (print prompt)
+  (<- (function))
+])
