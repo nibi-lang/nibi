@@ -5,15 +5,16 @@
 (:= stderr 2)
 
 (fn println [:args] [
-  (iter $args arg [
-    (extern-call nil "printf" [:str :str] :int "%s" (str arg)) 
-  ])
+  (iter $args arg
+    (extern-call nil "printf" [:str :str] :int "%s" (str arg)))
   (extern-call nil "puts" [:str] :int "")
   (<- nil)
 ])
 
-(fn print [data] [
-  (extern-call nil "printf" [:str :str] :int "%s" (str data))
+(fn print [:args] [
+  (iter $args arg
+    (extern-call nil "printf" [:str :str] :int "%s" (str arg)))
+  (<- nil)
 ])
 
 (fn get_str [] [
