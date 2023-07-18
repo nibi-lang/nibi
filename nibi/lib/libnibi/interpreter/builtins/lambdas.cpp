@@ -62,8 +62,7 @@ cell_ptr execute_suspected_lambda(cell_processor_if &ci, cell_list_t &list,
 
     // We have a variadic function
   } else {
-    NIBI_LIST_ENFORCE_SIZE(nibi::kw::FN, ==,
-                           lambda_info.arg_names.size() + 1);
+    NIBI_LIST_ENFORCE_SIZE(nibi::kw::FN, ==, lambda_info.arg_names.size() + 1);
 
     for (auto &&arg_name : lambda_info.arg_names) {
       std::advance(it, 1);

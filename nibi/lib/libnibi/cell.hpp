@@ -256,6 +256,80 @@ private:
 //! \brief A cell
 class cell_c : public ref_counted_c {
 public:
+  cell_type_e type{cell_type_e::NIL};
+  locator_ptr locator{nullptr};
+
+  union {
+    void *ptr;
+    char *cstr;
+    char ch;
+    int8_t i8;
+    int16_t i16;
+    int32_t i32;
+    int64_t i64;
+    uint8_t u8;
+    uint16_t u16;
+    uint32_t u32;
+    uint64_t u64;
+    float f32;
+    double f64;
+    aberrant_cell_if *aberrant;
+  } data;
+
+  std::any complex_data{0};
+
+  cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
+  cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
+  cell_c(int32_t data) : type(cell_type_e::I32) { this->data.i32 = data; }
+  cell_c(int64_t data) : type(cell_type_e::I64) { this->data.i64 = data; }
+  cell_c(uint8_t data) : type(cell_type_e::U8) { this->data.u8 = data; }
+  cell_c(uint16_t data) : type(cell_type_e::U16) { this->data.u16 = data; }
+  cell_c(uint32_t data) : type(cell_type_e::U32) { this->data.u32 = data; }
+  cell_c(uint64_t data) : type(cell_type_e::U64) { this->data.u64 = data; }
+  cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
+  cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
+  cell_c(char data) : type(cell_type_e::CHAR) { this->data.ch = data; }
+  cell_c(std::string data) : type(cell_type_e::STRING) { update_string(data); }
+  cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
+    update_string(data.data);
+  }
+  cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
+    this->complex_data = alias.data;
+  }
+
+  cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
+  cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
+    this->data.aberrant = acif;
+  }
+  cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) {
+    complex_data = fn;
+  }
+  cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
+    complex_data = env;
+  }
+  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) { complex_data = dict; }
+
+  virtual ~cell_c();
+
+  cell_c() = delete;
+  cell_c(const cell_c &other) = delete;
+  cell_c(cell_c &&other) = delete;
+  cell_c &operator=(const cell_c &other) = delete;
+  cell_c &operator=(cell_c &&other) = delete;
+
+  //! \brief Attempt to convert whatever data type exists to a string
+  //!        and return it
+  //! \param quote_strings If true, quote strings
+  //! \param flatten_complex If true, flatten complex types to just their
+  //! symbols (env fn) \throws cell_access_exception_c if the cell can not
+  //! access data as its
+  //!         listed type
+  std::string to_string(bool quote_strings = false,
+                        bool flatten_complex = false);
+
+  //! \brief Deep copy the cell
+  cell_ptr clone(env_c &env);
+
   //! \brief Create a cell with a given type
   cell_c(cell_type_e type) : type(type) {
     // Initialize the data based on given type
@@ -302,163 +376,157 @@ public:
     }
   }
 
-  cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
-  cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
-  cell_c(int32_t data) : type(cell_type_e::I32) { this->data.i32 = data; }
-  cell_c(int64_t data) : type(cell_type_e::I64) { this->data.i64 = data; }
-  cell_c(uint8_t data) : type(cell_type_e::U8) { this->data.u8 = data; }
-  cell_c(uint16_t data) : type(cell_type_e::U16) { this->data.u16 = data; }
-  cell_c(uint32_t data) : type(cell_type_e::U32) { this->data.u32 = data; }
-  cell_c(uint64_t data) : type(cell_type_e::U64) { this->data.u64 = data; }
-  cell_c(float data) : type(cell_type_e::F32) { this->data.f32 = data; }
-  cell_c(double data) : type(cell_type_e::F64) { this->data.f64 = data; }
-  cell_c(char data) : type(cell_type_e::CHAR) { this->data.ch = data; }
-  cell_c(std::string data) : type(cell_type_e::STRING) { update_string(data); }
-  cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
-    update_string(data.data);
-  }
-  cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
-    this->complex_data = alias.data;
+  void update_from(cell_c &other, env_c &env) {
+    this->type = other.type;
+    this->data = other.clone(env)->data;
+    this->complex_data = other.clone(env)->complex_data;
   }
 
-  cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
-  cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
-    this->data.aberrant = acif;
+  int64_t to_integer() {
+    if (is_float()) {
+      return (int64_t)this->as_double();
+    }
+    return this->as_integer();
   }
-  cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) {
-    complex_data = fn;
+
+  int64_t &as_integer() {
+    if (!is_integer()) {
+      throw cell_access_exception_c(
+          "Cell is not an integer: " + this->to_string(), this->locator);
+    }
+    return data.i64;
   }
-  cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
-    complex_data = env;
+
+  double to_double() {
+    if (is_integer()) {
+      return (double)this->as_integer();
+    }
+    return this->as_double();
   }
-  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) { complex_data = dict; }
 
-  cell_c() = delete;
-  cell_c(const cell_c &other) = delete;
-  cell_c(cell_c &&other) = delete;
-  cell_c &operator=(const cell_c &other) = delete;
-  cell_c &operator=(cell_c &&other) = delete;
-  virtual ~cell_c();
+  double &as_double() {
+    if (static_cast<uint8_t>(type) < CELL_TYPE_MIN_FLOAT ||
+        static_cast<uint8_t>(type) > CELL_TYPE_MAX_FLOAT) {
+      throw cell_access_exception_c(
+          "Cell is not a floating point: " + this->to_string(), this->locator);
+    }
+    return data.f64;
+  }
 
-  cell_type_e type{cell_type_e::NIL};
-  locator_ptr locator{nullptr};
+  std::string &as_string() {
+    try {
+      return std::any_cast<std::string &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell is not a string", this->locator);
+    }
+  }
 
-  union {
-    void *ptr;
-    char *cstr;
-    char ch;
-    int8_t i8;
-    int16_t i16;
-    int32_t i32;
-    int64_t i64;
-    uint8_t u8;
-    uint16_t u16;
-    uint32_t u32;
-    uint64_t u64;
-    float f32;
-    double f64;
-    aberrant_cell_if *aberrant;
-  } data;
+  char *as_c_string() { return &*as_string().begin(); }
 
-  std::any complex_data{0};
+  std::string &as_symbol() {
+    if (this->type != cell_type_e::SYMBOL) {
+      throw cell_access_exception_c("Cell is not a symbol", this->locator);
+    }
+    try {
+      return std::any_cast<std::string &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Symbol cell does not contain a string",
+                                    this->locator);
+    }
+  }
 
-  //! \brief Deep copy the cell
-  cell_ptr clone(env_c &env);
+  cell_list_t to_list() { return this->as_list(); }
 
-  //! \brief Update the cell data and type to match another cell
-  //! \param other The other cell to match
-  //! \note This will not update the locator
-  void update_from(cell_c &other, env_c &env);
+  cell_list_t &as_list() {
+    if (type != cell_type_e::LIST) {
+      throw cell_access_exception_c("Cell is not a list", this->locator);
+    }
+    return as_list_info().list;
+  }
 
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not an integer type
-  int64_t to_integer();
+  list_info_s to_list_info() { return this->as_list_info(); }
 
-  //! \brief Get a reference to the cell value
-  //! \throws cell_access_exception_c if the cell is not an integer type
-  int64_t &as_integer();
+  list_info_s &as_list_info() {
+    try {
+      return std::any_cast<list_info_s &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell is not a list", this->locator);
+    }
+  }
 
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not a double type
-  double to_double();
+  aberrant_cell_if *as_aberrant() const {
+    if (type != cell_type_e::ABERRANT) {
+      throw cell_access_exception_c("Cell is not an aberrant cell",
+                                    this->locator);
+    }
+    return data.aberrant;
+  }
 
-  //! \brief Get a reference to the cell value
-  //! \throws cell_access_exception_c if the cell is not a double type
-  double &as_double();
+  function_info_s &as_function_info() {
+    try {
+      return std::any_cast<function_info_s &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell is not a function", this->locator);
+    }
+  }
 
-  //! \brief Attempt to convert whatever data type exists to a string
-  //!        and return it
-  //! \param quote_strings If true, quote strings
-  //! \param flatten_complex If true, flatten complex types to just their
-  //! symbols (env fn) \throws cell_access_exception_c if the cell can not
-  //! access data as its
-  //!         listed type
-  std::string to_string(bool quote_strings = false,
-                        bool flatten_complex = false);
+  environment_info_s &as_environment_info() {
+    try {
+      return std::any_cast<environment_info_s &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell is not an environment",
+                                    this->locator);
+    }
+  }
 
-  //! \brief Get the string data as a reference
-  //! \throws cell_access_exception_c if the cell is not a string type
-  std::string &as_string();
+  pointer_info_s &as_pointer_info() {
+    try {
+      return std::any_cast<pointer_info_s &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell does not contain a pointer",
+                                    this->locator);
+    }
+  }
 
-  //! \brief Get the string data as a c string
-  //! \throws cell_access_exception_c if the cell is not a string type
-  char *as_c_string();
+  void *as_pointer() const {
+    if (type != cell_type_e::PTR) {
+      throw cell_access_exception_c("Cell does not contain a pointer",
+                                    this->locator);
+    }
+    return data.ptr;
+  }
 
-  //! \brief Get the symbol value
-  //! \throws cell_access_exception_c if the cell is not a symbol type
-  std::string &as_symbol();
+  cell_dict_t &as_dict() {
+    try {
+      return std::any_cast<cell_dict_t &>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell is not a dict", this->locator);
+    }
+  }
+  void update_string(const std::string data) {
+    if (this->type != cell_type_e::STRING &&
+        this->type != cell_type_e::SYMBOL) {
+      throw cell_access_exception_c("Cell does not contain a string to update",
+                                    this->locator);
+    }
+    complex_data = data;
+    this->data.cstr = as_c_string();
+  }
 
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not a list type
-  list_info_s to_list_info();
+  char as_char() const {
+    if (this->type != cell_type_e::CHAR) {
+      throw cell_access_exception_c("Cell is not a char", this->locator);
+    }
+    return this->data.ch;
+  }
 
-  //! \brief Get a reference to the cell value
-  //! \throws cell_access_exception_c if the cell is not a list type
-  list_info_s &as_list_info();
-
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not a list type
-  cell_list_t to_list();
-
-  //! \brief Get a reference to the cell value
-  //! \throws cell_access_exception_c if the cell is not a list type
-  cell_list_t &as_list();
-
-  //! \brief Get a copy of the cell value
-  //! \throws cell_access_exception_c if the cell is not an aberrant type
-  aberrant_cell_if *as_aberrant() const;
-
-  //! \brief Get a reference of the cell value
-  //! \throws cell_access_exception_c if the cell is not a function type
-  function_info_s &as_function_info();
-
-  //! \brief Get a reference of the cell value
-  //! \throws cell_access_exception_c if the cell is not an environment type
-  environment_info_s &as_environment_info();
-
-  //! \brief Get a reference of the cell value
-  //! \throws cell_access_exception_c if the cell is not a dict type
-  cell_dict_t &as_dict();
-
-  //! \brief Get a reference to the cell c-pointer info
-  //! \throws cell_access_exception_c if the cell is not a pointer type
-  pointer_info_s &as_pointer_info();
-
-  //! \brief Get the c pointer being held on to by the cell
-  //! \throws cell_access_exception_c if the cell is not a pointer type
-  void *as_pointer() const;
-
-  //! \brief Update the cells string data
-  //! \param str The new string data
-  //! \throws cell_access_exception_c if the cell does not contain a string
-  void update_string(const std::string str);
-
-  //! \brief Return the data as a char
-  //! \throws cell_access_exception_c if the cell is not a char type
-  char as_char() const;
-
-  //! \brief Retuen the aliased cell
-  cell_ptr get_alias() const;
+  cell_ptr get_alias() const {
+    try {
+      return std::any_cast<cell_ptr>(this->complex_data);
+    } catch (const std::bad_any_cast &e) {
+      throw cell_access_exception_c("Cell is not an alias", this->locator);
+    }
+  }
 
   //! \brief Check if a cell is an integer
   inline bool is_integer() const {
