@@ -207,3 +207,19 @@ for type info and c-ffi stuff. Big rework.
 | primality.nibi  | 0.7938s   | 793.8415ms |
 | 4sieve.nibi     | 0.8073s   | 807.3446ms |
 | leibniz.nibi    | 0.0918s   | 91.7717ms  |
+
+### 18-July-2023
+
+git hash **4b6929c86a087ecbedbe8eef4051cd3e192e4e73**
+
+Header-onlyd the cell so everything could inline. An attempt
+to move env and interpreter to header only actually slowed 
+down.
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.0715s   | 71.5005ms  |
+| primality.nibi  | 0.6401s   | 640.1357ms |
+| 4sieve.nibi     | 0.6773s   | 677.348ms  |
+| leibniz.nibi    | 0.0778s   | 77.7946ms  |
+
