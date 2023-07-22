@@ -14,14 +14,14 @@ public:
     ref_count_++;
     return this;
   }
-  int release() const { return --ref_count_; }
-  int refCount() const { return ref_count_; }
+  int64_t release() const { return --ref_count_; }
+  int64_t refCount() const { return ref_count_; }
 
 private:
   ref_counted_c(const ref_counted_c &);
   ref_counted_c &operator=(const ref_counted_c &);
 
-  mutable std::size_t ref_count_{0};
+  mutable std::uint32_t ref_count_{0};
 };
 
 //! \brief A wrapper that performs operations
