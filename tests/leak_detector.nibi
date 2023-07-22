@@ -1,6 +1,17 @@
 #!/usr/local/bin/nibi
 
-# If 
+# If you suspect there is a memory leak in the base cell
+# allocation/deallocation code, then this script will
+# help you confirm it. It will only detect leaks in
+# the base cell allocation/deallocation code and
+# list operations.
+
+# You can run it in valgrind, but it will take a very
+# long time to run, and allocate 4-5 gigabytes of 
+# active memory instead of the 1-1.5 gigabytes
+# that it normally takes.
+
+# valgrind --leak-check=full --show-leak-kinds=all -s ./leak_detector.nibi
 
 (use "io")
 (use "meta")
@@ -14,13 +25,16 @@
   "\tthe program will run out of memory and crash.\n\n"
 ))
 
-(:= iters 50)
+(:= iters 10)
 (:= walks 200000)
 (:= spawn_per_walk 100)
 
 (:= list (<|> 0 iters))
 (:= progress 0)
 (:= progress_perc (/ iters 100))
+
+(io::println "-------- START --------\n")
+
 (loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
   (:= inner [])
   (while (< (at list i) walks) [
@@ -28,7 +42,7 @@
     (|< inner (<|> 0 spawn_per_walk))
   ])
   (if (>= progress progress_perc) [
-    (io::println "progress = " i " / " (len list))
+    (io::println (+ 1 i) " / " (len list))
     (set progress 0)
     (drop inner)
   ] [
