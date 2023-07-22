@@ -1,0 +1,18 @@
+
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description 
+  (+ "Meta information library for the Nibi project.\n" 
+     "This library is used to pull meta information from nibi project\n"
+  ))
+(:= licenses [
+  "MIT"
+])
+
+(:= dylib [
+  "meta_cell"
+])
+
+(:= post [
+  "export.nibi"
+])

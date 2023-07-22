@@ -1,0 +1,63 @@
+#!/usr/local/bin/nibi
+
+# If 
+
+(use "io")
+(use "meta")
+
+(io::println ( + 
+  "\n\tLeak detection takes about 1/1.5 gigabytes of memory\n"
+  "\tand a variable amount of time to run. As its very much NOT\n"
+  "\tcache friendly and performs lots of heap allocations.\n"
+  "\tThe method is to allocate a ton of cells, then drop them\n"
+  "\tIf there is a leak in cell allocation/deallocation then\n"
+  "\tthe program will run out of memory and crash.\n\n"
+))
+
+(:= iters 50)
+(:= walks 200000)
+(:= spawn_per_walk 100)
+
+(:= list (<|> 0 iters))
+(:= progress 0)
+(:= progress_perc (/ iters 100))
+(loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
+  (:= inner [])
+  (while (< (at list i) walks) [
+    (set (at list i) (+ (at list i) 1))
+    (|< inner (<|> 0 spawn_per_walk))
+  ])
+  (if (>= progress progress_perc) [
+    (io::println "progress = " i " / " (len list))
+    (set progress 0)
+    (drop inner)
+  ] [
+    (set progress (+ progress 1))
+  ])
+])
+
+(io::println "\n-------- STATS --------\n")
+
+# Here we sum up what we've intentionally allocated, and not
+# what the surrounding instructions costed us.
+(:= total_spawned_cells (+ (* walks spawn_per_walk iters) (len list)))
+(:= total_cells_cloned (+ (* walks iters) (len list)))
+
+(io::println "directly spawned cells\t " total_spawned_cells)
+(io::println "directly cloned cells\t " total_cells_cloned)
+(io::println "total number of cells\t " (+ total_spawned_cells total_cells_cloned))
+
+(:= total_memory_used (* (meta::cell) (+ total_spawned_cells total_cells_cloned)))
+
+(io::print "allocated bytes\t\t " total_memory_used)
+
+(:= gigabyte 1073741824)
+(:= megabyte 1048576)
+
+(if (< total_memory_used gigabyte) [
+  (io::println " (~" (/ (f64 total_memory_used) megabyte) " megabytes)")
+] [
+  (io::println " (~" (/ (f64 total_memory_used) gigabyte) " gigabytes)")
+])
+
+(io::println "\nCOMPLETE")
