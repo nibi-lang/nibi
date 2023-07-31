@@ -43,6 +43,8 @@ public:
 
   T &operator*() const { return *object_; }
 
+  T *get() const { return object_; }
+
   bool operator==(const ref_counted_ptr_c &rhs) const {
     return object_ == rhs.object_;
   }
