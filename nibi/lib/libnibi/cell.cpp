@@ -106,6 +106,20 @@ cell_c::~cell_c() {
       this->data.env = nullptr;
     }
   }
+  case cell_type_e::ALIAS: {
+    if (this->data.alias) {
+      delete this->data.alias;
+      this->data.alias = nullptr;
+    }
+    break;
+  }
+  case cell_type_e::DICT: {
+    if (this->data.dict) {
+      delete this->data.dict;
+      this->data.dict = nullptr;
+    }
+    break;
+  }
   default: {
     break;
   }

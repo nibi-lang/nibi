@@ -126,6 +126,10 @@ using cell_fn_t =
 //! \brief A dictionary type
 using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
+struct dict_info_s {
+  cell_dict_t data;
+};
+
 //! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {
   std::vector<std::string> arg_names;
@@ -278,6 +282,7 @@ public:
     environment_info_s *env;
     function_info_s *fn;
     alias_s *alias;
+    dict_info_s *dict;
   } data{0};
 
   std::any complex_data{0};
@@ -311,7 +316,9 @@ public:
   cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
     this->data.env = new environment_info_s(env);
   }
-  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) { complex_data = dict; }
+  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) {
+    this->data.dict = new dict_info_s(dict);
+  }
 
   virtual ~cell_c();
 
@@ -375,6 +382,12 @@ public:
       break;
     case cell_type_e::CHAR:
       this->data.ch = '\0';
+      break;
+    case cell_type_e::ALIAS:
+      this->data.alias = nullptr;
+      break;
+    case cell_type_e::DICT:
+      this->data.dict = nullptr;
       break;
     }
   }
@@ -545,12 +558,12 @@ public:
   }
 
   cell_dict_t &as_dict() {
-    try {
-      return std::any_cast<cell_dict_t &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::DICT) {
       throw cell_access_exception_c("Cell is not a dict", this->locator);
     }
+    return this->data.dict->data;
   }
+
   void update_string(const std::string data) {
     if (this->type != cell_type_e::STRING &&
         this->type != cell_type_e::SYMBOL) {
