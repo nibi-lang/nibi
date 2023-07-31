@@ -85,7 +85,16 @@ cell_c::~cell_c() {
     if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         delete func_info.operating_env;
+        func_info.operating_env = nullptr;
       }
+    }
+    break;
+  }
+  case cell_type_e::SYMBOL:
+  case cell_type_e::STRING: {
+    if (this->data.cstr) {
+      delete[] this->data.cstr;
+      this->data.cstr = nullptr;
     }
     break;
   }

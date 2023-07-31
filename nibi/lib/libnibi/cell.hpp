@@ -6,6 +6,7 @@
 #include <any>
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <functional>
 #include <memory>
@@ -274,7 +275,7 @@ public:
     float f32;
     double f64;
     aberrant_cell_if *aberrant;
-  } data;
+  } data{0};
 
   std::any complex_data{0};
 
@@ -364,8 +365,7 @@ public:
       break;
     case cell_type_e::STRING:
     case cell_type_e::SYMBOL:
-      complex_data = std::string();
-      this->data.cstr = as_c_string();
+      this->data.cstr = nullptr;
       break;
     case cell_type_e::LIST:
       complex_data = list_info_s(list_types_e::DATA);
@@ -377,9 +377,23 @@ public:
   }
 
   void update_from(cell_c &other, env_c &env) {
+
+    if (this->type == cell_type_e::STRING && this->data.cstr) {
+      delete[] this->data.cstr;
+    }
+
     this->type = other.type;
-    this->data = other.clone(env)->data;
     this->complex_data = other.clone(env)->complex_data;
+
+    if (other.type == cell_type_e::STRING) {
+      auto size = strlen(other.data.cstr);
+      this->data.cstr = new char[size+1];
+      strncpy(this->data.cstr, other.data.cstr, size);
+      this->data.cstr[size] = '\0';
+      return;
+    }
+
+    this->data = other.clone(env)->data;
   }
 
   int64_t to_integer() {
@@ -413,26 +427,25 @@ public:
     return data.f64;
   }
 
-  std::string &as_string() {
-    try {
-      return std::any_cast<std::string &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+  std::string as_string() {
+    if (this->type != cell_type_e::STRING &&
+        this->type != cell_type_e::SYMBOL) {
       throw cell_access_exception_c("Cell is not a string", this->locator);
     }
+    if (!this->data.cstr)
+      return "";
+    return this->data.cstr;
   }
 
   char *as_c_string() { return &*as_string().begin(); }
 
-  std::string &as_symbol() {
+  std::string as_symbol() {
     if (this->type != cell_type_e::SYMBOL) {
       throw cell_access_exception_c("Cell is not a symbol", this->locator);
     }
-    try {
-      return std::any_cast<std::string &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
-      throw cell_access_exception_c("Symbol cell does not contain a string",
-                                    this->locator);
-    }
+    if (!this->data.cstr)
+      return "";
+    return this->data.cstr;
   }
 
   cell_list_t to_list() { return this->as_list(); }
@@ -509,8 +522,13 @@ public:
       throw cell_access_exception_c("Cell does not contain a string to update",
                                     this->locator);
     }
-    complex_data = data;
-    this->data.cstr = as_c_string();
+    if (this->data.cstr) {
+      delete[] this->data.cstr;
+    }
+
+    this->data.cstr = new char[data.size() + 1];
+    strncpy(this->data.cstr, data.data(), data.size());
+    this->data.cstr[data.size()] = '\0';
   }
 
   char as_char() const {

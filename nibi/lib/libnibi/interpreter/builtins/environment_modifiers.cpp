@@ -17,7 +17,7 @@ cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ALIAS, ==, 3)
 
   auto alias_target = ci.process_cell(list[1], env);
-  auto &target_variable_name = list[2]->as_symbol();
+  auto target_variable_name = list[2]->as_symbol();
 
   NIBI_VALIDATE_VAR_NAME(target_variable_name, list[2]->locator);
 
@@ -50,7 +50,7 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
         "Expected symbol as first argument to assign", (*it)->locator);
   }
 
-  auto &target_variable_name = (*it)->as_symbol();
+  auto target_variable_name = (*it)->as_symbol();
 
   NIBI_VALIDATE_VAR_NAME(target_variable_name, (*it)->locator);
 
