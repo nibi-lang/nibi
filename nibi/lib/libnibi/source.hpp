@@ -5,10 +5,12 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "libnibi/ref.hpp"
+
 namespace nibi {
 //! \brief A locator interface.
 //!       Used to locate errors in the source.
-class locator_if {
+class locator_if : public ref_counted_c {
 public:
   virtual ~locator_if() = default;
   virtual const size_t get_line() const = 0;
@@ -18,7 +20,7 @@ public:
 };
 
 // Shorthand for a shared locator interface pointer.
-using locator_ptr = std::shared_ptr<locator_if>;
+using locator_ptr = nibi::ref_counted_ptr_c<locator_if>;
 
 extern void draw_locator(locator_if &location);
 
@@ -64,7 +66,7 @@ public:
   std::string get_source_name() { return *source_name_; }
   //! \brief Get a locator interface for the source.
   locator_ptr get_locator(const size_t line, const size_t column) const {
-    return std::make_shared<locator_c>(source_name_, line, column);
+    return new locator_c(source_name_, line, column);
   }
 
 private:
