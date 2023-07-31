@@ -128,6 +128,10 @@ using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
 struct dict_info_s {
   cell_dict_t data;
+
+  dict_info_s() = default;
+  dict_info_s(const dict_info_s &other) : data(other.data){};
+  dict_info_s(cell_dict_t other) : data(std::move(other)){};
 };
 
 //! \brief Lambda information that can be encoded into a cell
