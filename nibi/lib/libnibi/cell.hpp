@@ -128,7 +128,6 @@ using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
 struct dict_info_s {
   cell_dict_t data;
-
   dict_info_s() = default;
   dict_info_s(const dict_info_s &other) : data(other.data){};
   dict_info_s(cell_dict_t other) : data(std::move(other)){};
@@ -188,16 +187,6 @@ struct alias_s {
 struct environment_info_s {
   std::string name;
   std::shared_ptr<env_c> env{nullptr};
-};
-
-//! \brief Pointer information
-struct pointer_info_s {
-  bool is_owned{false};
-  // In the event of getting something from ffi we wont know
-  // the size. So even if we acquire ownership, we may not
-  // have access to this. We keep the size for what
-  // we create so we can bound check
-  std::optional<std::size_t> size_bytes{std::nullopt};
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -375,7 +364,6 @@ public:
       break;
     case cell_type_e::PTR:
       this->data.ptr = nullptr;
-      this->complex_data = pointer_info_s{false, 0};
       break;
     case cell_type_e::STRING:
     case cell_type_e::SYMBOL:
@@ -542,15 +530,6 @@ public:
     }
 
     return *(this->data.env);
-  }
-
-  pointer_info_s &as_pointer_info() {
-    try {
-      return std::any_cast<pointer_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
-      throw cell_access_exception_c("Cell does not contain a pointer",
-                                    this->locator);
-    }
   }
 
   void *as_pointer() const {

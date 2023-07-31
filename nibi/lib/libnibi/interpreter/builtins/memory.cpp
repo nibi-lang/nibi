@@ -17,14 +17,12 @@ cell_ptr builtin_fn_memory_new(cell_processor_if &ci, cell_list_t &list,
 
   auto ptr_cell = allocate_cell(cell_type_e::PTR);
   if (list[1]->type == cell_type_e::NIL) {
-    ptr_cell->complex_data = pointer_info_s{true, 0};
     return ptr_cell;
   }
 
   auto size = ci.process_cell(list[1], env)->as_integer();
 
   ptr_cell->data.ptr = malloc(size);
-  ptr_cell->complex_data = pointer_info_s{true, size};
   return ptr_cell;
 }
 
@@ -35,14 +33,11 @@ cell_ptr builtin_fn_memory_del(cell_processor_if &ci, cell_list_t &list,
   auto ptr = allocate_cell(cell_type_e::PTR);
   for (size_t i = 1; i < list.size(); i++) {
     ptr = ci.process_cell(list[i], env);
-    auto &ptr_info = ptr->as_pointer_info();
 
     if (ptr->data.ptr != nullptr) {
       free(ptr->data.ptr);
+      ptr->data.ptr = nullptr;
     }
-
-    ptr->data.ptr = nullptr;
-    ptr_info.size_bytes = std::nullopt;
   }
 
   // Return the last cell processed
@@ -73,8 +68,6 @@ cell_ptr copy_cell_into_memory(cell_processor_if &ci, cell_ptr &source,
                                      source->locator);
   }
 
-  // We know that the dest is owned and a pointer as a prerequisite to this
-  // function.
   if (dest->data.ptr != nullptr) {
     free(dest->data.ptr);
   }
@@ -142,31 +135,21 @@ cell_ptr copy_cell_into_memory(cell_processor_if &ci, cell_ptr &source,
   return dest;
 }
 
-cell_ptr copy_memory(cell_processor_if &ci, cell_ptr &source, cell_ptr &dest) {
-
-  auto source_ptr_info = source->as_pointer_info();
-  auto dest_ptr_info = dest->as_pointer_info();
-
-  if (!source_ptr_info.size_bytes.has_value()) {
-    throw interpreter_c::exception_c(
-        "Can not copy pointer, source cell does not have a known size",
-        source->locator);
-  }
+cell_ptr copy_memory(cell_processor_if &ci, cell_ptr &source, cell_ptr &dest,
+                     uint64_t size) {
 
   if (dest->data.ptr != nullptr) {
     free(dest->data.ptr);
   }
 
-  dest->data.ptr = malloc(source_ptr_info.size_bytes.value());
-  memcpy(dest->data.ptr, source->data.ptr, source_ptr_info.size_bytes.value());
-
-  dest_ptr_info.size_bytes = source_ptr_info.size_bytes;
+  dest->data.ptr = malloc(size);
+  memcpy(dest->data.ptr, source->data.ptr, size);
   return dest;
 }
 
 cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
                                env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_CPY, ==, 3)
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_CPY, >=, 3)
 
   auto dest = ci.process_cell(list[2], env);
 
@@ -178,10 +161,19 @@ cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
   auto source = ci.process_cell(list[1], env);
 
   if (source->type != cell_type_e::PTR) {
+    NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_CPY, ==, 3)
     return copy_cell_into_memory(ci, source, dest);
   }
 
-  return copy_memory(ci, source, dest);
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_CPY, ==, 4)
+  auto size_bytes = ci.process_cell(list[3], env);
+
+  if (!size_bytes->is_integer()) {
+    throw interpreter_c::exception_c("Expected size parameter to be an integer",
+                                     list[3]->locator);
+  }
+
+  return copy_memory(ci, source, dest, size_bytes->data.u64);
 }
 
 cell_ptr builtin_fn_memory_load(cell_processor_if &ci, cell_list_t &list,
@@ -197,8 +189,6 @@ cell_ptr builtin_fn_memory_load(cell_processor_if &ci, cell_list_t &list,
   }
 
   auto dest = ci.process_cell(list[2], env);
-
-  auto &dest_ptr_info = dest->as_pointer_info();
 
   if (dest->data.ptr == nullptr) {
     throw interpreter_c::exception_c("Attempt to load from unallocated pointer",

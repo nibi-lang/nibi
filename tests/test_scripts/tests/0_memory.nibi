@@ -4,11 +4,6 @@
 
 (assert (eq true (mem-is-set x)))
 
-(try [
-  (mem-del x)
-  (assert (eq true false) "Able to free non-owned memory")
-] (nop) )
-
 (mem-del x)
 
 (assert (eq false (mem-is-set x)))
@@ -17,12 +12,13 @@
 
 (:= y (mem-new nil))
 
-(mem-cpy x y)
+(mem-cpy x y 15)
 
 (assert (eq true (mem-is-set y)))
 
 (mem-del y)
 (mem-del x)
+
 
 (set x "Some string")
 (set y (mem-new nil))

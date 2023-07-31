@@ -173,8 +173,6 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   case cell_type_e::PTR: {
     new_cell->data.ptr = this->data.ptr;
-    auto &pi = this->as_pointer_info();
-    new_cell->complex_data = pointer_info_s{pi.is_owned, pi.size_bytes};
     break;
   }
   case cell_type_e::ALIAS: {
