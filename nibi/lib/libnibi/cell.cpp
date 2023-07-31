@@ -98,6 +98,12 @@ cell_c::~cell_c() {
     }
     break;
   }
+  case cell_type_e::ENVIRONMENT: {
+    if (this->data.env) {
+      delete this->data.env;
+      this->data.env = nullptr;
+    }
+  }
   default: {
     break;
   }

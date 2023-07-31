@@ -275,6 +275,7 @@ public:
     float f32;
     double f64;
     aberrant_cell_if *aberrant;
+    environment_info_s *env;
   } data{0};
 
   std::any complex_data{0};
@@ -306,7 +307,7 @@ public:
     complex_data = fn;
   }
   cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
-    complex_data = env;
+    this->data.env = new environment_info_s(env);
   }
   cell_c(cell_dict_t dict) : type(cell_type_e::DICT) { complex_data = dict; }
 
@@ -340,7 +341,7 @@ public:
       this->data.ptr = nullptr;
       break;
     case cell_type_e::ENVIRONMENT:
-      complex_data = environment_info_s{"", nullptr};
+      this->data.env = new environment_info_s();
       break;
     case cell_type_e::FUNCTION:
       complex_data = function_info_s("", nullptr, function_type_e::UNSET);
@@ -377,6 +378,11 @@ public:
   }
 
   void update_from(cell_c &other, env_c &env) {
+
+    if (this->type == cell_type_e::ENVIRONMENT) {
+      throw cell_access_exception_c(
+          "Reallocating a Nibi Envrionment is an illegal operation", this->locator);
+    }
 
     if (this->type == cell_type_e::STRING && this->data.cstr) {
       delete[] this->data.cstr;
@@ -490,12 +496,12 @@ public:
   }
 
   environment_info_s &as_environment_info() {
-    try {
-      return std::any_cast<environment_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::ENVIRONMENT) {
       throw cell_access_exception_c("Cell is not an environment",
                                     this->locator);
     }
+
+    return *(this->data.env);
   }
 
   pointer_info_s &as_pointer_info() {
