@@ -4,18 +4,10 @@
 
 (assert (eq true (mem-is-set x)))
 
-(assert (eq true (mem-owned x)))
-
-(mem-abandon x)
-
-(assert (eq false (mem-owned x)))
-
 (try [
   (mem-del x)
   (assert (eq true false) "Able to free non-owned memory")
 ] (nop) )
-
-(mem-acquire x)
 
 (mem-del x)
 
@@ -28,7 +20,6 @@
 (mem-cpy x y)
 
 (assert (eq true (mem-is-set y)))
-(assert (eq true (mem-owned y)))
 
 (mem-del y)
 (mem-del x)
@@ -39,7 +30,6 @@
 (mem-cpy x y)
 
 (assert (eq true (mem-is-set y)))
-(assert (eq true (mem-owned y)))
 
 (:= a (mem-cpy (u8 100) (mem-new 8)))
 (:= b (mem-load :u8 a))

@@ -74,9 +74,6 @@ static constexpr const char *MEM_NEW = "mem-new";
 static constexpr const char *MEM_DEL = "mem-del";
 static constexpr const char *MEM_CPY = "mem-cpy";
 static constexpr const char *MEM_LOAD = "mem-load";
-static constexpr const char *MEM_OWNED = "mem-owned";
-static constexpr const char *MEM_ACQUIRE = "mem-acquire";
-static constexpr const char *MEM_ABANDON = "mem-abandon";
 static constexpr const char *MEM_IS_SET = "mem-is-set";
 static constexpr const char *ALIAS = "alias";
 

@@ -37,51 +37,15 @@ cell_ptr builtin_fn_memory_del(cell_processor_if &ci, cell_list_t &list,
     ptr = ci.process_cell(list[i], env);
     auto &ptr_info = ptr->as_pointer_info();
 
-    if (!ptr_info.is_owned) {
-      throw interpreter_c::exception_c(
-          "Can not delete memory owned by an external source",
-          list[i]->locator);
-    }
-
     if (ptr->data.ptr != nullptr) {
       free(ptr->data.ptr);
     }
 
     ptr->data.ptr = nullptr;
-    ptr_info.is_owned = false;
     ptr_info.size_bytes = std::nullopt;
   }
 
   // Return the last cell processed
-  return ptr;
-}
-
-cell_ptr builtin_fn_memory_owned(cell_processor_if &ci, cell_list_t &list,
-                                 env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_OWNED, ==, 2)
-  auto ptr = ci.process_cell(list[1], env);
-  auto &ptr_info = ptr->as_pointer_info();
-  return allocate_cell((int64_t)ptr_info.is_owned);
-}
-
-cell_ptr builtin_fn_memory_abandon(cell_processor_if &ci, cell_list_t &list,
-                                   env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_ABANDON, >=, 2)
-  auto ptr = allocate_cell(cell_type_e::PTR);
-  for (size_t i = 1; i < list.size(); i++) {
-    ptr = ci.process_cell(list[i], env);
-    auto &ptr_info = ptr->as_pointer_info();
-    ptr_info.is_owned = false;
-  }
-  return ptr;
-}
-
-cell_ptr builtin_fn_memory_acquire(cell_processor_if &ci, cell_list_t &list,
-                                   env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_ACQUIRE, ==, 2)
-  auto ptr = ci.process_cell(list[1], env);
-  auto &ptr_info = ptr->as_pointer_info();
-  ptr_info.is_owned = true;
   return ptr;
 }
 
@@ -197,7 +161,6 @@ cell_ptr copy_memory(cell_processor_if &ci, cell_ptr &source, cell_ptr &dest) {
   memcpy(dest->data.ptr, source->data.ptr, source_ptr_info.size_bytes.value());
 
   dest_ptr_info.size_bytes = source_ptr_info.size_bytes;
-  dest_ptr_info.is_owned = true;
   return dest;
 }
 
@@ -212,20 +175,10 @@ cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
                                      list[2]->locator);
   }
 
-  if (!dest->as_pointer_info().is_owned) {
-    throw interpreter_c::exception_c("Destination cell must be owned",
-                                     list[2]->locator);
-  }
-
   auto source = ci.process_cell(list[1], env);
 
   if (source->type != cell_type_e::PTR) {
     return copy_cell_into_memory(ci, source, dest);
-  }
-
-  if (!source->as_pointer_info().is_owned) {
-    throw interpreter_c::exception_c(
-        "Source cell must be owned for ptr to ptr copy", list[1]->locator);
   }
 
   return copy_memory(ci, source, dest);

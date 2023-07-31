@@ -246,17 +246,8 @@ static function_info_s builtin_memory_cpy_inf = {
 static function_info_s builtin_memory_load_inf = {
     nibi::kw::MEM_LOAD, builtin_fn_memory_load,
     function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_memory_owned_inf = {
-    nibi::kw::MEM_OWNED, builtin_fn_memory_owned,
-    function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_memory_acquire_inf = {
-    nibi::kw::MEM_ACQUIRE, builtin_fn_memory_acquire,
-    function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_memory_is_set_inf = {
     nibi::kw::MEM_IS_SET, builtin_fn_memory_is_set,
-    function_type_e::BUILTIN_CPP_FUNCTION};
-static function_info_s builtin_memory_abandon_inf = {
-    nibi::kw::MEM_ABANDON, builtin_fn_memory_abandon,
     function_type_e::BUILTIN_CPP_FUNCTION};
 
 // This map is used to look up the function info struct for a given symbol
@@ -331,9 +322,6 @@ static function_router_t keyword_map = {
     {nibi::kw::MEM_DEL, builtin_memory_del_inf},
     {nibi::kw::MEM_CPY, builtin_memory_cpy_inf},
     {nibi::kw::MEM_LOAD, builtin_memory_load_inf},
-    {nibi::kw::MEM_OWNED, builtin_memory_owned_inf},
-    {nibi::kw::MEM_ACQUIRE, builtin_memory_acquire_inf},
-    {nibi::kw::MEM_ABANDON, builtin_memory_abandon_inf},
     {nibi::kw::MEM_IS_SET, builtin_memory_is_set_inf}};
 
 // Retrieve the map of symbols to function info structs

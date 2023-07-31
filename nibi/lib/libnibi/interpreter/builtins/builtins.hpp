@@ -198,12 +198,6 @@ extern cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
                                       env_c &env);
 extern cell_ptr builtin_fn_memory_load(cell_processor_if &ci, cell_list_t &list,
                                        env_c &env);
-extern cell_ptr builtin_fn_memory_owned(cell_processor_if &ci,
-                                        cell_list_t &list, env_c &env);
-extern cell_ptr builtin_fn_memory_acquire(cell_processor_if &ci,
-                                          cell_list_t &list, env_c &env);
-extern cell_ptr builtin_fn_memory_abandon(cell_processor_if &ci,
-                                          cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_memory_is_set(cell_processor_if &ci,
                                          cell_list_t &list, env_c &env);
 
