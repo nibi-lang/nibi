@@ -276,6 +276,7 @@ public:
     double f64;
     aberrant_cell_if *aberrant;
     environment_info_s *env;
+    function_info_s *fn;
   } data{0};
 
   std::any complex_data{0};
@@ -304,7 +305,7 @@ public:
     this->data.aberrant = acif;
   }
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) {
-    complex_data = fn;
+    this->data.fn = new function_info_s(fn);
   }
   cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
     this->data.env = new environment_info_s(env);
@@ -344,7 +345,7 @@ public:
       this->data.env = new environment_info_s();
       break;
     case cell_type_e::FUNCTION:
-      complex_data = function_info_s("", nullptr, function_type_e::UNSET);
+      this->data.fn = new function_info_s("", nullptr, function_type_e::UNSET);
       break;
     case cell_type_e::I8:
     case cell_type_e::I16:
@@ -379,25 +380,46 @@ public:
 
   void update_from(cell_c &other, env_c &env) {
 
+    // Perform any cleanup of this cell required before updating to new data
+
     if (this->type == cell_type_e::ENVIRONMENT) {
       throw cell_access_exception_c(
-          "Reallocating a Nibi Envrionment is an illegal operation", this->locator);
+          "Reallocating a Nibi Envrionment is an illegal operation",
+          this->locator);
     }
 
     if (this->type == cell_type_e::STRING && this->data.cstr) {
       delete[] this->data.cstr;
     }
 
+    if (this->type == cell_type_e::FUNCTION && this->data.fn) {
+      delete this->data.fn;
+    }
+
+    // Set this cell's new type
+
     this->type = other.type;
+
+    // Copy "complex data" - soon to be removed
+
     this->complex_data = other.clone(env)->complex_data;
+
+    // Handle specific copies
 
     if (other.type == cell_type_e::STRING) {
       auto size = strlen(other.data.cstr);
-      this->data.cstr = new char[size+1];
+      this->data.cstr = new char[size + 1];
       strncpy(this->data.cstr, other.data.cstr, size);
       this->data.cstr[size] = '\0';
       return;
     }
+
+    if (other.type == cell_type_e::FUNCTION && other.data.fn) {
+      this->data.fn = new function_info_s(*other.data.fn);
+      return;
+    }
+
+    // Handle simple copies
 
     this->data = other.clone(env)->data;
   }
@@ -446,7 +468,8 @@ public:
   char *as_c_string() {
     if (this->type != cell_type_e::STRING &&
         this->type != cell_type_e::SYMBOL) {
-      throw cell_access_exception_c("Cell does not contain a string, or a symbol", this->locator);
+      throw cell_access_exception_c(
+          "Cell does not contain a string, or a symbol", this->locator);
     }
     return this->data.cstr;
   }
@@ -488,11 +511,10 @@ public:
   }
 
   function_info_s &as_function_info() {
-    try {
-      return std::any_cast<function_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::FUNCTION) {
       throw cell_access_exception_c("Cell is not a function", this->locator);
     }
+    return *(this->data.fn);
   }
 
   environment_info_s &as_environment_info() {

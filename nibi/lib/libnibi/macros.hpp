@@ -33,5 +33,4 @@ namespace nibi {
         list.front()->locator);                                                \
     return nibi::allocate_cell(nibi::cell_type_e::NIL);                        \
   }
-
 } // namespace nibi

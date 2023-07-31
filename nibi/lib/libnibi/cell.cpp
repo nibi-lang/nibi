@@ -88,6 +88,8 @@ cell_c::~cell_c() {
         func_info.operating_env = nullptr;
       }
     }
+    delete this->data.fn;
+    this->data.fn = nullptr;
     break;
   }
   case cell_type_e::SYMBOL:
@@ -180,8 +182,9 @@ cell_ptr cell_c::clone(env_c &env) {
 
     auto &func_info = this->as_function_info();
 
-    new_cell->complex_data =
-        function_info_s(func_info.name, func_info.fn, func_info.type);
+    new_cell->data.fn->name = func_info.name;
+    new_cell->data.fn->fn = func_info.fn;
+    new_cell->data.fn->type = func_info.type;
 
     if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
