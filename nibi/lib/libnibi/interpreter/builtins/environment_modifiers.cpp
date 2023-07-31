@@ -17,13 +17,13 @@ cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ALIAS, ==, 3)
 
   auto alias_target = ci.process_cell(list[1], env);
-  auto target_variable_name = list[2]->as_symbol();
+  auto target_variable_name = list[2]->as_c_string();
 
   NIBI_VALIDATE_VAR_NAME(target_variable_name, list[2]->locator);
 
   if (list[1]->type == cell_type_e::SYMBOL) {
-    auto source_variable_name = list[1]->as_symbol();
-    if (source_variable_name == target_variable_name) {
+    auto source_variable_name = list[1]->as_c_string();
+    if (::strcmp(source_variable_name, target_variable_name) == 0) {
       throw interpreter_c::exception_c("Cannot alias a variable to itself",
                                        list[1]->locator);
     }
@@ -50,7 +50,7 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
         "Expected symbol as first argument to assign", (*it)->locator);
   }
 
-  auto target_variable_name = (*it)->as_symbol();
+  auto target_variable_name = (*it)->as_c_string();
 
   NIBI_VALIDATE_VAR_NAME(target_variable_name, (*it)->locator);
 

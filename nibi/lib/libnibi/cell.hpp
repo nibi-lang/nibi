@@ -437,7 +437,13 @@ public:
     return this->data.cstr;
   }
 
-  char *as_c_string() { return &*as_string().begin(); }
+  char *as_c_string() {
+    if (this->type != cell_type_e::STRING &&
+        this->type != cell_type_e::SYMBOL) {
+      throw cell_access_exception_c("Cell does not contain a string, or a symbol", this->locator);
+    }
+    return this->data.cstr;
+  }
 
   std::string as_symbol() {
     if (this->type != cell_type_e::SYMBOL) {
