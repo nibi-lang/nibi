@@ -173,7 +173,7 @@ struct symbol_s {
 
 // Temporary wrapper to distinguish aliases
 struct alias_s {
-  cell_ptr data;
+  cell_ptr cell;
 };
 
 //! \brief Environment information that can be encoded into a cell
@@ -277,6 +277,7 @@ public:
     aberrant_cell_if *aberrant;
     environment_info_s *env;
     function_info_s *fn;
+    alias_s *alias;
   } data{0};
 
   std::any complex_data{0};
@@ -297,7 +298,7 @@ public:
     update_string(data.data);
   }
   cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
-    this->complex_data = alias.data;
+    this->data.alias = new alias_s(alias);
   }
 
   cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
@@ -573,11 +574,10 @@ public:
   }
 
   cell_ptr get_alias() const {
-    try {
-      return std::any_cast<cell_ptr>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::ALIAS) {
       throw cell_access_exception_c("Cell is not an alias", this->locator);
     }
+    return this->data.alias->cell;
   }
 
   //! \brief Check if a cell is an integer
