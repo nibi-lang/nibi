@@ -1,21 +1,11 @@
 (use "board")
 
-
 (use "io")
 
 (:= prompt "cmd ➤ ")
 
-(fn get_valid_int [int_prompt] [
-  (:= input nil)
-  (loop (:= valid false) (eq false valid) (nop) [
-    (set input (io::prompt int_prompt io::get::int))
-    (if (eq "int" (type input)) [
-      (set valid true)
-      ]
-      (io::println "Invalid integer"))
-  ])
-  (<- input)
-])
+(fn get_valid_int [int_prompt] 
+  (u64 (io::prompt int_prompt io::get::int)))
 
 (fn get_coords [] [
   (:= result [])

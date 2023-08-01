@@ -8,7 +8,6 @@
 (fn board::set_tile [symbol] 
   (set {board tile_symbol} symbol))
 (fn board::toggle_row_col [show] [
-  (assert (eq "int" (type show)))
   (assert (or
     (eq false show)
     (eq true show)))
