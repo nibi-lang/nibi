@@ -6,6 +6,7 @@
 #include <any>
 #include <cassert>
 #include <cstdint>
+#include <cstring>
 #include <exception>
 #include <functional>
 #include <memory>
@@ -125,6 +126,13 @@ using cell_fn_t =
 //! \brief A dictionary type
 using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 
+struct dict_info_s {
+  cell_dict_t data;
+  dict_info_s() = default;
+  dict_info_s(const dict_info_s &other) : data(other.data){};
+  dict_info_s(cell_dict_t other) : data(std::move(other)){};
+};
+
 //! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {
   std::vector<std::string> arg_names;
@@ -155,7 +163,8 @@ struct function_info_s {
 struct list_info_s {
   list_types_e type;
   cell_list_t list;
-  list_info_s(list_types_e type, cell_list_t list) : type(type), list(list) {}
+  list_info_s(list_types_e type, cell_list_t list)
+      : type(type), list(std::move(list)) {}
 
   list_info_s(list_types_e type) : type(type) {
 #if CELL_LIST_USE_STD_VECTOR
@@ -172,23 +181,13 @@ struct symbol_s {
 
 // Temporary wrapper to distinguish aliases
 struct alias_s {
-  cell_ptr data;
+  cell_ptr cell;
 };
 
 //! \brief Environment information that can be encoded into a cell
 struct environment_info_s {
   std::string name;
   std::shared_ptr<env_c> env{nullptr};
-};
-
-//! \brief Pointer information
-struct pointer_info_s {
-  bool is_owned{false};
-  // In the event of getting something from ffi we wont know
-  // the size. So even if we acquire ownership, we may not
-  // have access to this. We keep the size for what
-  // we create so we can bound check
-  std::optional<std::size_t> size_bytes{std::nullopt};
 };
 
 //! \brief An exception that is thrown when a cell is accessed
@@ -253,6 +252,8 @@ private:
   std::size_t tag_{0};
 };
 
+#pragma pack(push, 1)
+
 //! \brief A cell
 class cell_c : public ref_counted_c {
 public:
@@ -274,9 +275,12 @@ public:
     float f32;
     double f64;
     aberrant_cell_if *aberrant;
-  } data;
-
-  std::any complex_data{0};
+    environment_info_s *env;
+    function_info_s *fn;
+    alias_s *alias;
+    dict_info_s *dict;
+    list_info_s *list;
+  } data{0};
 
   cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
   cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
@@ -294,20 +298,24 @@ public:
     update_string(data.data);
   }
   cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
-    this->complex_data = alias.data;
+    this->data.alias = new alias_s(alias);
   }
 
-  cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
+  cell_c(list_info_s list) : type(cell_type_e::LIST) {
+    this->data.list = new list_info_s(list);
+  }
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
     this->data.aberrant = acif;
   }
   cell_c(function_info_s fn) : type(cell_type_e::FUNCTION) {
-    complex_data = fn;
+    this->data.fn = new function_info_s(fn);
   }
   cell_c(environment_info_s env) : type(cell_type_e::ENVIRONMENT) {
-    complex_data = env;
+    this->data.env = new environment_info_s(env);
   }
-  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) { complex_data = dict; }
+  cell_c(cell_dict_t dict) : type(cell_type_e::DICT) {
+    this->data.dict = new dict_info_s(dict);
+  }
 
   virtual ~cell_c();
 
@@ -339,10 +347,10 @@ public:
       this->data.ptr = nullptr;
       break;
     case cell_type_e::ENVIRONMENT:
-      complex_data = environment_info_s{"", nullptr};
+      this->data.env = new environment_info_s();
       break;
     case cell_type_e::FUNCTION:
-      complex_data = function_info_s("", nullptr, function_type_e::UNSET);
+      this->data.fn = new function_info_s("", nullptr, function_type_e::UNSET);
       break;
     case cell_type_e::I8:
     case cell_type_e::I16:
@@ -360,26 +368,75 @@ public:
       break;
     case cell_type_e::PTR:
       this->data.ptr = nullptr;
-      this->complex_data = pointer_info_s{false, 0};
       break;
     case cell_type_e::STRING:
     case cell_type_e::SYMBOL:
-      complex_data = std::string();
-      this->data.cstr = as_c_string();
+      this->data.cstr = nullptr;
       break;
     case cell_type_e::LIST:
-      complex_data = list_info_s(list_types_e::DATA);
+      this->data.list = new list_info_s(list_types_e::DATA);
       break;
     case cell_type_e::CHAR:
       this->data.ch = '\0';
+      break;
+    case cell_type_e::ALIAS:
+      this->data.alias = nullptr;
+      break;
+    case cell_type_e::DICT:
+      this->data.dict = nullptr;
       break;
     }
   }
 
   void update_from(cell_c &other, env_c &env) {
+
+    // Perform any cleanup of this cell required before updating to new data
+
+    if (this->type == cell_type_e::ENVIRONMENT) {
+      throw cell_access_exception_c(
+          "Reallocating a Nibi Envrionment is an illegal operation",
+          this->locator);
+    }
+
+    if (this->type == cell_type_e::STRING && this->data.cstr) {
+      delete[] this->data.cstr;
+    }
+
+    if (this->type == cell_type_e::FUNCTION && this->data.fn) {
+      delete this->data.fn;
+    }
+
+    if (this->type == cell_type_e::LIST && this->data.list) {
+      delete this->data.list;
+    }
+
+    // Set this cell's new type
+
     this->type = other.type;
+
+    // Handle specific copies
+
+    if (other.type == cell_type_e::STRING) {
+      auto size = strlen(other.data.cstr);
+      this->data.cstr = new char[size + 1];
+      strncpy(this->data.cstr, other.data.cstr, size);
+      this->data.cstr[size] = '\0';
+      return;
+    }
+
+    if (other.type == cell_type_e::FUNCTION && other.data.fn) {
+      this->data.fn = new function_info_s(*other.data.fn);
+      return;
+    }
+
+    if (other.type == cell_type_e::LIST && other.data.list) {
+      this->data.list = new list_info_s(*(other.clone(env)->data.list));
+      return;
+    }
+
+    // Handle simple copies
+
     this->data = other.clone(env)->data;
-    this->complex_data = other.clone(env)->complex_data;
   }
 
   int64_t to_integer() {
@@ -413,26 +470,32 @@ public:
     return data.f64;
   }
 
-  std::string &as_string() {
-    try {
-      return std::any_cast<std::string &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+  std::string as_string() {
+    if (this->type != cell_type_e::STRING &&
+        this->type != cell_type_e::SYMBOL) {
       throw cell_access_exception_c("Cell is not a string", this->locator);
     }
+    if (!this->data.cstr)
+      return "";
+    return this->data.cstr;
   }
 
-  char *as_c_string() { return &*as_string().begin(); }
+  char *as_c_string() {
+    if (this->type != cell_type_e::STRING &&
+        this->type != cell_type_e::SYMBOL) {
+      throw cell_access_exception_c(
+          "Cell does not contain a string, or a symbol", this->locator);
+    }
+    return this->data.cstr;
+  }
 
-  std::string &as_symbol() {
+  std::string as_symbol() {
     if (this->type != cell_type_e::SYMBOL) {
       throw cell_access_exception_c("Cell is not a symbol", this->locator);
     }
-    try {
-      return std::any_cast<std::string &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
-      throw cell_access_exception_c("Symbol cell does not contain a string",
-                                    this->locator);
-    }
+    if (!this->data.cstr)
+      return "";
+    return this->data.cstr;
   }
 
   cell_list_t to_list() { return this->as_list(); }
@@ -447,11 +510,10 @@ public:
   list_info_s to_list_info() { return this->as_list_info(); }
 
   list_info_s &as_list_info() {
-    try {
-      return std::any_cast<list_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (type != cell_type_e::LIST) {
       throw cell_access_exception_c("Cell is not a list", this->locator);
     }
+    return *data.list;
   }
 
   aberrant_cell_if *as_aberrant() const {
@@ -463,29 +525,18 @@ public:
   }
 
   function_info_s &as_function_info() {
-    try {
-      return std::any_cast<function_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::FUNCTION) {
       throw cell_access_exception_c("Cell is not a function", this->locator);
     }
+    return *(this->data.fn);
   }
 
   environment_info_s &as_environment_info() {
-    try {
-      return std::any_cast<environment_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::ENVIRONMENT) {
       throw cell_access_exception_c("Cell is not an environment",
                                     this->locator);
     }
-  }
-
-  pointer_info_s &as_pointer_info() {
-    try {
-      return std::any_cast<pointer_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
-      throw cell_access_exception_c("Cell does not contain a pointer",
-                                    this->locator);
-    }
+    return *(this->data.env);
   }
 
   void *as_pointer() const {
@@ -497,20 +548,25 @@ public:
   }
 
   cell_dict_t &as_dict() {
-    try {
-      return std::any_cast<cell_dict_t &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::DICT) {
       throw cell_access_exception_c("Cell is not a dict", this->locator);
     }
+    return this->data.dict->data;
   }
+
   void update_string(const std::string data) {
     if (this->type != cell_type_e::STRING &&
         this->type != cell_type_e::SYMBOL) {
       throw cell_access_exception_c("Cell does not contain a string to update",
                                     this->locator);
     }
-    complex_data = data;
-    this->data.cstr = as_c_string();
+    if (this->data.cstr) {
+      delete[] this->data.cstr;
+    }
+
+    this->data.cstr = new char[data.size() + 1];
+    strncpy(this->data.cstr, data.data(), data.size());
+    this->data.cstr[data.size()] = '\0';
   }
 
   char as_char() const {
@@ -521,11 +577,10 @@ public:
   }
 
   cell_ptr get_alias() const {
-    try {
-      return std::any_cast<cell_ptr>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (this->type != cell_type_e::ALIAS) {
       throw cell_access_exception_c("Cell is not an alias", this->locator);
     }
+    return this->data.alias->cell;
   }
 
   //! \brief Check if a cell is an integer
@@ -546,6 +601,8 @@ public:
            static_cast<uint8_t>(type) <= CELL_TYPE_MAX_NUMERIC;
   }
 };
+
+#pragma pack(pop)
 
 //! \brief Allocate a cell
 //! \params Ctor arguments for cell

@@ -23,7 +23,7 @@ cell_ptr execute_suspected_lambda(cell_processor_if &ci, cell_list_t &list,
 
   // If the first argument is a symbol, then we need to look it up
   if ((*it)->type == cell_type_e::SYMBOL) {
-    auto target_symbol = (*it)->as_symbol();
+    auto target_symbol = (*it)->as_c_string();
     target_cell = env.get(target_symbol);
     if (!target_cell) {
       throw interpreter_c::exception_c("Symbol not found in environment: " +

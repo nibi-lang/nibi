@@ -5,4 +5,4 @@
   (:= result $e)
 )
 
-(assert (eq message result) "Throw did not give the correct resultif!")
+(assert (eq message result) "Throw did not give the correct result")

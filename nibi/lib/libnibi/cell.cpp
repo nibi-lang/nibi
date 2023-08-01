@@ -85,7 +85,45 @@ cell_c::~cell_c() {
     if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         delete func_info.operating_env;
+        func_info.operating_env = nullptr;
       }
+    }
+    delete this->data.fn;
+    this->data.fn = nullptr;
+    break;
+  }
+  case cell_type_e::SYMBOL:
+  case cell_type_e::STRING: {
+    if (this->data.cstr) {
+      delete[] this->data.cstr;
+      this->data.cstr = nullptr;
+    }
+    break;
+  }
+  case cell_type_e::ENVIRONMENT: {
+    if (this->data.env) {
+      delete this->data.env;
+      this->data.env = nullptr;
+    }
+  }
+  case cell_type_e::ALIAS: {
+    if (this->data.alias) {
+      delete this->data.alias;
+      this->data.alias = nullptr;
+    }
+    break;
+  }
+  case cell_type_e::DICT: {
+    if (this->data.dict) {
+      delete this->data.dict;
+      this->data.dict = nullptr;
+    }
+    break;
+  }
+  case cell_type_e::LIST: {
+    if (this->data.list) {
+      delete this->data.list;
+      this->data.list = nullptr;
     }
     break;
   }
@@ -142,8 +180,6 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   case cell_type_e::PTR: {
     new_cell->data.ptr = this->data.ptr;
-    auto &pi = this->as_pointer_info();
-    new_cell->complex_data = pointer_info_s{pi.is_owned, pi.size_bytes};
     break;
   }
   case cell_type_e::ALIAS: {
@@ -165,8 +201,9 @@ cell_ptr cell_c::clone(env_c &env) {
 
     auto &func_info = this->as_function_info();
 
-    new_cell->complex_data =
-        function_info_s(func_info.name, func_info.fn, func_info.type);
+    new_cell->data.fn->name = func_info.name;
+    new_cell->data.fn->fn = func_info.fn;
+    new_cell->data.fn->type = func_info.type;
 
     if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {

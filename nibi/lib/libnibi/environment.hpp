@@ -8,6 +8,7 @@
 #include <map>
 
 namespace nibi {
+
 //! \brief The environment object that will be used to store
 //!        and manage the cells that are used in different scopes
 class env_c {

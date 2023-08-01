@@ -47,8 +47,11 @@ def test_item(id, expected_result, item):
    end = time.time()
    parser_status = True
 
-   decoded = result.stdout.decode("utf-8")
-
+   try:
+      decoded = result.stdout.decode("utf-8")
+   except:
+      print("Failed to decode output: ", str(result))
+      exit(1)
    results["name"] = item
 
    results["result"] = {
