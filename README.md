@@ -63,6 +63,20 @@ For documentation on the language please see `docs/LANGUAGE.md`
 ])
 ```
 
+## Running in Docker
+
+If you have docker installed you can launch the nibi docker container to start with the REPL. 
+
+Build the image:
+```
+docker build --tag 'nibi' -f docker/dockerfile .
+```
+
+Launch the repl:
+```
+docker run -i -t nibi
+```
+
 ## Installing
 
 ### Linux 

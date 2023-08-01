@@ -8,17 +8,18 @@ RUN apt-get update && apt-get install -y git g++-9 pkg-config build-essential cm
 WORKDIR /NIBI
 
 # Copying the files
-COPY . .
-RUN mkdir /NIBI/build
+COPY ../ .
 
-# Set NIBI_PATH for executable
-ENV NIBI_PATH=/NIBI/build
+# Set NIBI_PATH where nibi modules will be installed
+RUN mkdir /NIBI/home
+ENV NIBI_PATH=/NIBI/home
 
 # Running commander.py with -n -m flags
-RUN python3 commander.py -n -m
+RUN python3 commander.py -s -n -m
 
-# Find the nibi shared lib
-CMD ["sudo", "ldconfig"]
+# Copy the .so for nibi
+COPY nibi/build/lib/libnibi.so /usr/lib
+RUN ldconfig
 
 # Open nibi REPL
 ENTRYPOINT ["nibi"]
