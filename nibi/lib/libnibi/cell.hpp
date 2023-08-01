@@ -163,7 +163,8 @@ struct function_info_s {
 struct list_info_s {
   list_types_e type;
   cell_list_t list;
-  list_info_s(list_types_e type, cell_list_t list) : type(type), list(list) {}
+  list_info_s(list_types_e type, cell_list_t list)
+      : type(type), list(std::move(list)) {}
 
   list_info_s(list_types_e type) : type(type) {
 #if CELL_LIST_USE_STD_VECTOR
@@ -251,6 +252,8 @@ private:
   std::size_t tag_{0};
 };
 
+#pragma pack(push, 1)
+
 //! \brief A cell
 class cell_c : public ref_counted_c {
 public:
@@ -276,9 +279,8 @@ public:
     function_info_s *fn;
     alias_s *alias;
     dict_info_s *dict;
+    list_info_s *list;
   } data{0};
-
-  std::any complex_data{0};
 
   cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
   cell_c(int16_t data) : type(cell_type_e::I16) { this->data.i16 = data; }
@@ -299,7 +301,9 @@ public:
     this->data.alias = new alias_s(alias);
   }
 
-  cell_c(list_info_s list) : type(cell_type_e::LIST) { complex_data = list; }
+  cell_c(list_info_s list) : type(cell_type_e::LIST) {
+    this->data.list = new list_info_s(list);
+  }
   cell_c(aberrant_cell_if *acif) : type(cell_type_e::ABERRANT) {
     this->data.aberrant = acif;
   }
@@ -370,7 +374,7 @@ public:
       this->data.cstr = nullptr;
       break;
     case cell_type_e::LIST:
-      complex_data = list_info_s(list_types_e::DATA);
+      this->data.list = new list_info_s(list_types_e::DATA);
       break;
     case cell_type_e::CHAR:
       this->data.ch = '\0';
@@ -402,13 +406,13 @@ public:
       delete this->data.fn;
     }
 
+    if (this->type == cell_type_e::LIST && this->data.list) {
+      delete this->data.list;
+    }
+
     // Set this cell's new type
 
     this->type = other.type;
-
-    // Copy "complex data" - soon to be removed
-
-    this->complex_data = other.clone(env)->complex_data;
 
     // Handle specific copies
 
@@ -422,6 +426,11 @@ public:
 
     if (other.type == cell_type_e::FUNCTION && other.data.fn) {
       this->data.fn = new function_info_s(*other.data.fn);
+      return;
+    }
+
+    if (other.type == cell_type_e::LIST && other.data.list) {
+      this->data.list = new list_info_s(*(other.clone(env)->data.list));
       return;
     }
 
@@ -501,11 +510,10 @@ public:
   list_info_s to_list_info() { return this->as_list_info(); }
 
   list_info_s &as_list_info() {
-    try {
-      return std::any_cast<list_info_s &>(this->complex_data);
-    } catch (const std::bad_any_cast &e) {
+    if (type != cell_type_e::LIST) {
       throw cell_access_exception_c("Cell is not a list", this->locator);
     }
+    return *data.list;
   }
 
   aberrant_cell_if *as_aberrant() const {
@@ -528,7 +536,6 @@ public:
       throw cell_access_exception_c("Cell is not an environment",
                                     this->locator);
     }
-
     return *(this->data.env);
   }
 
@@ -594,6 +601,8 @@ public:
            static_cast<uint8_t>(type) <= CELL_TYPE_MAX_NUMERIC;
   }
 };
+
+#pragma pack(pop)
 
 //! \brief Allocate a cell
 //! \params Ctor arguments for cell

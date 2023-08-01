@@ -120,6 +120,13 @@ cell_c::~cell_c() {
     }
     break;
   }
+  case cell_type_e::LIST: {
+    if (this->data.list) {
+      delete this->data.list;
+      this->data.list = nullptr;
+    }
+    break;
+  }
   default: {
     break;
   }
