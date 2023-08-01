@@ -11,6 +11,7 @@
 
 (:= dylib [
   "meta_cell"
+  "meta_locator"
 ])
 
 (:= post [

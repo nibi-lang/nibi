@@ -223,3 +223,25 @@ down.
 | 4sieve.nibi     | 0.6773s   | 677.348ms  |
 | leibniz.nibi    | 0.0778s   | 77.7946ms  |
 
+### 31-July-2023
+
+git hash **6a0a648b2726a467e9aca5ce89473a86f105843f**
+
+Issue 114: Flatten cell_c
+
+This is the final commit of the "make cell_c" not bloated work.
+Cell_c started off at 56 bytes (MASSIVE) and is now down to 
+29 (still not small.) 
+
+Cells currently take so much memory as there is 
+overhead for RAII, and source locators. However, 
+soon cell_c will not be the actual `running` instructions
+and the actual processed bytecode/atoms will be
+able to exist without RAII and locators (most likely.)
+
+| test            | time (s)  | time (ms)
+|----             |----       |----
+| mandelbrot.nibi | 0.0761s   | 76.1015ms  |
+| primality.nibi  | 0.671s    | 670.9686ms |
+| 4sieve.nibi     | 0.6626s   | 662.5976ms |
+| leibniz.nibi    | 0.0728s   | 72.813ms   |
