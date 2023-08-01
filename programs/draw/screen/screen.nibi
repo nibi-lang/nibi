@@ -9,8 +9,6 @@
 
 (fn init [fill width height] [
   (assert (eq "string" (type fill)) "Fill value must be a string")
-  (assert (eq "int" (type width)) "Width value must be an integer")
-  (assert (eq "int" (type height)) "Height value must be an integer")
   (assert (> width 0) "Width value must be greater than 0")
   (assert (< width 100) "Width value must be less than 100")
   (assert (> height 0) "Height value must be greater than 0")
@@ -28,8 +26,6 @@
 ])
 
 (fn set_pixel [x y value] [
-  (assert (eq "int" (type x)) "Pixel X value must be an integer")
-  (assert (eq "int" (type y)) "Pixel Y value must be an integer")
   (if ( or (>= y _height) (< y 0 )) (<-))
   (if ( or (>= x _width) (< x 0)) (<-))
   (set (at (at _display y) x) value)
