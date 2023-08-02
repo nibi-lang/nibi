@@ -1,0 +1,41 @@
+(use "io" "net")
+
+(:= port (net::htons 4096))
+
+(:= socket_fd (net::socket net::AF_INET net::SOCK_STREAM net::PROTO_STD))
+
+(if (eq -1 socket_fd) [
+  (io::println "Failed to acquire socket fd. errno= " (net::errno) )
+  (exit 1)])
+
+(:= sockaddr_in (net::sockaddr_in net::AF_INET port (net::addr "127.0.0.1")))
+(assert (eq true (mem-is-set sockaddr_in)) "Unable to allocate sockaddr_in")
+
+(:= connect_result (net::connect socket_fd sockaddr_in))
+
+(if (< connect_result 0) [
+  (io::println "Failed to acquire socket fd. errno= " (net::errno) )
+  (mem-del sockaddr_in)
+  (exit 1)])
+
+(io::println "Connected!")
+
+(:= data "Hello Nibi!")
+
+(:= sent_len (net::send socket_fd data 0))
+(if (< sent_len 0) [
+  (io::println "Failed to send data. errno=" (net::errno))
+  (mem-del sockaddr_in)
+  (exit 1)
+])
+
+(:= read_buffer (str (<|> "" 1024)))
+
+(:= n_bytes_read (net::read socket_fd read_buffer))
+
+(io::println "Read in: " n_bytes_read " bytes. Data: " read_buffer)
+
+(mem-del sockaddr_in)
+(net::close socket_fd)
+(net::shutdown socket_fd net::SHUT_RDWR)
+
