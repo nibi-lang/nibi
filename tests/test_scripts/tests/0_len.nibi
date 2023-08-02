@@ -7,3 +7,8 @@
 (assert (eq 2  (len i)) "invalid len")
 (assert (eq 8  (len d)) "invalid len")
 (assert (eq 5  (len l)) "invalid len")
+
+(:= spawned_string (<|> "" 24))
+
+# One is added to len for \0
+(assert (eq 25 (len (str spawned_string))))

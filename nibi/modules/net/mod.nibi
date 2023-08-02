@@ -1,0 +1,19 @@
+
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "Networking extension module")
+(:= licenses [
+  "MIT"
+])
+
+(:= sources [
+  "net.nibi"
+])
+
+#(:= dylib [
+#  "rand_range_double"
+#])
+
+(:= post [
+  "export.nibi"
+])

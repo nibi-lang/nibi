@@ -980,6 +980,12 @@ Call and external library:
     currently loaded symbols, otherwise it must be a bath to a library
     file - as a string.
 
+    Note: If the extern method can not find the library it will attempt to
+          locate it in the given include directories.
+          Since the NIBI_PATH is added as an include directory,
+          once can direct the cffi to an installed module's library
+          file via "modules/<MODULE_NAME>/<LIB_NAME>"
+
     Function name is the function name as a string.
 
     Parameters is a data list of type tags (listed above)
