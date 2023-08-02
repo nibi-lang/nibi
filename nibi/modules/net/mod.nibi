@@ -10,9 +10,8 @@
   "net.nibi"
 ])
 
-#(:= dylib [
-#  "rand_range_double"
-#])
+# dylib omitted so we don't load it as a 
+# standard module - cffi used to access (POC)
 
 (:= post [
   "export.nibi"
