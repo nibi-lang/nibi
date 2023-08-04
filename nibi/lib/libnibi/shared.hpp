@@ -10,4 +10,4 @@ static std::unordered_map<char, char> char_escape_map = {
     {'\'', '\''}, {'\\', '\\'}, {'0', '\0'}};
 
 }
-}
+} // namespace nibi

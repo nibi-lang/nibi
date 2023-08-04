@@ -5,8 +5,8 @@
 #include "interpreter/interpreter.hpp"
 #include "libnibi/cell.hpp"
 #include "libnibi/keywords.hpp"
-#include "libnibi/shared.hpp"
 #include "libnibi/macros.hpp"
+#include "libnibi/shared.hpp"
 
 namespace nibi {
 
@@ -40,13 +40,13 @@ cell_ptr builtin_fn_cvt_to_string(cell_processor_if &ci, cell_list_t &list,
 }
 
 cell_ptr builtin_fn_cvt_to_string_lit(cell_processor_if &ci, cell_list_t &list,
-                                  env_c &env) {
+                                      env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::STR_LIT, ==, 2)
 
   auto linf = ci.process_cell(list[1], env)->as_list_info();
 
   std::string str;
-  for(auto i : linf.list) {
+  for (auto i : linf.list) {
     str += i->to_string(false, true);
   }
   return allocate_cell(str);
@@ -139,21 +139,18 @@ cell_ptr builtin_fn_cvt_to_char(cell_processor_if &ci, cell_list_t &list,
   }
 
   if (str[0] == '\\') {
-    if (shared::char_escape_map.find(str[0]) !=
-        shared::char_escape_map.end()) {
+    if (shared::char_escape_map.find(str[0]) != shared::char_escape_map.end()) {
       return allocate_cell(shared::char_escape_map[str[0]]);
     }
   }
 
   if (str.size() > 1) {
     throw interpreter_c::exception_c(
-        "String too large to convert into a single char",
-        list[1]->locator);
+        "String too large to convert into a single char", list[1]->locator);
   }
 
   return allocate_cell(str[0]);
 }
-
 
 cell_ptr builtin_fn_cvt_to_split(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
