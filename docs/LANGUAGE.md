@@ -66,6 +66,7 @@ any other piece of data in the instructions below.
 | extern-call | Call a c-function from a shared library | variable
 | alias   | Use a new symbol to refer to the data behing another | nil
 | exchange | Update the value of a cell and return the old value of the cell | variable
+| str-set-at | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
 
 | type commands | description | returns
 |----   |---- |----
@@ -100,7 +101,7 @@ any other piece of data in the instructions below.
 | >\|   | Push value to front of list | modified list cell
 | \|<   | Push value to back of list  | modified list cell
 | iter  | Iterate over a list         | iterated list
-| at    | Retrieve an index into a list | cell at given index
+| at    | Retrieve an index into a list (negative indexing permitted | cell at given index
 | <\|>  | Spawn a list of a given size with a given value | new list
 | <<\|  | Pop front | list given sans the first element
 | \|>>  | Pop back  | list given sans the last element
