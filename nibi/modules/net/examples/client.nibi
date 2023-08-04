@@ -29,7 +29,7 @@
   (exit 1)
 ])
 
-(:= read_buffer (str (<|> "" 1024)))
+(:= read_buffer (str-lit (<|> " " 32)))
 
 (:= n_bytes_read (net::read socket_fd read_buffer))
 

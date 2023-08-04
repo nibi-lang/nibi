@@ -65,10 +65,13 @@ any other piece of data in the instructions below.
 | dict | Create a dictionary | the new dictionary
 | extern-call | Call a c-function from a shared library | variable
 | alias   | Use a new symbol to refer to the data behing another | nil
+| exchange | Update the value of a cell and return the old value of the cell | variable
+| str-set-at | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
 
 | type commands | description | returns
 |----   |---- |----
 | type    | Retrieve a string detailing the type of a given item | string
+| char    | Convert an integer into its char representation, or convert a string into a char type | char
 | str     | Convert an item to a string type | converted value 
 | int     | Convert an item to an integer type | converted value 
 | i8      | Convert an item to the integer type | converted value 
@@ -83,7 +86,7 @@ any other piece of data in the instructions below.
 | f32     | Convert an item to the float type | converted value 
 | f64     | Convert an item to the float type | converted value 
 | split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
-
+| str-lit | Convert a list into a direct string rather than just a string representation | new string
 
 | memory commands | description | returns
 |----   |---- |----
@@ -98,7 +101,7 @@ any other piece of data in the instructions below.
 | >\|   | Push value to front of list | modified list cell
 | \|<   | Push value to back of list  | modified list cell
 | iter  | Iterate over a list         | iterated list
-| at    | Retrieve an index into a list | cell at given index
+| at    | Retrieve an index into a list (negative indexing permitted | cell at given index
 | <\|>  | Spawn a list of a given size with a given value | new list
 | <<\|  | Pop front | list given sans the first element
 | \|>>  | Pop back  | list given sans the last element

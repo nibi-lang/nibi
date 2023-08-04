@@ -85,3 +85,14 @@
 
 
 (assert (eq [1 2 44] other_list))
+
+# Negative indexing test
+
+(:= z [1 2 3 4 5])
+
+(set (at z -2) 0)
+(assert (eq [1 2 3 0 5] z))
+
+(set (at z -8) 1)
+(assert (eq [1 2 1 0 5] z))
+

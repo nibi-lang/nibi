@@ -1,0 +1,23 @@
+# Author: Josh Bosley
+#
+# About:
+# Standard string operations
+#
+# Depends on std/types.nibi:
+# - is_string
+# - is_char
+
+# \brief Split a string by a delimiter
+(:= string_split (fn [_str _delim] [
+  (assert (is_string _str))
+  (assert (or (is_string _delim) (is_char _delim)))
+  (:= _res [])
+  (:= _chunk "")
+  (:= _as_list (split _str))
+  (iter _as_list i
+    (if (eq i _delim) (|< _res (exchange _chunk ""))
+    (set _chunk (+ _chunk i))))
+  (if (len _chunk) (|< _res _chunk))
+  (<- _res)
+]))
+
