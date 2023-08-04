@@ -47,9 +47,5 @@ int64_t nibi_net_accept(int64_t fd, void *saddr) {
 }
 
 int64_t nibi_net_read(int64_t fd, char *buffer, int64_t buffer_len) {
-  auto read_in = read(fd, buffer, buffer_len);
-  if (read_in < buffer_len) {
-    buffer[read_in] = '\0';
-  }
-  return read_in;
+  return read(fd, buffer, buffer_len);
 }

@@ -36,9 +36,11 @@
   (exit 1)
 ])
 
-(:= read_buffer (str (<|> "" 1024)))
+(:= read_buffer (str-lit (<|> " " 32)))
 
 (:= n_bytes_read (net::read new_conn_fd read_buffer))
+
+(str-set-at read_buffer n_bytes_read (char "\0"))
 
 (io::println "Read in: " n_bytes_read " bytes. Data: " read_buffer)
 
