@@ -37,6 +37,16 @@ cell_ptr builtin_fn_common_len(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell((int64_t)list_info.list.size());
 }
 
+cell_ptr builtin_fn_common_exchange(cell_processor_if &ci, cell_list_t &list,
+                                    env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXCHANGE, ==, 3)
+  auto target = ci.process_cell(list[1], env);
+  auto source = ci.process_cell(list[2], env);
+  auto result = target->clone(env);
+  target->update_from(*source, env);
+  return result;
+}
+
 cell_ptr builtin_fn_common_yield(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
 

@@ -1,12 +1,23 @@
-# \brief Update a string at a given index
-# \param _str The string to update
-# \param _idx Index to update at
-# \param _val Value to assign 
-(fn str_set_idx[_str _idx _val] [
-  (assert (is_string _str) "Given item is not a string")
-  (assert (is_int _idx) "Index into string must be an integer type")
-  (:= _x (split _str))
-  (set (at _x _idx) _val)
-  (set _str (str-lit _x))
-  (<- _str)
-])
+# Author: Josh Bosley
+#
+# About:
+# Standard string operations
+#
+# Depends on std/types.nibi:
+# - is_string
+# - is_char
+
+# \brief Split a string by a delimiter
+(:= string_split (fn [_str _delim] [
+  (assert (is_string _str))
+  (assert (or (is_string _delim) (is_char _delim)))
+  (:= _res [])
+  (:= _chunk "")
+  (:= _as_list (split _str))
+  (iter _as_list i
+    (if (eq i _delim) (|< _res (exchange _chunk ""))
+    (set _chunk (+ _chunk i))))
+  (if (len _chunk) (|< _res _chunk))
+  (<- _res)
+]))
+
