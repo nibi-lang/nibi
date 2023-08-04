@@ -174,6 +174,9 @@ static function_info_s builtin_common_macro_inf = {
 static function_info_s builtin_cvt_string_inf = {
     nibi::kw::STR, builtin_fn_cvt_to_string,
     function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_string_lit_inf = {
+    nibi::kw::STR_LIT, builtin_fn_cvt_to_string_lit,
+    function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_cvt_int_inf = {
     nibi::kw::INT, builtin_fn_cvt_to_integer,
     function_type_e::BUILTIN_CPP_FUNCTION};
@@ -302,6 +305,7 @@ static function_router_t keyword_map = {
     {nibi::kw::BW_XOR, builtin_bitwise_xor_inf},
     {nibi::kw::BW_NOT, builtin_bitwise_not_inf},
     {nibi::kw::STR, builtin_cvt_string_inf},
+    {nibi::kw::STR_LIT, builtin_cvt_string_lit_inf},
     {nibi::kw::INT, builtin_cvt_int_inf},
     {nibi::kw::I8, builtin_cvt_i8_inf},
     {nibi::kw::I16, builtin_cvt_i16_inf},

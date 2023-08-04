@@ -53,6 +53,8 @@ static constexpr const char *BW_OR = "bw-or";
 static constexpr const char *BW_XOR = "bw-xor";
 static constexpr const char *BW_NOT = "bw-not";
 static constexpr const char *STR = "str";
+static constexpr const char *STR_LIT = "str-lit";
+static constexpr const char *STR_SET_AT = "str-set-at";
 static constexpr const char *INT = "int";
 static constexpr const char *I8 = "i8";
 static constexpr const char *I16 = "i16";
@@ -76,6 +78,8 @@ static constexpr const char *MEM_CPY = "mem-cpy";
 static constexpr const char *MEM_LOAD = "mem-load";
 static constexpr const char *MEM_IS_SET = "mem-is-set";
 static constexpr const char *ALIAS = "alias";
+static constexpr const char *EXCHANGE = "exchange";
+
 
 } // namespace kw
 } // namespace nibi

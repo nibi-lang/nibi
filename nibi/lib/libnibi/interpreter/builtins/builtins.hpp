@@ -149,6 +149,8 @@ extern cell_ptr builtin_fn_comparison_not(cell_processor_if &ci,
 
 extern cell_ptr builtin_fn_cvt_to_string(cell_processor_if &ci,
                                          cell_list_t &list, env_c &env);
+extern cell_ptr builtin_fn_cvt_to_string_lit(cell_processor_if &ci,
+                                         cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_cvt_to_integer(cell_processor_if &ci,
                                           cell_list_t &list, env_c &env);
 extern cell_ptr builtin_fn_cvt_to_float(cell_processor_if &ci,

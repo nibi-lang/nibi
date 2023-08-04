@@ -16,7 +16,8 @@
   "std/lists.nibi"
   "std/dicts.nibi"
   "std/loops.nibi"
-  "std/match.nibi")
+  "std/match.nibi"
+  "std/strings.nibi")
 
 # This is a special symbol that is used to determine
 # whether or not the standard library has been loaded.

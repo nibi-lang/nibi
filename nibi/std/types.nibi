@@ -45,6 +45,9 @@
   (<- false)
 ])
 
+(fn is_char [_x]
+  (eq (type _x) "char"))
+
 (fn is_string [_x]
   (eq (type _x) "string"))
 
