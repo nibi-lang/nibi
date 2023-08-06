@@ -37,6 +37,32 @@ cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
+cell_ptr builtin_fn_env_str_set_at(cell_processor_if &ci, cell_list_t &list,
+                                   env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::STR_SET_AT, ==, 4)
+
+  auto target_cell = ci.process_cell(list[1], env);
+  auto target = target_cell->as_string();
+
+  auto index = ci.process_cell(list[2], env)->as_integer();
+  auto value = ci.process_cell(list[3], env)->to_string();
+
+  while (index < 0) {
+    index = target.size() + index;
+  }
+
+  if (index >= target.size()) {
+    throw interpreter_c::exception_c("Index out of bounds", list[2]->locator);
+  }
+
+  std::string result =
+      target.substr(0, index) + value + target.substr(index + 1);
+
+  target_cell->update_from(*allocate_cell(result), env);
+
+  return target_cell;
+}
+
 cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
                                    env_c &env) {
 

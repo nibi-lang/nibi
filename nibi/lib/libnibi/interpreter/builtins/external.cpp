@@ -1,11 +1,13 @@
 #include "libnibi/cell.hpp"
 #include "libnibi/environment.hpp"
 #include "libnibi/keywords.hpp"
+#include "libnibi/platform.hpp"
 #include "macros.hpp"
 
 #include <dlfcn.h>
 #include <ffi.h>
 
+#include <filesystem>
 #include <unordered_map>
 
 namespace {
@@ -137,12 +139,22 @@ cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
   void *lib_handle{nullptr};
   if (lib_name.has_value()) {
     lib_handle = dlopen((*lib_name).c_str(), RTLD_LAZY);
+
+    if (!lib_handle) {
+      // Attempt to locate the library
+      auto current_path = std::filesystem::current_path();
+      auto target = std::filesystem::path(*lib_name);
+      auto result = global_platform->locate_file(target, current_path);
+      if (result.has_value()) {
+        lib_handle = dlopen((*result).c_str(), RTLD_LAZY);
+      }
+    }
   } else {
     lib_handle = dlopen(nullptr, RTLD_LAZY);
   }
 
   if (!lib_handle) {
-    std::string err = "extern-call: could not open library" +
+    std::string err = "extern-call: could not open library " +
                       (lib_name.has_value() ? *lib_name : "") + " " +
                       dlerror() + ")";
     throw interpreter_c::exception_c(err, list[0]->locator);

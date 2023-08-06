@@ -1,0 +1,7 @@
+(:= v 0)
+(loop (:= x 0) (< x 10) (set x (+ x 1))
+  (assert (eq x (exchange v (+ 1 x)))))
+
+(set v 0)
+(loop (:= x 0) (< x 10) (exchange x (+ 1 x))
+  (assert (eq x (exchange v (+ 1 x)))))

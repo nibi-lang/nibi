@@ -142,7 +142,11 @@ cell_ptr builtin_fn_list_at(cell_processor_if &ci, cell_list_t &list,
 
   auto actual_idx_val = requested_idx->as_integer();
 
-  if (actual_idx_val < 0 || actual_idx_val >= list_info.list.size()) {
+  while (actual_idx_val < 0) {
+    actual_idx_val = list_info.list.size() + actual_idx_val;
+  }
+
+  if (actual_idx_val >= list_info.list.size()) {
     throw interpreter_c::exception_c("Index out of bounds (OOB)",
                                      list[2]->locator);
   }

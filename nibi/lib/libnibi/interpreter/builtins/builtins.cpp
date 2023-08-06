@@ -65,6 +65,9 @@ static function_info_s builtin_drop_inf = {
     nibi::kw::DROP, builtin_fn_env_drop, function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_fn_inf = {nibi::kw::FN, builtin_fn_env_fn,
                                          function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_str_set_at_inf = {
+    nibi::kw::STR_SET_AT, builtin_fn_env_str_set_at,
+    function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_dict_inf = {
     nibi::kw::DICT, builtin_fn_dict_fn, function_type_e::BUILTIN_CPP_FUNCTION};
 
@@ -168,11 +171,17 @@ static function_info_s builtin_common_nop_inf = {
 static function_info_s builtin_common_macro_inf = {
     nibi::kw::NOP, builtin_fn_common_macro,
     function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_common_exchange_inf = {
+    nibi::kw::EXCHANGE, builtin_fn_common_exchange,
+    function_type_e::BUILTIN_CPP_FUNCTION};
 
 // conversion functions
 
 static function_info_s builtin_cvt_string_inf = {
     nibi::kw::STR, builtin_fn_cvt_to_string,
+    function_type_e::BUILTIN_CPP_FUNCTION};
+static function_info_s builtin_cvt_string_lit_inf = {
+    nibi::kw::STR_LIT, builtin_fn_cvt_to_string_lit,
     function_type_e::BUILTIN_CPP_FUNCTION};
 static function_info_s builtin_cvt_int_inf = {
     nibi::kw::INT, builtin_fn_cvt_to_integer,
@@ -272,6 +281,7 @@ static function_router_t keyword_map = {
     {nibi::kw::SET, builtin_set_inf},
     {nibi::kw::FN, builtin_fn_inf},
     {nibi::kw::DICT, builtin_dict_inf},
+    {nibi::kw::STR_SET_AT, builtin_str_set_at_inf},
     {nibi::kw::DROP, builtin_drop_inf},
     {nibi::kw::TRY, builtin_try_inf},
     {nibi::kw::THROW, builtin_throw_inf},
@@ -295,6 +305,7 @@ static function_router_t keyword_map = {
     {nibi::kw::QUOTE, builtin_common_quote_inf},
     {nibi::kw::NOP, builtin_common_nop_inf},
     {nibi::kw::MACRO, builtin_common_macro_inf},
+    {nibi::kw::EXCHANGE, builtin_common_exchange_inf},
     {nibi::kw::BW_LSH, builtin_bitwise_lsh_inf},
     {nibi::kw::BW_RSH, builtin_bitwise_rsh_inf},
     {nibi::kw::BW_AND, builtin_bitwise_and_inf},
@@ -302,6 +313,7 @@ static function_router_t keyword_map = {
     {nibi::kw::BW_XOR, builtin_bitwise_xor_inf},
     {nibi::kw::BW_NOT, builtin_bitwise_not_inf},
     {nibi::kw::STR, builtin_cvt_string_inf},
+    {nibi::kw::STR_LIT, builtin_cvt_string_lit_inf},
     {nibi::kw::INT, builtin_cvt_int_inf},
     {nibi::kw::I8, builtin_cvt_i8_inf},
     {nibi::kw::I16, builtin_cvt_i16_inf},

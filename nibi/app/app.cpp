@@ -74,6 +74,8 @@ private:
                 << std::endl;
       disable_std();
       return;
+    } else {
+      add_include_dir(global_platform->get_nibi_path().value());
     }
     config_file_path_ = global_platform->get_nibi_path().value() /
                         nibi::config::NIBI_SYSTEM_CONFIG_FILE_NAME;

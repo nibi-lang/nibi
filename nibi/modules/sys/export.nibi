@@ -13,3 +13,9 @@
   (or (sys::linux) (sys::macos)))
 (fn sys::known_os []
   (not (eq "unknown" (sys::platform))))
+
+(fn sys::getenv [_name] [
+  (:= ptr (extern-call nil "getenv" [:str] :ptr _name))
+  (if (not (mem-is-set ptr)) (<- nil))
+  (mem-load :str (extern-call nil "getenv" [:str] :ptr _name))
+])

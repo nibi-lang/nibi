@@ -26,9 +26,11 @@ syn match nibiComment "#.*$"
 syn match nibiIdentifier '[a-zA-Z_][a-zA-Z0-9_]*' contained
 syn match nibiNumber '\d\+' contained
 
+syn match nibiFunc '\(str-lit\|str-set-at\)' contained
+
 syn keyword nibiFunc set fn drop try throw assert alias
 syn keyword nibiFunc env at iter eval quote loop exit quote import use macro
-syn keyword nibiFunc int str float split type len clone nop dict
+syn keyword nibiFunc int str char float split type len clone nop dict
 syn keyword nibiFunc i8 i16 i32 i64 u8 u16 u32 u64 f32 f64
 syn keyword nibiQuickType true false nil nan inf
 
@@ -39,7 +41,7 @@ syn match nibiKeyword '$args\|$e' contained
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
 syn match nibiFunc '\(bw-and\|bw-or\|bw-xor\|bw-not\|bw-lsh\|bw-rsh\|<-\)' contained
 syn match nibiFunc '\(extern-call\|mem-new\|mem-del\|mem-cpy\|mem-load\)' contained
-syn match nibiFunc '\(mem-is-set\)' contained
+syn match nibiFunc '\(mem-is-set\|exchange\)' contained
 syn match nibiFunc ':=' contained
 syn match nibiFunc '<<|' contained
 syn match nibiFunc '|>>' contained
