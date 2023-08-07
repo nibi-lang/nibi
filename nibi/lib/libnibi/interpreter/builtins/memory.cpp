@@ -11,7 +11,7 @@ namespace nibi {
 
 namespace builtins {
 
-cell_ptr builtin_fn_memory_new(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_memory_new(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_NEW, ==, 2)
 
@@ -26,7 +26,7 @@ cell_ptr builtin_fn_memory_new(cell_processor_if &ci, cell_list_t &list,
   return ptr_cell;
 }
 
-cell_ptr builtin_fn_memory_del(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_memory_del(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_DEL, >=, 2)
 
@@ -44,7 +44,7 @@ cell_ptr builtin_fn_memory_del(cell_processor_if &ci, cell_list_t &list,
   return ptr;
 }
 
-cell_ptr builtin_fn_memory_is_set(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_memory_is_set(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_IS_SET, ==, 2)
   auto ptr = ci.process_cell(list[1], env);
@@ -55,7 +55,7 @@ cell_ptr builtin_fn_memory_is_set(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell((int64_t)(ptr->data.ptr != nullptr));
 }
 
-cell_ptr copy_cell_into_memory(cell_processor_if &ci, cell_ptr &source,
+cell_ptr copy_cell_into_memory(interpreter_c &ci, cell_ptr &source,
                                cell_ptr &dest) {
 
   if (static_cast<uint8_t>(source->type) > CELL_TYPE_MAX_TRIVIAL) {
@@ -135,7 +135,7 @@ cell_ptr copy_cell_into_memory(cell_processor_if &ci, cell_ptr &source,
   return dest;
 }
 
-cell_ptr copy_memory(cell_processor_if &ci, cell_ptr &source, cell_ptr &dest,
+cell_ptr copy_memory(interpreter_c &ci, cell_ptr &source, cell_ptr &dest,
                      uint64_t size) {
 
   if (dest->data.ptr != nullptr) {
@@ -147,7 +147,7 @@ cell_ptr copy_memory(cell_processor_if &ci, cell_ptr &source, cell_ptr &dest,
   return dest;
 }
 
-cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_memory_cpy(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_CPY, >=, 3)
 
@@ -176,7 +176,7 @@ cell_ptr builtin_fn_memory_cpy(cell_processor_if &ci, cell_list_t &list,
   return copy_memory(ci, source, dest, size_bytes->data.u64);
 }
 
-cell_ptr builtin_fn_memory_load(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_memory_load(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::MEM_LOAD, ==, 3)
 

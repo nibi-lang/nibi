@@ -16,7 +16,7 @@ inline void push_front(cell_list_t &list, cell_ptr &&cell) {
 }
 #endif
 
-cell_ptr builtin_fn_list_push_front(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_push_front(interpreter_c &ci, cell_list_t &list,
                                     env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUSH_FRONT, ==, 3)
 
@@ -38,7 +38,7 @@ cell_ptr builtin_fn_list_push_front(cell_processor_if &ci, cell_list_t &list,
   return std::move(list_to_push_to);
 }
 
-cell_ptr builtin_fn_list_push_back(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_push_back(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::PUSH_BACK, ==, 3)
 
@@ -56,7 +56,7 @@ cell_ptr builtin_fn_list_push_back(cell_processor_if &ci, cell_list_t &list,
   return std::move(list_to_push_to);
 }
 
-cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_pop_back(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POP_BACK, ==, 2)
 
@@ -74,7 +74,7 @@ cell_ptr builtin_fn_list_pop_back(cell_processor_if &ci, cell_list_t &list,
   return std::move(target);
 }
 
-cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_pop_front(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::POP_FRONT, ==, 2)
 
@@ -96,7 +96,7 @@ cell_ptr builtin_fn_list_pop_front(cell_processor_if &ci, cell_list_t &list,
   return std::move(target);
 }
 
-cell_ptr builtin_fn_list_iter(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_iter(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ITER, ==, 4)
@@ -130,8 +130,7 @@ cell_ptr builtin_fn_list_iter(cell_processor_if &ci, cell_list_t &list,
   return std::move(list_to_iterate);
 }
 
-cell_ptr builtin_fn_list_at(cell_processor_if &ci, cell_list_t &list,
-                            env_c &env) {
+cell_ptr builtin_fn_list_at(interpreter_c &ci, cell_list_t &list, env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::AT, ==, 3)
 
   auto requested_idx = std::move(ci.process_cell(list[2], env));
@@ -154,7 +153,7 @@ cell_ptr builtin_fn_list_at(cell_processor_if &ci, cell_list_t &list,
   return std::move(ci.process_cell(list_info.list[actual_idx_val], env));
 }
 
-cell_ptr builtin_fn_list_spawn(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_list_spawn(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SPAWN, ==, 3)
 

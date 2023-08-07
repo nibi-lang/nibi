@@ -14,7 +14,7 @@ namespace builtins {
 //  Lambda Execution taking the form of builtin functions
 // --------------------------------------------------------
 
-cell_ptr execute_suspected_lambda(cell_processor_if &ci, cell_list_t &list,
+cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
                                   env_c &env) {
 
   auto it = list.begin();

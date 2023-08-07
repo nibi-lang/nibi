@@ -27,7 +27,7 @@ void populate_std_in() {
 }
 } // namespace
 
-nibi::cell_ptr get_argv(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
+nibi::cell_ptr get_argv(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                         nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{sys get_argv}", ==, 1)
   auto args = nibi::global_platform->get_program_args();
@@ -39,7 +39,7 @@ nibi::cell_ptr get_argv(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
   return argv_cell;
 }
 
-nibi::cell_ptr get_stdin(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
+nibi::cell_ptr get_stdin(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                          nibi::env_c &env) {
   populate_std_in();
   NIBI_LIST_ENFORCE_SIZE("{sys get_stdin}", ==, 1)
@@ -52,15 +52,15 @@ nibi::cell_ptr get_stdin(nibi::cell_processor_if &ci, nibi::cell_list_t &list,
   return cell;
 }
 
-nibi::cell_ptr get_platform(nibi::cell_processor_if &ci,
-                            nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr get_platform(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                            nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{sys get_platform}", ==, 1)
   std::string platform_string = nibi::global_platform->get_platform_string();
   return nibi::allocate_cell(platform_string);
 }
 
-nibi::cell_ptr get_nibi_path(nibi::cell_processor_if &ci,
-                             nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr get_nibi_path(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                             nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{sys get_nibi_path}", ==, 1)
   auto nibi_path = nibi::global_platform->get_nibi_path();
 

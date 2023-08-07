@@ -11,7 +11,7 @@
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_env_alias(interpreter_c &ci, cell_list_t &list,
                               env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ALIAS, ==, 3)
@@ -37,7 +37,7 @@ cell_ptr builtin_fn_env_alias(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell(cell_type_e::NIL);
 }
 
-cell_ptr builtin_fn_env_str_set_at(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_env_str_set_at(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::STR_SET_AT, ==, 4)
 
@@ -63,7 +63,7 @@ cell_ptr builtin_fn_env_str_set_at(cell_processor_if &ci, cell_list_t &list,
   return target_cell;
 }
 
-cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
                                    env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSIGN, ==, 3)
@@ -94,8 +94,7 @@ cell_ptr builtin_fn_env_assignment(cell_processor_if &ci, cell_list_t &list,
   return target_assignment_value;
 }
 
-cell_ptr builtin_fn_env_set(cell_processor_if &ci, cell_list_t &list,
-                            env_c &env) {
+cell_ptr builtin_fn_env_set(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::SET, ==, 3)
 
@@ -111,8 +110,7 @@ cell_ptr builtin_fn_env_set(cell_processor_if &ci, cell_list_t &list,
   return target_assignment_cell;
 }
 
-cell_ptr builtin_fn_env_drop(cell_processor_if &ci, cell_list_t &list,
-                             env_c &env) {
+cell_ptr builtin_fn_env_drop(interpreter_c &ci, cell_list_t &list, env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DROP, >=, 2)
 
   for (auto it = std::next(list.begin()); it != list.end(); ++it) {
@@ -125,7 +123,7 @@ cell_ptr builtin_fn_env_drop(cell_processor_if &ci, cell_list_t &list,
   return allocate_cell((int64_t)0);
 }
 
-cell_ptr assemble_anonymous_function(cell_processor_if &ci, cell_list_t &list,
+cell_ptr assemble_anonymous_function(interpreter_c &ci, cell_list_t &list,
                                      env_c &env) {
   auto it = list.begin();
 
@@ -164,8 +162,7 @@ cell_ptr assemble_anonymous_function(cell_processor_if &ci, cell_list_t &list,
   return std::move(fn_cell);
 }
 
-cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
-                           env_c &env) {
+cell_ptr builtin_fn_env_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
   if (list.size() == 3) {
     return std::move(assemble_anonymous_function(ci, list, env));
   }
@@ -216,8 +213,7 @@ cell_ptr builtin_fn_env_fn(cell_processor_if &ci, cell_list_t &list,
   return std::move(fn_cell);
 }
 
-cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
-                            env_c &env) {
+cell_ptr handle_dict_access(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
   auto definition = list[0];
 
@@ -314,8 +310,7 @@ cell_ptr handle_dict_access(cell_processor_if &ci, cell_list_t &list,
                                    list[1]->locator);
 }
 
-cell_ptr builtin_fn_dict_fn(cell_processor_if &ci, cell_list_t &list,
-                            env_c &env) {
+cell_ptr builtin_fn_dict_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
   // If its size 1 then we make just an empty dict.
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::DICT, >=, 1)
