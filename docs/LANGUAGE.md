@@ -56,7 +56,7 @@ The following table contains the various commands available in this programming 
 | `alias`         | Use a new symbol to refer to the data behind another | `nil` |
 | `exchange` | Update the value of a cell and return the old value of the cell | variable
 | `str-set-at` | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
-| `defer`         | Defer an instruction to be executed at the end of the current context | `nil`
+| `defer`         | Defer an instruction to be executed at the end of the current execution context | `nil`
 
 | Type Commands | Description | Returns |
 | ------------- | ----------- | ------- |
@@ -81,8 +81,8 @@ The following table contains the various commands available in this programming 
 | --------------- | ----------- | ------- |
 | `mem-new`       | Allocate some memory manually on the heap | Pointer cell |
 | `mem-del`       | Delete some memory on the heap | Pointer cell |
-| `mem-acquire`   | Declare that an unowned pointer is owned | The owned pointer |
-| `mem-abandon`   | Declare that the pointer is not owned by the nibi runtime | The pointer |
+| `mem-cpy`       | Copy a memory object | Pointer cell |
+| `mem-load`      | Load a piece of memory as a cell type | Converted cell |
 | `mem-is-set`    | Check if a cell pointer has its pointer set to a space in memory | T/F |
 
 | List Commands | Description | Returns |
@@ -129,6 +129,11 @@ The following table contains the various commands available in this programming 
 
 The table above provides an organized and concise overview of the available instructions in this programming language, along with their descriptions and return values.
 
+# Execution contexts
+
+Execution contexts dictate the length of time a defined variable exits. When the context is exited, all declared variables are removed.
+Instructions that create contexts within the global context are as follows: `fn` `if` `try`, and `loop`. If a variable is defined in one
+of these instructions, then the variable will be removed.
 
 # Type Prompting
 
@@ -263,8 +268,6 @@ Example:
 ( <- < RD S () [] > )
 ```
 
-
-
 ### If / Else
 
 Keyword: `if`
@@ -330,7 +333,7 @@ Variable Number of Arguments:
 Using the `:args` tag as the only argument to a function, a list of arguments of any size may be given. 
 
 Example:
-```scheme
+```lisp
 (use "io")
 
 (fn vargs [:args] [
@@ -348,7 +351,6 @@ Example:
 (vargs 1)
 (vargs)
 ```
-
 
 ### Import
 
@@ -437,9 +439,6 @@ Example:
 ( exit < NU S () > )
 ```
 
-
-
-
 ### Eval
 
 Keyword: `eval`
@@ -525,7 +524,6 @@ Example 2 (With list):
 ( split < S [] > < NU S () > )
 ```
 
-
 ### Type
 
 Keyword: `type`
@@ -582,7 +580,6 @@ Example:
 ```
 (nop)
 ```
-
 
 ## List Instructions
 
@@ -801,6 +798,17 @@ Example:
 ( bw-not <() NU> )
 ```
 
+### Defer
+
+| arg 1 .. n |
+| Instruction to defer |
+
+At the end of the execution context in which the statement is defined, all
+instructions deferred will be executed in-order.
+
+```
+( defer < () .. > )
+```
 
 ### Macro
 
@@ -954,19 +962,17 @@ Example:
 - Keyword: `mem-cpy`
   - Copies data in memory.
   - If the first item is a standard "trivial" cell (direct C-Type integration), it will be copied to the heap at a given destination pointer.
-  - For this to succeed, the destination pointer must be `owned`.
-  - If the first item is a pointer cell, the data will be copied to the destination if and only if the source and destination pointers are `owned`.
+  - If the first item is a pointer cell, the data will be copied to the destination.
   - In the event that the destination value has already been allocated, that data will be automatically freed before the copy takes place.
 
 - Keyword: `mem-load`
   - Attempts to load a value from memory as a regular, trivial cell.
   - Requires the first argument to be a cell `type tag` (mentioned above) that indicates how much space to load from memory and how to represent it as a cell.
-  - The second parameter must be a ptr cell. This ptr cell does not need to be owned for the operation to take place.
+  - The second parameter must be a ptr cell.
 
 - Keyword: `mem-is-set`
   - Checks if a ptr cell has been set or if it's not pointing to anything.
   - Returns T/F.
-
 
 # Modules
 
