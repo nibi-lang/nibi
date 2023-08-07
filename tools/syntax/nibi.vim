@@ -41,7 +41,7 @@ syn match nibiKeyword '$args\|$e' contained
 syn match nibiFunc '\(eq\|>\|<\|neq\|<=\|>=\|and\|or\|not\|if\|+\|-\|*\|/\)' contained
 syn match nibiFunc '\(bw-and\|bw-or\|bw-xor\|bw-not\|bw-lsh\|bw-rsh\|<-\)' contained
 syn match nibiFunc '\(extern-call\|mem-new\|mem-del\|mem-cpy\|mem-load\)' contained
-syn match nibiFunc '\(mem-is-set\|exchange\)' contained
+syn match nibiFunc '\(mem-is-set\|exchange\|defer\)' contained
 syn match nibiFunc ':=' contained
 syn match nibiFunc '<<|' contained
 syn match nibiFunc '|>>' contained

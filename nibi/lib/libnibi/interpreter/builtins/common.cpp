@@ -47,6 +47,21 @@ cell_ptr builtin_fn_common_exchange(cell_processor_if &ci, cell_list_t &list,
   return result;
 }
 
+cell_ptr builtin_fn_common_defer(cell_processor_if &ci, cell_list_t &list,
+                                 env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DEFER, >=, 2)
+
+  for (auto it = list.begin() + 1; it != list.end(); ++it) {
+    if ((*it)->type != cell_type_e::LIST) {
+      throw interpreter_c::exception_c(
+          "Defer command requires all parameters to be of type LIST",
+          (*it)->locator);
+    }
+    ci.defer_execution(*it);
+  }
+  return allocate_cell(cell_type_e::NIL);
+}
+
 cell_ptr builtin_fn_common_yield(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
 
@@ -81,6 +96,8 @@ cell_ptr builtin_fn_common_loop(cell_processor_if &ci, cell_list_t &list,
 
   auto body = (*it);
 
+  ci.push_ctx();
+
   auto loop_env = env_c(&env);
 
   ci.process_cell(pre_condition, loop_env);
@@ -102,6 +119,8 @@ cell_ptr builtin_fn_common_loop(cell_processor_if &ci, cell_list_t &list,
     ci.process_cell(post_condition, loop_env);
   }
 
+  ci.pop_ctx(loop_env);
+
   return result;
 }
 
@@ -119,16 +138,21 @@ cell_ptr builtin_fn_common_if(cell_processor_if &ci, cell_list_t &list,
 
   auto if_env = env_c(&env);
 
+  ci.push_ctx();
+
   auto condition_result = ci.process_cell(condition, if_env);
 
   if (condition_result->as_integer() > 0) {
+    ci.pop_ctx(if_env);
     return ci.process_cell(true_condition, if_env, true);
   }
 
   if (list.size() == 4) {
     std::advance(it, 1);
+    ci.pop_ctx(if_env);
     return ci.process_cell((*it), if_env, true);
   }
+  ci.pop_ctx(if_env);
 
   return ci.get_last_result();
 }

@@ -1,0 +1,17 @@
+(use "io")
+
+(fn x [] [
+  (:= x (mem-new 16))
+  (defer (mem-del x))
+  (nop)
+  (nop)
+  (nop)
+  (nop)
+  (nop)
+  (nop)
+  (assert (eq true (mem-is-set x)))
+])
+
+(x)
+
+(io::println "COMPLETE")

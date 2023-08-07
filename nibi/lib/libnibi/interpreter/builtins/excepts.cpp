@@ -49,16 +49,23 @@ cell_ptr builtin_fn_except_try(cell_processor_if &ci, cell_list_t &list,
   std::advance(it, 1);
   auto recover_cell = (*it);
 
+  env_c try_env(&env);
+  ci.push_ctx();
+
+  cell_ptr res{nullptr};
+
   try {
     // Call execute with the process_data_cell flag set to true
     // which will allow us to walk over multiple cells and catch on them
-    return ci.process_cell(attempt_cell, env, true);
+    res = ci.process_cell(attempt_cell, env, true);
   } catch (interpreter_c::exception_c &e) {
-    return handle_thrown_error_in_try(e.what(), recover_cell, ci, env);
+    res = handle_thrown_error_in_try(e.what(), recover_cell, ci, try_env);
   } catch (cell_access_exception_c &e) {
-    return handle_thrown_error_in_try(e.what(), recover_cell, ci, env);
+    res = handle_thrown_error_in_try(e.what(), recover_cell, ci, try_env);
   }
-  return allocate_cell(cell_type_e::NIL);
+
+  ci.pop_ctx(try_env);
+  return res;
 }
 
 cell_ptr builtin_fn_except_throw(cell_processor_if &ci, cell_list_t &list,

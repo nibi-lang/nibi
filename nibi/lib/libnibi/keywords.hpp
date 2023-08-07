@@ -79,6 +79,7 @@ static constexpr const char *MEM_LOAD = "mem-load";
 static constexpr const char *MEM_IS_SET = "mem-is-set";
 static constexpr const char *ALIAS = "alias";
 static constexpr const char *EXCHANGE = "exchange";
+static constexpr const char *DEFER = "defer";
 
 } // namespace kw
 } // namespace nibi

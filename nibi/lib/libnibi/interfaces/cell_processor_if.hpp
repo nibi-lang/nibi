@@ -42,6 +42,18 @@ public:
   //! \brief Load a module
   //! \param module_name The name of the module to load
   virtual void load_module(cell_ptr &module_name) = 0;
+
+  //! \brief Indicate that there is a new execution context
+  virtual void push_ctx() = 0;
+
+  //! \brief Exit the current execution context
+  //! \pram env Environment to use for any ctx exiting
+  //!       instructions
+  virtual void pop_ctx(env_c &env) = 0;
+
+  //! \brief Defer an execution of a cell until the
+  //!        current ctx is exited
+  virtual void defer_execution(cell_ptr ins) = 0;
 };
 
 } // namespace nibi
