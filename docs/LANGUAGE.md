@@ -54,12 +54,15 @@ The following table contains the various commands available in this programming 
 | `dict`          | Create a dictionary | The new dictionary |
 | `extern-call`   | Call a C-function from a shared library | Variable |
 | `alias`         | Use a new symbol to refer to the data behind another | `nil` |
+| `exchange` | Update the value of a cell and return the old value of the cell | variable
+| `str-set-at` | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
 
 | Type Commands | Description | Returns |
 | ------------- | ----------- | ------- |
 | `type`        | Retrieve a string detailing the type of a given item | String |
 | `str`         | Convert an item to a string type | Converted value |
 | `int`         | Convert an item to an integer type | Converted value |
+| `char`        | Convert an item to a character type | Converted value |
 | `i8`          | Convert an item to the integer type | Converted value |
 | `i16`         | Convert an item to the integer type | Converted value |
 | `i32`         | Convert an item to the integer type | Converted value |
@@ -77,9 +80,6 @@ The following table contains the various commands available in this programming 
 | --------------- | ----------- | ------- |
 | `mem-new`       | Allocate some memory manually on the heap | Pointer cell |
 | `mem-del`       | Delete some memory on the heap | Pointer cell |
-| `mem-cpy`       | Copy a trivial cell's data to heap, or copy a pointer cell | Destination pointer cell |
-| `mem-load`      | Load data from heap into a new cell | New cell of trivial cell type |
-| `mem-owned`     | Check if memory is owned by the nibi runtime or by an external lib | T/F |
 | `mem-acquire`   | Declare that an unowned pointer is owned | The owned pointer |
 | `mem-abandon`   | Declare that the pointer is not owned by the nibi runtime | The pointer |
 | `mem-is-set`    | Check if a cell pointer has its pointer set to a space in memory | T/F |
@@ -553,6 +553,7 @@ Possible return values and their corresponding information:
 | f64             | 64-bit floating point                                |
 | ptr             | A pointer                                            |
 | string          | A string cell                                        |
+| char            | A character                                          | 
 | list:data       | A data list                                          |
 | list:access     | An access list                                       |
 | list:instruction | An instruction list                                  |
@@ -960,21 +961,6 @@ Example:
   - Attempts to load a value from memory as a regular, trivial cell.
   - Requires the first argument to be a cell `type tag` (mentioned above) that indicates how much space to load from memory and how to represent it as a cell.
   - The second parameter must be a ptr cell. This ptr cell does not need to be owned for the operation to take place.
-
-- Keyword: `mem-owned`
-  - Checks if the given ptr cell is owned by the Nibi runtime.
-  - Returns true/false.
-
-- Keyword: `mem-acquire`
-  - Marks a given ptr cell as being owned by the Nibi runtime.
-  - By default, if a pointer cell is made via `mem-new`, it is considered owned. If the pointer comes from an external source, it is not owned.
-  - Acquiring ownership of the pointer should only be done if the external source expects the caller to manage the resource's lifetime.
-  - Deleting a manually acquired pointer value may cause UB.
-
-- Keyword: `mem-abandon`
-  - Marks any N number of pointers as no longer owned by the runtime.
-  - Runtime will not be able to delete the pointer unless it is later re-acquired.
-  - This is meant to be done after moving ownership of data to an external source and indicating to the runtime that the pointer is now externally managed.
 
 - Keyword: `mem-is-set`
   - Checks if a ptr cell has been set or if it's not pointing to anything.
