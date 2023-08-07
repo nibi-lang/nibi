@@ -1,322 +1,295 @@
-# Lists
+Lists in this programming language are classified into three types, each represented by different symbols:
 
-In this language there are three types of lists. 
+1. **Instruction Lists:** Denoted by `()`, these lists contain a sequence of instructions that are executed in order.
 
-`()` denotes an instruction list
-`[]` denotes a data list
-`{}` denotes an accessor list
+2. **Data Lists:** Denoted by `[]`, these lists store data and are not executed directly unless they are used to represent a list of instructions for a specific function.
 
-The instruction list is a list of instructions that gets executed.
+3. **Accessor Lists:** Denoted by `{}`, these lists are used to index into environment cells, functioning similarly to accessing elements in other programming languages.
 
-Data lists are not explicitly executed as they "contain data" unless they
-are used to denote a list of instructions for a given function. 
+Important Notes:
+- Data lists containing symbols act as references to the symbol, allowing updates to occur when accessed via `at` or `iter`. To place a symbol into a list by value, use the `clone` function to make a copy.
+- Instructions inside data lists are not executed directly. To access their values, you can use `push`, instantiate the list with a default variable, and then update it with `at` or `iter`.
 
-Accessor lists are used to index into environment cells similar to how in
-some languages would do `something.function`
-
-*Note*: Data lists that contain a symbol will be a sort of "reference" to the symbol
-so when the item is accessed via `at` or `iter` the update will occur to the symbol
-in question. If you wish to place a symbol into a list by value `clone` should be ran
-to copy it into the list. With that said, since instructions inside data lists don't
-get executed, in order to get the value in it must be done via a push, or by instantiating
-the list with a default variable and then updated with `at` or `iter`.
 
 # Quick Types
 
-A quick type (qt) is a keyword that is bound to a specific value. These are created to make
-programs more readable and to introduce some concepts that would otherwise have to be hand
-coded in:
+In this programming language, Quick Types (qt) are special keywords that represent specific values. These keywords are designed to improve program readability and introduce predefined concepts, eliminating the need for manual coding.
 
-| keyword | value | description
-|----     |----   |----
-| nil     | nil   | A nil value
-| true    | 1     | An integer with value 1
-| false   | 0     | An integer with value 0
-| nan     | NaN   | A float encoded with NaN
-| inf     | inf   | A float encoded with inf
+| Keyword | Value | Description               |
+| ------- | ----- | ------------------------- |
+| nil     | nil   | Represents a nil value    |
+| true    | 1     | Represents an integer with value 1 |
+| false   | 0     | Represents an integer with value 0 |
+| nan     | NaN   | Represents a float encoded with NaN |
+| inf     | inf   | Represents a float encoded with infinity |
 
-Any given qt can be used as a drop-in replacement for its raw data representation with the 
-exception of `nil` which has no raw data representation, however, nil can be used as if it were 
-any other piece of data in the instructions below.
+Quick Types can be directly used in place of their corresponding raw data representations, making it easy to work with predefined values in your code. The `nil` keyword, although not having a raw data representation, can still be used as any other piece of data in the instructions provided below.
 
-# Instruction
 
-| common commands | description | returns
-|----     |----         |----
-| :=      | Create or update a symbol in the immediate environment | cell that was assigned
-| set     | Update an existing symbol in current or parent environment  | cell that was assigned
-| drop    | Drop a symbol from current or parent environment | nil
-| try     | Attempt to execute a list and handle any built in exceptions | last cell yielded from executed list
-| throw   | Throw an exception that can be caught by `try` or will result in a interpreter halt | na
-| assert  | Assert a given condition to be true or throw an error | nil
-| len     | Retrieve the length of a string or list. Members of a different type will be stringed and measured | integer
-| <-      | Return the value of a cell, yielding whatever execution may be happening | variable
-| if       | If statement | variable
-| loop    | A loop | variable
-| clone   | clone a variable | variable
-| fn      | Define a function | variable
-| import  | Import files | 0
-| use     | Use a module | 0
-| exit    | Exit the program | N/A
-| eval    | Evaluate a given string | variable
-| quote   | Quote a a list into a string | variable
-| nop     | Do nothing | nil
-| macro   | Define a macro | variable
-| dict | Create a dictionary | the new dictionary
-| extern-call | Call a c-function from a shared library | variable
-| alias   | Use a new symbol to refer to the data behing another | nil
-| exchange | Update the value of a cell and return the old value of the cell | variable
-| str-set-at | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
+# Instructions
 
-| type commands | description | returns
-|----   |---- |----
-| type    | Retrieve a string detailing the type of a given item | string
-| char    | Convert an integer into its char representation, or convert a string into a char type | char
-| str     | Convert an item to a string type | converted value 
-| int     | Convert an item to an integer type | converted value 
-| i8      | Convert an item to the integer type | converted value 
-| i16     | Convert an item to the integer type | converted value 
-| i32     | Convert an item to the integer type | converted value 
-| i64     | Convert an item to the integer type | converted value 
-| u8      | Convert an item to the integer type | converted value 
-| u16     | Convert an item to the integer type | converted value 
-| u32     | Convert an item to the integer type | converted value 
-| u64     | Convert an item to the integer type | converted value 
-| float   | Convert an item to a float type | converted value 
-| f32     | Convert an item to the float type | converted value 
-| f64     | Convert an item to the float type | converted value 
-| split   | Convert an item to a list comprised of the raw elements of the given variable | converted value 
-| str-lit | Convert a list into a direct string rather than just a string representation | new string
+The following table contains the various commands available in this programming language, along with their descriptions and return values:
 
-| memory commands | description | returns
-|----   |---- |----
-| mem-new | Allocate some memory manually on the heap | Pointer cell|
-| mem-del | Delete some memory on the heap | Pointer cell |
-| mem-cpy | Copy a trivial cell's data to heap, or copy a pointer cell | Destination pointer cell |
-| mem-load | Load a data from heap into a new cell | New cell of trivial cell type |
-| mem-is-set | Check if a cell pointer has its pointer set to a space in memory | T/F |
+| Common Commands | Description | Returns |
+| --------------- | ----------- | ------- |
+| `:=`            | Create or update a symbol in the immediate environment | Cell that was assigned |
+| `set`           | Update an existing symbol in the current or parent environment | Cell that was assigned |
+| `drop`          | Drop a symbol from the current or parent environment | `nil` |
+| `try`           | Attempt to execute a list and handle any built-in exceptions | Last cell yielded from the executed list |
+| `throw`         | Throw an exception that can be caught by `try` or will result in an interpreter halt | NA |
+| `assert`        | Assert a given condition to be true or throw an error | `nil` |
+| `len`           | Retrieve the length of a string or list. Members of a different type will be stringed and measured | Integer |
+| `<-`            | Return the value of a cell, yielding whatever execution may be happening | Variable |
+| `if`            | If statement | Variable |
+| `loop`          | A loop | Variable |
+| `clone`         | Clone a variable | Variable |
+| `fn`            | Define a function | Variable |
+| `import`        | Import files | 0 |
+| `use`           | Use a module | 0 |
+| `exit`          | Exit the program | N/A |
+| `eval`          | Evaluate a given string | Variable |
+| `quote`         | Quote a list into a string | Variable |
+| `nop`           | Do nothing | `nil` |
+| `macro`         | Define a macro | Variable |
+| `dict`          | Create a dictionary | The new dictionary |
+| `extern-call`   | Call a C-function from a shared library | Variable |
+| `alias`         | Use a new symbol to refer to the data behind another | `nil` |
+| `exchange` | Update the value of a cell and return the old value of the cell | variable
+| `str-set-at` | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
 
-| list commands | description | returns
-|----   |---- |----
-| >\|   | Push value to front of list | modified list cell
-| \|<   | Push value to back of list  | modified list cell
-| iter  | Iterate over a list         | iterated list
-| at    | Retrieve an index into a list (negative indexing permitted | cell at given index
-| <\|>  | Spawn a list of a given size with a given value | new list
-| <<\|  | Pop front | list given sans the first element
-| \|>>  | Pop back  | list given sans the last element
+| Type Commands | Description | Returns |
+| ------------- | ----------- | ------- |
+| `type`        | Retrieve a string detailing the type of a given item | String |
+| `str`         | Convert an item to a string type | Converted value |
+| `int`         | Convert an item to an integer type | Converted value |
+| `char`        | Convert an item to a character type | Converted value |
+| `i8`          | Convert an item to the integer type | Converted value |
+| `i16`         | Convert an item to the integer type | Converted value |
+| `i32`         | Convert an item to the integer type | Converted value |
+| `i64`         | Convert an item to the integer type | Converted value |
+| `u8`          | Convert an item to the integer type | Converted value |
+| `u16`         | Convert an item to the integer type | Converted value |
+| `u32`         | Convert an item to the integer type | Converted value |
+| `u64`         | Convert an item to the integer type | Converted value |
+| `float`       | Convert an item to a float type | Converted value |
+| `f32`         | Convert an item to the float type | Converted value |
+| `f64`         | Convert an item to the float type | Converted value |
+| `split`       | Convert an item to a list comprised of the raw elements of the given variable | Converted value |
 
-| arithmetic | description | returns
-|---- |---- |----
-| +  | Add a series of cells | resulting value  
-| -  | Sub a series of cells | resulting value 
-| /  | Div a series of cells | resulting value 
-| *  | Mul a series of cells | resulting value 
-| %  | Mod a series of cells | resulting value 
-| ** | Pow a series of cells | resulting value 
+| Memory Commands | Description | Returns |
+| --------------- | ----------- | ------- |
+| `mem-new`       | Allocate some memory manually on the heap | Pointer cell |
+| `mem-del`       | Delete some memory on the heap | Pointer cell |
+| `mem-acquire`   | Declare that an unowned pointer is owned | The owned pointer |
+| `mem-abandon`   | Declare that the pointer is not owned by the nibi runtime | The pointer |
+| `mem-is-set`    | Check if a cell pointer has its pointer set to a space in memory | T/F |
 
-| comparison | description | returns
-|---- |---- |----
-| eq  | Check for equality | returns numerical 1 or 0 representing true / false
-| neq | Check for inequality | returns numerical 1 or 0 representing true / false
-| <   | Less than | returns numerical 1 or 0 representing true / false
-| >   | Greater than | returns numerical 1 or 0 representing true / false
-| <=  | Less than or equal to | returns numerical 1 or 0 representing true / false
-| >=  | Greater than or equal to | returns numerical 1 or 0 representing true / false
-| and | Logical and | returns numerical 1 or 0 representing true / false
-| or  | Logical or | returns numerical 1 or 0 representing true / false
-| not | Logical not | returns numerical 1 or 0 representing true / false
+| List Commands | Description | Returns |
+| ------------- | ----------- | ------- |
+| `>\|`         | Push value to the front of a list | Modified list cell |
+| `\|<`         | Push value to the back of a list | Modified list cell |
+| `iter`        | Iterate over a list | Iterated list |
+| `at`          | Retrieve an index into a list | Cell at the given index |
+| `<\|>`        | Spawn a list of a given size with a given value | New list |
+| `<<\|`        | Pop front | List given without the first element |
+| `\|>>`        | Pop back | List given without the last element |
 
-| bitwise | description | returns
-|----  |---- |----
-| bw-lsh  | left shift  | integer  
-| bw-rsh  | right shift | integer
-| bw-and  | bitwise and | integer
-| bw-or   | bitwise or  | integer
-| bw-xor  | bitwise xor | integer
-| bw-not  | bitwise not | integer
+| Arithmetic | Description | Returns |
+| ---------- | ----------- | ------- |
+|
 
-# Type prompting
+ `+`        | Add a series of cells | Resulting value |
+| `-`        | Subtract a series of cells | Resulting value |
+| `/`        | Divide a series of cells | Resulting value |
+| `*`        | Multiply a series of cells | Resulting value |
+| `%`        | Modulo a series of cells | Resulting value |
+| `**`       | Raise a series of cells to a power | Resulting value |
 
-For some commands expected type information is required. This is supplied to the
-commands via the following "type tags."
+| Comparison | Description | Returns |
+| ---------- | ----------- | ------- |
+| `eq`       | Check for equality | Returns numerical 1 or 0 representing true / false |
+| `neq`      | Check for inequality | Returns numerical 1 or 0 representing true / false |
+| `<`        | Less than | Returns numerical 1 or 0 representing true / false |
+| `>`        | Greater than | Returns numerical 1 or 0 representing true / false |
+| `<=`       | Less than or equal to | Returns numerical 1 or 0 representing true / false |
+| `>=`       | Greater than or equal to | Returns numerical 1 or 0 representing true / false |
+| `and`      | Logical and | Returns numerical 1 or 0 representing true / false |
+| `or`       | Logical or | Returns numerical 1 or 0 representing true / false |
+| `not`      | Logical not | Returns numerical 1 or 0 representing true / false |
 
-| Type tag   | c type   |
-|----        |----      |
-| :u8        | unsigned 8 int |
-| :u16       | unsigned 16 int | 
-| :u32       | unsigned 32 int |
-| :u64       | unsigned 64 int |
-| :i8        | signed 8 int |
-| :i16       | signed 16 int | 
-| :i32       | signed 32 int |
-| :i64       | signed 64 int |
-| :f32       | 32-bit floating point |
-| :f64       | 64-bit floating point |
-| :str       | char* |
-| :nil       | void  |
-| :int       | signed 64 int |
-| :float     | 64-bit floating point |
-| :ptr       | void pointer |
+| Bitwise | Description | Returns |
+| -------- | ----------- | ------- |
+| `bw-lsh` | Left shift | Integer |
+| `bw-rsh` | Right shift | Integer |
+| `bw-and` | Bitwise and | Integer |
+| `bw-or`  | Bitwise or | Integer |
+| `bw-xor` | Bitwise xor | Integer |
+| `bw-not` | Bitwise not | Integer |
 
-All types listed as type tags has both a C, and a Nibi type corresponding to it. 
-The Nibi types that have a direct C representation are known as "trival types" and
-are mentioned throughout this document.
+The table above provides an organized and concise overview of the available instructions in this programming language, along with their descriptions and return values.
 
+
+# Type Prompting
+
+In certain commands, specific type information is required. This information is provided to the commands through "type tags," which represent the corresponding C types.
+
+| Type Tag | C Type               |
+| -------- | -------------------- |
+| :u8      | unsigned 8-bit int   |
+| :u16     | unsigned 16-bit int  |
+| :u32     | unsigned 32-bit int  |
+| :u64     | unsigned 64-bit int  |
+| :i8      | signed 8-bit int    |
+| :i16     | signed 16-bit int   |
+| :i32     | signed 32-bit int   |
+| :i64     | signed 64-bit int   |
+| :f32     | 32-bit floating point |
+| :f64     | 64-bit floating point |
+| :str     | char* (string)       |
+| :nil     | void                 |
+| :int     | signed 64-bit int   |
+| :float   | 64-bit floating point |
+| :ptr     | void pointer         |
+
+All types listed as type tags have both a C type and a corresponding Nibi type. Nibi types that have a direct C representation are known as "trivial types" and are mentioned throughout this document. The type tags play a crucial role in providing type information for commands that operate on specific data types.
 # Notation
 
-**S** - A symbol (non keyword)
+In this programming language, the following notation is used:
 
-**[]** - Data list
-
-**[*]** - Data list that will have its members executed
-
-**()** - Processable list (Accessor lists `{}` are considered processable)
-
-**<>** - A meta list to plug all accepted notation into a field
-
-**..** - Indicating a continuation without specifed end
-
-**STR** - An explicit `string` value
-
-**I** - An explicit `integer` value
-
-**RD** - Any raw data member (`string, integer, double`) 
-
-**NU** - A numerical value (`integer, double`)
+- **S**: A symbol (non-keyword).
+- **[]**: A data list.
+- **[*]**: A data list that will have its members executed.
+- **()**: A processable list (includes accessor lists `{}`).
+- **<>**: A meta list that encompasses accepted notation into a field.
+- **..**: Indicates a continuation without specified end.
+- **STR**: An explicit `string` value.
+- **I**: An explicit `integer` value.
+- **RD**: Any raw data member (`string`, `integer`, `double`).
+- **NU**: A numerical value (`integer`, `double`).
 
 Example:
-
 ```
-
 ( keyword S < () .. S > )
-
-Indicates that `keyword` explicitly takes a `symbol` first, and then can 
-take a `processable list`, or a `symbol` as the second argument.
-
-The meta list `<>` encompasses only one parameter into the given keyword
-
 ```
+This example indicates that the `keyword` explicitly takes a `symbol` as the first argument, and then it can take either a `processable list` or a `symbol` as the second argument.
 
-
+The meta list `<>` encompasses only one parameter into the given keyword. The provided notation serves as a guide for understanding the syntax and usage of various elements in the language.
 # Instruction Details
 
-## keywords
+## Keywords
 
 ### Alias
 
 Keyword: `alias`
 
-| arg 1 | arg 2 |
-|----  |----
-| item to alias | symbol to use as alias
+| arg 1         | arg 2                 |
+| ------------- | --------------------- |
+| item to alias | symbol to use as alias |
 
-```
-  Note: Variables starting with `$` and `:` will not be allowed
-        as they are reserved for error tokens and meta commands
-```
+Note: Variables starting with `$` and `:` will not be allowed as they are reserved for error tokens and meta commands.
 
+Example:
 ```
-( alias < () S [] RD >  < S > )
+( alias < () S [] RD > < S > )
 ```
 
-### Direct environment assignment
+### Direct Environment Assignment
 
 Keyword: `:=`
 
-| arg 1 | arg 2 |
-|----  |----
-| symbol to designate | symbol or list that will yield the value to set
+| arg 1          | arg 2 |
+| -------------- | ----- |
+| symbol to designate | symbol or list that will yield the value to set |
 
-```
-  Note: Variables starting with `$` and `:` will not be allowed
-        as they are reserved for error tokens and meta commands
-```
+Note: Variables starting with `$` and `:` will not be allowed as they are reserved for error tokens and meta commands.
 
+Example:
 ```
 ( := S < () S > )
 ```
 
-### Indirect environment assignment
+### Indirect Environment Assignment
 
 Keyword: `set`
 
-| arg 1 | arg 2 |
-|----  |----
-| symbol or list that will yield the cell to update | symbol or list that will yield the value to set
+| arg 1                                       | arg 2                            |
+| ------------------------------------------- | -------------------------------- |
+| symbol or list that will yield the cell to update | symbol or list that will yield the value to set |
 
+Example:
 ```
 ( set < () S > < () S > )
 ```
 
-### Drop assigned item
+### Drop Assigned Item
 
 Keyword: `drop`
 
-A variable number of arguments accepted into drop with the minimum being 1.
+A variable number of arguments accepted into `drop`, with the minimum being 1.
 
-All arguments must be expressed as a `symbol`
+All arguments must be expressed as a `symbol`.
 
+Example:
 ```
 ( drop < S .. > .. )
 ```
 
-### Retrieve length
+### Retrieve Length
 
 Keyword: `len`
 
-| arg 1
-|----
-| Item to retrieve length of 
+| arg 1                          |
+| ------------------------------ |
+| Item to retrieve the length of |
 
-```
-Note: If the item is not a list it will be converted to a string and the length of the string
-      value will be returned.
-```
+Note: If the item is not a list, it will be converted to a string, and the length of the string value will be returned.
 
+Example:
 ```
 ( len < RD S () [] > )
 ```
 
-### Return item
+### Return Item
 
 Keyword: `<-`
 
-| arg 1
-|----
-| Item to return
+| arg 1  |
+| ------ |
+| Item to return |
 
+Example:
 ```
 ( <- < RD S () [] > )
 ```
+
+
 
 ### If / Else
 
 Keyword: `if`
 
-| arg 1               | arg 2                    | arg3 (optional)
-|----                |----                     |----
-| Condition to check | Body to execute if true | Body to execute if false
+| arg 1           | arg 2                          | arg 3 (optional)              |
+| --------------- | ------------------------------ | ----------------------------- |
+| Condition to check | Body to execute if true       | Body to execute if false      |
 
+Example:
 ```
 ( if <() RD [*]> <() RD [*]> )
 ```
 
 ### Loop
 
-Keyword: `if`
+Keyword: `loop`
 
-| arg 1          | arg 2               | arg3           | arg4
-|----           |----                |----            |----
-| Pre condition | Condition to check | Post condition | Body
+| arg 1          | arg 2                    | arg 3           | arg 4                |
+| -------------- | ------------------------ | --------------- | -------------------- |
+| Precondition  | Condition to check        | Postcondition  | Body                   |
 
-Pre condition will be executed prior to the loop
+Precondition will be executed before entering the loop.
+Postcondition will take place at the end of each loop.
+Anything declared within the loop will be scoped to the loop, including anything done in the precondition.
 
-Post condition will take place at the end of each loop
-
-Anything declared within the loop will be scoped to the loop. This goes for anything done in 
-the pre condition
-
+Example:
 ```
 ( loop <()> <()> <()> <() [*]> )
 ```
@@ -325,10 +298,11 @@ the pre condition
 
 Keyword: `clone`
 
-| arg 1
-|----
-| Item to clone
+| arg 1        |
+| ------------ |
+| Item to clone |
 
+Example:
 ```
 ( clone <RD [] () S> )
 ```
@@ -337,32 +311,28 @@ Keyword: `clone`
 
 Keyword: `fn`
 
-All cells passed to a function will be done so by reference so they can
-modify any given item.
+All cells passed to a function will be done so by reference so they can modify any given item.
+To pass an explicit copy, use `clone` when calling the function on the parameters to clone.
 
-To pass a an explicit copy use `clone` when calling the function on
-the parameters to clone.
-
+Example 1:
 ```
 ( fn <S> <[]> <() [*]> )
 ```
 
-Anonymous functions can be created without provifind a `<S>` for a name.
-
+Example 2 (Anonymous function):
 ```
 ( fn <[]> <() [*]> )
 ```
 
-Variable number of args:
+Variable Number of Arguments:
 
-Using the `:args` tag as the only argument to a function, a list of arguments
-of any size may be given. Example:
+Using the `:args` tag as the only argument to a function, a list of arguments of any size may be given. 
 
-```
+Example:
+```scheme
 (use "io")
 
 (fn vargs [:args] [
-
   (io::println "Called")
 
   (iter $args x [
@@ -378,52 +348,48 @@ of any size may be given. Example:
 (vargs)
 ```
 
+
 ### Import
 
 Keyword: `import`
 
 Import files into the current operating environment as-is.
 
+Example:
 ```
 ( import <S ...> )
 ```
 
-All symbols in an import must be a string type, and not presented in any type of list.
+All symbols in an import must be of string type and not presented in any type of list.
 
-The system will utilize any imports from `-i` or `--include` to look for files marked
-to be included that are not immediatly present. The search priority is as follows:
+The system will utilize any imports from `-i` or `--include` to look for files marked to be included that are not immediately present. The search priority is as follows:
 
-1) The launch directory 
-
-2) Include dirs as they appeared in order from include flag
-
-3) The home directory under the directory `~/.nibi` iff the directory exists 
+1) The launch directory
+2) Include directories as they appeared in order from the include flag
+3) The home directory under the directory `~/.nibi` if the directory exists
 
 ### Use
 
 Keyword: `use`
 
-Indicate that we want to use an installed, or relative module.
+Indicate that we want to use an installed or relative module.
 
+Example:
 ```
 ( use <S ...> )
 ```
 
-Items brought in via `use` will be constructed in their own environment that must be
-accessed with an accessor list unless that module specifies an export that ties a new
-symbol to the inner items. See docs/example_modules for more information on module construction.
+Items brought in via `use` will be constructed in their own environment that must be accessed with an accessor list unless that module specifies an export that ties a new symbol to the inner items. See docs/example_modules for more information on module construction.
 
 ### Try
 
 Keyword: `try`
 
-Expects 2 parameters. The first will be executed and if an exception occurs
-then the second list will be executed with a variable `$e` present in the 
-environment while the recovery list is being processed.
+Expects 2 parameters. The first will be executed, and if an exception occurs, then the second list will be executed with a variable `$e` present in the environment while the recovery list is being processed.
 
-Both parameters will execute top level data lists `[]` as a list of processable
-lists, and execute each member.
+Both parameters will execute top-level data lists `[]` as a list of processable lists and execute each member.
 
+Example:
 ```
 ( try < () [*] S > < () [*] S > )
 ```
@@ -433,12 +399,12 @@ lists, and execute each member.
 Keyword: `throw`
 
 | arg 1 |
-|----  |
-| cell to execute and throw string value of
+| ----  |
+| Cell to execute and throw a string value of |
 
-Note: Whatever is returned from the execution of arg 1 will be forcefully converted to a string for the given
-exception. If the result can not be turned into a string it will throw a cell_access_exception instead.
+Note: Whatever is returned from the execution of arg 1 will be forcefully converted to a string for the given exception. If the result cannot be turned into a string, it will throw a `cell_access_exception` instead.
 
+Example:
 ```
 ( throw < [*] () S RD > )
 ```
@@ -447,10 +413,11 @@ exception. If the result can not be turned into a string it will throw a cell_ac
 
 Keyword: `assert`
 
-| arg 1 | arg 2 |
-|----  |----
-| condition to check | string value to throw in an exception if assertion fails <optional>
+| arg 1              | arg 2                                          |
+| ------------------ | ---------------------------------------------- |
+| Condition to check | String value to throw in an exception if assertion fails <optional> |
 
+Examples:
 ```
 ( assert < () S > STR )
 ( assert < () S > )
@@ -460,252 +427,263 @@ Keyword: `assert`
 
 Keyword: `exit`
 
-| arg 1 |
-|----
-| Number to set as exit code - must be integer
+| arg 1                  |
+| ---------------------- |
+| Number to set as exit code - must be an integer |
 
+Example:
 ```
-( exit < NU S () >)
+( exit < NU S () > )
 ```
+
+
+
 
 ### Eval
 
 Keyword: `eval`
 
-| arg 1 |
-|----
-| String to evaluate
+| arg 1      |
+| ---------- |
+| String to evaluate |
 
+Example:
 ```
 ( eval < S STR > )
 ```
 
 ### Quote
 
-Keyword `quote`
+Keyword: `quote`
 
-| arg 1 |
-|----
-| Item to quote
+| arg 1  |
+| ------ |
+| Item to quote |
 
+Example:
 ```
 ( quote < S () [] {} RD > )
 ```
 
 ### Str
 
-Keyword `str`
+Keyword: `str`
 
-| arg 1 |
-|----
-| Item to convert to string
+| arg 1  |
+| ------ |
+| Item to convert to string |
 
+Example:
 ```
 ( str < S () RD > )
 ```
 
 ### Int
 
-Keyword `int`
+Keyword: `int`
 
-| arg 1 |
-|----
-| Item to convert to an integer
+| arg 1  |
+| ------ |
+| Item to convert to an integer |
 
+Example:
 ```
 ( int < S () RD > )
 ```
 
 ### Float
 
-Keyword `float`
+Keyword: `float`
 
-| arg 1 |
-|----
-| Item to convert to a float
+| arg 1  |
+| ------ |
+| Item to convert to a float |
 
+Example:
 ```
 ( float < S () RD > )
 ```
 
-### Split 
+### Split
 
-| arg 1         | arg 2  
-|----           |----
-| Item to split | length - only required if arg 1 is a list
+| arg 1           | arg 2                  |
+| --------------- | ---------------------- |
+| Item to split   | Length (only required if arg 1 is a list) |
 
-Note: Split will not resolve symbols in a given list
+Note: Split will not resolve symbols in a given list.
 
-Note: A value of `0` passed as argument 2 when argument 1 is a list
-      will result in a copy of the list being returned
+Note: A value of `0` passed as argument 2 when argument 1 is a list will result in a copy of the list being returned.
 
+Example 1:
 ```
 ( split < S () RD > )
-
-# With list:
-
-( split < S [] > < NU S () > )
-
 ```
+
+Example 2 (With list):
+```
+( split < S [] > < NU S () > )
+```
+
 
 ### Type
 
-Keyword `type`
+Keyword: `type`
 
-| arg 1 |
-|----
-| Item to get the type of
+| arg 1  |
+| ------ |
+| Item to get the type of |
 
 Returns a string detailing the type of what `arg 1` resolves to.
 
-The possible strings returned are as follows:
+Possible return values and their corresponding information:
 
-| return | info
-|----    |----
-| aberrant  | Aberrant cells are under-the-hood cells that shouldn't be able to be accessed |
-| nil       | A nil cell        |
-| u8        | unsigned 8 int |
-| u16       | unsigned 16 int | 
-| u32       | unsigned 32 int |
-| u64       | unsigned 64 int |
-| i8        | signed 8 int |
-| i16       | signed 16 int | 
-| i32       | signed 32 int |
-| i64       | signed 64 int |
-| f32       | 32-bit floating point |
-| f64       | 64-bit floating point |
-| ptr       | A pointer |
-| string    | A string cell     |
-| list:data     | A data list   |
-| list:access   | An access list |
-| list:instruction An instruction list |
-| list          | Undetermined list type |
-| function      | Function |
-| environment   | An environment of cells |
-| symbol        | A symbol  |
-| dict          | A dictionary |
-| unknown       | Unknown type |
+| Return          | Information                                           |
+| --------------- | ----------------------------------------------------- |
+| aberrant        | Aberrant cells are under-the-hood cells that shouldn't be able to be accessed |
+| nil             | A nil cell                                            |
+| u8              | unsigned 8 int                                       |
+| u16             | unsigned 16 int                                      |
+| u32             | unsigned 32 int                                      |
+| u64             | unsigned 64 int                                      |
+| i8              | signed 8 int                                         |
+| i16             | signed 16 int                                        |
+| i32             | signed 32 int                                        |
+| i64             | signed 64 int                                        |
+| f32             | 32-bit floating point                                |
+| f64             | 64-bit floating point                                |
+| ptr             | A pointer                                            |
+| string          | A string cell                                        |
+| char            | A character                                          | 
+| list:data       | A data list                                          |
+| list:access     | An access list                                       |
+| list:instruction | An instruction list                                  |
+| list            | Undetermined list type                               |
+| function        | Function                                             |
+| environment     | An environment of cells                              |
+| symbol          | A symbol                                             |
+| dict            | A dictionary                                         |
+| unknown         | Unknown type                                         |
 
-The following cells will only show up if either something goes terribly wrong, 
-or you are working on extending the language with a module or working on nibi itself.
+Note: The cells `aberrant`, `list`, `symbol`, and `unknown` will only show up if something goes terribly wrong, or you are working on extending the language with a module or working on Nibi itself.
 
-    aberrant, list, symbol, unknown
-
+Example:
 ```
 ( type < S () [] RD > ) 
-
 ```
 
 ### Nop
 
-Keyword `nop`
+Keyword: `nop`
 
 No arguments given. Does nothing.
 
+Example:
 ```
 (nop)
 ```
 
-----
 
 ## List Instructions
 
 ### Push Front
 
-keyword: `>|`
+Keyword: `>|`
 
 ```
-Note: the `|` is meant to represent the boundary of a list, with the `>` showing 
+Note: The `|` is meant to represent the boundary of a list, with the `>` showing 
       a direction that the data is being inserted. Notation assumes that the "front" of
-      a list is the "left" side when reading
+      a list is the "left" side when reading.
 ```
 
-| arg 1 | arg 2 |
-|----  |----
-| list to push to | value to push
+| arg 1  | arg 2  |
+| ------ | ------ |
+| List to push to | Value to push |
 
+Example:
 ```
 ( >| < () [] S RD > [] )
 ```
 
 ### Push Back
 
-keyword: `|<`
+Keyword: `|<`
 
 ```
-Note: the `|` is meant to represent the boundary of a list, with the `>` showing 
+Note: The `|` is meant to represent the boundary of a list, with the `>` showing 
       a direction that the data is being inserted. Notation assumes that the "front" of
-      a list is the "left" side when reading
+      a list is the "left" side when reading.
 ```
 
-| arg 1 | arg 2 |
-|----  |----
-| list to push to | value to push
+| arg 1  | arg 2  |
+| ------ | ------ |
+| List to push to | Value to push |
 
+Example:
 ```
 ( |< < () [] S RD > [] )
 ```
 
 ### Spawn list
 
-keyword: `<|>`
+Keyword: `<|>`
 
-| arg 1 | arg 2 |
-|----  |----
-| value to default all elements to| size of the list that must resolve to integer >0
+| arg 1  | arg 2  |
+| ------ | ------ |
+| Value to default all elements to | Size of the list that must resolve to integer >0 |
 
+Example:
 ```
 ( <|> < () S RD [] > < () I > )
 ```
 
 ### Pop front
 
-| arg 1 |
-|----
-| list to pop the front of
+| arg 1  |
+| ------ |
+| List to pop the front of |
 
+Example:
 ```
 ( <<| < S [] > )
 ```
 
 ### Pop back
 
-| arg 1 |
-|----
-| list to pop the back of
+| arg 1  |
+| ------ |
+| List to pop the back of |
 
+Example:
 ```
 ( |>> < S [] > )
 ```
 
 ### Iterate
 
-keyword: `iter`
+Keyword: `iter`
 
-| arg 1            | arg 2                        | arg3 |
-|----             |----                         |----
-| list to iterate | symbol name to map value to | instruction(s) to execute per item
+| arg 1  | arg 2  | arg3 |
+| ------ | ------ | ---- |
+| List to iterate | Symbol name to map value to | Instruction(s) to execute per item |
 
-The symbol used in argument two will shadow any existing variable of the same name 
-and map to whatever the value is of the list being iterated. At the end of the 
-instruction, the symbol will be removed.
+The symbol used in argument two will shadow any existing variable of the same name and map to whatever the value is of the list being iterated. At the end of the instruction, the symbol will be removed.
 
+Example:
 ```
 ( iter < [] S > S < () [*] > )
 ```
 
 ### At
 
-keyword: `at`
+Keyword: `at`
 
-| arg 1               | arg 2 |
-|----                |----
-| list to index into | index to access
+| arg 1  | arg 2  |
+| ------ | ------ |
+| List to index into | Index to access |
 
-```
-Note: Arg 2 is required to evaluate to an integer type
-```
+**Note:** Arg 2 is required to evaluate to an integer type.
 
+Example:
 ```
 ( at < S [] > < () S I > )
 ```
@@ -714,32 +692,27 @@ Note: Arg 2 is required to evaluate to an integer type
 
 ## Arithmetic
 
-A variable number of arguments accepted with the minimum being 2, 
-with the exception of `-` which will subtract the given value from 0 by default.
+A variable number of arguments are accepted, with the minimum being 2, except for `-`, which will subtract the given value from 0 by default.
 
+Example:
 ```
 ( op < S () .. > .. )
 ```
 
-**Note:** `*` and `+` work on strings iff the first item given to them is a string.
+**Note:** `*` and `+` work on strings if the first item given to them is a string.
 
-----
+
 
 ## Comparisons
 
-All comparison operators take exactly 2 arguments
+All comparison operators take exactly 2 arguments.
 
 `eq` and `neq` will accept any cell type and attempt to check equality.
-Whatever the simple type the lhs takes on, eq and neq will attempt to convert the rhs to 
-for checking. 
+Whatever the simple type the lhs takes on, `eq` and `neq` will attempt to convert the rhs for checking. 
 
-This means if the lhs operand is a string, it will attempt to stringify the rhs and so on
-with integers and doubles. 
+This means if the lhs operand is a string, it will attempt to stringify the rhs, and so on with integers and doubles. If the lhs is a more complex type like a list or a function, both sides will be stringified for comparison.
 
-If the lhs is a more complex type like a list or a function, both sides will be 
-stringified for comparison.
-
-the remaining comparisons require that the arguments are numerical types (integer, float)
+The remaining comparisons require that the arguments are numerical types (integer, float).
 
 ```
 ( op < S () > < S () > )
@@ -751,85 +724,94 @@ the remaining comparisons require that the arguments are numerical types (intege
 
 ### Left Shift
 
-keyword: `bw-lsh`
+Keyword: `bw-lsh`
 
-| arg 1 | arg 2 |
-|----  |----
-| value to shift | amount to shift
+| arg 1  | arg 2  |
+| ------ | ------ |
+| Value to shift | Amount to shift |
 
+Example:
 ```
 ( bw-lsh <() NU> <() NU> )
 ```
 
 ### Right Shift
 
-keyword: `bw-rsh`
+Keyword: `bw-rsh`
 
-| arg 1 | arg 2 |
-|----  |----
-| value to shift | amount to shift
+| arg 1  | arg 2  |
+| ------ | ------ |
+| Value to shift | Amount to shift |
 
+Example:
 ```
 ( bw-rsh <() NU> <() NU> )
 ```
+
 ### Bitwise AND
 
-keyword: `bw-and`
+Keyword: `bw-and`
 
-| arg 1 | arg 2 |
-|----  |----
-| value to shift | amount to shift
+| arg 1  | arg 2  |
+| ------ | ------ |
+| Value to shift | Amount to shift |
 
+Example:
 ```
 ( bw-and <() NU> <() NU> )
 ```
+
 ### Bitwise OR
 
-keyword: `bw-or`
+Keyword: `bw-or`
 
-| arg 1 | arg 2 |
-|----  |----
-| value to shift | amount to shift
+| arg 1  | arg 2  |
+| ------ | ------ |
+| Value to shift | Amount to shift |
 
+Example:
 ```
 ( bw-or <() NU> <() NU> )
 ```
 
 ### Bitwise XOR
 
-keyword: `bw-xor`
+Keyword: `bw-xor`
 
-| arg 1 | arg 2 |
-|----  |----
-| value to shift | amount to shift
+| arg 1  | arg 2  |
+| ------ | ------ |
+| Value to shift | Amount to shift |
 
+Example:
 ```
 ( bw-xor <() NU> <() NU> )
 ```
+
 ### Bitwise NOT
 
-keyword: `bw-not`
+Keyword: `bw-not`
 
-| arg 1
-|----
-| value to not
+| arg 1  |
+| ------ |
+| Value to not |
 
+Example:
 ```
 ( bw-not <() NU> )
 ```
 
+
 ### Macro
 
-keyword: `macro`
+Keyword: `macro`
 
 | arg 1 | arg 2       | arg 3 .. n |
-|----   |----         |---         |
+|------ |------------ |---         |
 | name  | params list | macro body |
 
 Example:
 
 ```lisp
-
 # Create a macro that defines a `while` loop
 
 (macro while [condition body]
@@ -840,20 +822,13 @@ Example:
 (while (eq true true) (io::println "ayyy"))
 ```
 
-The first argument of the macro is the name that can
-be utilized like a function call to invoke it.
+The first argument of the macro is the name that can be utilized like a function call to invoke it.
 
-The second argument must resolve to a data list `[]`
-and contain symbols that will be used to subsitute 
-into the macro.
+The second argument must resolve to a data list `[]` and contain symbols that will be used to substitute into the macro.
 
-Every substitution of the word must be prefized with `%`.
-These substitutions are 1-for-1 so all expected symbols
-must fulfill syntax requirements for their position.
+Every substitution of the word must be prefixed with `%`. These substitutions are 1-for-1, so all expected symbols must fulfill syntax requirements for their position.
 
-If a substitution symbol with the same name and form
-as a parameter is to be omitted, prefixing it with `\`
-will ensure that the symbol is ignored like so:
+If a substitution symbol with the same name and form as a parameter is to be omitted, prefixing it with `\` will ensure that the symbol is ignored like so:
 
 ```lisp
 (use "io")
@@ -861,218 +836,142 @@ will ensure that the symbol is ignored like so:
 (example "nope")
 ```
 
-will output the following:
-
-    Hey look its a %param
+Output:
+```
+Hey look its a %param
+```
 
 ## Dictionary
 
-keyword: `dict`
+Keyword: `dict`
 
-The dict call takes a variable number of arguments depending
-on the intended action.
+The `dict` call takes a variable number of arguments depending on the intended action.
 
 Creating a dict:
 
-```
-
+```lisp
 # Variant 1 (empty)
-
 (:= my_dict (dict))
 
 # Variant 2 (empty)
 (:= my_dict (dict []))
 
 # Variant 3 (populated)
-
 (:= my_dict (dict [
-    [ "a" 33 ]
-    [ "b" 44 ]
+    ["a" 33]
+    ["b" 44]
 ]))
 
 # Variant 4 (populated)
-
 (:= non_dict_list [
-    [ "a" 33 ]
-    [ "b" 44 ]
+    ["a" 33]
+    ["b" 44]
 ])
 
 (:= my_dict (dict non_dict_list))
-
 ```
 
-All dictionary keys MUST be literal strings, and the values can be anything.
-Each entry in a list that constructs a dictionary must be a data list of size 2
-with a literal string in slot 0, and the value in slot 1. 
+All dictionary keys MUST be literal strings, and the values can be anything. Each entry in a list that constructs a dictionary must be a data list of size 2 with a literal string in slot 0 and the value in slot 1.
 
 Accessing a dict / creating entries:
 
-```
-
-# Create a new entry / overwrite existing
-# without checking
-
+```lisp
+# Create a new entry / overwrite existing without checking
 (my_dict :let "key" some_value) # Anything is permitted in value
 
-(set something (x :get "key"))  # Retrieve an existing value (throws if no-exist)
+(set something (x :get "key"))  # Retrieve an existing value (throws if not exists)
 
 # Set something and ensure that it exists first
-
 (set (x :get "key") "some new value")
 
 # Delete a value
-
 (x :del "key")
 
 # Retrieve a list of keys
-
 (:= the_keys (x :keys))
 
 # Retrieve a list of values
-
 (:= the_vals (x :vals))
-
 ```
 
-As can be seen above, a created dictionary acts like a function for
-accessing and updating with a command-like parameter that starts with a `:`
+As can be seen above, a created dictionary acts like a function for accessing and updating with a command-like parameter that starts with a `:`.
 
 Dict commands:
 
-| command | action
-|---- |----
-| :let | Create an item in the dict, will overwrite |
-| :get | Retrieve a reference to a keys value |
-| :del | Delete a key iff it exists. Returns 0 if key didn't exist, 1 otherwise |
-| :keys | Get a list of keys |
-| :vals | Get a list of references to values |
+| Command | Action         |
+|---------|----------------|
+| `:let`  | Create an item in the dict, will overwrite |
+| `:get`  | Retrieve a reference to a key's value |
+| `:del`  | Delete a key if it exists. Returns 0 if key didn't exist, 1 otherwise |
+| `:keys` | Get a list of keys |
+| `:vals` | Get a list of references to values |
 
-*Note:* The order that keys are printed or exist are not required to
-fit any particular order. A list of values or keys retrieved may vary
-in order.
+*Note:* The order that keys are printed or exist is not required to fit any particular order. A list of values or keys retrieved may vary in order.
 
 Printing a dict:
 
-Since dict symbols are essentially functions, stringing them has to be
-done via a different method than `str`.
+Since dict symbols are essentially functions, stringing them has to be done via a different method than `str`.
 
-Calling a dict symbol with NO parameters as so:
+Calling a dict symbol with NO parameters like this `(my_dict)` will prompt it to return a fully formed, quoted string of the dict.
 
-```
-
-    (my_dict)
-
-```
-
-will prompt it to return a fully formed, quoted string of the dict.
-
-## External calls
+## External Calls
 
 Keyword: `extern-call`
 
-Call and external library:
-
-```
-
-
-    (extern-call <library name> <function name> <[parameter c-types]> <return c-type>) 
-
-
-
-    If library name is `nil` the symbol will be searched for based on 
-    currently loaded symbols, otherwise it must be a bath to a library
-    file - as a string.
-
-    Note: If the extern method can not find the library it will attempt to
-          locate it in the given include directories.
-          Since the NIBI_PATH is added as an include directory,
-          once can direct the cffi to an installed module's library
-          file via "modules/<MODULE_NAME>/<LIB_NAME>"
-
-    Function name is the function name as a string.
-
-    Parameters is a data list of type tags (listed above)
-
-    Return c-type is the c-type that represents the return
-    type of the function
-
-```
-
-Examples:
+Call an external library:
 
 ```lisp
-    (extern-cell nil "printf" [:str] :int "Hello, world!")
+(extern-call <library name> <function name> <[parameter c-types]> <return c-type>) 
 ```
 
-## Manual memory commands
+If `library name` is `nil`, the symbol will be searched for based on currently loaded symbols. Otherwise, it must be a path to a library file as a string.
 
-Keyword: `mem-new`
+`Function name` is the function name as a string.
 
-Allocate a set sized amount of memory. 
+`Parameters` is a data list of type tags (listed above).
 
-Returns a `ptr` cell that points to the newly allocated memory.
-
-If the argument is given `nil` instead of an integer, then the 
-pointer returned will contain no allocated memory.
-
-**Note about ptr cells:**
-
-Pointer cells don't control the lifetime of the allocated memory. When the pointer cell
-is deleted, the memory stays allocated. This would cause a memory leak. To prevent this
-ensure you use mem-del on everything mem-new'd.
-
-Pointer cells don't copy data when cloned to aother pointer cells. Both cells will point
-at the same data in memory.
-
-Keyword: `mem-del`
-
-Delete the allocated memory. This function takes any number of arguments and attempts
-to free them all. The last item freed will be returned.
-
-Keyword: `mem-cpy`
-
-Copy data in memory. If the first item is a standard "trival" cell. That is, one that has
-a direct C-Type integration, it will be copied to the heap at a given destination pointer.
+`Return c-type` is the C-type that represents the return type of the function.
 
 Example:
-
 ```lisp
-
-(set x "Some string")
-(set y (mem-new nil))
-
-(mem-cpy x y)
-
-# The same thing could be done as follows:
-
-(:= y (mem-cpy "Some string" (mem-new nil)))
-
+(extern-cell nil "printf" [:str] :int "Hello, world!")
 ```
 
-In the event that the destination value has already been allocated, that data will be automatically
-freed before the copy takes place. 
+## Manual Memory Commands
 
-Keyword: `mem-load`
+- Keyword: `mem-new`
+  - Allocates a set-sized amount of memory.
+  - Returns a `ptr` cell that points to the newly allocated memory.
+  - If the argument is given `nil` instead of an integer, then the pointer returned will contain no allocated memory.
+  - **Note about ptr cells:**
+    - Pointer cells don't control the lifetime of the allocated memory. When the pointer cell is deleted, the memory stays allocated. This could cause a memory leak. To prevent this, ensure you use `mem-del` for everything allocated with `mem-new`.
+    - Pointer cells don't copy data when cloned to another pointer cell. Both cells will point to the same data in memory.
 
-Attempt to load a value from memory as a regular, trivial, cell. 
+- Keyword: `mem-del`
+  - Deletes the allocated memory. This function takes any number of arguments and attempts to free them all. The last item freed will be returned.
 
-The load command requires the first argument to be a cell `type tag` (mentioned above) that will
-indicate how much space to load from memory, and how to represent it as a cell.
+- Keyword: `mem-cpy`
+  - Copies data in memory.
+  - If the first item is a standard "trivial" cell (direct C-Type integration), it will be copied to the heap at a given destination pointer.
+  - For this to succeed, the destination pointer must be `owned`.
+  - If the first item is a pointer cell, the data will be copied to the destination if and only if the source and destination pointers are `owned`.
+  - In the event that the destination value has already been allocated, that data will be automatically freed before the copy takes place.
 
-```lisp
+- Keyword: `mem-load`
+  - Attempts to load a value from memory as a regular, trivial cell.
+  - Requires the first argument to be a cell `type tag` (mentioned above) that indicates how much space to load from memory and how to represent it as a cell.
+  - The second parameter must be a ptr cell. This ptr cell does not need to be owned for the operation to take place.
 
-(:= result (mem-load :u64 my_ptr_cell))
+- Keyword: `mem-is-set`
+  - Checks if a ptr cell has been set or if it's not pointing to anything.
+  - Returns T/F.
 
-```
-
-Keyword: `mem-is-set`
-
-Check if a ptr cell has been set, or if its not pointing to anything. Returns T/F
 
 # Modules
 
-```
+A module is organized as follows:
 
+```
 module
     |
     |---- mod.nibi
@@ -1086,80 +985,51 @@ module
     file-1.nibi
 ```
 
-## mod.nibi
+## `mod.nibi`
+
+The `mod.nibi` file contains optional settings and configurations for the module. Here are the possible settings:
+
+- Optional settings:
+  - `version`: Module version (string).
+  - `authors`: List of authors (strings).
+  - `description`: Module description (string).
+  - `licenses`: List of licenses (strings).
+
+- Load source files directly into an environment:
+  - `sources`: List of source file names to load into the module's environment.
+
+- If a dynamic library needs to be loaded:
+  - `dylib`: List of function names offered by the dynamic library. Note: Dynamic libraries must take the name `<module_name>.lib`.
+
+- Optional list of files to execute in-order immediately following an import:
+  - `post`: List of file names to execute after importing. These can be used to redefine access to the module or run sanity checks before continuing.
+
+## Module Tests
+
+Tests for installed modules can be run via:
 
 ```
-# These four settings are optional
-(:= version "0.0.0")
-(:= authors ["bosley"])
-(:= description "User I/O extension module")
-(:= licenses [
-  "MIT"
-])
-
-# Load source files directly into an 
-# environment
-(:= sources [
-  "file-0.nibi"
-  "file-1.nibi"
-])
-
-# If a dynamic library needs to be loaded
-# dylib can be set witha list of all functions
-# that the library offers
-# - Note: Dynamic libraries must take the name <module_name>.lib
-(:= dylib [
-  "get_str"
-])
-
-# optional list of files to execute in-order immediatly
-# following an import. These can be used to redefine 
-# access to the module, or run sanity checks before
-# continuing.
-# For instance we could export
-# {math ceil} as math::ceil so access lists aren't 
-# required for each call. 
-(:= post [
-  "export.nibi"
-])
-
+nibi -t <module_name>
 ```
 
-## Module tests 
+This command will iterate over all detected test files and execute them to ensure that the module is working correctly.
 
-Tests can be ran on installed moduled via:
+## Notes on Modules
 
-`nibi -t <module_name>`
+- When a module is loaded, it is populated into its own environment cell.
+- Variables with a prefixed `_` will be private to the module, and accessing the module externally will be done via an accessor list `{}`.
+- All files within a module are gathered into the same environment, so there is no need to `import` files internally.
+- The environment will be populated in the order listed in `mod.nibi`, so top-level variables will only be aware of things loaded before them.
+- If a function is executed at the top-most level and attempts to access a yet-to-exist cell, a runtime error will occur.
 
-This will iterate over all detected test files and execute them
-to ensure that the module is working correctly.
+## Module Installation
 
-## Notes on modules
-
-When a module is loaded, it is populated into its own environment cell.
-This means any variables with a prefixed `_` will be private to the module, 
-and accessing the module externally will be done via an accessor list `{}`.
-
-Since all files within a module will be gathered into the same environment 
-there is no need to `import` files internally, however, the environment will
-be populated in the order that they are listed in `mod.nibi` so top level 
-variables will only be aware of the things loaded before them. For function
-definitions this is not an issue, as functions are not evaluated until they
-are executed, but if any function is executed at the top-most level, and they
-attempt to access a yet-to-exist cell there will be a runtime error.
-
-## Module installation
-
-Modules can be anywhere within the nibi include directories, but a module isn't 
-considered installed until it exists in NIBI_PATH/modules.
+Modules can be located anywhere within the nibi include directories, but a module is not considered installed until it exists in `NIBI_PATH/modules`.
 
 # Applications
 
-Applications are any direectory with a `main.nibi` within it. The distinction between that
-and standard scripts is that applications can have a `tests` directory automatiocally discovered
-and executed similarly to modules (above) and are to be launched at the directory level as so:
+Applications are any directories with a `main.nibi` file within them. Applications can have a `tests` directory that is automatically discovered and executed, similarly to modules. Applications are launched at the directory level as follows:
 
 ```
 nibi ~/path/to/app
 ```
-
