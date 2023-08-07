@@ -8,15 +8,29 @@
 #include <iostream>
 #endif
 
+#define EXECUTE_AND_CATCH(___body)                                             \
+  try {                                                                        \
+    ___body                                                                    \
+  } catch (interpreter_c::exception_c & error) {                               \
+    halt_with_error(error_c(error.get_source_location(), error.what()));       \
+  } catch (cell_access_exception_c & error) {                                  \
+    halt_with_error(error_c(error.get_source_location(), error.what()));       \
+  } catch (std::exception & error) {                                           \
+    halt_with_error(error_c(cell->locator, error.what()));                     \
+  }
+
 namespace nibi {
 
 interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
     : interpreter_env(env), source_manager_(source_manager),
       modules_(source_manager, *this) {
   last_result_ = allocate_cell(cell_type_e::NIL);
+  push_ctx();
 }
 
 interpreter_c::~interpreter_c() {
+  pop_ctx(interpreter_env);
+
 #if PROFILE_INTERPRETER
 
   for (auto [fn, data] : fn_call_data_) {
@@ -34,17 +48,23 @@ interpreter_c::~interpreter_c() {
 }
 
 void interpreter_c::instruction_ind(cell_ptr &cell) {
-  try {
-    // We can ignore the return value because
-    // at this level nothing would be returned
-    last_result_ = handle_list_cell(cell, interpreter_env, false);
-  } catch (interpreter_c::exception_c &error) {
-    halt_with_error(error_c(error.get_source_location(), error.what()));
-  } catch (cell_access_exception_c &error) {
-    halt_with_error(error_c(error.get_source_location(), error.what()));
-  } catch (std::exception &error) {
-    halt_with_error(error_c(cell->locator, error.what()));
+  EXECUTE_AND_CATCH(
+      { last_result_ = handle_list_cell(cell, interpreter_env, false); });
+}
+
+void interpreter_c::pop_ctx(env_c &env) {
+  if (ctxs_.empty()) {
+    return;
   }
+  auto current = ctxs_.top();
+  for (auto cell : current.deferred) {
+    if (!cell) {
+      continue;
+    }
+
+    EXECUTE_AND_CATCH({ last_result_ = process_cell(cell, env, true); });
+  }
+  ctxs_.pop();
 }
 
 void interpreter_c::halt_with_error(error_c error) {

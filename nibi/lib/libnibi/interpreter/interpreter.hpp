@@ -80,7 +80,22 @@ public:
 
   virtual env_c &get_env() override { return interpreter_env; }
 
+  virtual void push_ctx() override { ctxs_.push(ctx_s{}); }
+
+  virtual void pop_ctx(env_c &env) override;
+
+  virtual void defer_execution(cell_ptr ins) override {
+    if (ctxs_.empty()) {
+      push_ctx();
+    }
+    ctxs_.top().deferred.push_back(ins);
+  }
+
 private:
+  struct ctx_s {
+    std::vector<cell_ptr> deferred;
+  };
+
   // The last item that was processed
   cell_ptr last_result_{nullptr};
 
@@ -107,6 +122,8 @@ private:
   void halt_with_error(error_c error);
 
   std::stack<cell_ptr> call_stack_;
+
+  std::stack<ctx_s> ctxs_;
 
 #if PROFILE_INTERPRETER
   struct profile_info_s {

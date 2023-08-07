@@ -73,7 +73,9 @@ cell_ptr execute_suspected_lambda(cell_processor_if &ci, cell_list_t &list,
 
   auto &body = lambda_info.body->as_list_info();
 
+  ci.push_ctx();
   cell_ptr result = ci.process_cell(lambda_info.body, lambda_env, true);
+  ci.pop_ctx(lambda_env);
 
   // Because we have pointers to parametrs stored we don't want the environment
   // to free them, so we manually remove them here before
