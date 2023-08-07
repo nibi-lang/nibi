@@ -53,8 +53,9 @@ cell_ptr builtin_fn_common_defer(cell_processor_if &ci, cell_list_t &list,
 
   for (auto it = list.begin() + 1; it != list.end(); ++it) {
     if ((*it)->type != cell_type_e::LIST) {
-      throw interpreter_c::exception_c("Defer command requires all parameters to be of type LIST",
-                                       (*it)->locator);
+      throw interpreter_c::exception_c(
+          "Defer command requires all parameters to be of type LIST",
+          (*it)->locator);
     }
     ci.defer_execution(*it);
   }
