@@ -49,8 +49,15 @@ cell_ptr builtin_fn_common_exchange(cell_processor_if &ci, cell_list_t &list,
 
 cell_ptr builtin_fn_common_defer(cell_processor_if &ci, cell_list_t &list,
                                  env_c &env) {
-  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DEFER, ==, 2)
-  ci.defer_execution(list[1]);
+  NIBI_LIST_ENFORCE_SIZE(nibi::kw::DEFER, >=, 2)
+
+  for (auto it = list.begin() + 1; it != list.end(); ++it) {
+    if ((*it)->type != cell_type_e::LIST) {
+      throw interpreter_c::exception_c("Defer command requires all parameters to be of type LIST",
+                                       (*it)->locator);
+    }
+    ci.defer_execution(*it);
+  }
   return allocate_cell(cell_type_e::NIL);
 }
 
