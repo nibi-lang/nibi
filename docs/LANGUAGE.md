@@ -56,6 +56,7 @@ The following table contains the various commands available in this programming 
 | `alias`         | Use a new symbol to refer to the data behind another | `nil` |
 | `exchange` | Update the value of a cell and return the old value of the cell | variable
 | `str-set-at` | Update a string by inserting a value at a given index (negative indexing permitted) | updated string
+| `defer`         | Defer an instruction to be executed at the end of the current context | `nil`
 
 | Type Commands | Description | Returns |
 | ------------- | ----------- | ------- |
