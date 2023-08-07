@@ -804,10 +804,12 @@ Example:
 | Instruction to defer |
 
 At the end of the execution context in which the statement is defined, all
-instructions deferred will be executed in-order.
+instructions deferred will be executed in-order. If an instruction given
+to defer is a data list `[]` then all items within the instruction list
+will be executed.
 
 ```
-( defer < () .. > )
+( defer < () [] .. > )
 ```
 
 ### Macro
