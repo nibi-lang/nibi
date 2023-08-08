@@ -312,8 +312,12 @@ cell_ptr assemble_macro(interpreter_c &ci, cell_list_t &list, env_c &env) {
   }
 
   cell_list_t eval_list;
-  eval_list.emplace_back(macro_env->get("$body_start"));
+  auto bs = macro_env->get("$body_start");
+  eval_list.emplace_back(bs);
   eval_list.emplace_back(allocate_cell(macro_body));
+
+  eval_list.back()->locator = bs->locator;
+
   return builtin_fn_common_eval(ci, eval_list, env);
 }
 
@@ -370,6 +374,7 @@ cell_ptr builtin_fn_common_macro(interpreter_c &ci, cell_list_t &list,
   std::advance(it, 3);
 
   auto body_start = (*it);
+  body_start->locator = (*it)->locator;
 
   std::string macro_string_body;
   while (it != list.end()) {
