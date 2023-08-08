@@ -143,11 +143,11 @@ bool intake_c::process_line(std::string_view data,
                             locator_ptr loc_override) {
 
   for (std::size_t col = 0; col < data.size(); col++) {
-    auto locator =
-        (loc_override)
-            ? origin->get_locator(tracker_.line_count,
-                                  loc_override->get_column() + 1 + col)
-            : origin->get_locator(tracker_.line_count, col);
+    auto locator = (loc_override)
+                       ? origin->get_locator(
+                             tracker_.line_count + loc_override->get_line(),
+                             loc_override->get_column() + 1 + col)
+                       : origin->get_locator(tracker_.line_count, col);
     if (std::isspace(data[col])) {
       continue;
     }
