@@ -13,7 +13,7 @@ namespace builtins {
 
 namespace {
 cell_ptr handle_thrown_error_in_try(std::string message, cell_ptr recover_cell,
-                                    cell_processor_if &ci, env_c &env) {
+                                    interpreter_c &ci, env_c &env) {
   auto e_cell = allocate_cell(message);
   env.set(nibi::kw::TERR, e_cell);
   auto result = ci.process_cell(recover_cell, env, true);
@@ -22,7 +22,7 @@ cell_ptr handle_thrown_error_in_try(std::string message, cell_ptr recover_cell,
 }
 } // namespace
 
-cell_ptr builtin_fn_except_try(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_except_try(interpreter_c &ci, cell_list_t &list,
                                env_c &env) {
 
   /*
@@ -68,7 +68,7 @@ cell_ptr builtin_fn_except_try(cell_processor_if &ci, cell_list_t &list,
   return res;
 }
 
-cell_ptr builtin_fn_except_throw(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_except_throw(interpreter_c &ci, cell_list_t &list,
                                  env_c &env) {
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::THROW, ==, 2)
 

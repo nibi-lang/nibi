@@ -36,7 +36,7 @@ std::unordered_map<nibi::cell_type_e, ffi_type *> cell_type_to_ffi = {
 namespace nibi {
 namespace builtins {
 
-cell_ptr builtin_fn_extern_call(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_extern_call(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::EXTERN_CALL, >=, 5);

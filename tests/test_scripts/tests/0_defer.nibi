@@ -1,17 +1,34 @@
 (use "io")
 
 (fn x [] [
-  (:= x (mem-new 16))
-  (defer (mem-del x))
+  (:= a (mem-new 16))
+  (defer (mem-del a))
   (nop)
   (nop)
   (nop)
   (nop)
   (nop)
   (nop)
-  (assert (eq true (mem-is-set x)))
+  (assert (eq true (mem-is-set a)))
 ])
 
 (x)
+
+(macro do_defer[_var]
+  (defer %_var))
+
+(fn y [] [
+  (:= a (mem-new 16))
+  (nop)
+  (nop)
+  (do_defer (mem-del a))
+  (nop)
+  (nop)
+  (nop)
+  (nop)
+  (assert (eq true (mem-is-set a)))
+])
+
+(y)
 
 (io::println "COMPLETE")

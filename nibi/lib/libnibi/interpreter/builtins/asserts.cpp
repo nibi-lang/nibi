@@ -10,7 +10,7 @@ namespace nibi {
 
 namespace builtins {
 
-cell_ptr builtin_fn_assert_true(cell_processor_if &ci, cell_list_t &list,
+cell_ptr builtin_fn_assert_true(interpreter_c &ci, cell_list_t &list,
                                 env_c &env) {
 
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ASSERT, >=, 2)

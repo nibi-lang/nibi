@@ -1,0 +1,8 @@
+
+
+(macro x [_name]
+  (+ "name: " %_name))
+
+
+(use "io")
+(io::println (x "MOOT"))
