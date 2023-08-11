@@ -65,6 +65,10 @@ For documentation on the language please see `docs/LANGUAGE.md`
 
 ## Installing
 
+### Linux 
+
+(Only tested on Ubuntu and Pop!OS)
+
 `Required Libs`:
 
 ```
@@ -88,6 +92,32 @@ errors are prompted.
 
 Once the intallation is confirmed, check the system to ensure nibi and modules are running correctly with `commander.py -c -t`.
 This will run checks on all installed nibi modules, and then run their respective test suites.
+
+### Apple
+
+(Only tested on Ventura with M2 silicon)
+
+To build and install nibi on apple hardware, the following steps should be taken:
+
+- Install gcc and pkconfig (with brew or ports)
+- Make sure the following or equivalents are set:
+```
+export PKG_CONFIG_PATH="/usr/local/opt/libffi/lib/pkgconfig"
+export CXX="/opt/homebrew/bin/g++-13"
+export CC="/opt/homebrew/bin/gcc-13"
+alias gcc="/opt/homebrew/bin/gcc-13"
+alias g++="/opt/homebrew/bin/g++-13"
+```
+
+( Apple REALLY likes clang so forcing gcc is a bit of a trip )
+
+Note about MacOS:
+
+The network and fileio module will not work correctly and as-such have been stubbed 
+to throw errors when attempting to use them.
+
+Since this variant of nibi is POC only, it is unlikely they will be updated to support apple, though
+doing so wouldn't be too much work
 
 # REPL
 
