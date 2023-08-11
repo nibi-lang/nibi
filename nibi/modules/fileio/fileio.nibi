@@ -1,3 +1,8 @@
+(use "sys")
+
+(if (eq false (eq "linux" (sys::platform)))
+  (throw "fileio module is linux only"))
+
 
 # File I/O
 # \author Josh Bosley (2023)
