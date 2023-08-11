@@ -1,3 +1,7 @@
+(use "sys")
+
+(if (eq false (eq "linux" (sys::platform)))
+  (throw "Network module is linux only"))
 
 (fn inet_addr [_str_addr]
     (extern-call "modules/net/net.lib" "nibi_net_inet_addr" [:str] :i32 _str_addr))

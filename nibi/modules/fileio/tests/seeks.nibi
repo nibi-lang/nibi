@@ -1,4 +1,11 @@
-(use "fileio" "io" "sys")
+
+(use "sys" "io")
+(if (eq false (eq "linux" (sys::platform)))[
+  (io::println "file module is linux only")
+  (exit 0)
+])
+
+(use "fileio")
 
 (assert (sys::known_os) "Unknown Operating system")
 

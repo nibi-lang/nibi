@@ -1,5 +1,12 @@
-(use "net")
+(use "sys")
 (use "io")
+
+(if (eq false (eq "linux" (sys::platform)))[
+  (io::println "network module is linux only")
+  (exit 0)
+])
+
+(use "net")
 
 (:= x (net::htonl 2095))
 

@@ -21,6 +21,19 @@ endif()
 # Target
 add_library(${LIBRARY_NAME} ${LIBRARY_TYPE} ${SOURCES} ${HEADERS})
 
+if (WIN32)
+    message(FATAL "Windows not yet supported")
+elseif (APPLE)
+    include_directories("/opt/local/include")
+    link_directories("/opt/local/lib")
+else ()
+endif ()
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libffi REQUIRED libffi)
+
+target_link_libraries(${LIBRARY_NAME} -lffi)
+
 # Install library
 install(TARGETS ${LIBRARY_NAME}
   EXPORT ${PROJECT_EXPORT}
