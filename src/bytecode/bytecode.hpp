@@ -13,6 +13,8 @@
 
 #include <string>
 
+namespace nibi {
+
 namespace bytecode {
 
 enum class op_e {
@@ -66,3 +68,4 @@ struct instruction_s {
 };
 
 } // namespace
+}

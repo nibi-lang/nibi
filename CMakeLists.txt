@@ -23,6 +23,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/nibi.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/source.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/intake/token.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/intake/input_buffer.cpp
 )
 
 add_executable(${PROJECT_NAME}
