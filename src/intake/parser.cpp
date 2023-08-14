@@ -8,7 +8,6 @@ namespace nibi {
 
 #define INSERT_LOCATOR_INS \
   if (current_location()) { \
-    std::cout << "Adding locator" << std::endl; \
     auto v = locator_table_.add_locator(current_location()); \
   instructions_.emplace_back(\
       bytecode::instruction_s(\
@@ -23,7 +22,6 @@ namespace nibi {
 #define PARSER_SCAN_LIST(sym_close, fn) \
   auto loc = current_location();\
   while(current_token() != sym_close) {\
-    std::cout << "scanning list...." << token_to_string((*tokens_)[index_]) << " >>> " << current_data() <<  std::endl; \
     if (!fn()) {\
       std::string msg = "Invalid list - Expected value (symbol, number, "\
                         "string) or list (instruction, access, data)";\
@@ -75,8 +73,10 @@ void parser_c::tokens_ind(std::vector<token_c> &tokens) {
 
   INSERT_LOCATOR_INS;
 
-  if (!instruction_list()) {
-    fatal_error(error_origin_e::PARSER, tokens[0].get_locator(), "Invalid instruction list - expected '('");
+  while (instruction_list()) {}
+
+  if (instructions_.empty()) {
+    fatal_error(error_origin_e::PARSER, nullptr, "Expected instruction list");
     return;
   }
 

@@ -49,6 +49,9 @@ token_c generate_type_token(token_e token, locator_ptr locator) {
 } // namespace 
 
 void input_buffer_c::end_ind() {
+
+  check_for_eval();
+
   if (!tracker_.all_closed()) {
     fatal_error(
         error_origin_e::LEXER, 

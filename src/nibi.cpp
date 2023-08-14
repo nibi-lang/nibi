@@ -74,14 +74,22 @@ void run_test_string() {
 
   nibi::locator_table_c locator_table(debug);
   nibi::vm_c vm(locator_table);
+
+  vm.start();
+
   nibi::parser_c parser(debug, locator_table, vm);
   nibi::input_buffer_c buffer(parser);
 
-  buffer.submit(so, "(+ 1 3.14159 (+ a b))", 1);
+  buffer.submit(so, "(+ 1 3.14159 ", 1);
+  buffer.submit(so, "(+ a b)) (+ 1 2", 2);
+  buffer.submit(so, ")", 3);
+  buffer.submit(so, "(- 10 2)", 4);
 
   buffer.end_ind();
 
-  std::cout << locator_table.size() << " locators created" << std::endl;
+  std::cout << "nibi.cpp >>> " << locator_table.size() << " locators created" << std::endl;
+
+  vm.stop();
 }
 
 int main(int argc, char** argv) {

@@ -4,6 +4,8 @@
 #include <vector>
 
 #include "source.hpp"
+#include "aligned_block.hpp"
+#include "instruction_data.hpp"
 #include "bytecode/bytecode.hpp"
 #include "interfaces/process_if.hpp"
 
@@ -22,16 +24,27 @@ public:
   //!        to execute
   void bytecode_ind(std::vector<bytecode::instruction_s> &instructions);
 
-
 private:
-  locator_table_c &locator_table_;
+  // Observer for aligned_block class that calls back on OOM
+  class instruction_memory_observer_c : public memory::observer_if {
+  public:
+    instruction_memory_observer_c(vm_c &owner)
+      : owner_(owner){}
+    void alloc_failure_ind(
+        const char* what,
+        size_t total_allocated,
+        size_t attempted_allocation) override;
+  private:
+    vm_c &owner_;
+  };
+  instruction_memory_observer_c ins_mem_observer_;
+
+  instruction_data_s ins_data_;
   std::atomic<bool> running_{false};
 
-  size_t num_ins_{0};
-  bytecode::instruction_s *instructions_{nullptr};
+  size_t instruction_pointer_{0};
 
-  // pc
-  // etc
+  void run();
 };
 
-}
+} // namespace nibi
