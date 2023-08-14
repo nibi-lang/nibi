@@ -4,6 +4,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <vector>
 
 #include "ref.hpp"
 
@@ -23,6 +24,29 @@ public:
 using locator_ptr = nibi::ref_counted_ptr_c<locator_if>;
 
 extern void draw_locator(locator_if &location);
+
+class locator_table_c {
+public:
+  locator_table_c(const bool& debug) {
+    if (debug) {
+      table_.reserve(2048);
+    }
+  }
+
+  int64_t add_locator(locator_ptr loc) {
+    table_.push_back(loc);
+    return table_.size()-1;
+  }
+
+  locator_ptr get_locator(const int64_t idx) {
+    if (table_.size() <= idx) return nullptr;
+    return table_[idx];
+  }
+
+  size_t size() const { return table_.size(); }
+private:
+  std::vector<locator_ptr> table_;
+};
 
 //! \brief A locator implementation.
 class locator_c final : public locator_if {

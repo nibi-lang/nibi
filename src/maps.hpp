@@ -1,0 +1,112 @@
+#pragma once
+
+#include "keywords.hpp"
+#include "object.hpp"
+
+#include <string>
+#include <map>
+
+namespace nibi {
+
+static std::map<std::string, object_type_e> global_trivial_tag_map =
+    {{":u8", object_type_e::U8},
+     {":u16", object_type_e::U16},
+     {":u32", object_type_e::U32},
+     {":u64", object_type_e::U64},
+     {":i8", object_type_e::I8},
+     {":i16", object_type_e::I16},
+     {":i32", object_type_e::I32},
+     {":i64", object_type_e::I64},
+     {":f32", object_type_e::F32},
+     {":f64", object_type_e::F64},
+     {":str", object_type_e::STRING},
+     {":nil", object_type_e::NIL},
+     {":ptr", object_type_e::PTR},
+     {":int", object_type_e::I64},
+     {":float", object_type_e::F64},
+     {":char", object_type_e::CHAR}
+};
+
+static std::map<std::string, uint8_t> global_symbol_id_map {
+{ kw::TERR       ,  kw::id::TERR},
+{ kw::EQ         ,  kw::id::EQ},
+{ kw::NEQ        ,  kw::id::NEQ},
+{ kw::LT         ,  kw::id::LT},
+{ kw::GT         ,  kw::id::GT},
+{ kw::LTE        ,  kw::id::LTE},
+{ kw::GTE        ,  kw::id::GTE},
+{ kw::AND        ,  kw::id::AND},
+{ kw::OR         ,  kw::id::OR},
+{ kw::NOT        ,  kw::id::NOT},
+{ kw::ADD        ,  kw::id::ADD},
+{ kw::SUB        ,  kw::id::SUB},
+{ kw::DIV        ,  kw::id::DIV},
+{ kw::MUL        ,  kw::id::MUL},
+{ kw::MOD        ,  kw::id::MOD},
+{ kw::POW        ,  kw::id::POW},
+{ kw::ASSIGN     ,  kw::id::ASSIGN},
+{ kw::SET        ,  kw::id::SET},
+{ kw::FN         ,  kw::id::FN},
+{ kw::DICT       ,  kw::id::DICT},
+{ kw::DROP       ,  kw::id::DROP},
+{ kw::TRY        ,  kw::id::TRY},
+{ kw::THROW      ,  kw::id::THROW},
+{ kw::ASSERT     ,  kw::id::ASSERT},
+{ kw::PUSH_FRONT ,  kw::id::PUSH_FRONT},
+{ kw::PUSH_BACK  ,  kw::id::PUSH_BACK},
+{ kw::POP_FRONT  ,  kw::id::POP_FRONT},
+{ kw::POP_BACK   ,  kw::id::POP_BACK},
+{ kw::SPAWN      ,  kw::id::SPAWN},
+{ kw::ITER       ,  kw::id::ITER},
+{ kw::AT         ,  kw::id::AT},
+{ kw::LEN        ,  kw::id::LEN},
+{ kw::YIELD      ,  kw::id::YIELD},
+{ kw::LOOP       ,  kw::id::LOOP},
+{ kw::IF         ,  kw::id::IF},
+{ kw::CLONE      ,  kw::id::CLONE},
+{ kw::IMPORT     ,  kw::id::IMPORT},
+{ kw::USE        ,  kw::id::USE},
+{ kw::EXIT       ,  kw::id::EXIT},
+{ kw::EVAL       ,  kw::id::EVAL},
+{ kw::QUOTE      ,  kw::id::QUOTE},
+{ kw::NOP        ,  kw::id::NOP},
+{ kw::BW_LSH     ,  kw::id::BW_LSH},
+{ kw::BW_RSH     ,  kw::id::BW_RSH},
+{ kw::BW_AND     ,  kw::id::BW_AND},
+{ kw::BW_OR      ,  kw::id::BW_OR},
+{ kw::BW_XOR     ,  kw::id::BW_XOR},
+{ kw::BW_NOT     ,  kw::id::BW_NOT},
+{ kw::STR        ,  kw::id::STR},
+{ kw::STR_LIT    ,  kw::id::STR_LIT},
+{ kw::STR_SET_AT ,  kw::id::STR_SET_AT},
+{ kw::INT        ,  kw::id::INT},
+{ kw::I8         ,  kw::id::I8},
+{ kw::I16        ,  kw::id::I16},
+{ kw::I32        ,  kw::id::I32},
+{ kw::I64        ,  kw::id::I64},
+{ kw::U8         ,  kw::id::U8},
+{ kw::U16        ,  kw::id::U16},
+{ kw::U32        ,  kw::id::U32},
+{ kw::U64        ,  kw::id::U64},
+{ kw::FLOAT      ,  kw::id::FLOAT},
+{ kw::SPLIT      ,  kw::id::SPLIT},
+{ kw::F32        ,  kw::id::F32},
+{ kw::F64        ,  kw::id::F64},
+{ kw::CHAR       ,  kw::id::CHAR},
+{ kw::TYPE       ,  kw::id::TYPE},
+{ kw::MACRO      ,  kw::id::MACRO},
+{ kw::EXTERN_CALL,  kw::id::EXTERN_CALL},
+{ kw::MEM_NEW    ,  kw::id::MEM_NEW},
+{ kw::MEM_DEL    ,  kw::id::MEM_DEL},
+{ kw::MEM_CPY    ,  kw::id::MEM_CPY},
+{ kw::MEM_LOAD   ,  kw::id::MEM_LOAD},
+{ kw::MEM_IS_SET ,  kw::id::MEM_IS_SET},
+{ kw::ALIAS      ,  kw::id::ALIAS},
+{ kw::EXCHANGE   ,  kw::id::EXCHANGE},
+{ kw::DEFER      ,  kw::id::DEFER},
+};
+
+
+} // namespace nibi
+
+

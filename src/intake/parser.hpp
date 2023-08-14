@@ -1,7 +1,9 @@
 #pragma once 
 #include "token.hpp"
+#include "source.hpp"
 #include <vector>
 
+#include "vm/vm.hpp"
 #include "bytecode/bytecode.hpp"
 
 namespace nibi {
@@ -9,7 +11,7 @@ namespace nibi {
 class parser_c {
 public:
 
-  parser_c( /* TODO: Make a target to recieve instructions */ );
+  parser_c(const bool debug_enabled, locator_table_c &loc_table, vm_c &vm);
 
   void tokens_ind(std::vector<token_c> &tokens);
 
@@ -31,6 +33,8 @@ private:
     std::string current_data() { return (*tokens_)[index_].get_data(); }
   
   bool debug_{false};
+  locator_table_c &locator_table_;
+  vm_c &vm_;
   std::size_t index_{0};
   std::vector<token_c> *tokens_{nullptr};
   std::vector<bytecode::instruction_s> instructions_;
@@ -50,6 +54,7 @@ private:
   inline bool real();
   inline bool string();
   inline bool cchar();
+  inline bool nil();
 };
 
 }// namespace nibi

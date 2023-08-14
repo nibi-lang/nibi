@@ -18,7 +18,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 
-if (NOT CMAKE_BUILD_TYPE MATCHES Debug)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
   add_definitions(-DDEBUG_BUILD)
 endif()
 
@@ -32,6 +32,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/intake/token.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/intake/input_buffer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/intake/parser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/vm/vm.cpp
 )
 
 add_executable(${PROJECT_NAME}

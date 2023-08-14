@@ -5,6 +5,7 @@
 #include "keywords.hpp"
 #include "bytecode/bytecode.hpp"
 #include "rang.hpp"
+#include "vm/vm.hpp"
 
 #include "intake/input_buffer.hpp"
 #include "intake/parser.hpp"
@@ -28,7 +29,6 @@ namespace nibi {
   }
 
   void fatal_error(const error_origin_e eo, locator_ptr loc, const std::string& msg) {
-    global_runtime_flags.operational.store(false);
     std::cout << rang::fg::red << "\n[ RUNTIME HALT ]\n"
               << rang::fg::reset << std::endl;
     std::cerr << "Fatal error arose from: " << error_origin_to_string(eo) << std::endl;
@@ -45,9 +45,7 @@ void shutdown_nibi() {
   std::cout << rang::fg::yellow << "Shutting down nibi" << rang::fg::reset << std::endl;
 #endif
 
-  if (global_runtime_flags.operational.load(std::memory_order_relaxed)) {
-    global_runtime_flags.operational.store(false);
-  }
+  // TODO: stop all proc_ifs
 
   // TODO: The rest of shutdown
 #ifdef DEBUG_BUILD
@@ -67,21 +65,34 @@ void run_test_string() {
   nibi::source_manager_c sm;
   auto so = sm.get_source("test_string");
 
-  nibi::parser_c parser;
+#ifdef DEBUG_BUILD
+  std::cout << "Forcing debug to be true" << std::endl;
+  bool debug = true;
+#else
+  bool debug = false;
+#endif
+
+  nibi::locator_table_c locator_table(debug);
+  nibi::vm_c vm(locator_table);
+  nibi::parser_c parser(debug, locator_table, vm);
   nibi::input_buffer_c buffer(parser);
 
   buffer.submit(so, "(+ 1 3.14159 (+ a b))", 1);
 
   buffer.end_ind();
+
+  std::cout << locator_table.size() << " locators created" << std::endl;
 }
 
 int main(int argc, char** argv) {
-#ifndef DEBUG_BUILD
+#ifdef DEBUG_BUILD
   std::cout << rang::fg::cyan << "<DEBUG BUILD>" << rang::fg::reset << std::endl;
   show_version();
 #endif
 
   run_test_string();
+
+  nibi::shutdown_nibi();
 
   return 0;
 }
