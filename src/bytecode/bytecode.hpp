@@ -31,11 +31,16 @@ enum class op_e {
   LOCATOR           // Source locator
 };
 
+struct locator_wrapper_s {
+  locator_ptr loc;
+};
+
 union data_u {
   char* s;
   int64_t i;
   double d;
   char c;
+  locator_wrapper_s *loc_ref;
 };
 
 struct instruction_s {
@@ -43,8 +48,8 @@ struct instruction_s {
   op_e op{op_e::NOP};
   data_u data;
 
-  instruction_s(op_e op) : op(op) { this->data.i = 0; }
   instruction_s() : op(op_e::NOP) { this->data.i = 0; }
+  instruction_s(op_e op) : op(op) { this->data.i = 0; }
   instruction_s(int64_t i) : op(op_e::INTEGER) { this->data.i = i; }
   instruction_s(double d) : op(op_e::REAL) { this->data.d = d; }
   instruction_s(char c) : op(op_e::CHAR) { this->data.c = c; }
@@ -53,6 +58,10 @@ struct instruction_s {
     strncpy(this->data.s, s.data(), s.size());
     this->data.s[s.size()] = '\0';
   }
+  instruction_s(locator_wrapper_s *loc)
+    : op(op_e::LOCATOR) {
+      this->data.loc_ref = loc;
+    }
 
   bool contains_string() const {
     return ((this->op == op_e::BUILTIN_SYMBOL ||
@@ -60,9 +69,18 @@ struct instruction_s {
             this->op == op_e::TAG) && this->data.c);
   }
 
+  bool has_locator() const {
+    return ((this->op == op_e::LOCATOR) &&
+             this->data.loc_ref &&
+             this->data.loc_ref->loc);
+  }
+
   ~instruction_s() {
     if (contains_string()) {
       delete [] this->data.s;
+    }
+    if (has_locator()) {
+      delete this->data.loc_ref;
     }
   }
 };

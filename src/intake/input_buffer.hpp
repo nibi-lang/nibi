@@ -28,7 +28,18 @@ private:
   parser_c &parser_;
   size_t line_{0};
   size_t col_{0};
-  uint64_t tracker_{0};
+  struct tracker_s {
+    uint64_t data{0};
+    uint64_t access{0};
+    uint64_t ins{0};
+
+    bool all_closed() const { 
+      return (
+          (data == 0) &&
+          (access == 0) &&
+          (ins == 0));
+    }
+  } tracker_;
   std::vector<token_c> tokens_;
 
   void check_for_eval();
