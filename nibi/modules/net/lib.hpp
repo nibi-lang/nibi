@@ -11,6 +11,9 @@
 extern "C" {
 
 API_EXPORT
+extern int64_t nibi_net_get_const(char *name);
+
+API_EXPORT
 extern int32_t nibi_net_inet_addr(char *address);
 
 API_EXPORT

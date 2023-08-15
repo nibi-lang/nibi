@@ -1,6 +1,7 @@
 #include "lib.hpp"
 
 #include <iostream>
+#include <map>
 #include <string>
 
 #include <arpa/inet.h>
@@ -48,4 +49,29 @@ int64_t nibi_net_accept(int64_t fd, void *saddr) {
 
 int64_t nibi_net_read(int64_t fd, char *buffer, int64_t buffer_len) {
   return read(fd, buffer, buffer_len);
+}
+
+namespace {
+std::map<std::string, int64_t> constants = {
+    {"AF_UNIX", AF_UNIX},           {"AF_INET", AF_INET},
+    {"SOCK_STREAM", SOCK_STREAM},   {"SOCK_DGRAM", SOCK_DGRAM},
+    {"IPPROTO_ST", IPPROTO_ST},     {"SO_DEBUG", SO_DEBUG},
+    {"SO_BROADCAST", SO_BROADCAST}, {"SO_REUSEADDR", SO_REUSEADDR},
+    {"SO_KEEPALIVE", SO_KEEPALIVE}, {"SO_LINGER", SO_LINGER},
+    {"SO_REUSEPORT", SO_REUSEPORT}, {"SO_OOBINLINE", SO_OOBINLINE},
+    {"SO_SNDBUF", SO_SNDBUF},       {"SO_RCVBUF", SO_RCVBUF},
+    {"SO_DONTROUTE", SO_DONTROUTE}, {"SO_RCVLOWAT", SO_RCVLOWAT},
+    {"SO_RCVTIMEO", SO_RCVTIMEO},   {"SO_SNDLOWAT", SO_SNDLOWAT},
+    {"SO_SNDTIMEO", SO_SNDTIMEO},   {"SOL_SOCKET", SOL_SOCKET},
+    {"INADDR_ANY", INADDR_ANY},     {"SHUT_RD", SHUT_RD},
+    {"SHUT_WR", SHUT_WR},           {"SHUT_RDWR", SHUT_RDWR}};
+}
+
+int64_t nibi_net_get_const(char *name) {
+  std::string c = name;
+  auto x = constants.find(name);
+  if (x == constants.end()) {
+    return nibi::allocate_cell(nibi::cell_type_e::NIL);
+  }
+  return constants[name];
 }
