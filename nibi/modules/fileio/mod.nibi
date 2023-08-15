@@ -5,8 +5,20 @@
   "MIT"
 ])
 
-(:= sources [
-  "fileio.nibi"
+(:= dylib [
+  "nibi_fopen"
+  "nibi_fclose"
+  "nibi_fputs"
+  "nibi_fprintf"
+  "nibi_fwrite"
+  "nibi_fgets"
+  "nibi_fgetc"
+  "nibi_feof"
+  "nibi_ftell"
+  "nibi_rewind"
+  "nibi_clearerr"
+  "nibi_ferror"
+  "nibi_fseek"
 ])
 
 (:= post [
