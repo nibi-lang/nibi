@@ -36,6 +36,10 @@ enum class op_e : uint8_t {
   LIST_ACCESS_IND,  // {  - int length
   LIST_END,
   LOCATOR,          // Source locator
+  
+  // Runtime-only 
+
+
 };
 
 union data_u {

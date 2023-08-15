@@ -93,6 +93,8 @@ bool parser_c::instruction_list(){
 
   next();
 
+  auto list_start_idx = instructions_.size();
+
   instructions_.emplace_back(
       bytecode::op_e::LIST_INS_IND);
 
@@ -113,6 +115,10 @@ bool parser_c::instruction_list(){
 
   instructions_.emplace_back(
       bytecode::op_e::LIST_END);
+
+  // Add the inclusive number of instructions to the list start
+  // that constitutes the entire list
+  instructions_[list_start_idx].data.i = instructions_.size() - list_start_idx;
 
   next();
 

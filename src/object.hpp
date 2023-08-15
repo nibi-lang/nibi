@@ -72,7 +72,7 @@ public:
 
 using base_object_ptr = base_object_c*;
 
-class trivial_object_c final : base_object_c {
+class trivial_object_c final : public base_object_c {
 public:
   union {
     char* s;

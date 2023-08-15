@@ -80,10 +80,11 @@ void run_test_string() {
   nibi::parser_c parser(debug, locator_table, vm);
   nibi::input_buffer_c buffer(parser);
 
-  buffer.submit(so, "(+ 1 3.14159 ", 1);
-  buffer.submit(so, "(+ a b)) (+ 1 2", 2);
-  buffer.submit(so, ")", 3);
-  buffer.submit(so, "(- 10 2)", 4);
+  //buffer.submit(so, "(+ 1 3.14159 ", 1);
+  //buffer.submit(so, "(+ a b)) (+ 1 2", 2);
+  //buffer.submit(so, ")", 3);
+  //buffer.submit(so, "(- 10 2)", 4);
+  buffer.submit(so, "(+ 1 2 3)", 1);
 
   buffer.end_ind();
 
