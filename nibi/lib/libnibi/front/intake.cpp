@@ -4,8 +4,8 @@
 #include <cassert>
 #include <iostream>
 #include <limits>
-#include <regex>
 #include <map>
+#include <regex>
 
 namespace nibi {
 
