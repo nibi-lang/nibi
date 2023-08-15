@@ -1,8 +1,8 @@
 (use "io" "net")
 
-(:= port (net::htons 4096))
+(:= port (net::htons 8080))
 
-(:= socket_fd (net::socket net::AF_INET net::SOCK_STREAM net::PROTO_STD))
+(:= socket_fd (net::socket net::AF_INET net::SOCK_STREAM 0))
 
 (if (eq -1 socket_fd) [
   (io::println "Failed to acquire socket fd. errno= " (net::errno) )

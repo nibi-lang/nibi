@@ -1,8 +1,8 @@
 (use "sys")
 (use "io")
 
-(if (eq false (eq "linux" (sys::platform)))[
-  (io::println "network module is linux only")
+(if (eq "linux" (sys::platform))[
+  (io::println "network module is not windows compatible")
   (exit 0)
 ])
 
@@ -16,15 +16,14 @@
 (assert (eq 37151 (net::ntohs 8081)))
 (assert (eq 37151 (net::htons 8081)))
 
-(:= sock (net::socket net::AF_INET net::SOCK_STREAM net::PROTO_STD))
+(:= sock (net::socket net::AF_INET net::SOCK_STREAM 0)) # net::PROTO_STD))
 
 (assert (neq -1 sock))
 
 (io::println "Socket fd: " sock)
 
-(:= socket_options (bw-or net::SO_REUSEADDR net::SO_REUSEPORT))
-
-(assert (neq -1 (net::setsockopt sock net::SOL_SOCKET socket_options 1)))
+(assert (neq -1 (net::setsockopt sock net::SOL_SOCKET net::SO_REUSEPORT 1)))
+(assert (neq -1 (net::setsockopt sock net::SOL_SOCKET net::SO_REUSEADDR 1)))
 
 (:= port (net::htons 8092))
 

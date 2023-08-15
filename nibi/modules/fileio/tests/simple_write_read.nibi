@@ -8,26 +8,28 @@
   (set file "/tmp/nibi.txt")
   (set file "nibi.windows.fileio.text.tmp"))
 
-(:= fptr ({fileio fopen} file "w"))
+(:= fptr ({fileio nibi_fopen} file "w"))
 
 (:= s "some test")
 
-(:= written ({fileio fprintf} fptr "%s" s))
+(:= written ({fileio nibi_fprintf} fptr "%s" s))
 
 (assert (eq (len s) written) "Unable to write suspected amount of text")
 
-(assert (eq 0 ({fileio fclose} fptr)))
+(assert (eq 0 ({fileio nibi_fclose} fptr)))
 
-(:= fptr ({fileio fopen} file "r"))
+(:= fptr ({fileio nibi_fopen} file "r"))
 
-(:= read_in ({fileio fgets} fptr written))
+(:= read_in ({fileio nibi_fgets} fptr written))
 
-(assert (eq 0 ({fileio fclose} fptr)))
+(assert (eq 0 ({fileio nibi_fclose} fptr)))
 
 # closed files set to 0
 (assert (eq 0 fptr))
 
 # error on closing bad fptr
-(assert (eq -1 ({fileio fclose} fptr)))
+(assert (eq -1 ({fileio nibi_fclose} fptr)))
 
 (assert (eq s read_in) "Data read in was not the same as the data written")
+
+(io::println "Complete")

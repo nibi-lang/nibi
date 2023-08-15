@@ -1,7 +1,10 @@
 (use "sys")
 
-(if (eq false (eq "linux" (sys::platform)))
-  (throw "Network module is linux only"))
+(if (eq "windows" (sys::platform))
+  (throw "Network module is not windows compatible"))
+
+(fn net_const [_const]
+  (extern-call "modules/net/net.lib" "nibi_net_get_const" [:str] :i64 _const))
 
 (fn inet_addr [_str_addr]
     (extern-call "modules/net/net.lib" "nibi_net_inet_addr" [:str] :i32 _str_addr))

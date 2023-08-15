@@ -1,15 +1,15 @@
 (use "io" "net")
 
-(:= port (net::htons 4096))
+(:= port (net::htons 8080))
 
-(:= socket_fd (net::socket net::AF_INET net::SOCK_STREAM net::PROTO_STD))
+(:= socket_fd (net::socket net::AF_INET net::SOCK_STREAM 0))
 
 (if (eq -1 socket_fd) [
   (io::println "Failed to acquire socket fd. errno= " (net::errno) )
   (exit 1)])
 
-(:= socket_options (bw-or net::SO_REUSEADDR net::SO_REUSEPORT))
-(assert (neq -1 (net::setsockopt socket_fd net::SOL_SOCKET socket_options 1)) "Failed to set socket options")
+(assert (neq -1 (net::setsockopt socket_fd net::SOL_SOCKET net::SO_REUSEADDR 1)) "Failed to set socket options")
+(assert (neq -1 (net::setsockopt socket_fd net::SOL_SOCKET net::SO_REUSEPORT 1)) "Failed to set socket options")
 
 (:= sockaddr_in (net::sockaddr_in net::AF_INET port net::INADDR_ANY))
 (assert (eq true (mem-is-set sockaddr_in)) "Unable to allocate sockaddr_in")
