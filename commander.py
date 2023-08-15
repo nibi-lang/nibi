@@ -20,6 +20,7 @@ parser.add_argument("-p", "--perf", action="store_true", help="Runs performance 
 parser.add_argument("-c", "--check_modules", action="store_true", help="Details all modules installed, and runs their tests")
 parser.add_argument("-a", "--all_the_things", action="store_true", help="Installs Nibi, modules, runs tests, and runs performance tests")
 parser.add_argument("-s", "--scrub", action="store_true", help="Scrub the system of all Nibi and modules and build files")
+parser.add_argument('--smod', help="Install a specfic module")
 args = parser.parse_args()
 
 if not any(vars(args).values()):
@@ -176,6 +177,17 @@ def build_and_install_modules():
     print("\n")
   os.chdir(cwd)
 
+def build_and_install_specific_module(module_name):
+  os.chdir("./nibi/modules")
+  if not os.path.isdir(module_name):
+    print("Given item '", module_name, "' is not a builtin module. Modules are:")
+    for x in os.listdir("."):
+      print("\t", x)
+    os.chdir(cwd)
+    exit(1)
+  install_module(module_name)
+  os.chdir(cwd)
+
 def setup_tests():
   # One of the tests requires a module to be built, but not installed
   os.chdir("./tests/test_scripts/tests/module")
@@ -248,6 +260,9 @@ if args.scrub:
 
 if args.install_nibi or args.all_the_things:
   build_and_install_nibi()
+
+if args.smod is not None:
+  build_and_install_specific_module(args.smod)
 
 if args.install_modules or args.all_the_things:
   if not os.path.exists("./nibi/modules"):
