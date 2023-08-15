@@ -6,8 +6,13 @@
   "MIT"
 ])
 
-(:= sources [
-  "io.nibi"
+(:= dylib [
+  "nibi_get_str"
+  "nibi_get_int"
+  "nibi_get_double"
+  "nibi_print"
+  "nibi_println"
+  "nibi_flush"
 ])
 
 (:= post [
