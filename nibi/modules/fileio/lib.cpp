@@ -138,7 +138,9 @@ nibi::cell_ptr nibi_fgets(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 
   // Freeing of string will be done by the cell
   result_cell->data.cstr = new char[arg2->data.i64 + 1];
-  fgets(result_cell->data.cstr, arg2->data.i64 + 1, (FILE *)arg1->data.ptr);
+  auto x =
+      fgets(result_cell->data.cstr, arg2->data.i64 + 1, (FILE *)arg1->data.ptr);
+  UNUSED(x);
   return result_cell;
 }
 
@@ -159,7 +161,8 @@ nibi::cell_ptr nibi_fgetc(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 
   // Freeing of string will be done by the cell
   result_cell->data.cstr = new char[2];
-  fgets(result_cell->data.cstr, 2, (FILE *)arg1->data.ptr);
+  auto x = fgets(result_cell->data.cstr, 2, (FILE *)arg1->data.ptr);
+  UNUSED(x);
   return result_cell;
 }
 

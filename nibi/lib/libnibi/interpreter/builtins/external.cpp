@@ -142,11 +142,11 @@ cell_ptr builtin_fn_extern_call(interpreter_c &ci, cell_list_t &list,
 
     if (!lib_handle) {
       /*
-          TODO: For the sake of opt this we _should_ create a cache that 
-                stores found libraries so we don't have to scour the 
+          TODO: For the sake of opt this we _should_ create a cache that
+                stores found libraries so we don't have to scour the
                 filesystem for the location of the lob
 
-                This should be made local to this file, or in the 
+                This should be made local to this file, or in the
                 interpreter. Caching within the global_platform
                 is a bad idea as we may accidentally make it
                 impossible to find libs of the same name in

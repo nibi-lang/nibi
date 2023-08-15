@@ -2,7 +2,6 @@
 (:= net::AF_INET      ({net net_const} "AF_INET"))
 (:= net::SOCK_STREAM  ({net net_const} "SOCK_STREAM"))
 (:= net::SOCK_DGRAM   ({net net_const} "SOCK_DGRAM"))
-(:= net::IPPROTO_ST   ({net net_const} "IPPROTO_ST"))
 (:= net::SO_DEBUG     ({net net_const} "SO_DEBUG"))
 (:= net::SO_BROADCAST ({net net_const} "SO_BROADCAST"))
 (:= net::SO_REUSEADDR ({net net_const} "SO_REUSEADDR"))
@@ -22,6 +21,8 @@
 (:= net::SHUT_RD      ({net net_const} "SHUT_RD"))
 (:= net::SHUT_WR      ({net net_const} "SHUT_WR"))
 (:= net::SHUT_RDWR    ({net net_const} "SHUT_RDWR"))
+(:= net::IPPROTO_TCP   ({net net_const} "IPPROTO_TCP"))
+(:= net::IPPROTO_UDP   ({net net_const} "IPPROTO_UDP"))
 
 (alias {net inet_addr} net::addr)
 (alias {net errno} net::errno)

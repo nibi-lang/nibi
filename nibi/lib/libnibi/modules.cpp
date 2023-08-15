@@ -282,7 +282,7 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
 
     auto target_cell = allocate_cell(function_info_s(
         sym,
-        reinterpret_cast<cell_ptr (*)(interpreter_c &ci, cell_list_t &,
+        reinterpret_cast<cell_ptr (*)(interpreter_c & ci, cell_list_t &,
                                       env_c &)>(target_lib->get_symbol(sym)),
         function_type_e::EXTERNAL_FUNCTION, &module_env));
 

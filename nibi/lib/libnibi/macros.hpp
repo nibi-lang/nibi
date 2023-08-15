@@ -6,6 +6,11 @@
 
 namespace nibi {
 
+#define UNUSED(expr)                                                           \
+  do {                                                                         \
+    (void)(expr);                                                              \
+  } while (0)
+
 #define NIBI_VALIDATE_VAR_NAME(___name, ___loc)                                \
   if (___name[0] == '$' || ___name[0] == ':') {                                \
     throw interpreter_c::exception_c(                                          \
