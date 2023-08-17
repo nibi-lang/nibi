@@ -2,6 +2,7 @@
 
 #include "libnibi/platform.hpp"
 #include "libnibi/rang.hpp"
+#include <thread>
 
 #if PROFILE_INTERPRETER
 #include <chrono>
@@ -24,7 +25,7 @@ namespace nibi {
 interpreter_c::interpreter_c(env_c &env, source_manager_c &source_manager)
     : interpreter_env(env), source_manager_(source_manager),
       modules_(source_manager, *this) {
-  last_result_ = allocate_cell(cell_type_e::NIL);
+  stored_cells_.last_result = allocate_cell(cell_type_e::NIL);
   push_ctx();
 }
 
@@ -47,9 +48,27 @@ interpreter_c::~interpreter_c() {
 #endif
 }
 
+bool interpreter_c::terminate(const uint8_t wait_time_sec) {
+
+  // Attempt to terminate the interpreter and wait up to
+  // a given amount of time before giving up and returning
+  // the result
+  uint8_t seconds{0};
+  flags_.terminate = true;
+  while(flags_.handling_instruction && seconds < wait_time_sec) {
+    std::this_thread::sleep_for(std::chrono::milliseconds (1000));
+    seconds++;
+  }
+  flags_.terminate = false;
+
+  return !flags_.handling_instruction;
+}
+
 void interpreter_c::instruction_ind(cell_ptr &cell) {
+  flags_.handling_instruction = true;
   EXECUTE_AND_CATCH(
-      { last_result_ = handle_list_cell(cell, interpreter_env, false); });
+      { stored_cells_.last_result = handle_list_cell(cell, interpreter_env, false); });
+  flags_.handling_instruction = false;
 }
 
 void interpreter_c::pop_ctx(env_c &env) {
@@ -62,7 +81,7 @@ void interpreter_c::pop_ctx(env_c &env) {
       continue;
     }
 
-    EXECUTE_AND_CATCH({ last_result_ = process_cell(cell, env, true); });
+    EXECUTE_AND_CATCH({ stored_cells_.last_result = process_cell(cell, env, true); });
   }
   ctxs_.pop();
 }
@@ -70,7 +89,7 @@ void interpreter_c::pop_ctx(env_c &env) {
 void interpreter_c::halt_with_error(error_c error) {
 
   // We don't want to halt in repl mode. Just draw the error and keep truckin
-  if (repl_mode_) {
+  if (flags_.repl_mode) {
     error.draw();
     return;
   }
@@ -102,14 +121,20 @@ void interpreter_c::halt_with_error(error_c error) {
     call_stack_.pop();
   }
 
+  // If the interpreter is externally terminated we
+  // don't want to shut everything down
+  if (flags_.terminate) {
+    return;
+  }
+
   std::exit(1);
 }
 
 cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
                                      const bool process_data_list) {
 
-  if (yield_value_) {
-    return yield_value_;
+  if (stored_cells_.yield_value) {
+    return stored_cells_.yield_value;
   }
 
   if (!cell) {
@@ -174,7 +199,7 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
       for (auto &list_cell : list) {
         last_result = process_cell(list_cell, env);
         if (this->is_yielding()) {
-          return yield_value_;
+          return stored_cells_.yield_value;
         }
       }
       return std::move(last_result);

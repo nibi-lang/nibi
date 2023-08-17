@@ -1,8 +1,9 @@
-#include "api.h"
+#include "api.hpp"
 
 #include <mutex>
 
 namespace nibi {
+namespace api {
 
 namespace {
 constexpr std::size_t API_VERSION = 0;
@@ -16,5 +17,6 @@ std::size_t get_api_version() { return API_VERSION; }
 uint64_t get_aberrant_id() {
   std::lock_guard<std::mutex> lock(aberrant_id_mutex);
   return ++aberrant_id;
+}
 }
 } // namespace nibi
