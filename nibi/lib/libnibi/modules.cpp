@@ -323,13 +323,13 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
                                       env_c &)>(target_lib->get_symbol(sym)),
         function_type_e::EXTERNAL_FUNCTION, &module_env));
 
-    if (sym == "nibi_module_create") {
+    if (sym == nibi::config::NIBI_MODULE_CREATE_FN) {
       sym += generate_random_id();
       module_create_cell = create_instruction_cell(target_cell); 
 
       auto name_cell = allocate_cell(symbol_s(module_store_name));
       module_create_cell->as_list_info().list.push_back(name_cell);
-    } else if (sym == "nibi_module_destroy") {
+    } else if (sym == nibi::config::NIBI_MODULE_DESTROY_FN) {
       sym += generate_random_id();
       module_destroy_cell = create_instruction_cell(target_cell);
     }

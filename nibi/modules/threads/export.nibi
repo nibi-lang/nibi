@@ -1,7 +1,5 @@
 (alias {threads nibi_threads_future} threads::future)
 (alias {threads nibi_threads_future_get} threads::future::get)
-
-# Wait microseconds
 (alias {threads nibi_threads_future_wait_for} threads::future::wait)
 (alias {threads nibi_threads_future_is_ready} threads::future::ready)
 (alias {threads nibi_threads_future_runtime} threads::future::runtime)
