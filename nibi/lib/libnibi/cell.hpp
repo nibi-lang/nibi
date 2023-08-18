@@ -12,6 +12,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <iostream>
 #include <unordered_map>
 
 #define CELL_LIST_USE_STD_VECTOR 1
@@ -224,7 +225,12 @@ public:
   //! \param tag The tag to set
   aberrant_cell_if(std::size_t tag) : tag_(tag) {}
 
-  virtual ~aberrant_cell_if() = default;
+  virtual ~aberrant_cell_if() {
+
+    std::cout << "Delete aberrant : " << tag_ << std::endl;
+
+  };
+
   //! \brief Convert the cell to a string
   //! \note If an exception occurs, throw a cell_access_exception_c
   //!       with the message
@@ -410,6 +416,14 @@ public:
       delete this->data.list;
     }
 
+    if (this->type == cell_type_e::ABERRANT && this->data.aberrant) {
+      delete this->data.aberrant;
+    }
+
+    if (this->type == cell_type_e::DICT && this->data.dict) {
+      delete this->data.dict;
+    }
+
     // Set this cell's new type
 
     this->type = other.type;
@@ -431,6 +445,16 @@ public:
 
     if (other.type == cell_type_e::LIST && other.data.list) {
       this->data.list = new list_info_s(*(other.clone(env)->data.list));
+      return;
+    }
+
+    if (other.type == cell_type_e::DICT && other.data.dict) {
+      this->data.dict = new dict_info_s(*(other.clone(env)->data.dict));
+      return;
+    }
+    
+    if (other.type == cell_type_e::ABERRANT && other.data.aberrant) {
+      this->data.aberrant = other.data.aberrant->clone();
       return;
     }
 

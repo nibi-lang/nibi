@@ -53,14 +53,19 @@ public:
         start_time_ = std::chrono::high_resolution_clock::now();
       }
 
+  virtual ~thread_cell_c() override {
+    std::cout << "Deleting thread cell" << std::endl;
+    std::exit(5);
+  }
+
   // We don't wan't to actually clone this, as we can't
   // quite do that with a future. Instead, we pass the "this"
   // pointer so all cells will point to the same future.
   // The means it can squeeze through thread boundary
   // so we mutex all access to the data
-  aberrant_cell_if *clone() { return this; }
+  aberrant_cell_if *clone() override { return this; }
 
-  std::string represent_as_string() {
+  std::string represent_as_string() override {
     std::string result = "<THREADS::THREAD_CELL:";
     if (complete) {
       result += "COMPLETED:";
@@ -75,7 +80,14 @@ public:
     if (!complete) {
       return nibi::allocate_cell(nibi::cell_type_e::NIL);
     }
-    return data_.get();
+
+    // Calling get more than once on a a future is UB
+    // so we just make sure users can't do that
+    if (!result_) {
+      result_ = data_.get();
+    }
+
+    return result_;
   }
 
   std::future_status wait_for(size_t ms) {
@@ -124,6 +136,7 @@ public:
 
 private:
   bool complete{false};
+  nibi::cell_ptr result_{nullptr};
   std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
   std::chrono::time_point<std::chrono::high_resolution_clock> end_time_;
 };

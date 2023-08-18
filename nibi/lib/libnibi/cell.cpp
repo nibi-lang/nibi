@@ -71,9 +71,14 @@ cell_c::~cell_c() {
   // Different types of cells may need to be manually cleaned up
   switch (this->type) {
   case cell_type_e::ABERRANT: {
-    auto *aberrant = this->as_aberrant();
-    if (aberrant != nullptr) {
-      delete aberrant;
+
+    if (this->data.aberrant != nullptr) {
+
+      std::cout << this->data.aberrant->get_tag() << std::endl;
+      std::cout << this->data.aberrant->represent_as_string() << std::endl;
+
+      delete this->data.aberrant;
+      this->data.aberrant = nullptr;
     }
     break;
   }
@@ -244,7 +249,8 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::ABERRANT: {
-    new_cell->data.aberrant = this->as_aberrant();
+    std::cout << "Cloning aberrant : " << this->data.aberrant->represent_as_string() << std::endl;
+    new_cell->data.aberrant = this->as_aberrant()->clone();
     break;
   }
   }
