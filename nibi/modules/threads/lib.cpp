@@ -9,6 +9,7 @@
 #include <future>
 #include <chrono>
 #include <mutex>
+#include <vector>
 #include "cpp-net-lib/netlib.hpp"
 
 namespace {
@@ -17,6 +18,7 @@ constexpr uint8_t STATUS_READY = 1;
 constexpr uint8_t STATUS_TIMEOUT = 2;
 constexpr uint8_t STATUS_UNKNOWN = 3;
 constexpr uint8_t THREAD_KILL_WAIT_TIME_SEC = 10;
+
 
 struct task_s {
   nibi::env_c env;
@@ -27,54 +29,12 @@ struct task_s {
   task_s() : interpreter(env, sm) {}
 };
 
-struct controller_s {
-  size_t aberrant_tag{0};
-  std::mutex launch_mutex;
-  netlib::thread_pool thread_pool;
-  std::mutex mut;
-};
 
-std::shared_ptr<controller_s> controller_{nullptr};
-
-std::shared_ptr<controller_s> get_controller() {
-  if (!controller_) {
-    controller_ = std::make_shared<controller_s>();
-    controller_->aberrant_tag = nibi::api::get_aberrant_id();
-  }
-  return controller_;
-}
-
-// --- cell ---
-
-class thread_cell_c final : public nibi::aberrant_cell_if {
+class thread_data_c{
 public:
-  thread_cell_c()
-    : aberrant_cell_if(get_controller()->aberrant_tag) {
+  thread_data_c() {
         start_time_ = std::chrono::high_resolution_clock::now();
       }
-
-  virtual ~thread_cell_c() override {
-    std::cout << "Deleting thread cell" << std::endl;
-    std::exit(5);
-  }
-
-  // We don't wan't to actually clone this, as we can't
-  // quite do that with a future. Instead, we pass the "this"
-  // pointer so all cells will point to the same future.
-  // The means it can squeeze through thread boundary
-  // so we mutex all access to the data
-  aberrant_cell_if *clone() override { return this; }
-
-  std::string represent_as_string() override {
-    std::string result = "<THREADS::THREAD_CELL:";
-    if (complete) {
-      result += "COMPLETED:";
-    }
-
-    result += std::to_string(runtime());
-    result += "ms>";
-    return result;
-  }
 
   nibi::cell_ptr get() {
     if (!complete) {
@@ -130,6 +90,8 @@ public:
     complete = true;
   }
 
+  bool is_complete() const { return complete; }
+
   task_s task_;
   std::mutex mut_;
   std::future<nibi::cell_ptr> data_;
@@ -141,12 +103,28 @@ private:
   std::chrono::time_point<std::chrono::high_resolution_clock> end_time_;
 };
 
+
+// ------------- 
+struct controller_s {
+  uint64_t id_base{0};
+  std::mutex launch_mutex;
+  netlib::thread_pool thread_pool;
+  std::mutex mut;
+  std::unordered_map<uint64_t, thread_data_c*> thread_map;
+};
+
+std::shared_ptr<controller_s> controller_{nullptr};
+
+std::shared_ptr<controller_s> get_controller() {
+  if (!controller_) {
+    controller_ = std::make_shared<controller_s>();
+  }
+  return controller_;
+}
+
 // ------------
 
-nibi::cell_ptr run_task(nibi::cell_ptr tcell) {
-
-  auto tcell_actual = reinterpret_cast<thread_cell_c*>(
-      tcell->data.aberrant);
+nibi::cell_ptr run_task(thread_data_c *tcell_actual) {
 
   tcell_actual->task_.interpreter.instruction_ind(
       tcell_actual->task_.job);
@@ -156,23 +134,46 @@ nibi::cell_ptr run_task(nibi::cell_ptr tcell) {
   return tcell_actual->task_.interpreter.get_last_result();
 }
 
-nibi::cell_ptr launch_task(nibi::cell_ptr cell) {
+uint64_t launch_task(nibi::cell_ptr cell) {
 
   auto controller = get_controller();
   std::lock_guard<std::mutex> lock(controller->mut);
 
-  auto tcell = nibi::allocate_cell(nibi::cell_type_e::ABERRANT);
-  auto tcell_actual = new thread_cell_c();
+  auto tcell_actual = new thread_data_c();
   tcell_actual->task_.job = cell;
-  
-  tcell->data.aberrant = tcell_actual;
+  tcell_actual->data_ = controller->thread_pool.add_task(run_task, tcell_actual);
 
-  tcell_actual->data_ = controller->thread_pool.add_task(run_task, tcell);
-
-  return tcell;
+  uint64_t id = controller->id_base++;
+  controller->thread_map[id] = tcell_actual;
+  return id;
 }
 
 } // namespace
+
+nibi::cell_ptr nibi_module_create(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                          nibi::env_c &env) {
+  //std::cout << "THREADS MODULE ONLINE: Stored as : " << list[1]->to_string() << std::endl;
+  return nullptr;
+}
+
+nibi::cell_ptr nibi_module_destroy(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                          nibi::env_c &env) {
+  //  std::cout << "THREADS MODULE TERMINATING" << std::endl;
+  auto controller = get_controller();
+  std::lock_guard<std::mutex> lock(controller->mut);
+  for(auto [id, data] : controller->thread_map) {
+    if (data) { 
+      if(!data->is_complete()) {
+       // std::cout << "Threads module: Killing thread " << id << std::endl;
+        data->kill();
+      }
+      delete data;
+    }
+  }
+
+  //std::cout << "Cleaned threads" << std::endl;
+  return nullptr;
+}
 
 nibi::cell_ptr nibi_threads_future(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                           nibi::env_c &env) {
@@ -187,45 +188,57 @@ nibi::cell_ptr nibi_threads_future(nibi::interpreter_c &ci, nibi::cell_list_t &l
 
   // Launch the task with a cloned cell so the thread can't access 
   // members of other threads
-  return launch_task(list[1]->clone(env));
+  return nibi::allocate_cell((int64_t)launch_task(list[1]->clone(env)));
 }
 
-thread_cell_c* as_thread_cell(nibi::cell_ptr &cell) {
-  if (cell->type != nibi::cell_type_e::ABERRANT) {
+thread_data_c* as_thread_data(nibi::cell_ptr &cell) {
+  if (!cell->is_integer()) {
     throw nibi::interpreter_c::exception_c(
-        "Expected aberrant cell holding thread information",
-        cell->locator);
-  }
-  if (!(cell->data.aberrant)) {
-    throw nibi::interpreter_c::exception_c(
-        "Expected aberrant cell holding thread information",
-        cell->locator);
-  }
-  auto controller = get_controller();
-  if ((!cell->data.aberrant->is_tagged()) ||
-      cell->data.aberrant->get_tag() != get_controller()->aberrant_tag) {
-    throw nibi::interpreter_c::exception_c(
-        "Aberrant cell is not a thread_cell",
+        "Expected integer id for loading thread information",
         cell->locator);
   }
 
-  return reinterpret_cast<thread_cell_c*>(
-      cell->data.aberrant);
+  thread_data_c* data{nullptr};
+  {
+    auto controller = get_controller();
+    std::lock_guard<std::mutex> lock(controller->mut);
+    auto it = controller->thread_map.find(cell->data.u64);
+    if (it != controller->thread_map.end()) {
+      data = (*it).second;
+    } 
+  }
+
+  if (!data) {
+    throw nibi::interpreter_c::exception_c(
+        std::string("Unable to locate thread with id: ") + std::to_string(cell->data.u64),
+        cell->locator);
+  }
+  return data;
 }
 
 nibi::cell_ptr nibi_threads_future_get(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_get}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
-  auto tcell = as_thread_cell(processed);
-  return tcell->get();
+  auto tcell = as_thread_data(processed);
+  auto value =  tcell->get();
+
+  if (tcell->is_complete()) {
+    auto controller = get_controller();
+    std::lock_guard<std::mutex> lock(controller->mut);
+    auto it = controller->thread_map.find(processed->data.u64);
+    if (it != controller->thread_map.end()) {
+      controller->thread_map.erase(it); 
+    } 
+  }
+  return value;
 }
 
 nibi::cell_ptr nibi_threads_future_wait_for(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_wait_for}", ==, 3)
   auto processed = ci.process_cell(list[1], env);
-  auto tcell = as_thread_cell(processed);
+  auto tcell = as_thread_data(processed);
   auto time = ci.process_cell(list[2], env)->to_integer();
   auto result = tcell->wait_for(time);
 
@@ -244,7 +257,7 @@ nibi::cell_ptr nibi_threads_future_is_ready(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_is_ready}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
-  auto tcell = as_thread_cell(processed);
+  auto tcell = as_thread_data(processed);
   return nibi::allocate_cell((int64_t)(tcell->is_ready()));
 }
 
@@ -252,7 +265,7 @@ nibi::cell_ptr nibi_threads_future_runtime(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_runtime}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
-  auto tcell = as_thread_cell(processed);
+  auto tcell = as_thread_data(processed);
   return nibi::allocate_cell((int64_t)(tcell->runtime()));
 }
 
@@ -260,7 +273,7 @@ nibi::cell_ptr nibi_threads_future_kill(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_kill}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
-  auto tcell = as_thread_cell(processed);
+  auto tcell = as_thread_data(processed);
   return nibi::allocate_cell((int64_t)(tcell->kill()));
 }
 

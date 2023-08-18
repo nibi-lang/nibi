@@ -103,7 +103,7 @@ cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
   ci.process_cell(pre_condition, loop_env);
 
   cell_ptr result = allocate_cell(cell_type_e::NIL);
-  while (true) {
+  while (!ci.is_terminating()) {
     auto condition_result = ci.process_cell(condition, loop_env);
 
     if (condition_result->to_integer() <= 0) {

@@ -225,11 +225,7 @@ public:
   //! \param tag The tag to set
   aberrant_cell_if(std::size_t tag) : tag_(tag) {}
 
-  virtual ~aberrant_cell_if() {
-
-    std::cout << "Delete aberrant : " << tag_ << std::endl;
-
-  };
+  virtual ~aberrant_cell_if() {};
 
   //! \brief Convert the cell to a string
   //! \note If an exception occurs, throw a cell_access_exception_c
@@ -237,6 +233,8 @@ public:
   virtual std::string represent_as_string() = 0;
 
   //! \brief Clone the cell
+  //! \note If this method returns a `nullptr` it will disable
+  //!       the ability of the cell to clone the given aberrant
   virtual aberrant_cell_if *clone() = 0;
 
   //! \brief Get the tag of the cell
@@ -398,9 +396,12 @@ public:
 
     // Perform any cleanup of this cell required before updating to new data
 
-    if (this->type == cell_type_e::ENVIRONMENT) {
+    if (this->type == cell_type_e::ENVIRONMENT ||
+        this->type == cell_type_e::ABERRANT ||
+        other.type == cell_type_e::ENVIRONMENT ||
+        other.type == cell_type_e::ABERRANT) {
       throw cell_access_exception_c(
-          "Reallocating a Nibi Envrionment is an illegal operation",
+          "Reallocating to/from a Nibi envrionment or aberrant cell is an illegal operation",
           this->locator);
     }
 
@@ -414,10 +415,6 @@ public:
 
     if (this->type == cell_type_e::LIST && this->data.list) {
       delete this->data.list;
-    }
-
-    if (this->type == cell_type_e::ABERRANT && this->data.aberrant) {
-      delete this->data.aberrant;
     }
 
     if (this->type == cell_type_e::DICT && this->data.dict) {
@@ -454,7 +451,7 @@ public:
     }
     
     if (other.type == cell_type_e::ABERRANT && other.data.aberrant) {
-      this->data.aberrant = other.data.aberrant->clone();
+      this->data.aberrant = other.clone(env)->data.aberrant;
       return;
     }
 

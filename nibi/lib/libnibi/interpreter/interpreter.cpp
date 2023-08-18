@@ -137,7 +137,7 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
     return stored_cells_.yield_value;
   }
 
-  if (!cell) {
+  if (!cell || flags_.terminate) {
     return allocate_cell(cell_type_e::NIL);
   }
 
@@ -187,6 +187,10 @@ inline bool considered_private(cell_ptr &cell) {
 
 inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
                                                 bool process_data_list) {
+  if (!cell || flags_.terminate) {
+    return allocate_cell(cell_type_e::NIL);
+  }
+
   auto &list = cell->as_list();
   if (!list.size()) {
     return std::move(cell);
@@ -291,6 +295,9 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   }
   }
 
+        if (this->flags_.terminate) {
+          return allocate_cell(cell_type_e::NIL);
+        }
   // If we get here then we have a list that is not a function
   // so we return it as is
   return std::move(cell);

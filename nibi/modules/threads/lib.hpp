@@ -28,5 +28,11 @@ extern nibi::cell_ptr nibi_threads_future_runtime(nibi::interpreter_c &ci,
 API_EXPORT
 extern nibi::cell_ptr nibi_threads_future_kill(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env);
+API_EXPORT
+extern nibi::cell_ptr nibi_module_create(nibi::interpreter_c &ci,
+                                   nibi::cell_list_t &list, nibi::env_c &env);
+API_EXPORT
+extern nibi::cell_ptr nibi_module_destroy(nibi::interpreter_c &ci,
+                                   nibi::cell_list_t &list, nibi::env_c &env);
 
 }

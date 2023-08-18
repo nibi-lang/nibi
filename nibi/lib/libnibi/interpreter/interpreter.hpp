@@ -83,6 +83,8 @@ public:
 
   bool terminate(const uint8_t wait_time_sec);
 
+  bool is_terminating() const { return flags_.terminate; }
+
 private:
   struct ctx_s {
     std::vector<cell_ptr> deferred;
