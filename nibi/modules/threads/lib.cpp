@@ -10,6 +10,7 @@
 #include <chrono>
 #include <mutex>
 #include <vector>
+#include <chrono>
 #include "cpp-net-lib/netlib.hpp"
 
 namespace {
@@ -275,5 +276,13 @@ nibi::cell_ptr nibi_threads_future_kill(nibi::interpreter_c &ci,
   auto processed = ci.process_cell(list[1], env);
   auto tcell = as_thread_data(processed);
   return nibi::allocate_cell((int64_t)(tcell->kill()));
+}
+
+nibi::cell_ptr nibi_threads_sleep(nibi::interpreter_c &ci,
+                                   nibi::cell_list_t &list, nibi::env_c &env) {
+  NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_sleep}", ==, 2)
+  auto time = ci.process_cell(list[1], env)->as_integer();
+  std::this_thread::sleep_for(std::chrono::microseconds(time));
+  return nibi::allocate_cell((uint64_t)time);
 }
 

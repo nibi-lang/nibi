@@ -1,7 +1,7 @@
 (use "io" "threads")
 
 (fn busy [] [
-  (loop (:= i 0) (< i 1000000) (set i (+ i 1)) (nop))
+  (threads::sleep (threads::time::seconds 5))
   (<- 42)
 ])
 
@@ -11,11 +11,14 @@
 
 (io::println "tcell: " tcell ", is_ready: " (threads::future::ready tcell))
 
-
+(:= count 0)
 (while (not (threads::future::ready tcell)) [
-  (io::println "waiting..")
-  (threads::future::wait tcell 1000000)
+  (set count (+ 1 count))
+  (io::println "waiting.. " count)
+  (threads::future::wait tcell (threads::time::milli 500))
 ])
+
+(assert (eq count 10))
 
 (io::println "Complete in " (threads::future::runtime tcell) "ms")
 

@@ -15,6 +15,7 @@
   "nibi_threads_future_is_ready"
   "nibi_threads_future_runtime"
   "nibi_threads_future_kill"
+  "nibi_threads_sleep"
 ])
 
 (:= post [

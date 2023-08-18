@@ -11,6 +11,12 @@
 extern "C" {
 
 API_EXPORT
+extern nibi::cell_ptr nibi_module_create(nibi::interpreter_c &ci,
+                                   nibi::cell_list_t &list, nibi::env_c &env);
+API_EXPORT
+extern nibi::cell_ptr nibi_module_destroy(nibi::interpreter_c &ci,
+                                   nibi::cell_list_t &list, nibi::env_c &env);
+API_EXPORT
 extern nibi::cell_ptr nibi_threads_future(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env);
 API_EXPORT
@@ -29,10 +35,7 @@ API_EXPORT
 extern nibi::cell_ptr nibi_threads_future_kill(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env);
 API_EXPORT
-extern nibi::cell_ptr nibi_module_create(nibi::interpreter_c &ci,
+extern nibi::cell_ptr nibi_threads_sleep(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env);
-API_EXPORT
-extern nibi::cell_ptr nibi_module_destroy(nibi::interpreter_c &ci,
-                                   nibi::cell_list_t &list, nibi::env_c &env);
-
 }
+

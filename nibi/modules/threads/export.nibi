@@ -4,7 +4,16 @@
 (alias {threads nibi_threads_future_is_ready} threads::future::ready)
 (alias {threads nibi_threads_future_runtime} threads::future::runtime)
 (alias {threads nibi_threads_future_kill} threads::future::kill)
+(alias {threads nibi_threads_sleep} threads::sleep)
 
 (:= threads::future::status::ready 1)
 (:= threads::future::status::timeout 2)
 (:= threads::future::status::unknown 3)
+
+# Convert seconds to microseconds
+(fn threads::time::seconds [_x]
+  (* _x 1000000))
+
+# Convert milliseconds to microseconds
+(fn threads::time::milli [_x]
+  (* _x 1000))
