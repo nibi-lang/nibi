@@ -12,7 +12,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <iostream>
 #include <unordered_map>
 
 #define CELL_LIST_USE_STD_VECTOR 1
@@ -225,7 +224,7 @@ public:
   //! \param tag The tag to set
   aberrant_cell_if(std::size_t tag) : tag_(tag) {}
 
-  virtual ~aberrant_cell_if() {};
+  virtual ~aberrant_cell_if(){};
 
   //! \brief Convert the cell to a string
   //! \note If an exception occurs, throw a cell_access_exception_c
@@ -400,9 +399,9 @@ public:
         this->type == cell_type_e::ABERRANT ||
         other.type == cell_type_e::ENVIRONMENT ||
         other.type == cell_type_e::ABERRANT) {
-      throw cell_access_exception_c(
-          "Reallocating to/from a Nibi envrionment or aberrant cell is an illegal operation",
-          this->locator);
+      throw cell_access_exception_c("Reallocating to/from a Nibi envrionment "
+                                    "or aberrant cell is an illegal operation",
+                                    this->locator);
     }
 
     if (this->type == cell_type_e::STRING && this->data.cstr) {
@@ -449,7 +448,7 @@ public:
       this->data.dict = new dict_info_s(*(other.clone(env)->data.dict));
       return;
     }
-    
+
     if (other.type == cell_type_e::ABERRANT && other.data.aberrant) {
       this->data.aberrant = other.clone(env)->data.aberrant;
       return;

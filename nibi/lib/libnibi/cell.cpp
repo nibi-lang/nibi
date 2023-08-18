@@ -247,8 +247,8 @@ cell_ptr cell_c::clone(env_c &env) {
     auto cloned = this->as_aberrant()->clone();
     if (!cloned) {
       throw cell_access_exception_c(
-          std::string("Cannot clone given aberrant: ") + 
-          this->data.aberrant->represent_as_string(),
+          std::string("Cannot clone given aberrant: ") +
+              this->data.aberrant->represent_as_string(),
           this->locator);
     }
     new_cell->data.aberrant = cloned;

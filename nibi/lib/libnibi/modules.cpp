@@ -8,7 +8,6 @@
 #include "libnibi/platform.hpp"
 #include <fstream>
 #include <random>
-#include <iostream>
 
 /*
     Modules loaded into the system have a lifetime that is managed by
@@ -44,8 +43,6 @@ inline std::string generate_random_id() {
   return result;
 }
 
-
-
 } // namespace
 
 namespace nibi {
@@ -53,17 +50,15 @@ class module_cell_c final : public aberrant_cell_if {
 public:
   module_cell_c() = delete;
   module_cell_c(rll_ptr lib, cell_ptr create_ins, cell_ptr destroy_ins)
-    : lib_(lib),
-      last_words_(destroy_ins),
-      ci_(env_, source_manager_){
-        if (create_ins) {
-          ci_.instruction_ind(create_ins);
-        }
-      }
+      : lib_(lib), last_words_(destroy_ins), ci_(env_, source_manager_) {
+    if (create_ins) {
+      ci_.instruction_ind(create_ins);
+    }
+  }
 
   ~module_cell_c() {
     if (last_words_) {
-      // Perform cleanup instructions 
+      // Perform cleanup instructions
       ci_.instruction_ind(last_words_);
     }
   }
@@ -269,8 +264,8 @@ inline cell_ptr create_instruction_cell(cell_ptr &target) {
 }
 
 inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
-                                  std::filesystem::path &module_path,
-                                  cell_ptr &dylib_list) {
+                                      std::filesystem::path &module_path,
+                                      cell_ptr &dylib_list) {
 
   // Ensure that the library file is there
 
@@ -319,13 +314,13 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
 
     auto target_cell = allocate_cell(function_info_s(
         sym,
-        reinterpret_cast<cell_ptr (*)(interpreter_c & ci, cell_list_t &,
+        reinterpret_cast<cell_ptr (*)(interpreter_c &ci, cell_list_t &,
                                       env_c &)>(target_lib->get_symbol(sym)),
         function_type_e::EXTERNAL_FUNCTION, &module_env));
 
     if (sym == nibi::config::NIBI_MODULE_CREATE_FN) {
       sym += generate_random_id();
-      module_create_cell = create_instruction_cell(target_cell); 
+      module_create_cell = create_instruction_cell(target_cell);
 
       auto name_cell = allocate_cell(symbol_s(module_store_name));
       module_create_cell->as_list_info().list.push_back(name_cell);
@@ -341,12 +336,8 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
   // alive
 
   // the interpreter's way of managing what libs are already loaded
-  auto rll_cell = allocate_cell(
-      static_cast<aberrant_cell_if *>(
-        new module_cell_c(
-          target_lib, 
-          module_create_cell,
-          module_destroy_cell)));
+  auto rll_cell = allocate_cell(static_cast<aberrant_cell_if *>(
+      new module_cell_c(target_lib, module_create_cell, module_destroy_cell)));
 
   // We store in the environment so it stays alive as long as the module is
   // loaded and is removed if the module is dropped by the user or otherwise

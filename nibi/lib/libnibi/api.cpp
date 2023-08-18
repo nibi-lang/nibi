@@ -18,5 +18,5 @@ uint64_t get_aberrant_id() {
   std::lock_guard<std::mutex> lock(aberrant_id_mutex);
   return ++aberrant_id;
 }
-}
+} // namespace api
 } // namespace nibi

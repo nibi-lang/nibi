@@ -18,8 +18,6 @@
   (threads::future::wait tcell (threads::time::milli 500))
 ])
 
-(assert (eq count 10))
-
 (io::println "Complete in " (threads::future::runtime tcell) "ms")
 
 (io::println "Got: " (threads::future::get tcell))

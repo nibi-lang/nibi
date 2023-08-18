@@ -13,6 +13,5 @@ static constexpr uint32_t NIBI_MODULE_ABERRANT_ID_SIZE = 32;
 static constexpr const char *NIBI_MODULE_CREATE_FN = "nibi_module_create";
 static constexpr const char *NIBI_MODULE_DESTROY_FN = "nibi_module_destroy";
 
-
 } // namespace config
 } // namespace nibi

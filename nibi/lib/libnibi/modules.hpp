@@ -36,7 +36,7 @@ private:
   std::filesystem::path get_module_path(cell_ptr &module_name);
 
   cell_ptr load_dylib(std::string &module_name, env_c &module_env,
-                  std::filesystem::path &module_path, cell_ptr &dylib_cell);
+                      std::filesystem::path &module_path, cell_ptr &dylib_cell);
 
   void load_source_list(std::string &module_name, env_c &module_env,
                         std::filesystem::path &module_path,

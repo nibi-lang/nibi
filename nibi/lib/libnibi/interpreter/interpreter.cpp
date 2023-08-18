@@ -55,8 +55,8 @@ bool interpreter_c::terminate(const uint8_t wait_time_sec) {
   // the result
   uint8_t seconds{0};
   flags_.terminate = true;
-  while(flags_.handling_instruction && seconds < wait_time_sec) {
-    std::this_thread::sleep_for(std::chrono::milliseconds (1000));
+  while (flags_.handling_instruction && seconds < wait_time_sec) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     seconds++;
   }
   flags_.terminate = false;
@@ -66,8 +66,9 @@ bool interpreter_c::terminate(const uint8_t wait_time_sec) {
 
 void interpreter_c::instruction_ind(cell_ptr &cell) {
   flags_.handling_instruction = true;
-  EXECUTE_AND_CATCH(
-      { stored_cells_.last_result = handle_list_cell(cell, interpreter_env, false); });
+  EXECUTE_AND_CATCH({
+    stored_cells_.last_result = handle_list_cell(cell, interpreter_env, false);
+  });
   flags_.handling_instruction = false;
 }
 
@@ -81,7 +82,8 @@ void interpreter_c::pop_ctx(env_c &env) {
       continue;
     }
 
-    EXECUTE_AND_CATCH({ stored_cells_.last_result = process_cell(cell, env, true); });
+    EXECUTE_AND_CATCH(
+        { stored_cells_.last_result = process_cell(cell, env, true); });
   }
   ctxs_.pop();
 }
@@ -295,9 +297,9 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
   }
   }
 
-        if (this->flags_.terminate) {
-          return allocate_cell(cell_type_e::NIL);
-        }
+  if (this->flags_.terminate) {
+    return allocate_cell(cell_type_e::NIL);
+  }
   // If we get here then we have a list that is not a function
   // so we return it as is
   return std::move(cell);
