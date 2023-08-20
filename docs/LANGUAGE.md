@@ -1009,8 +1009,6 @@ The `mod.nibi` file contains optional settings and configurations for the module
 
 - If a dynamic library needs to be loaded:
   - `dylib`: List of function names offered by the dynamic library. Note: Dynamic libraries must take the name `<module_name>.lib`.
-  - Any function listed here named `nibi_module_create` will be called the moment that the module is loaded
-  - Any function listed here named `nibi_module_destroy` will be called when the library is being unloaded
 
 - Optional list of files to execute in-order immediately following an import:
   - `post`: List of file names to execute after importing. These can be used to redefine access to the module or run sanity checks before continuing.

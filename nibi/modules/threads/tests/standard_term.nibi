@@ -1,8 +1,8 @@
 (use "io" "threads")
 
-(fn busy [] [
+(threads::fn busy [] [
   (threads::sleep (threads::time::seconds 5))
-  (<- 42)
+  (<- 40)
 ])
 
 (io::println "Starting...")
@@ -20,6 +20,8 @@
 
 (io::println "Complete in " (threads::future::runtime tcell) "ms")
 
-(io::println "Got: " (threads::future::get tcell))
+(:= result (threads::future::get tcell))
+
+(assert (eq 40 result))
 
 (io::println "END")

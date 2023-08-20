@@ -7,8 +7,6 @@
 ])
 
 (:= dylib [
-  "nibi_module_create"
-  "nibi_module_destroy"
   "nibi_threads_future"
   "nibi_threads_future_get"
   "nibi_threads_future_wait_for"
@@ -16,6 +14,8 @@
   "nibi_threads_future_runtime"
   "nibi_threads_future_kill"
   "nibi_threads_sleep"
+  "nibi_threads_fn"
+  "nibi_threads_active"
 ])
 
 (:= post [

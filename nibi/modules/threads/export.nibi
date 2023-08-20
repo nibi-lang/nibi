@@ -5,6 +5,8 @@
 (alias {threads nibi_threads_future_runtime} threads::future::runtime)
 (alias {threads nibi_threads_future_kill} threads::future::kill)
 (alias {threads nibi_threads_sleep} threads::sleep)
+(alias {threads nibi_threads_active} threads::active)
+(alias {threads nibi_threads_fn} threads::fn)
 
 (:= threads::future::status::ready 1)
 (:= threads::future::status::timeout 2)

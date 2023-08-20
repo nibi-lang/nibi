@@ -11,6 +11,7 @@ A threading module
 | nibi_threads_future_runtime  | threads::future::runtime | thread id | get ms runtime
 | nibi_threads_future_kill     | threads::future::kill | thread id | integer 1 = killed
 | nibi_threads_sleep           | threads::sleep | microseconds | parameter in unmodified
+| nibi_threads_active          | threads::active | N/A | number of active threads from module
 
 ### wait results
 

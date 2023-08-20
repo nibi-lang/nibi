@@ -17,6 +17,7 @@ public:
   virtual const size_t get_column() const = 0;
   virtual const char *get_source_name() const = 0;
   virtual std::tuple<size_t, size_t> get_line_column() const = 0;
+  virtual nibi::ref_counted_ptr_c<locator_if> clone() = 0;
 };
 
 // Shorthand for a shared locator interface pointer.
@@ -41,6 +42,9 @@ public:
   virtual const size_t get_column() const override { return column_; }
   virtual const char *get_source_name() const override {
     return source_name_->c_str();
+  }
+  virtual locator_ptr clone() override {
+    return new locator_c(source_name_, line_, column_);
   }
 
 private:

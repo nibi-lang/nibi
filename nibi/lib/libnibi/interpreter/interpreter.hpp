@@ -81,7 +81,7 @@ public:
 
   void load_module(cell_ptr &module_name);
 
-  bool terminate(const uint8_t wait_time_sec);
+  void terminate();
 
   bool is_terminating() const { return flags_.terminate; }
 
@@ -92,7 +92,6 @@ private:
 
   struct flags_s {
     bool repl_mode{false};
-    bool handling_instruction{false};
     bool terminate{false};
   };
 

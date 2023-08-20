@@ -48,28 +48,15 @@ interpreter_c::~interpreter_c() {
 #endif
 }
 
-bool interpreter_c::terminate(const uint8_t wait_time_sec) {
-
-  // Attempt to terminate the interpreter and wait up to
-  // a given amount of time before giving up and returning
-  // the result
-  uint8_t seconds{0};
+void interpreter_c::terminate() {
   flags_.terminate = true;
-  while (flags_.handling_instruction && seconds < wait_time_sec) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    seconds++;
-  }
-  flags_.terminate = false;
-
-  return !flags_.handling_instruction;
+  return;
 }
 
 void interpreter_c::instruction_ind(cell_ptr &cell) {
-  flags_.handling_instruction = true;
   EXECUTE_AND_CATCH({
     stored_cells_.last_result = handle_list_cell(cell, interpreter_env, false);
   });
-  flags_.handling_instruction = false;
 }
 
 void interpreter_c::pop_ctx(env_c &env) {
@@ -89,6 +76,13 @@ void interpreter_c::pop_ctx(env_c &env) {
 }
 
 void interpreter_c::halt_with_error(error_c error) {
+
+  // If the interpreter is externally terminated we
+  // don't want to shut everything down, and we don't 
+  // care about the halt
+  if (flags_.terminate) {
+    return;
+  }
 
   // We don't want to halt in repl mode. Just draw the error and keep truckin
   if (flags_.repl_mode) {
@@ -121,12 +115,6 @@ void interpreter_c::halt_with_error(error_c error) {
     std::cout << std::endl;
 
     call_stack_.pop();
-  }
-
-  // If the interpreter is externally terminated we
-  // don't want to shut everything down
-  if (flags_.terminate) {
-    return;
   }
 
   std::exit(1);

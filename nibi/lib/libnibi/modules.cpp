@@ -49,34 +49,22 @@ namespace nibi {
 class module_cell_c final : public aberrant_cell_if {
 public:
   module_cell_c() = delete;
-  module_cell_c(rll_ptr lib, cell_ptr create_ins, cell_ptr destroy_ins)
-      : lib_(lib), last_words_(destroy_ins), ci_(env_, source_manager_) {
-    if (create_ins) {
-      ci_.instruction_ind(create_ins);
-    }
+  module_cell_c(rll_ptr lib)
+      : lib_(lib) {
   }
 
-  ~module_cell_c() {
-    if (last_words_) {
-      // Perform cleanup instructions
-      ci_.instruction_ind(last_words_);
-    }
-  }
+  ~module_cell_c() {}
 
   virtual std::string represent_as_string() override {
     return "EXTERNAL_MODULE";
   }
 
   virtual aberrant_cell_if *clone() override {
-    return new module_cell_c(lib_, nullptr, nullptr);
+    return new module_cell_c(lib_);
   }
 
 private:
   rll_ptr lib_;
-  env_c env_;
-  source_manager_c source_manager_;
-  interpreter_c ci_;
-  cell_ptr last_words_{nullptr};
 };
 
 std::filesystem::path modules_c::get_module_path(cell_ptr &module_name) {
@@ -255,14 +243,6 @@ modules_c::execute_post_import_actions(cell_ptr &post_list,
   }
 }
 
-inline cell_ptr create_instruction_cell(cell_ptr &target) {
-  auto ins = allocate_cell(cell_type_e::LIST);
-  auto &ins_list = ins->as_list_info();
-  ins_list.type = list_types_e::INSTRUCTION;
-  ins_list.list.push_back(target);
-  return ins;
-}
-
 inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
                                       std::filesystem::path &module_path,
                                       cell_ptr &dylib_list) {
@@ -318,17 +298,6 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
                                       env_c &)>(target_lib->get_symbol(sym)),
         function_type_e::EXTERNAL_FUNCTION, &module_env));
 
-    if (sym == nibi::config::NIBI_MODULE_CREATE_FN) {
-      sym += generate_random_id();
-      module_create_cell = create_instruction_cell(target_cell);
-
-      auto name_cell = allocate_cell(symbol_s(module_store_name));
-      module_create_cell->as_list_info().list.push_back(name_cell);
-    } else if (sym == nibi::config::NIBI_MODULE_DESTROY_FN) {
-      sym += generate_random_id();
-      module_destroy_cell = create_instruction_cell(target_cell);
-    }
-
     module_env.set(sym, target_cell);
   }
 
@@ -337,7 +306,7 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
 
   // the interpreter's way of managing what libs are already loaded
   auto rll_cell = allocate_cell(static_cast<aberrant_cell_if *>(
-      new module_cell_c(target_lib, module_create_cell, module_destroy_cell)));
+      new module_cell_c(target_lib)));
 
   // We store in the environment so it stays alive as long as the module is
   // loaded and is removed if the module is dropped by the user or otherwise

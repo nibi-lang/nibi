@@ -1,6 +1,6 @@
 (use "io" "threads")
 
-(fn busy [] [
+(threads::fn busy [] [
   (threads::sleep (threads::time::seconds 1))
   (<- 42)
 ])

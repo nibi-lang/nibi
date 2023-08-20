@@ -72,6 +72,7 @@ private:
   void release() {
     if ((object_ != nullptr) && (object_->release() == 0)) {
       delete object_;
+      object_ = nullptr;
     }
   }
 
