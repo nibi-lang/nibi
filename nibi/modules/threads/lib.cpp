@@ -29,7 +29,8 @@ struct task_s {
 
 class thread_data_c {
 public:
-  thread_data_c() { start_time_ = std::chrono::high_resolution_clock::now(); }
+  thread_data_c()
+    { start_time_ = std::chrono::high_resolution_clock::now(); }
 
   nibi::cell_ptr get() {
     if (!complete) {
@@ -137,6 +138,34 @@ nibi::cell_ptr run_task(thread_data_c *tcell_actual) {
 
 uint64_t launch_task(nibi::cell_ptr cell) {
 
+
+  /*
+      TODO:
+
+        We can not call threads multiple times on
+        the same function because we are still crossing 
+        boundaries. We are cloning the list to submit,
+        but functions have parent environments, and
+        it becaomes a mess quickly.
+
+
+        We should make a (thread::fn) that encapsulates
+        everything as an instruction into a segmented 
+        environment.
+
+        We can then handle all cloning of parameters in
+        making sure that we disallow functons as parameters
+        that aren't thread::fn, and disallowing any passing
+        of non primitive types. Otherwise someone may tuck
+        a function into a dict and pass it through!
+
+        That, or we implement a very specific CLONE function
+        that allows the cloning of environments. 
+
+        line 216 of cell.cpp is what is causing all this mess
+
+  */
+
   auto controller = get_controller();
   std::lock_guard<std::mutex> lock(controller->mut);
 
@@ -192,6 +221,7 @@ nibi::cell_ptr nibi_threads_future(nibi::interpreter_c &ci,
 
   // Launch the task with a cloned cell so the thread can't access
   // members of other threads
+
   return nibi::allocate_cell((int64_t)launch_task(list[1]->clone(env)));
 }
 
