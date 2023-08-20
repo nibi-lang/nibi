@@ -4,8 +4,8 @@
 #include <future>
 #include <iostream>
 #include <libnibi/api.hpp>
-#include <libnibi/macros.hpp>
 #include <libnibi/interpreter/builtins/builtins.hpp>
+#include <libnibi/macros.hpp>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -29,8 +29,7 @@ struct task_s {
 
 class thread_data_c {
 public:
-  thread_data_c()
-    { start_time_ = std::chrono::high_resolution_clock::now(); }
+  thread_data_c() { start_time_ = std::chrono::high_resolution_clock::now(); }
 
   nibi::cell_ptr get() {
     if (!complete) {
@@ -122,9 +121,9 @@ std::shared_ptr<controller_s> get_controller() {
 // ------------
 
 nibi::cell_ptr run_task(thread_data_c *tcell_actual) {
-   tcell_actual->task_.interpreter.instruction_ind(tcell_actual->task_.job);
-   tcell_actual->complete_ind();
-   return tcell_actual->task_.interpreter.get_last_result();
+  tcell_actual->task_.interpreter.instruction_ind(tcell_actual->task_.job);
+  tcell_actual->complete_ind();
+  return tcell_actual->task_.interpreter.get_last_result();
 }
 
 uint64_t launch_task(nibi::cell_ptr cell) {
@@ -132,13 +131,12 @@ uint64_t launch_task(nibi::cell_ptr cell) {
   auto list = cell->as_list_info().list;
   if (list.empty()) {
     throw nibi::interpreter_c::exception_c(
-        "Can not thread an empty instruction set",
-        cell->locator);
+        "Can not thread an empty instruction set", cell->locator);
   }
 
   if (!list[0]->as_function_info().isolate) {
     throw nibi::interpreter_c::exception_c(
-        "Only `isolated` functions may be threaded, use threads::fn", 
+        "Only `isolated` functions may be threaded, use threads::fn",
         cell->locator);
   }
 
@@ -159,14 +157,14 @@ uint64_t launch_task(nibi::cell_ptr cell) {
 
 nibi::cell_ptr nibi_threads_active(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
-  
+
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_active}", ==, 1)
 
   uint64_t active = 0;
   auto controller = get_controller();
   {
     std::lock_guard<std::mutex> lock(controller->mut);
-    for( auto &[id, cell] : controller->thread_map) {
+    for (auto &[id, cell] : controller->thread_map) {
       if (cell && (!cell->is_ready()))
         active++;
     }
@@ -216,7 +214,9 @@ nibi::cell_ptr nibi_threads_future_get(nibi::interpreter_c &ci,
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_get}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
   auto tcell = as_thread_data(processed);
-  if (!tcell) { return nibi::allocate_cell(nibi::cell_type_e::NIL); }
+  if (!tcell) {
+    return nibi::allocate_cell(nibi::cell_type_e::NIL);
+  }
   auto value = tcell->get();
 
   if (tcell->is_complete()) {
@@ -236,7 +236,9 @@ nibi::cell_ptr nibi_threads_future_wait_for(nibi::interpreter_c &ci,
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_wait_for}", ==, 3)
   auto processed = ci.process_cell(list[1], env);
   auto tcell = as_thread_data(processed);
-  if (!tcell) { return nibi::allocate_cell(nibi::cell_type_e::NIL); }
+  if (!tcell) {
+    return nibi::allocate_cell(nibi::cell_type_e::NIL);
+  }
   auto time = ci.process_cell(list[2], env)->to_integer();
   auto result = tcell->wait_for(time);
 
@@ -257,7 +259,9 @@ nibi::cell_ptr nibi_threads_future_is_ready(nibi::interpreter_c &ci,
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_is_ready}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
   auto tcell = as_thread_data(processed);
-  if (!tcell) { return nibi::allocate_cell(nibi::cell_type_e::NIL); }
+  if (!tcell) {
+    return nibi::allocate_cell(nibi::cell_type_e::NIL);
+  }
   return nibi::allocate_cell((int64_t)(tcell->is_ready()));
 }
 
@@ -267,7 +271,9 @@ nibi::cell_ptr nibi_threads_future_runtime(nibi::interpreter_c &ci,
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_runtime}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
   auto tcell = as_thread_data(processed);
-  if (!tcell) { return nibi::allocate_cell(nibi::cell_type_e::NIL); }
+  if (!tcell) {
+    return nibi::allocate_cell(nibi::cell_type_e::NIL);
+  }
   return nibi::allocate_cell((int64_t)(tcell->runtime()));
 }
 
@@ -277,7 +283,9 @@ nibi::cell_ptr nibi_threads_future_kill(nibi::interpreter_c &ci,
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_future_kill}", ==, 2)
   auto processed = ci.process_cell(list[1], env);
   auto tcell = as_thread_data(processed);
-  if (!tcell) { return nibi::allocate_cell(nibi::cell_type_e::NIL); }
+  if (!tcell) {
+    return nibi::allocate_cell(nibi::cell_type_e::NIL);
+  }
   tcell->kill();
   return nibi::allocate_cell((int64_t)1);
 }
@@ -290,8 +298,8 @@ nibi::cell_ptr nibi_threads_sleep(nibi::interpreter_c &ci,
   return nibi::allocate_cell((uint64_t)time);
 }
 
-nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci,
-                                  nibi::cell_list_t &list, nibi::env_c &env) {
+nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci, nibi::cell_list_t &list,
+                               nibi::env_c &env) {
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_fn}", ==, 4)
 
   auto it = list.begin();
@@ -306,7 +314,8 @@ nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci,
 
   if (function_argument_list.type != nibi::list_types_e::DATA) {
     throw nibi::interpreter_c::exception_c(
-        "Expected data list `[]` for thread function arguments", (*it)->locator);
+        "Expected data list `[]` for thread function arguments",
+        (*it)->locator);
   }
 
   nibi::lambda_info_s lambda_info;
@@ -321,13 +330,14 @@ nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci,
   lambda_info.body = (*it);
   if (lambda_info.body->type != nibi::cell_type_e::LIST) {
     throw nibi::interpreter_c::exception_c("Expected list for function body",
-                                     lambda_info.body->locator);
+                                           lambda_info.body->locator);
   }
 
   // We make a faux so we control our own env, but we pipe it through
   // the standard lambda exec method
-  nibi::function_info_s function_info(target_function_name, nibi::builtins::execute_suspected_lambda,
-                                nibi::function_type_e::FAUX, new nibi::env_c(env));
+  nibi::function_info_s function_info(
+      target_function_name, nibi::builtins::execute_suspected_lambda,
+      nibi::function_type_e::FAUX, new nibi::env_c(env));
 
   // Isolate the function by cloning the params
   function_info.isolate = true;
@@ -343,4 +353,3 @@ nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci,
 
   return std::move(fn_cell);
 }
-  

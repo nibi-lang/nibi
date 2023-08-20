@@ -191,19 +191,19 @@ cell_ptr cell_c::clone(env_c &env) {
     break;
   }
   case cell_type_e::SYMBOL: {
-   auto referenced_symbol = env.get(this->as_symbol());
-   if (referenced_symbol != nullptr) {
-   //  throw cell_access_exception_c(
-   //      std::string("Unknown variable") + this->as_symbol(), this->locator);
-   new_cell = referenced_symbol->clone(env);
-   break;
-   } else {
+    auto referenced_symbol = env.get(this->as_symbol());
+    if (referenced_symbol != nullptr) {
+      //  throw cell_access_exception_c(
+      //      std::string("Unknown variable") + this->as_symbol(),
+      //      this->locator);
+      new_cell = referenced_symbol->clone(env);
+      break;
+    } else {
 
-
-    new_cell->update_string(this->to_string());
-   }
+      new_cell->update_string(this->to_string());
+    }
     break;
-                            }
+  }
   case cell_type_e::STRING:
     new_cell->update_string(this->to_string());
     break;
@@ -219,7 +219,7 @@ cell_ptr cell_c::clone(env_c &env) {
     if (func_info.type == function_type_e::FAUX) {
       if (func_info.operating_env) {
         new_cell->as_function_info().operating_env = new env_c();
-        
+
         *new_cell->as_function_info().operating_env = *func_info.operating_env;
       }
     } else if (func_info.operating_env) {
@@ -233,8 +233,8 @@ cell_ptr cell_c::clone(env_c &env) {
       new_cell->as_function_info().lambda = func_info.lambda;
 
       if (new_cell->data.fn->isolate) {
-       (*new_cell->as_function_info().lambda).body = 
-          (*func_info.lambda).body->clone(env);
+        (*new_cell->as_function_info().lambda).body =
+            (*func_info.lambda).body->clone(env);
       }
     }
     break;
@@ -244,7 +244,7 @@ cell_ptr cell_c::clone(env_c &env) {
     auto &other = new_cell->as_list_info();
     other.type = linf.type;
     for (auto &cell : linf.list) {
-        other.list.push_back(cell->clone(env));
+      other.list.push_back(cell->clone(env));
     }
     break;
   }

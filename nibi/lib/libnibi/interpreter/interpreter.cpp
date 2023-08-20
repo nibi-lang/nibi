@@ -78,7 +78,7 @@ void interpreter_c::pop_ctx(env_c &env) {
 void interpreter_c::halt_with_error(error_c error) {
 
   // If the interpreter is externally terminated we
-  // don't want to shut everything down, and we don't 
+  // don't want to shut everything down, and we don't
   // care about the halt
   if (flags_.terminate) {
     return;

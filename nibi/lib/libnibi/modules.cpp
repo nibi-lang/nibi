@@ -49,9 +49,7 @@ namespace nibi {
 class module_cell_c final : public aberrant_cell_if {
 public:
   module_cell_c() = delete;
-  module_cell_c(rll_ptr lib)
-      : lib_(lib) {
-  }
+  module_cell_c(rll_ptr lib) : lib_(lib) {}
 
   ~module_cell_c() {}
 
@@ -59,9 +57,7 @@ public:
     return "EXTERNAL_MODULE";
   }
 
-  virtual aberrant_cell_if *clone() override {
-    return new module_cell_c(lib_);
-  }
+  virtual aberrant_cell_if *clone() override { return new module_cell_c(lib_); }
 
 private:
   rll_ptr lib_;
@@ -305,8 +301,8 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
   // alive
 
   // the interpreter's way of managing what libs are already loaded
-  auto rll_cell = allocate_cell(static_cast<aberrant_cell_if *>(
-      new module_cell_c(target_lib)));
+  auto rll_cell = allocate_cell(
+      static_cast<aberrant_cell_if *>(new module_cell_c(target_lib)));
 
   // We store in the environment so it stays alive as long as the module is
   // loaded and is removed if the module is dropped by the user or otherwise

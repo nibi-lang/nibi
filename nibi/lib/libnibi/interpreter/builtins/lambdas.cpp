@@ -35,7 +35,7 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
   auto &fn_info = target_cell->as_function_info();
 
-  if (fn_info.type != function_type_e::LAMBDA_FUNCTION && 
+  if (fn_info.type != function_type_e::LAMBDA_FUNCTION &&
       fn_info.type != function_type_e::FAUX) {
     throw interpreter_c::exception_c("Expected lambda function",
                                      (*it)->locator);
@@ -56,7 +56,7 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
     while (it != list.end() - 1) {
       std::advance(it, 1);
-      
+
       if (fn_info.isolate) {
         args.list.push_back(ci.process_cell((*it), env)->clone(env));
       } else {
