@@ -61,11 +61,19 @@ def ensure_nibi_installed():
 def execute_command(cmd, show_output=False):
   result = subprocess.run(cmd, stdout=subprocess.PIPE)
   if result.returncode != 0:
-    print("\nCommand failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
+    print("\nCommand failed: " + str(cmd) + ". Output:\n ", result.stdout)
     exit(1)
   if show_output:
     print("\nExecuted: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
-  return result.stdout.decode("utf-8")
+
+  value = ""
+  try:
+    value = result.stdout.decode("utf-8")
+  except Exception as e:
+    print(e)
+    print(">>> ", result.stdout)
+    exit(1)
+  return value
 
 def scrub():
   os.chdir("./nibi")

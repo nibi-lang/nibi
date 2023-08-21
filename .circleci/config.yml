@@ -13,7 +13,7 @@ jobs:
           command: 'sudo apt update && sudo apt upgrade'
       - run:
           name: Install tools and libs
-          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3 libffi-dev valgrind'
+          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3 libpthread-stubs0-dev libffi-dev valgrind'
       - run:
           name: Submodules
           command: 'git submodule update --init --recursive'

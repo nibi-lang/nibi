@@ -4,6 +4,7 @@ project(nibi)
 
 set(CMAKE_CXX_STANDARD 20)
 
+find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(libffi REQUIRED libffi)
 
@@ -43,6 +44,7 @@ set(APP_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/app/repl/repl.cpp
 )
 
+
 add_executable(${PROJECT_NAME}
         ${APP_SOURCES})
 
@@ -50,6 +52,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
     ffi
     libnibi
+    Threads::Threads
     ${CMAKE_DL_LIBS})
 
 install (TARGETS ${PROJECT_NAME}
