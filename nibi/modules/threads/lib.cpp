@@ -301,29 +301,6 @@ nibi::cell_ptr nibi_threads_sleep(nibi::interpreter_c &ci,
 nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci, nibi::cell_list_t &list,
                                nibi::env_c &env) {
 
-/*
- 
-            The rules required to clone things and allow multiple threads to operate on 
-            the same instruction are making it so macros are evaluated too soon and
-            making it so we can't use macros in threads. 
-
-            We could STRING the whole thing, then eval it in the other thread.
-            This means that we have to re-parse the whole thing every time we launch
-            a thread though
-
-            Another option would be to just NOT allow macros... but that sucks
-
-
-            We could also update assemble_macro code to make it such that
-            the macro expands to instructions but is not "evaluated" somehow
-
-
-
-*/
-
-
-
-
   NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_fn}", ==, 4)
 
   auto it = list.begin();

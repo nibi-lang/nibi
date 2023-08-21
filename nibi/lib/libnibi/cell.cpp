@@ -133,7 +133,7 @@ cell_c::~cell_c() {
   }
 }
 
-cell_ptr cell_c::clone(env_c &env) {
+cell_ptr cell_c::clone(env_c &env, bool resolve_sym) {
 
   // Allocate a new cell
   cell_ptr new_cell = allocate_cell(this->type);
@@ -192,11 +192,9 @@ cell_ptr cell_c::clone(env_c &env) {
   }
   case cell_type_e::SYMBOL: {
     auto referenced_symbol = env.get(this->as_symbol());
-    if (referenced_symbol != nullptr) {
+    if (resolve_sym && referenced_symbol != nullptr) {
       new_cell = referenced_symbol->clone(env);
-      break;
     } else {
-
       new_cell->update_string(this->to_string());
     }
     break;
@@ -227,10 +225,12 @@ cell_ptr cell_c::clone(env_c &env) {
     // Copy lambda stuff over
     if (func_info.lambda.has_value()) {
       new_cell->as_function_info().lambda = func_info.lambda;
-
+      // When copying instructions we need to ensure we don't resolve
+      // symbols at any depth so we don't accidentally kick anything
+      // off.
       if (new_cell->data.fn->isolate) {
         (*new_cell->as_function_info().lambda).body =
-            (*func_info.lambda).body->clone(env);
+            (*func_info.lambda).body->clone(env, false);
       }
     }
     break;
@@ -240,7 +240,7 @@ cell_ptr cell_c::clone(env_c &env) {
     auto &other = new_cell->as_list_info();
     other.type = linf.type;
     for (auto &cell : linf.list) {
-      other.list.push_back(cell->clone(env));
+      other.list.push_back(cell->clone(env, resolve_sym));
     }
     break;
   }
@@ -252,7 +252,7 @@ cell_ptr cell_c::clone(env_c &env) {
     auto &dinf = this->as_dict();
     auto &other = new_cell->as_dict();
     for (auto &pair : dinf) {
-      other[pair.first] = pair.second->clone(env);
+      other[pair.first] = pair.second->clone(env, resolve_sym);
     }
     break;
   }

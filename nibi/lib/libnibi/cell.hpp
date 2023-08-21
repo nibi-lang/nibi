@@ -340,7 +340,7 @@ public:
                         bool flatten_complex = false);
 
   //! \brief Deep copy the cell
-  cell_ptr clone(env_c &env);
+  cell_ptr clone(env_c &env, bool resolve_sym=true);
 
   //! \brief Create a cell with a given type
   cell_c(cell_type_e type) : type(type) {
