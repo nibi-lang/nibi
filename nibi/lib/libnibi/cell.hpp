@@ -340,7 +340,7 @@ public:
                         bool flatten_complex = false);
 
   //! \brief Deep copy the cell
-  cell_ptr clone(env_c &env, bool resolve_sym=true);
+  cell_ptr clone(env_c &env, bool resolve_sym = true);
 
   //! \brief Create a cell with a given type
   cell_c(cell_type_e type) : type(type) {
@@ -512,11 +512,10 @@ public:
 
   std::string as_symbol() {
     if (this->type != cell_type_e::SYMBOL) {
-      throw cell_access_exception_c(
-          std::string("Cell is not a symbol: ") +
-            cell_type_to_string(this->type) + 
-            " " +
-            this->to_string(true, true), this->locator);
+      throw cell_access_exception_c(std::string("Cell is not a symbol: ") +
+                                        cell_type_to_string(this->type) + " " +
+                                        this->to_string(true, true),
+                                    this->locator);
     }
     if (!this->data.cstr)
       return "";
