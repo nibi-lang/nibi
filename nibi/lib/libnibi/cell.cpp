@@ -193,9 +193,6 @@ cell_ptr cell_c::clone(env_c &env) {
   case cell_type_e::SYMBOL: {
     auto referenced_symbol = env.get(this->as_symbol());
     if (referenced_symbol != nullptr) {
-      //  throw cell_access_exception_c(
-      //      std::string("Unknown variable") + this->as_symbol(),
-      //      this->locator);
       new_cell = referenced_symbol->clone(env);
       break;
     } else {
@@ -216,12 +213,11 @@ cell_ptr cell_c::clone(env_c &env) {
     new_cell->data.fn->type = func_info.type;
     new_cell->data.fn->isolate = func_info.isolate;
 
-    if (func_info.type == function_type_e::FAUX) {
-      if (func_info.operating_env) {
+    if (func_info.type == function_type_e::FAUX && 
+        func_info.operating_env) {
         new_cell->as_function_info().operating_env = new env_c();
-
         *new_cell->as_function_info().operating_env = *func_info.operating_env;
-      }
+
     } else if (func_info.operating_env) {
       // Other functions may be pointing to an env that they don't own
       // so we need to set o set the pointer

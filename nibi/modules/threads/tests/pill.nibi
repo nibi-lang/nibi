@@ -4,8 +4,10 @@
 (:= pill false)
 
 (threads::fn busy [] [
-  (while (eq false pill)
-  (threads::sleep (threads::time::seconds 1)))
+  (loop (:= i 0) (eq false pill) (set i (+ i 1))
+    (threads::sleep (threads::time::seconds 1)))
+#  (while (eq false pill)
+#     (threads::sleep (threads::time::seconds 1)))
 ])
 
 (io::println "Starting...")

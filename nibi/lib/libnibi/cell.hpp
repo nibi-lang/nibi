@@ -512,7 +512,11 @@ public:
 
   std::string as_symbol() {
     if (this->type != cell_type_e::SYMBOL) {
-      throw cell_access_exception_c("Cell is not a symbol", this->locator);
+      throw cell_access_exception_c(
+          std::string("Cell is not a symbol: ") +
+            cell_type_to_string(this->type) + 
+            " " +
+            this->to_string(true, true), this->locator);
     }
     if (!this->data.cstr)
       return "";
