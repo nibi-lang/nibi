@@ -174,6 +174,22 @@ nibi::cell_ptr nibi_threads_active(nibi::interpreter_c &ci,
   return nibi::allocate_cell((uint64_t)active);
 }
 
+nibi::cell_ptr nibi_threads_shutdown(nibi::interpreter_c &ci,
+                                     nibi::cell_list_t &list,
+                                     nibi::env_c &env) {
+
+  NIBI_LIST_ENFORCE_SIZE("{threads nibi_threads_shutdown}", ==, 1)
+
+  auto controller = get_controller();
+  {
+    std::lock_guard<std::mutex> lock(controller->mut);
+    for (auto &[id, cell] : controller->thread_map) {
+      cell->kill();
+    }
+  }
+  return nibi::allocate_cell((uint64_t)1);
+}
+
 nibi::cell_ptr nibi_threads_future(nibi::interpreter_c &ci,
                                    nibi::cell_list_t &list, nibi::env_c &env) {
 

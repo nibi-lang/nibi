@@ -46,4 +46,8 @@ API_EXPORT
 extern nibi::cell_ptr nibi_threads_active(nibi::interpreter_c &ci,
                                           nibi::cell_list_t &list,
                                           nibi::env_c &env);
+API_EXPORT
+extern nibi::cell_ptr nibi_threads_shutdown(nibi::interpreter_c &ci,
+                                            nibi::cell_list_t &list,
+                                            nibi::env_c &env);
 }

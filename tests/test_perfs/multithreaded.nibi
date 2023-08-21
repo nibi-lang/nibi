@@ -1,0 +1,9 @@
+(use "io" "threads")
+
+(threads::fn busy [time]
+  (threads::sleep (threads::time::seconds time)))
+
+(loop (:= i 0) (< i 3) (set i (+ i 1))
+  (threads::future (busy 1)))
+
+(while (neq 0 (threads::active)) (nop))

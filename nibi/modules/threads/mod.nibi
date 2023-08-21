@@ -16,6 +16,7 @@
   "nibi_threads_sleep"
   "nibi_threads_fn"
   "nibi_threads_active"
+  "nibi_threads_shutdown"
 ])
 
 (:= post [
