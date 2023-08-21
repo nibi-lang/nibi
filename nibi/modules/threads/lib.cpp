@@ -99,6 +99,8 @@ private:
   std::chrono::time_point<std::chrono::high_resolution_clock> end_time_;
 };
 
+using thread_data_ptr = std::shared_ptr<thread_data_c>;
+
 // -------------
 
 struct controller_s {
@@ -106,7 +108,7 @@ struct controller_s {
   std::mutex launch_mutex;
   netlib::thread_pool thread_pool;
   std::mutex mut;
-  std::unordered_map<uint64_t, thread_data_c *> thread_map;
+  std::unordered_map<uint64_t, thread_data_ptr> thread_map;
 };
 
 std::shared_ptr<controller_s> controller_{nullptr};
@@ -120,7 +122,7 @@ std::shared_ptr<controller_s> get_controller() {
 
 // ------------
 
-nibi::cell_ptr run_task(thread_data_c *tcell_actual) {
+nibi::cell_ptr run_task(thread_data_ptr tcell_actual) {
   tcell_actual->task_.interpreter.instruction_ind(tcell_actual->task_.job);
   tcell_actual->complete_ind();
   return tcell_actual->task_.interpreter.get_last_result();
@@ -143,7 +145,7 @@ uint64_t launch_task(nibi::cell_ptr cell) {
   auto controller = get_controller();
   std::lock_guard<std::mutex> lock(controller->mut);
 
-  auto tcell_actual = new thread_data_c();
+  auto tcell_actual = std::make_shared<thread_data_c>();
   tcell_actual->task_.job = cell;
   tcell_actual->data_ =
       controller->thread_pool.add_task(run_task, tcell_actual);
@@ -190,13 +192,13 @@ nibi::cell_ptr nibi_threads_future(nibi::interpreter_c &ci,
   return nibi::allocate_cell((int64_t)launch_task(list[1]->clone(env)));
 }
 
-thread_data_c *as_thread_data(nibi::cell_ptr &cell) {
+thread_data_ptr as_thread_data(nibi::cell_ptr &cell) {
   if (!cell->is_integer()) {
     throw nibi::interpreter_c::exception_c(
         "Expected integer id for loading thread information", cell->locator);
   }
 
-  thread_data_c *data{nullptr};
+  thread_data_ptr data{nullptr};
   {
     auto controller = get_controller();
     std::lock_guard<std::mutex> lock(controller->mut);
