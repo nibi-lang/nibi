@@ -193,7 +193,7 @@ cell_ptr cell_c::clone(env_c &env, bool resolve_sym) {
   case cell_type_e::SYMBOL: {
     auto referenced_symbol = env.get(this->as_symbol());
     if (resolve_sym && referenced_symbol != nullptr) {
-      new_cell = referenced_symbol->clone(env);
+      new_cell = referenced_symbol->clone(env, resolve_sym);
     } else {
       new_cell->update_string(this->to_string());
     }

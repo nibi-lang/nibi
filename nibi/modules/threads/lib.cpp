@@ -186,7 +186,12 @@ nibi::cell_ptr nibi_threads_shutdown(nibi::interpreter_c &ci,
     for (auto &[id, cell] : controller->thread_map) {
       cell->kill();
     }
+    std::this_thread::sleep_for(std::chrono::microseconds(500));
+    for (auto &[id, cell] : controller->thread_map) {
+      cell->get();
+    }
   }
+  controller_ = nullptr;
   return nibi::allocate_cell((uint64_t)1);
 }
 
