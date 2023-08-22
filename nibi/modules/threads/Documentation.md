@@ -4,6 +4,7 @@ A threading module
 
 | method  | exported as    | parameters | returns
 |----     |----            |----        |----
+| nibi_threads_fn | threads::fn | list of params | variable
 | nibi_threads_future | threads::future | list | integer thread id
 | nibi_threads_future_get | threads::future::get | thread id | resulting value, or nil if not ready
 | nibi_threads_future_wait_for | threads::future::wait | thread id, microseconds | integer (ready, timeout, unknown)
@@ -30,6 +31,17 @@ A threading module
 | threads::time::milli   | Returns number of milliseconds handed in as microseconds
 
 ### Notes
+
+Threads are only meant to be run within the boundary of a `threads::fn`. While
+reading from the external environment is usually fine, calling external functions
+from multiple threads within the same environment can cause crashes. Regular functions in
+nibi are not just definitions of a function, but the actual implementation of the function as well.
+This means that if two threads attempt to execute a function at the same time, they will trample
+each other. There is a demo of this in the `programs` directory. To ensure this doesn't happen
+the programmer should do all actions within the scope of the `threads::fn` as this type of function
+when used with `threads::future` makes unique implementations of the called function. 
+
+In the future we may add specific types that ensure atomic access to data.
 
 When the user executes `get` on a future, and the valus is returned as the future is completed,
 that thread will then be cleaned up. Running `get` on a future that has already been obtained
