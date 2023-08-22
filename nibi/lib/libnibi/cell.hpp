@@ -304,7 +304,6 @@ public:
   cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
     this->data.alias = new alias_s(alias);
   }
-
   cell_c(list_info_s list) : type(cell_type_e::LIST) {
     this->data.list = new list_info_s(list);
   }
