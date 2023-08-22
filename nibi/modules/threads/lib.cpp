@@ -46,7 +46,7 @@ nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci, nibi::cell_list_t &list,
   }
 
   std::advance(it, 1);
-  lambda_info.body = (*it);
+  lambda_info.body = (*it)->clone(env, false);
   if (lambda_info.body->type != nibi::cell_type_e::LIST) {
     throw nibi::interpreter_c::exception_c("Expected list for function body",
                                            lambda_info.body->locator);
@@ -58,7 +58,6 @@ nibi::cell_ptr nibi_threads_fn(nibi::interpreter_c &ci, nibi::cell_list_t &list,
       target_function_name, nibi::builtins::execute_suspected_lambda,
       nibi::function_type_e::FAUX, new nibi::env_c(env));
 
-  // Isolate the function by cloning the params
   function_info.isolate = true;
 
   // Set the lambda info

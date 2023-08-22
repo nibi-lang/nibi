@@ -145,7 +145,7 @@ cell_ptr assemble_anonymous_function(interpreter_c &ci, cell_list_t &list,
   }
 
   std::advance(it, 1);
-  lambda_info.body = (*it);
+  lambda_info.body = (*it)->clone(env, false);
   if (lambda_info.body->type != cell_type_e::LIST) {
     throw interpreter_c::exception_c("Expected list for function body",
                                      lambda_info.body->locator);
@@ -193,7 +193,7 @@ cell_ptr builtin_fn_env_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
   }
 
   std::advance(it, 1);
-  lambda_info.body = (*it);
+  lambda_info.body = (*it)->clone(env, false);
   if (lambda_info.body->type != cell_type_e::LIST) {
     throw interpreter_c::exception_c("Expected list for function body",
                                      lambda_info.body->locator);

@@ -227,10 +227,8 @@ cell_ptr cell_c::clone(env_c &env, bool resolve_sym) {
       // When copying instructions we need to ensure we don't resolve
       // symbols at any depth so we don't accidentally kick anything
       // off.
-      if (new_cell->data.fn->isolate) {
-        (*new_cell->as_function_info().lambda).body =
-            (*func_info.lambda).body->clone(env, false);
-      }
+      (*new_cell->as_function_info().lambda).body =
+          (*func_info.lambda).body->clone(env, false);
     }
     break;
   }

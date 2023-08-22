@@ -1,8 +1,34 @@
-# I think there will arise a problem when having two sep threads attempt to 
-# write to the same function in a different thread. I think this issue
-# will arise because functions are not definitions of what to do in nibi,
-# rather, they are implementations of what to do. They are living objects
-# that are not protected by any thread sync mechanisms
+#  128.Threading
+#  The issue of trampling when multiple threads call the same, regular
+#  function, arises from interpreter/builtins/lambdas.cpp. 
+#
+# If you change the following in lambdas.cpp ~line 88
+#
+#  cell_ptr result = ci.process_cell(
+#      lambda_info.body,
+#      lambda_env, 
+#      true);
+#
+#  To the following: 
+#
+#  cell_ptr result = ci.process_cell(
+#      lambda_info.body->clone(env, false),
+#      lambda_env, 
+#      true);
+#
+#  This program would run fine and not experience the crash.
+#
+#  However, if we replace this for the common function exectuion then we get a 
+#  slowdown of over 10x as each call clones the function body.
+#
+#  If we check that the fn is isolated and call one over the other, then
+#  we fix it for the first call out of the thread, but not subsequent calls
+#  potentially arising from the initially called location.
+#
+#  The only way to fix this without impacting EVERYTHING is to propagate
+#  the `isolated` flag through subsequent calls which is a potentially
+#  non-trivial task, and would impact the speed of threaded operations
+#  significantly
 
 (use "io" "threads")
 
@@ -19,7 +45,7 @@
 
 (:= alive true)
 
-(threads::fn everyone_calls_me [id] [
+(fn everyone_calls_me [id] [
   (:= x 0)
   (loop (:= i 0) (< i 10) (set i (+ 1 i)) [
     (assert (eq i x) "x and i are not equivalent")
