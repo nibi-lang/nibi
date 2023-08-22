@@ -39,6 +39,20 @@ elif args.reldebug:
   build_type = "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
 
 NIBI_PATH = os.environ.get('NIBI_PATH')
+
+def scrub():
+  os.chdir("./nibi")
+  if os.path.exists("./build"):
+    shutil.rmtree("./build")
+  if NIBI_PATH is not None:
+    target_dest = NIBI_PATH + "/modules"
+    if os.path.exists(target_dest):
+      shutil.rmtree(target_dest)
+    os.chdir(cwd)
+
+if args.scrub:
+  scrub()
+
 if NIBI_PATH is None:
   print("Please set NIBI_PATH to the path where you want to install NIBI")
   exit(1)
@@ -74,15 +88,6 @@ def execute_command(cmd, show_output=False):
     print(">>> ", result.stdout)
     exit(1)
   return value
-
-def scrub():
-  os.chdir("./nibi")
-  if os.path.exists("./build"):
-    shutil.rmtree("./build")
-  target_dest = NIBI_PATH + "/modules"
-  if os.path.exists(target_dest):
-    shutil.rmtree(target_dest)
-  os.chdir(cwd)
 
 def install_std():
   target_dest = NIBI_PATH + "/std"
@@ -263,11 +268,6 @@ if not program_exists("make"):
 if not program_exists("cmake"):
   print("CMake is not installed. Please install it and try again.")
   exit(1)
-
-if args.scrub:
-  ensure_nibi_installed()
-
-  scrub()
 
 if args.install_nibi or args.all_the_things:
   build_and_install_nibi()
