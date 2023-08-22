@@ -1,0 +1,11 @@
+(use "io" "threads")
+
+(threads::fn busy [num] 
+  (threads::sleep (threads::time::seconds num)))
+
+(:= handle_0 (threads::future (busy 1)))
+
+(while (neq 0 (threads::active)) (nop))
+
+# Cleanup threads and ensure no memory leaks
+(threads::shutdown)

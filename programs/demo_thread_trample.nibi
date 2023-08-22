@@ -1,0 +1,73 @@
+#  128.Threading
+#  The issue of trampling when multiple threads call the same, regular
+#  function, arises from interpreter/builtins/lambdas.cpp. 
+#
+# If you change the following in lambdas.cpp ~line 88
+#
+#  cell_ptr result = ci.process_cell(
+#      lambda_info.body,
+#      lambda_env, 
+#      true);
+#
+#  To the following: 
+#
+#  cell_ptr result = ci.process_cell(
+#      lambda_info.body->clone(env, false),
+#      lambda_env, 
+#      true);
+#
+#  This program would run fine and not experience the crash.
+#
+#  However, if we replace this for the common function exectuion then we get a 
+#  slowdown of over 10x as each call clones the function body.
+#
+#  If we check that the fn is isolated and call one over the other, then
+#  we fix it for the first call out of the thread, but not subsequent calls
+#  potentially arising from the initially called location.
+#
+#  The only way to fix this without impacting EVERYTHING is to propagate
+#  the `isolated` flag through subsequent calls which is a potentially
+#  non-trivial task, and would impact the speed of threaded operations
+#  significantly
+
+(use "io" "threads")
+
+(io::println
+  "\n\nThis program shows an inherent problem with nibi threading,\n"
+  "and the use of non-thread fns mixed in with threaded fns.\n"
+  "If you run this enough times a random nonsense looking error\n"
+  "will eventually show. This comes from the fact that written\n"
+  "functions are not definitions, but rather, they are both a\n"
+  "definition and an implementation.\n\n"
+  "In this program 3 threads will attempt to call the same regular function\n"
+  "at specific time intervals. Eventually, they will trample each other\n"
+  "and create r/w errors in the instruction interpretation.\n\n")
+
+(:= alive true)
+
+(fn everyone_calls_me [id] [
+  (:= x 0)
+  (loop (:= i 0) (< i 10) (set i (+ 1 i)) [
+    (assert (eq i x) "x and i are not equivalent")
+    (set x (+ 1 x))
+  ])
+])
+
+# Unlike regular fns, threads::fn ARE a definition as they are
+# symbolically, meaning their instructions themselves are copied, 
+# and a new implementation of an actual function is created in
+# a new thread
+(threads::fn threaded_fn [id sleep_ms]
+  (while (eq true alive) [
+    (threads::sleep (threads::time::milli sleep_ms))
+    (everyone_calls_me id)]))
+
+(threads::future (threaded_fn 0 100))
+(threads::future (threaded_fn 1 50))
+(threads::future (threaded_fn 2 1000))
+
+(threads::sleep (threads::time::seconds 10))
+
+(set alive false)
+
+(threads::shutdown)

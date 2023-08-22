@@ -50,9 +50,13 @@ class module_cell_c final : public aberrant_cell_if {
 public:
   module_cell_c() = delete;
   module_cell_c(rll_ptr lib) : lib_(lib) {}
+
+  ~module_cell_c() {}
+
   virtual std::string represent_as_string() override {
     return "EXTERNAL_MODULE";
   }
+
   virtual aberrant_cell_if *clone() override { return new module_cell_c(lib_); }
 
 private:
@@ -235,9 +239,9 @@ modules_c::execute_post_import_actions(cell_ptr &post_list,
   }
 }
 
-inline void modules_c::load_dylib(std::string &name, env_c &module_env,
-                                  std::filesystem::path &module_path,
-                                  cell_ptr &dylib_list) {
+inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
+                                      std::filesystem::path &module_path,
+                                      cell_ptr &dylib_list) {
 
   // Ensure that the library file is there
 
@@ -268,9 +272,13 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
                                      dylib_list->locator);
   }
 
-  // Validate all listed symbolsm and import them to the module environment
+  // Validate all listed symbols and import them to the module environment
 
   auto listed_functionality = dylib_list->as_list_info();
+
+  cell_ptr module_create_cell = nullptr;
+  cell_ptr module_destroy_cell = nullptr;
+  std::string module_store_name = suspected_lib_file + generate_random_id();
 
   for (auto &func : listed_functionality.list) {
     auto sym = func->to_string();
@@ -282,7 +290,7 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
 
     auto target_cell = allocate_cell(function_info_s(
         sym,
-        reinterpret_cast<cell_ptr (*)(interpreter_c & ci, cell_list_t &,
+        reinterpret_cast<cell_ptr (*)(interpreter_c &ci, cell_list_t &,
                                       env_c &)>(target_lib->get_symbol(sym)),
         function_type_e::EXTERNAL_FUNCTION, &module_env));
 
@@ -301,6 +309,8 @@ inline void modules_c::load_dylib(std::string &name, env_c &module_env,
   // made unreachable
 
   module_env.set(name + generate_random_id(), rll_cell);
+
+  return module_create_cell;
 }
 
 inline void modules_c::load_source_list(std::string &name, env_c &module_env,

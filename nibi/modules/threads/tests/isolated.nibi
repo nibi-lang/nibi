@@ -1,0 +1,49 @@
+
+(use "io" "threads")
+
+# Some var external to functions to test env reach against
+(:= golden_apple 0)
+
+# Make sure standard functions behave the way we suspect
+(fn standard [x y z] [
+  (set x 10)
+  (set y 10)
+  (set z 10)
+  (assert (eq 0 golden_apple))
+])
+
+# Create our own special function
+(threads::fn isolated [x y z] [
+  (set x 0)
+  (set y 0)
+  (set z 0)
+
+  # Ensure we can access globals 
+  (assert (eq 0 golden_apple))
+])
+
+# Start off with -1s
+(:= a -1)
+(:= b -1)
+(:= c -1)
+
+# Set using standard functions
+(standard a b c)
+
+# Ensure things didn't change in nibi, and that
+# our parameters were passed as refs
+(assert (eq 10 a))
+(assert (eq 10 b))
+(assert (eq 10 c))
+
+# Call our isolated function
+(isolated a b c)
+
+# Ensure that the values were not changed
+(assert (eq 10 a))
+(assert (eq 10 b))
+(assert (eq 10 c))
+
+# YAY
+(io::println "COMPLETE")
+

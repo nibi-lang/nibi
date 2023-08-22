@@ -1,0 +1,15 @@
+
+(use "io" "threads")
+
+(threads::fn busy [] [
+  (while (eq true true)
+  (threads::sleep (threads::time::seconds 1)))
+])
+
+(io::println "Starting...")
+
+(:= tcell (threads::future (busy)))
+
+(defer (threads::future::kill tcell))
+
+(io::println "END")

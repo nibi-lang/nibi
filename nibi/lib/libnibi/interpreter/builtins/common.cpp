@@ -6,6 +6,7 @@
 #include "libnibi/keywords.hpp"
 #include "macros.hpp"
 #include "platform.hpp"
+#include <iostream>
 
 namespace nibi {
 namespace builtins {
@@ -103,7 +104,7 @@ cell_ptr builtin_fn_common_loop(interpreter_c &ci, cell_list_t &list,
   ci.process_cell(pre_condition, loop_env);
 
   cell_ptr result = allocate_cell(cell_type_e::NIL);
-  while (true) {
+  while (!ci.is_terminating()) {
     auto condition_result = ci.process_cell(condition, loop_env);
 
     if (condition_result->to_integer() <= 0) {
@@ -282,7 +283,11 @@ cell_ptr builtin_fn_common_nop(interpreter_c &ci, cell_list_t &list,
 
 cell_ptr assemble_macro(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
-  auto definition = env.get(list[0]->as_symbol());
+  cell_ptr definition = list[0];
+  if (definition->type == cell_type_e::SYMBOL) {
+    definition = env.get(definition->as_symbol());
+  }
+
   auto macro_env = definition->as_function_info().operating_env;
   auto macro_params = macro_env->get("$params")->as_list_info();
   auto macro_body = macro_env->get("$body")->as_string();

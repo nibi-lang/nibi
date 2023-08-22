@@ -14,5 +14,5 @@ extern size_t get_api_version();
 //! \note  This function is thread-safe.
 extern uint64_t get_aberrant_id();
 
-}
-}
+} // namespace api
+} // namespace nibi

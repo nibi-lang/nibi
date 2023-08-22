@@ -59,6 +59,7 @@ def retrieve_objects_from(directory):
       result["name"] = item
       result["path"] = directory + "/" + item
       results.append(result)
+   print("Targets: ", results)
    return results
 
 def task(id, jobs):

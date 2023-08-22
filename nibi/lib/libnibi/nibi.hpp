@@ -1,5 +1,6 @@
 #pragma once
 
+#include <libnibi/api.hpp>
 #include <libnibi/cell.hpp>
 #include <libnibi/config.hpp>
 #include <libnibi/environment.hpp>

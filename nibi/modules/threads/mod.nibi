@@ -1,0 +1,24 @@
+
+(:= version "0.0.0")
+(:= authors ["bosley"])
+(:= description "Threading module")
+(:= licenses [
+  "MIT"
+])
+
+(:= dylib [
+  "nibi_threads_future"
+  "nibi_threads_future_get"
+  "nibi_threads_future_wait_for"
+  "nibi_threads_future_is_ready"
+  "nibi_threads_future_runtime"
+  "nibi_threads_future_kill"
+  "nibi_threads_sleep"
+  "nibi_threads_fn"
+  "nibi_threads_active"
+  "nibi_threads_shutdown"
+])
+
+(:= post [
+  "export.nibi"
+])

@@ -153,6 +153,7 @@ struct function_info_s {
   function_type_e type;
   std::optional<lambda_info_s> lambda{std::nullopt};
   env_c *operating_env{nullptr};
+  bool isolate{false}; // Set this flag to explicitly clone all params on call
   function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
   function_info_s(std::string name, cell_fn_t fn, function_type_e type,
                   env_c *env = nullptr)
@@ -224,13 +225,16 @@ public:
   //! \param tag The tag to set
   aberrant_cell_if(std::size_t tag) : tag_(tag) {}
 
-  virtual ~aberrant_cell_if() = default;
+  virtual ~aberrant_cell_if(){};
+
   //! \brief Convert the cell to a string
   //! \note If an exception occurs, throw a cell_access_exception_c
   //!       with the message
   virtual std::string represent_as_string() = 0;
 
   //! \brief Clone the cell
+  //! \note If this method returns a `nullptr` it will disable
+  //!       the ability of the cell to clone the given aberrant
   virtual aberrant_cell_if *clone() = 0;
 
   //! \brief Get the tag of the cell
@@ -300,7 +304,6 @@ public:
   cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
     this->data.alias = new alias_s(alias);
   }
-
   cell_c(list_info_s list) : type(cell_type_e::LIST) {
     this->data.list = new list_info_s(list);
   }
@@ -336,7 +339,7 @@ public:
                         bool flatten_complex = false);
 
   //! \brief Deep copy the cell
-  cell_ptr clone(env_c &env);
+  cell_ptr clone(env_c &env, bool resolve_sym = true);
 
   //! \brief Create a cell with a given type
   cell_c(cell_type_e type) : type(type) {
@@ -392,10 +395,13 @@ public:
 
     // Perform any cleanup of this cell required before updating to new data
 
-    if (this->type == cell_type_e::ENVIRONMENT) {
-      throw cell_access_exception_c(
-          "Reallocating a Nibi Envrionment is an illegal operation",
-          this->locator);
+    if (this->type == cell_type_e::ENVIRONMENT ||
+        this->type == cell_type_e::ABERRANT ||
+        other.type == cell_type_e::ENVIRONMENT ||
+        other.type == cell_type_e::ABERRANT) {
+      throw cell_access_exception_c("Reallocating to/from a Nibi envrionment "
+                                    "or aberrant cell is an illegal operation",
+                                    this->locator);
     }
 
     if (this->type == cell_type_e::STRING && this->data.cstr) {
@@ -408,6 +414,10 @@ public:
 
     if (this->type == cell_type_e::LIST && this->data.list) {
       delete this->data.list;
+    }
+
+    if (this->type == cell_type_e::DICT && this->data.dict) {
+      delete this->data.dict;
     }
 
     // Set this cell's new type
@@ -431,6 +441,16 @@ public:
 
     if (other.type == cell_type_e::LIST && other.data.list) {
       this->data.list = new list_info_s(*(other.clone(env)->data.list));
+      return;
+    }
+
+    if (other.type == cell_type_e::DICT && other.data.dict) {
+      this->data.dict = new dict_info_s(*(other.clone(env)->data.dict));
+      return;
+    }
+
+    if (other.type == cell_type_e::ABERRANT && other.data.aberrant) {
+      this->data.aberrant = other.clone(env)->data.aberrant;
       return;
     }
 
@@ -491,7 +511,10 @@ public:
 
   std::string as_symbol() {
     if (this->type != cell_type_e::SYMBOL) {
-      throw cell_access_exception_c("Cell is not a symbol", this->locator);
+      throw cell_access_exception_c(std::string("Cell is not a symbol: ") +
+                                        cell_type_to_string(this->type) + " " +
+                                        this->to_string(true, true),
+                                    this->locator);
     }
     if (!this->data.cstr)
       return "";

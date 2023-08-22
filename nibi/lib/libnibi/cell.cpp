@@ -71,9 +71,9 @@ cell_c::~cell_c() {
   // Different types of cells may need to be manually cleaned up
   switch (this->type) {
   case cell_type_e::ABERRANT: {
-    auto *aberrant = this->as_aberrant();
-    if (aberrant != nullptr) {
-      delete aberrant;
+    if (this->data.aberrant != nullptr) {
+      delete this->data.aberrant;
+      this->data.aberrant = nullptr;
     }
     break;
   }
@@ -133,13 +133,17 @@ cell_c::~cell_c() {
   }
 }
 
-cell_ptr cell_c::clone(env_c &env) {
+cell_ptr cell_c::clone(env_c &env, bool resolve_sym) {
 
   // Allocate a new cell
   cell_ptr new_cell = allocate_cell(this->type);
 
   // Copy the data
-  new_cell->locator = this->locator;
+  if (this->locator) {
+    new_cell->locator = this->locator->clone();
+  } else {
+    new_cell->locator = nullptr;
+  }
 
   switch (this->type) {
   case cell_type_e::NIL:
@@ -188,10 +192,11 @@ cell_ptr cell_c::clone(env_c &env) {
   }
   case cell_type_e::SYMBOL: {
     auto referenced_symbol = env.get(this->as_symbol());
-    if (referenced_symbol == nullptr) {
-      throw cell_access_exception_c("Unknown variable", this->locator);
+    if (resolve_sym && referenced_symbol != nullptr) {
+      new_cell = referenced_symbol->clone(env, resolve_sym);
+    } else {
+      new_cell->update_string(this->to_string());
     }
-    new_cell = referenced_symbol->clone(env);
     break;
   }
   case cell_type_e::STRING:
@@ -204,12 +209,12 @@ cell_ptr cell_c::clone(env_c &env) {
     new_cell->data.fn->name = func_info.name;
     new_cell->data.fn->fn = func_info.fn;
     new_cell->data.fn->type = func_info.type;
+    new_cell->data.fn->isolate = func_info.isolate;
 
-    if (func_info.type == function_type_e::FAUX) {
-      if (func_info.operating_env) {
-        new_cell->as_function_info().operating_env = new env_c();
-        *new_cell->as_function_info().operating_env = *func_info.operating_env;
-      }
+    if (func_info.type == function_type_e::FAUX && func_info.operating_env) {
+      new_cell->as_function_info().operating_env = new env_c();
+      *new_cell->as_function_info().operating_env = *func_info.operating_env;
+
     } else if (func_info.operating_env) {
       // Other functions may be pointing to an env that they don't own
       // so we need to set o set the pointer
@@ -219,6 +224,11 @@ cell_ptr cell_c::clone(env_c &env) {
     // Copy lambda stuff over
     if (func_info.lambda.has_value()) {
       new_cell->as_function_info().lambda = func_info.lambda;
+      // When copying instructions we need to ensure we don't resolve
+      // symbols at any depth so we don't accidentally kick anything
+      // off.
+      (*new_cell->as_function_info().lambda).body =
+          (*func_info.lambda).body->clone(env, false);
     }
     break;
   }
@@ -227,7 +237,7 @@ cell_ptr cell_c::clone(env_c &env) {
     auto &other = new_cell->as_list_info();
     other.type = linf.type;
     for (auto &cell : linf.list) {
-      other.list.push_back(cell->clone(env));
+      other.list.push_back(cell->clone(env, resolve_sym));
     }
     break;
   }
@@ -239,12 +249,19 @@ cell_ptr cell_c::clone(env_c &env) {
     auto &dinf = this->as_dict();
     auto &other = new_cell->as_dict();
     for (auto &pair : dinf) {
-      other[pair.first] = pair.second->clone(env);
+      other[pair.first] = pair.second->clone(env, resolve_sym);
     }
     break;
   }
   case cell_type_e::ABERRANT: {
-    new_cell->data.aberrant = this->as_aberrant();
+    auto cloned = this->as_aberrant()->clone();
+    if (!cloned) {
+      throw cell_access_exception_c(
+          std::string("Cannot clone given aberrant: ") +
+              this->data.aberrant->represent_as_string(),
+          this->locator);
+    }
+    new_cell->data.aberrant = cloned;
     break;
   }
   }

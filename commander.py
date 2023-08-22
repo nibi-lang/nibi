@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--install_nibi", action="store_true", help="Builds and installs Nibi library and application")
 parser.add_argument("-m", "--install_modules", action="store_true", help="Builds and installs Nibi modules")
 parser.add_argument("-d", "--debug", action="store_true", help="Builds Nibi and modules in debug mode")
+parser.add_argument("-r", "--reldebug", action="store_true", help="Builds Nibi and modules in relase mode with debug symbols")
 parser.add_argument("-t", "--test", action="store_true", help="Runs all tests for Nibi")
 parser.add_argument("-v", "--valgrind", action="store_true", help="Runs valgrind checks")
 parser.add_argument("-p", "--perf", action="store_true", help="Runs performance tests for Nibi")
@@ -34,6 +35,8 @@ build_type = "-DCMAKE_BUILD_TYPE=Release"
 
 if args.debug:
   build_type = "-DCMAKE_BUILD_TYPE=Debug"
+elif args.reldebug:
+  build_type = "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
 
 NIBI_PATH = os.environ.get('NIBI_PATH')
 if NIBI_PATH is None:
@@ -58,11 +61,19 @@ def ensure_nibi_installed():
 def execute_command(cmd, show_output=False):
   result = subprocess.run(cmd, stdout=subprocess.PIPE)
   if result.returncode != 0:
-    print("\nCommand failed: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
+    print("\nCommand failed: " + str(cmd) + ". Output:\n ", result.stdout)
     exit(1)
   if show_output:
     print("\nExecuted: " + str(cmd) + ". Output:\n " + result.stdout.decode("utf-8"))
-  return result.stdout.decode("utf-8")
+
+  value = ""
+  try:
+    value = result.stdout.decode("utf-8")
+  except Exception as e:
+    print(e)
+    print(">>> ", result.stdout)
+    exit(1)
+  return value
 
 def scrub():
   os.chdir("./nibi")
