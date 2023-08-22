@@ -30,7 +30,9 @@ A threading module
 | threads::time::seconds | Returns number of seconds handed in as microseconds
 | threads::time::milli   | Returns number of milliseconds handed in as microseconds
 
-### Notes
+## Notes
+
+### Thread trampling
 
 Threads are only meant to be run within the boundary of a `threads::fn`. While
 reading from the external environment is usually fine, calling external functions
@@ -43,10 +45,14 @@ when used with `threads::future` makes unique implementations of the called func
 
 In the future we may add specific types that ensure atomic access to data.
 
+### Getting futures
+
 When the user executes `get` on a future, and the valus is returned as the future is completed,
 that thread will then be cleaned up. Running `get` on a future that has already been obtained
 will cause the same result as calling `get` on an id that is invalid; an interpreter exception
 will be raised.
+
+### Handles and memory
 
 Executing threads and not keeping a handle on them can lead to futures hanging out in space keeping their
 memory around until program end of life. This is technically a memory leak. The only time threads
