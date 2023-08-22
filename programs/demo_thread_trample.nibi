@@ -1,0 +1,47 @@
+# I think there will arise a problem when having two sep threads attempt to 
+# write to the same function in a different thread. I think this issue
+# will arise because functions are not definitions of what to do in nibi,
+# rather, they are implementations of what to do. They are living objects
+# that are not protected by any thread sync mechanisms
+
+(use "io" "threads")
+
+(io::println
+  "\n\nThis program shows an inherent problem with nibi threading,\n"
+  "and the use of non-thread fns mixed in with threaded fns.\n"
+  "If you run this enough times a random nonsense looking error\n"
+  "will eventually show. This comes from the fact that written\n"
+  "functions are not definitions, but rather, they are both a\n"
+  "definition and an implementation.\n\n"
+  "In this program 3 threads will attempt to call the same regular function\n"
+  "at specific time intervals. Eventually, they will trample each other\n"
+  "and create r/w errors in the instruction interpretation.\n\n")
+
+(:= alive true)
+
+(threads::fn everyone_calls_me [id] [
+  (:= x 0)
+  (loop (:= i 0) (< i 10) (set i (+ 1 i)) [
+    (assert (eq i x) "x and i are not equivalent")
+    (set x (+ 1 x))
+  ])
+])
+
+# Unlike regular fns, threads::fn ARE a definition as they are
+# symbolically, meaning their instructions themselves are copied, 
+# and a new implementation of an actual function is created in
+# a new thread
+(threads::fn threaded_fn [id sleep_ms]
+  (while (eq true alive) [
+    (threads::sleep (threads::time::milli sleep_ms))
+    (everyone_calls_me id)]))
+
+(threads::future (threaded_fn 0 100))
+(threads::future (threaded_fn 1 50))
+(threads::future (threaded_fn 2 1000))
+
+(threads::sleep (threads::time::seconds 10))
+
+(set alive false)
+
+(threads::shutdown)
