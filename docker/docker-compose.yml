@@ -1,6 +1,0 @@
-version: '2.20.2'
-
-services:
-  nibi:
-    build: .
-    image: nibi
