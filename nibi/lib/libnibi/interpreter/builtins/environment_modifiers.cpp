@@ -17,13 +17,13 @@ cell_ptr builtin_fn_env_alias(interpreter_c &ci, cell_list_t &list,
   NIBI_LIST_ENFORCE_SIZE(nibi::kw::ALIAS, ==, 3)
 
   auto alias_target = ci.process_cell(list[1], env);
-  auto target_variable_name = list[2]->as_c_string();
+  auto &target_variable_name = list[2]->as_symbol_ref();
 
   NIBI_VALIDATE_VAR_NAME(target_variable_name, list[2]->locator);
 
   if (list[1]->type == cell_type_e::SYMBOL) {
-    auto source_variable_name = list[1]->as_c_string();
-    if (::strcmp(source_variable_name, target_variable_name) == 0) {
+    auto &source_variable_name = list[1]->as_symbol_ref();
+    if (source_variable_name == target_variable_name) {
       throw interpreter_c::exception_c("Cannot alias a variable to itself",
                                        list[1]->locator);
     }
@@ -76,7 +76,7 @@ cell_ptr builtin_fn_env_assignment(interpreter_c &ci, cell_list_t &list,
         "Expected symbol as first argument to assign", (*it)->locator);
   }
 
-  auto target_variable_name = (*it)->as_c_string();
+  auto &target_variable_name = (*it)->as_symbol_ref();
 
   NIBI_VALIDATE_VAR_NAME(target_variable_name, (*it)->locator);
 
@@ -325,6 +325,7 @@ cell_ptr builtin_fn_dict_fn(interpreter_c &ci, cell_list_t &list, env_c &env) {
 
     auto cell_actual = allocate_cell(dict_actual);
     cell_actual->locator = list[0]->locator;
+    function_info.operating_env->set("$flag", allocate_cell(DICT_ID_FLAG));
     function_info.operating_env->set("$data", cell_actual);
     function_info.operating_env->set("$is_dict", allocate_cell((int64_t)1));
     auto fn_actual = allocate_cell(function_info);
