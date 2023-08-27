@@ -9,11 +9,11 @@
 #include <cstring>
 #include <exception>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include <iostream>
 
 #define CELL_LIST_USE_STD_VECTOR 1
 
@@ -178,6 +178,7 @@ struct list_info_s {
 
 struct symbol_s {
   std::string value;
+  symbol_x(std::string &v) : value(v) {}
 };
 
 // Temporary wrapper to distinguish aliases
@@ -408,7 +409,7 @@ public:
     }
 
     // Note we don't run update_from on symbol types, but if we
-    // did we would need to extend this 
+    // did we would need to extend this
 
     if (this->type == cell_type_e::STRING && this->data.cstr) {
       delete[] this->data.cstr;
@@ -465,8 +466,7 @@ public:
     }
 
     if (other.type == cell_type_e::SYMBOL && other.data.sym) {
-      this->data.sym = new symbol_s(
-          other.data.sym->value);
+      this->data.sym = new symbol_s(other.data.sym->value);
       return;
     }
 
@@ -513,15 +513,15 @@ public:
       return this->data.cstr;
     }
     if (this->type == cell_type_e::SYMBOL) {
-     return this->data.sym->value;
+      return this->data.sym->value;
     }
     throw cell_access_exception_c("Cell is not a string", this->locator);
   }
 
   char *as_c_string() {
     if (this->type != cell_type_e::STRING) {
-      throw cell_access_exception_c(
-          "Cell does not contain a string", this->locator);
+      throw cell_access_exception_c("Cell does not contain a string",
+                                    this->locator);
     }
     return this->data.cstr;
   }
@@ -533,7 +533,8 @@ public:
                                         this->to_string(true, true),
                                     this->locator);
     }
-    if (!this->data.sym) return "";
+    if (!this->data.sym)
+      return "";
     return this->data.sym->value;
   }
 
