@@ -178,7 +178,8 @@ struct list_info_s {
 
 struct symbol_s {
   std::string value;
-  symbol_x(std::string &v) : value(v) {}
+  symbol_s() = default;
+  symbol_s(const std::string &v) : value(v) {}
 };
 
 // Temporary wrapper to distinguish aliases
