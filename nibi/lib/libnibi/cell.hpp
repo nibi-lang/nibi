@@ -9,6 +9,7 @@
 #include <cstring>
 #include <exception>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
@@ -132,6 +133,7 @@ struct dict_info_s {
   dict_info_s(const dict_info_s &other) : data(other.data){};
   dict_info_s(cell_dict_t other) : data(std::move(other)){};
 };
+static constexpr uint8_t DICT_ID_FLAG = 24;
 
 //! \brief Lambda information that can be encoded into a cell
 struct lambda_info_s {
@@ -174,10 +176,10 @@ struct list_info_s {
   }
 };
 
-// Temporary wrapper to distnguish strings from symbols
-// in the cell constructor
 struct symbol_s {
-  std::string data;
+  std::string value;
+  symbol_s() = default;
+  symbol_s(const std::string &v) : value(v) {}
 };
 
 // Temporary wrapper to distinguish aliases
@@ -284,6 +286,7 @@ public:
     alias_s *alias;
     dict_info_s *dict;
     list_info_s *list;
+    symbol_s *sym;
   } data{0};
 
   cell_c(int8_t data) : type(cell_type_e::I8) { this->data.i8 = data; }
@@ -299,7 +302,7 @@ public:
   cell_c(char data) : type(cell_type_e::CHAR) { this->data.ch = data; }
   cell_c(std::string data) : type(cell_type_e::STRING) { update_string(data); }
   cell_c(symbol_s data) : type(cell_type_e::SYMBOL) {
-    update_string(data.data);
+    this->data.sym = new symbol_s{data.value};
   }
   cell_c(alias_s alias) : type(cell_type_e::ALIAS) {
     this->data.alias = new alias_s(alias);
@@ -373,8 +376,10 @@ public:
       this->data.ptr = nullptr;
       break;
     case cell_type_e::STRING:
-    case cell_type_e::SYMBOL:
       this->data.cstr = nullptr;
+      break;
+    case cell_type_e::SYMBOL:
+      this->data.sym = new symbol_s();
       break;
     case cell_type_e::LIST:
       this->data.list = new list_info_s(list_types_e::DATA);
@@ -404,6 +409,9 @@ public:
                                     this->locator);
     }
 
+    // Note we don't run update_from on symbol types, but if we
+    // did we would need to extend this
+
     if (this->type == cell_type_e::STRING && this->data.cstr) {
       delete[] this->data.cstr;
     }
@@ -418,6 +426,10 @@ public:
 
     if (this->type == cell_type_e::DICT && this->data.dict) {
       delete this->data.dict;
+    }
+
+    if (this->type == cell_type_e::SYMBOL && this->data.sym) {
+      delete this->data.sym;
     }
 
     // Set this cell's new type
@@ -451,6 +463,11 @@ public:
 
     if (other.type == cell_type_e::ABERRANT && other.data.aberrant) {
       this->data.aberrant = other.clone(env)->data.aberrant;
+      return;
+    }
+
+    if (other.type == cell_type_e::SYMBOL && other.data.sym) {
+      this->data.sym = new symbol_s(other.data.sym->value);
       return;
     }
 
@@ -491,20 +508,21 @@ public:
   }
 
   std::string as_string() {
-    if (this->type != cell_type_e::STRING &&
-        this->type != cell_type_e::SYMBOL) {
-      throw cell_access_exception_c("Cell is not a string", this->locator);
+    if (this->type == cell_type_e::STRING) {
+      if (!this->data.cstr)
+        return "";
+      return this->data.cstr;
     }
-    if (!this->data.cstr)
-      return "";
-    return this->data.cstr;
+    if (this->type == cell_type_e::SYMBOL) {
+      return this->data.sym->value;
+    }
+    throw cell_access_exception_c("Cell is not a string", this->locator);
   }
 
   char *as_c_string() {
-    if (this->type != cell_type_e::STRING &&
-        this->type != cell_type_e::SYMBOL) {
-      throw cell_access_exception_c(
-          "Cell does not contain a string, or a symbol", this->locator);
+    if (this->type != cell_type_e::STRING) {
+      throw cell_access_exception_c("Cell does not contain a string",
+                                    this->locator);
     }
     return this->data.cstr;
   }
@@ -516,9 +534,22 @@ public:
                                         this->to_string(true, true),
                                     this->locator);
     }
-    if (!this->data.cstr)
+    if (!this->data.sym)
       return "";
-    return this->data.cstr;
+    return this->data.sym->value;
+  }
+
+  std::string &as_symbol_ref() {
+    if (this->type != cell_type_e::SYMBOL) {
+      throw cell_access_exception_c(std::string("Cell is not a symbol: ") +
+                                        cell_type_to_string(this->type) + " " +
+                                        this->to_string(true, true),
+                                    this->locator);
+    }
+    if (!this->data.sym) {
+      this->data.sym = new symbol_s();
+    }
+    return this->data.sym->value;
   }
 
   cell_list_t to_list() { return this->as_list(); }
@@ -578,8 +609,7 @@ public:
   }
 
   void update_string(const std::string data) {
-    if (this->type != cell_type_e::STRING &&
-        this->type != cell_type_e::SYMBOL) {
+    if (this->type != cell_type_e::STRING) {
       throw cell_access_exception_c("Cell does not contain a string to update",
                                     this->locator);
     }

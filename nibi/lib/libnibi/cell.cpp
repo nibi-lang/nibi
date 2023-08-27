@@ -92,7 +92,13 @@ cell_c::~cell_c() {
     this->data.fn = nullptr;
     break;
   }
-  case cell_type_e::SYMBOL:
+  case cell_type_e::SYMBOL: {
+    if (this->data.sym) {
+      delete this->data.sym;
+      this->data.sym = nullptr;
+    }
+    break;
+  }
   case cell_type_e::STRING: {
     if (this->data.cstr) {
       delete[] this->data.cstr;
@@ -195,7 +201,7 @@ cell_ptr cell_c::clone(env_c &env, bool resolve_sym) {
     if (resolve_sym && referenced_symbol != nullptr) {
       new_cell = referenced_symbol->clone(env, resolve_sym);
     } else {
-      new_cell->update_string(this->to_string());
+      new_cell->data.sym->value = this->as_symbol();
     }
     break;
   }
@@ -300,7 +306,7 @@ std::string cell_c::to_string(bool quote_strings, bool flatten_complex) {
   case cell_type_e::PTR:
     return std::to_string((uint64_t)this->data.ptr);
   case cell_type_e::SYMBOL:
-    return this->as_string();
+    return this->as_symbol();
   case cell_type_e::STRING:
     if (quote_strings) {
       return "\"" + this->as_string() + "\"";
