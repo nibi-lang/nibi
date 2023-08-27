@@ -84,11 +84,17 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
   auto &body = lambda_info.body->as_list_info();
 
-  ci.push_ctx();
+  auto subproc = ci.get_subprocessor(lambda_env);
 
-  cell_ptr result = ci.process_cell(lambda_info.body, lambda_env, true);
+  subproc.push_ctx();
 
-  ci.pop_ctx(lambda_env);
+  cell_ptr result = subproc.process_cell(
+      lambda_info.body ,
+      //lambda_info.body->clone(env, false), 
+      lambda_env, 
+      true);
+
+  subproc.pop_ctx(lambda_env);
 
   // Because we have pointers to parametrs stored we don't want the environment
   // to free them, so we manually remove them here before
@@ -98,9 +104,9 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
   }
 
   // We are out of the function, so we can reset the yield value
-  if (ci.is_yielding()) {
-    ci.set_yield_value(nullptr);
-  }
+ // if (ci.is_yielding()) {
+ //   ci.set_yield_value(nullptr);
+ // }
 
   // Return a copy of the result
   return result;

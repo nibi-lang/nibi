@@ -1,15 +1,24 @@
-(fn is_prime [primes n] [
-  (if (or (eq 2 n) (eq 3 n)) [
-    (|< primes n)
-    (<-)
-  ])
-  (if (or (<= n 1) (or (not (% n 2)) (not (% n 3))))(<-))
-  (loop (:= i 5) (<= (* i i) n ) (set i (+ 6 i))
-    (if (or (not (% n i)) (not (% n (+ i 2)))) (<-)))
-  (|< primes n)
+
+
+(fn is_prime [n] [
+  (if (<= n 1) (<- false))
+  (if (<= n 3) (<- true))
+  (if
+      (or
+        (eq false (% n 2))
+        (eq false (% n 3)))
+      (<- false))
+
+  (loop (:= i 5) (<= (* i i) n) (set i (+ i 6))
+    (if
+      (or
+        (eq false (% n i))
+        (eq false (% n (+ i 2))))
+      (<- false)))
+  (<- true)
 ])
 
 (:= primes [])
-(loop (:= i 0) (< i 100000) (set i (+ i 1)) [
-  (is_prime primes i)
-])
+(loop (:= i 0) (< i 100000) (set i (+ i 1))
+  (if (eq true (is_prime i)) (|< primes i)))
+

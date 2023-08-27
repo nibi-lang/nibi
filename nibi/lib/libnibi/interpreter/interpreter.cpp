@@ -147,11 +147,7 @@ cell_ptr interpreter_c::process_cell(cell_ptr cell, env_c &env,
       throw exception_c(error, cell->locator);
       return nullptr;
     }
-
-    // Cache the cell so we don't load it again later (potentially)
-    cell = loaded_cell;
-
-    [[fallthrough]];
+    return loaded_cell;
   }
   default: {
     return std::move(cell);

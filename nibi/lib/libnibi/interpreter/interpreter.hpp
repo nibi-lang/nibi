@@ -85,6 +85,10 @@ public:
 
   bool is_terminating() const { return flags_.terminate; }
 
+  interpreter_c get_subprocessor(env_c &env) {
+    return interpreter_c(env, source_manager_);
+  }
+
 private:
   struct ctx_s {
     std::vector<cell_ptr> deferred;
