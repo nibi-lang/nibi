@@ -48,6 +48,8 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
   auto &map = lambda_env.get_map();
 
+  auto subproc = ci.get_subprocessor(lambda_env);
+
   if (lambda_info.arg_names.size() == 1 &&
       lambda_info.arg_names[0] == ":args") {
 
@@ -58,6 +60,7 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
       if (fn_info.isolate) {
         args.list.push_back(ci.process_cell((*it), env)->clone(env));
+        subproc.set_function_isolation_flag(true);
       } else {
         args.list.push_back(ci.process_cell((*it), env));
       }
@@ -76,6 +79,7 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
       map[arg_name] = ci.process_cell((*it), env);
       if (fn_info.isolate) {
         map[arg_name] = ci.process_cell((*it), env)->clone(env);
+        subproc.set_function_isolation_flag(true);
       } else {
         map[arg_name] = ci.process_cell((*it), env);
       }
@@ -84,15 +88,15 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
 
   auto &body = lambda_info.body->as_list_info();
 
-  auto subproc = ci.get_subprocessor(lambda_env);
-
   subproc.push_ctx();
 
-  cell_ptr result = subproc.process_cell(
-      lambda_info.body ,
-      //lambda_info.body->clone(env, false), 
-      lambda_env, 
-      true);
+  cell_ptr result{nullptr};
+  if (subproc.get_function_isolation_flag()) {
+    result = subproc.process_cell(lambda_info.body->clone(env, false),
+                                  lambda_env, true);
+  } else {
+    result = subproc.process_cell(lambda_info.body, lambda_env, true);
+  }
 
   subproc.pop_ctx(lambda_env);
 
@@ -102,11 +106,6 @@ cell_ptr execute_suspected_lambda(interpreter_c &ci, cell_list_t &list,
   for (auto &&arg_name : lambda_info.arg_names) {
     map.erase(arg_name);
   }
-
-  // We are out of the function, so we can reset the yield value
- // if (ci.is_yielding()) {
- //   ci.set_yield_value(nullptr);
- // }
 
   // Return a copy of the result
   return result;

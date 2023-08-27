@@ -85,8 +85,22 @@ public:
 
   bool is_terminating() const { return flags_.terminate; }
 
+  // Function isolation is a measure to ensure that threads
+  // do not trample each other. It is marked in the interpreter
+  // so every following call to the initial isolation point
+  // stays isolated
+  void set_function_isolation_flag(bool value) {
+    flags_.isolate_function_calls = value;
+  }
+
+  bool get_function_isolation_flag() const {
+    return flags_.isolate_function_calls;
+  }
+
   interpreter_c get_subprocessor(env_c &env) {
-    return interpreter_c(env, source_manager_);
+    auto i = interpreter_c(env, source_manager_);
+    i.set_function_isolation_flag(this->flags_.isolate_function_calls);
+    return i;
   }
 
 private:
@@ -97,6 +111,7 @@ private:
   struct flags_s {
     bool repl_mode{false};
     bool terminate{false};
+    bool isolate_function_calls{false};
   };
 
   struct stored_cells_s {

@@ -43,6 +43,9 @@
   "at specific time intervals. Eventually, they will trample each other\n"
   "and create r/w errors in the instruction interpretation.\n\n")
 
+(io::println
+  "\n\n\tThis has been resolved via propagated function isolation\n\n\n")
+
 (:= alive true)
 
 (fn everyone_calls_me [id] [

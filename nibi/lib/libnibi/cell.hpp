@@ -155,7 +155,7 @@ struct function_info_s {
   function_type_e type;
   std::optional<lambda_info_s> lambda{std::nullopt};
   env_c *operating_env{nullptr};
-  bool isolate{false}; // Set this flag to explicitly clone all params on call
+  bool isolate{false};
   function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
   function_info_s(std::string name, cell_fn_t fn, function_type_e type,
                   env_c *env = nullptr)
