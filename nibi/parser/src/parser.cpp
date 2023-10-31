@@ -28,29 +28,11 @@ static inline void trim(std::string &s) {
 } // namespace
 
 void print_list(parser::list_t &list) {
-  for(auto &node : list) {
-    switch(node->node_type) {
-      case parser::node_type_e::UNDEFINED: 
-        std::cerr << "GOT UNDEFINED NODE" << std::endl;
-        std::cerr << node->line << ":" << node->col << std::endl;
-        std::exit(1);
-        break;
-      case parser::node_type_e::ATOM:
-        std::cout << " ATOM (" << node->line << ":" << node->col << ")[" <<
-          parser::node_as_atom(node)->atom_data << "]";
-        break;
-      case parser::node_type_e::LIST: {
-        parser::list_node_c *inner = static_cast<parser::list_node_c*>(node.get());
-        std::cout << "\n  LIST[";
-        print_list(inner->list_data);
-        std::cout << "]\n";
-        break;
-      }
-    }
+  for(auto &atom : list) {
+    std::cout << " ATOM (" << atom->line << ":" << atom->col << ")[" << atom->data << "]";
   }
   std::cout << std::endl;
 }
-
 
 void parser_c::insert_atom(
   list_t *list,
@@ -62,7 +44,7 @@ void parser_c::insert_atom(
       return;
     }
     list->push_back(
-      std::make_unique<atom_node_c>(
+      std::make_unique<atom_c>(
           type,
           meta,
           data,
@@ -180,8 +162,24 @@ void parser_c::parse(list_t *list) {
       ADD_TRIPPLE_SYM('>', '=', '>', meta_e::GT, meta_e::GTE, meta_e::RSH);
 
       case '(': {
+        size_t line = _trace.line;
+        size_t col = _trace.col;
+
         _trace.pdepth++;
         _trace.col++;
+
+        // If we are already in a list we need to identify
+        // that they should pull the result of the next as 
+        // an input arg
+        if (list) {
+          list->push_back(
+            std::make_unique<atom_c>(
+                atom_type_e::LOAD_ARG,
+                meta_e::UNDEFINED,
+                "<load arg>",
+                line,
+                col));
+        }
 
         list_t new_list;
         parse(&new_list);

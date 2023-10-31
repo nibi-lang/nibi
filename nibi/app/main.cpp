@@ -14,7 +14,6 @@ void error_receiver(parser::error_s err) {
 
 int main(int argc, char **argv) {
 
-
   std::string test_line = "(+ (- - - - (* * *)  - - ) + + + )";
 
   parser::parser_c parser(list_receiver, error_receiver);
