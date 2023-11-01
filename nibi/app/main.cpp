@@ -1,24 +1,51 @@
 #include <parser/parser.hpp>
+#include <parser/file_parser.hpp>
 
 #include <iostream>
 
-void list_receiver(parser::list_t list) {
-  std::cout << "Received list of length: " << list.size() << std::endl;
-  parser::print_list(list);
-}
 
-void error_receiver(parser::error_s err) {
-  std::cout << "Error (" << err.line << ":" << err.col << ") " << err.message << std::endl;
-  std::exit(1);
-}
+class parser_receiver_c final : public parser::receiver_if {
+public:
+  virtual void on_error(parser::error_s err) override {
+    std::cout << "Error (" << err.line << ":" << err.col << ") " << err.message << std::endl;
+    std::exit(1);
+  }
+
+  virtual void on_list(parser::list_t list) override {
+    std::cout << "Received list of length: " << list.size() << std::endl;
+    parser::print_list(list);
+  }
+
+  virtual void on_top_list_complete() override {
+    std::cout << "[ A list was completed! ]" << std::endl;
+  }
+};
+
+void check_parser();
 
 int main(int argc, char **argv) {
 
-  std::string test_line = "(+ (- - - - (* * *)  - - ) + + + )";
+  //check_parser();
 
-  parser::parser_c parser(list_receiver, error_receiver);
+  
 
-  parser.submit(test_line);
+  parser_receiver_c prc;
+  if (!parser::from_file(prc, "example.nibi")) {
+    std::cerr << "Failed to parse file\n";
+    return 1;
+  }
+
+
+  return 0;
+}
+
+void check_parser() {
+
+  parser_receiver_c prc;
+
+  parser::parser_c parser(prc);
+
+  parser.submit("(+ (- - - - (* * *)  - - ) + + + )");
   parser.finish();
   std::cout << "\n\n";
 
@@ -36,7 +63,12 @@ int main(int argc, char **argv) {
   parser.finish();
   std::cout << "\n\n";
 
+  parser.submit("(<= 1 (- ");
+  parser.submit("1 2))");
+  parser.finish();
+  std::cout << "\n\n";
   // TODO: Add tests. CPPUTests? Google tests? home made tests?
 
-  return 0;
+
+
 }

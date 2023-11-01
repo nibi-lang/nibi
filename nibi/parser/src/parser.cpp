@@ -11,7 +11,7 @@ namespace {
 
 static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
 static std::regex is_identifier(R"([_:]?[a-zA-Z_\-][a-zA-Z0-9_\-]{0,31})");
-static std::unordered_map<char, char> char_escape_map = {
+static std::map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
     {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
     {'\'', '\''}, {'\\', '\\'}, {'0', '\0'}};
@@ -73,12 +73,22 @@ void parser_c::submit(std::string &data, size_t line) {
   } else {
     parse(&_active_lists.top(), data);
   }
+
+  if (_active_lists.empty()) {
+    _receiver.on_top_list_complete();
+  }
 }
 
-void parser_c::finish() {
+bool parser_c::finish() {
   if (!_active_lists.empty()) {
+
+    std::cout << "Lists active: " << _active_lists.size() << std::endl;
+      print_list(_active_lists.top());
+
     emit_error("Incomplete list - Finish indicated with data buffered");
+    return false;
   }
+  return true;
 }
 
 #define ADD_SYM(sym, meta) \
@@ -186,11 +196,14 @@ void parser_c::parse(list_t *list, std::string &line_data) {
         }
 
         _trace.pdepth--;
-        _trace.col++;
 
-        _list_cb(std::move(*list));
+        _receiver.on_list(std::move(*list));
         _active_lists.pop();
-        return;
+
+        if (_active_lists.size()) {
+          list = &_active_lists.top();
+        }
+        break;
       }
 
       case '#':
@@ -284,7 +297,7 @@ void parser_c::parse(list_t *list, std::string &line_data) {
 
 void parser_c::emit_error(const std::string &err) {
   error_s e{err, _trace.line, _trace.col};
-  _error_cb(e);
+  _receiver.on_error(e);
   reset();
 }
 
