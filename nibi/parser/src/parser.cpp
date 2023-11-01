@@ -3,10 +3,14 @@
 #include <iostream>
 #include <algorithm>
 #include <map>
+#include <regex>
 
 namespace parser {
 
 namespace {
+
+static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
+static std::regex is_identifier(R"([_:]?[a-zA-Z_\-][a-zA-Z0-9_\-]{0,31})");
 
 static std::unordered_map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
@@ -35,7 +39,7 @@ void parser_c::insert_atom(
   list_t *list,
   const atom_type_e type,
   const meta_e meta,
-  std::string &data) {
+  const std::string &data) {
     if (!list) {
       emit_error("Attempt to add item outside of list");
       return;
@@ -134,8 +138,6 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       ADD_SYM('^', meta_e::HAT)
       ADD_SYM('&', meta_e::AMPERSAND)
       ADD_SYM('*', meta_e::ASTERISK)
-      ADD_SYM('-', meta_e::SUB)
-      ADD_SYM('_', meta_e::UNDERSCORE)
       ADD_SYM('+', meta_e::PLUS)
       ADD_SYM('{', meta_e::LEFT_CURLY)
       ADD_SYM('}', meta_e::RIGHT_CURLY)
@@ -196,6 +198,7 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       case '#':
         [[fallthrough]];
       case ';': {
+        _trace.col = line_data.size();
         return;
       }
 
@@ -247,7 +250,6 @@ void parser_c::parse(list_t *list, std::string &line_data) {
         }
         value += line_data[_trace.col++];
       }
-
       if (!value.ends_with('\'')) {
         emit_error("Unterminated char");
         return;
@@ -258,15 +260,58 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       break;
     }
 
-    // TODO:
+    default: {
+         if (std::isdigit(line_data[_trace.col]) || line_data[_trace.col] == '-') {
+           if (line_data[_trace.col] == '-' && _trace.col + 1 < line_data.size() &&
+               !std::isdigit(line_data[_trace.col + 1])) {
+             insert_atom(list, atom_type_e::SYMBOL, meta_e::SUB, "-"); \
+             break;
+           } else if (line_data[_trace.col] == '-' && _trace.col == line_data.size() - 1) {
+             insert_atom(list, atom_type_e::SYMBOL, meta_e::SUB, "-"); \
+             break;
+           }
 
-      // Hex/ Binary etc as numbers
+           std::string number;
+           number += line_data[_trace.col];
+           while (_trace.col + 1 < line_data.size() &&
+                  (std::isdigit(line_data[_trace.col + 1]) || line_data[_trace.col + 1] == '.')) {
+             number += line_data[_trace.col + 1];
+             _trace.col++;
+           }
 
-      // other numbers
+           if (std::regex_match(number, is_number)) {
+             if (number.find('.') != std::string::npos) {
+               insert_atom(list, atom_type_e::REAL, meta_e::UNDEFINED, number); \
+             } else {
+               insert_atom(list, atom_type_e::INTEGER, meta_e::UNDEFINED, number); \
+             }
+             break;
+           } else {
+             emit_error("Malformed numerical value");
+             return;
+           }
+           break;
+         }
 
-      // identifiers
-    };
+         std::string word;
+         word += line_data[_trace.col];
+         while (_trace.col + 1 < line_data.size() && !std::isspace(line_data[_trace.col + 1]) &&
+                line_data[_trace.col + 1] != '(' && line_data[_trace.col + 1] != ')' &&
+                line_data[_trace.col + 1] != '[' && line_data[_trace.col + 1] != ']' &&
+                line_data[_trace.col + 1] != '{' && line_data[_trace.col + 1] != '}') {
+           word += line_data[_trace.col + 1];
+           _trace.col++;
+         }
+         if (std::regex_match(word, is_identifier)) {
+          insert_atom(list, atom_type_e::SYMBOL, meta_e::IDENTIFIER, word);
+         } else {
+            emit_error("Malformed identifier");
+         }
+         break;
+      }
+    }
     _trace.col++;
+    buff.clear();
   }
 }
 

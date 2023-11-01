@@ -11,10 +11,10 @@ namespace parser {
 
 enum class atom_type_e {
   UNDEFINED = 0,
-  INTEGER,      // Note: We don't care about size of integers yet
+  SYMBOL,       // Symbols are some chunk of text, use meta_e to classify 
+  INTEGER,      // Note: We don't care about size of integers in the parser
   REAL,
   STRING,
-  SYMBOL,
   CHAR,
   LOAD_ARG,    // Pull result of previous computation as an argument
 };
@@ -22,12 +22,10 @@ enum class atom_type_e {
 enum class meta_e {
   UNDEFINED,
   IDENTIFIER,
-  COMMENT,            // Following first instance of ';'
-  DIRECTIVE,          // Lines starting with '#'
   TILDE, BACK_TICK,
   EXCLAMATION_POINT,
   AT, DOLLAR, MOD, HAT, AMPERSAND,
-  ASTERISK, SUB, UNDERSCORE, PLUS, EQUAL, NOT_EQUAL,
+  ASTERISK, SUB, PLUS, EQUAL, NOT_EQUAL,
   LEFT_CURLY, RIGHT_CURLY, LEFT_BRACKET, RIGHT_BRACKET,
   PIPE, OR, COLON, COMMA, PERIOD,
   LT, GT, LTE, GTE, LSH, RSH, QUESTION_MARK, FORWARD_SLASH,
@@ -109,7 +107,7 @@ private:
   void insert_atom(list_t *list,
     const atom_type_e,
     const meta_e,
-    std::string&);
+    const std::string&);
   void parse(list_t* list, std::string &string_data);
   void emit_error(const std::string&);
   void reset();
