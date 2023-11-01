@@ -15,9 +15,7 @@ enum class atom_type_e {
   REAL,
   STRING,
   SYMBOL,
-
-  // TODO: chars
-
+  CHAR,
   LOAD_ARG,    // Pull result of previous computation as an argument
 };
 

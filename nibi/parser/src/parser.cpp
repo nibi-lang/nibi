@@ -2,9 +2,27 @@
 
 #include <iostream>
 #include <algorithm>
-#include <stack>
+#include <map>
 
 namespace parser {
+
+namespace {
+
+static std::unordered_map<char, char> char_escape_map = {
+    {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
+    {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
+    {'\'', '\''}, {'\\', '\\'}, {'0', '\0'}};
+
+inline bool check_for_chars(std::string &buffer, char c) {
+  auto it = char_escape_map.find(c);
+  if (it != char_escape_map.end()) {
+    buffer += it->second;
+    return true;
+  }
+  return false;
+}
+
+} // namespace
 
 void print_list(parser::list_t &list) {
   for(auto &atom : list) {
@@ -171,33 +189,82 @@ void parser_c::parse(list_t *list, std::string &line_data) {
         _trace.col++;
 
         _list_cb(std::move(*list));
-
         _active_lists.pop();
         return;
       }
 
+      case '#':
+        [[fallthrough]];
       case ';': {
-        // Eat the rest of the line as a comment and add to list. 
-        // Return without emitting
+        return;
+      }
+
+      case '"': {
+        bool in_str{true};
+        std::string value = "\"";
+        decltype(_trace.col) start = _trace.col++;
+        while (_trace.col < line_data.size()) {
+         if (line_data[_trace.col] == '"') {
+            if (_trace.col > 0 && line_data[_trace.col - 1] != '\\') {
+              value += line_data[_trace.col];
+              break;
+            }
+          }
+          if (line_data[_trace.col] == '\\' && _trace.col + 1 < line_data.size()) {
+            if (check_for_chars(value, line_data[_trace.col + 1])) {
+              _trace.col += 2;
+              continue;
+            }
+          }
+          value += line_data[_trace.col++];
+        }
+        if (!value.ends_with('"')) {
+          emit_error("Unterminated string");
+          return;
+        }
+        value = value.substr(1, value.size() - 2);
+        insert_atom(list, atom_type_e::STRING, meta_e::UNDEFINED, value);
+        buff.clear();
         break;
       }
 
-      // TODO:
-      
-      // chars
+    case '\'': {
+      bool in_str{true};
+      std::string value = "'";
+      decltype(_trace.col) start = _trace.col++;
+      while (_trace.col < line_data.size()) {
+        if (line_data[_trace.col] == '\'') {
+          if (_trace.col > 0 && line_data[_trace.col - 1] != '\\') {
+            value += line_data[_trace.col];
+            break;
+          }
+        }
+        if (line_data[_trace.col] == '\\' && _trace.col + 1 < line_data.size()) {
+          if (check_for_chars(value, line_data[_trace.col + 1])) {
+            _trace.col += 2;
+            continue;
+          }
+        }
+        value += line_data[_trace.col++];
+      }
 
-      // Treat # as a comment
+      if (!value.ends_with('\'')) {
+        emit_error("Unterminated char");
+        return;
+      }
+      value = value.substr(1, value.size() - 2);
+      insert_atom(list, atom_type_e::CHAR, meta_e::UNDEFINED, value);
+      line_data.clear();
+      break;
+    }
 
-      // Gobble up '"'
+    // TODO:
 
-      // Gobble up '''  ''' ? 
-      
       // Hex/ Binary etc as numbers
 
       // other numbers
 
       // identifiers
-
     };
     _trace.col++;
   }

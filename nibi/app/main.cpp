@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
 
   parser::parser_c parser(list_receiver, error_receiver);
 
-  parser.submit("(<= +", 1);
-  parser.submit("-", 2);
+  parser.submit("(<= + ;Now this should be okay", 1);
+  parser.submit(R"("This is a \"string\"")", 2);
   parser.submit(")", 3);
 
   parser.finish();
