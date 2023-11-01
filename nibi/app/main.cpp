@@ -14,13 +14,18 @@ void error_receiver(parser::error_s err) {
 
 int main(int argc, char **argv) {
 
-  std::string test_line = "(+ (- - - - (* * *)  - - ) + + + )";
+  //std::string test_line = "(+ (- - - - (* * *)  - - ) + + + )";
 
   parser::parser_c parser(list_receiver, error_receiver);
 
-  parser.submit(test_line);
+  parser.submit("(<= +", 1);
+  parser.submit("-", 2);
+  parser.submit(")", 3);
 
   parser.finish();
+
+
+  // TODO: Add tests. CPPUTests? Google tests? home made tests?
 
   return 0;
 }

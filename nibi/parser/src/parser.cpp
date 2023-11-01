@@ -6,27 +6,6 @@
 
 namespace parser {
 
-namespace {
-
-static inline void ltrim(std::string &s) {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }));
-}
-
-static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-        return !std::isspace(ch);
-    }).base(), s.end());
-}
-
-static inline void trim(std::string &s) {
-    rtrim(s);
-    ltrim(s);
-}
-
-} // namespace
-
 void print_list(parser::list_t &list) {
   for(auto &atom : list) {
     std::cout << " ATOM (" << atom->line << ":" << atom->col << ")[" << atom->data << "]";
@@ -52,39 +31,33 @@ void parser_c::insert_atom(
           _trace.col));
 }
 
-void parser_c::submit(std::string &data) {
+void parser_c::submit(const char* data, size_t line) {
+  if (!data) {
+    return;
+  }
+  std::string val = data;
+  return submit(val, line);
+}
 
- // trim(data); // This will much with cols
+void parser_c::submit(std::string &data, size_t line) {
 
   if (data.empty())
     return;
 
-  if (_line_buffer.empty() && data[0] == '#') {
-    list_t list;
-    insert_atom(&list, atom_type_e::SYMBOL, meta_e::DIRECTIVE, data);
-    _list_cb(std::move(list));
-    return;
-  }
+  _trace.line = line;
+  _trace.col = 0;
 
-  if (_line_buffer.empty() && data[0] == ';') {
-    list_t list;
-    insert_atom(&list, atom_type_e::SYMBOL, meta_e::COMMENT, data);
-    _list_cb(std::move(list));
-    return;
-  }
-
-  _line_buffer += data;
-  _trace.line++;
-
-  if (_partial_list.empty()) {
-    parse(nullptr);
+  if (_active_lists.empty()) {
+    parse(nullptr, data);
   } else {
-    parse(&_partial_list);
+    parse(&_active_lists.top(), data);
   }
 }
 
 void parser_c::finish() {
-
+  if (!_active_lists.empty()) {
+    emit_error("Incomplete list - Finish indicated with data buffered");
+  }
 }
 
 #define ADD_SYM(sym, meta) \
@@ -95,9 +68,9 @@ void parser_c::finish() {
 
 #define ADD_DOUBLE_SYM(syml, symr, metal, metar) \
   case syml: \
-    if (_trace.col + 1 < _line_buffer.size() && _line_buffer[_trace.col+1] == symr) { \
+    if (_trace.col + 1 < line_data.size() && line_data[_trace.col+1] == symr) { \
       _trace.col++; \
-      buff = buff + _line_buffer[_trace.col]; \
+      buff = buff + line_data[_trace.col]; \
       insert_atom(list, atom_type_e::SYMBOL, metar, buff); \
     } else {\
       insert_atom(list, atom_type_e::SYMBOL, metal, buff); \
@@ -107,13 +80,13 @@ void parser_c::finish() {
 
 #define ADD_TRIPPLE_SYM(syml, symm, symr, metal, metam, metar) \
   case syml: \
-    if (_trace.col + 1 < _line_buffer.size() && _line_buffer[_trace.col+1] == symm) { \
+    if (_trace.col + 1 < line_data.size() && line_data[_trace.col+1] == symm) { \
       _trace.col++; \
-      buff = buff + _line_buffer[_trace.col]; \
+      buff = buff + line_data[_trace.col]; \
       insert_atom(list, atom_type_e::SYMBOL, metam, buff); \
-    } else if (_trace.col + 1 < _line_buffer.size() && _line_buffer[_trace.col+1] == symr) { \
+    } else if (_trace.col + 1 < line_data.size() && line_data[_trace.col+1] == symr) { \
       _trace.col++; \
-      buff = buff + _line_buffer[_trace.col]; \
+      buff = buff + line_data[_trace.col]; \
       insert_atom(list, atom_type_e::SYMBOL, metar, buff); \
     } else {\
       insert_atom(list, atom_type_e::SYMBOL, metal, buff); \
@@ -121,12 +94,12 @@ void parser_c::finish() {
     buff.clear(); \
     break;
 
-void parser_c::parse(list_t *list) {
+void parser_c::parse(list_t *list, std::string &line_data) {
 
   std::string buff;
-  while(_trace.col < _line_buffer.size()) {
+  while(_trace.col < line_data.size()) {
 
-    auto c = _line_buffer[_trace.col];
+    auto c = line_data[_trace.col];
 
     if (std::isspace(c)) {
       _trace.col++;
@@ -181,8 +154,8 @@ void parser_c::parse(list_t *list) {
                 col));
         }
 
-        list_t new_list;
-        parse(&new_list);
+        _active_lists.push({});
+        parse(&_active_lists.top(), line_data);
 
         buff.pop_back();
         break;
@@ -198,19 +171,36 @@ void parser_c::parse(list_t *list) {
         _trace.col++;
 
         _list_cb(std::move(*list));
+
+        _active_lists.pop();
         return;
       }
 
       case ';': {
         // Eat the rest of the line as a comment and add to list. 
         // Return without emitting
-      break;
+        break;
       }
-    };
 
+      // TODO:
+      
+      // chars
+
+      // Treat # as a comment
+
+      // Gobble up '"'
+
+      // Gobble up '''  ''' ? 
+      
+      // Hex/ Binary etc as numbers
+
+      // other numbers
+
+      // identifiers
+
+    };
     _trace.col++;
   }
-
 }
 
 void parser_c::emit_error(const std::string &err) {
@@ -221,8 +211,7 @@ void parser_c::emit_error(const std::string &err) {
 
 void parser_c::reset() {
   _trace = {0,0,0};
-  _line_buffer.clear();
-  _partial_list.clear();
+  _active_lists = {};
 }
 
 } // namespace

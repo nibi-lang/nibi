@@ -4,16 +4,20 @@
 #include <optional>
 #include <memory>
 #include <string>
+#include <stack>
 #include <vector>
 
 namespace parser {
 
 enum class atom_type_e {
   UNDEFINED = 0,
-  INTEGER,
+  INTEGER,      // Note: We don't care about size of integers yet
   REAL,
   STRING,
   SYMBOL,
+
+  // TODO: chars
+
   LOAD_ARG,    // Pull result of previous computation as an argument
 };
 
@@ -52,14 +56,13 @@ public:
   std::string data;
 };
 
-using list_t = std::vector<std::unique_ptr<atom_c>>;
-
 struct error_s {
   std::string message;
   size_t line{0};
   size_t col{0};
 };
 
+using list_t = std::vector<std::unique_ptr<atom_c>>;
 using error_cb_f = std::function<void(error_s)>;
 using list_cb_f = std::function<void(list_t)>;
 
@@ -73,7 +76,7 @@ extern void print_list(list_t& list);
 //! \note This parser will return lists as they complete, 
 //!       so that the inner-most lists will be emitted first
 //  
-//        (+ 1 2 (/ 1 2))   ->    (/ 1 2) (+ 1 2)
+//        (+ 1 2 (/ 1 2))   ->    (/ 1 2) (+ 1 2 LOAD_ARG)
 //
 //
 class parser_c {
@@ -85,7 +88,10 @@ public:
   //! \brief Submit some string data to the parser.
   //!        If the parser detects a fully processed list,
   //!        the parser will hand the list via the callback.
-  void submit(std::string &data);
+  //!        If no full list is detected, the input will be buffered
+  //!        and a subsequent `submit` will continue the processing.
+  void submit(const char* data, size_t line=0);
+  void submit(std::string &data, size_t line=0);
 
   //! \brief Indicate that the parsing is finished.
   //!        In the event that there is incomplete
@@ -102,19 +108,16 @@ private:
     size_t col{0};
   } _trace;
 
-  std::string _line_buffer;
-  list_t _partial_list;
-
   void insert_atom(list_t *list,
     const atom_type_e,
     const meta_e,
     std::string&);
-  void parse(list_t* list);
+  void parse(list_t* list, std::string &string_data);
   void emit_error(const std::string&);
   void reset();
-};
 
-extern void test();
+  std::stack<list_t> _active_lists;
+};
 
 } // namespace
 
