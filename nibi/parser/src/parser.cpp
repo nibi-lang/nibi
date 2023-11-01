@@ -11,7 +11,6 @@ namespace {
 
 static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
 static std::regex is_identifier(R"([_:]?[a-zA-Z_\-][a-zA-Z0-9_\-]{0,31})");
-
 static std::unordered_map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
     {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
@@ -83,13 +82,15 @@ void parser_c::finish() {
 }
 
 #define ADD_SYM(sym, meta) \
-  case sym:\
+  case sym: {\
+  std::string buff; buff += sym; \
   insert_atom(list, atom_type_e::SYMBOL, meta, buff); \
   buff.clear(); \
-  break;
+  break;}
 
 #define ADD_DOUBLE_SYM(syml, symr, metal, metar) \
-  case syml: \
+  case syml: {\
+    std::string buff; buff += syml; \
     if (_trace.col + 1 < line_data.size() && line_data[_trace.col+1] == symr) { \
       _trace.col++; \
       buff = buff + line_data[_trace.col]; \
@@ -98,10 +99,11 @@ void parser_c::finish() {
       insert_atom(list, atom_type_e::SYMBOL, metal, buff); \
     } \
     buff.clear(); \
-    break;
+    break;}
 
 #define ADD_TRIPPLE_SYM(syml, symm, symr, metal, metam, metar) \
-  case syml: \
+  case syml: {\
+    std::string buff; buff += syml; \
     if (_trace.col + 1 < line_data.size() && line_data[_trace.col+1] == symm) { \
       _trace.col++; \
       buff = buff + line_data[_trace.col]; \
@@ -113,12 +115,10 @@ void parser_c::finish() {
     } else {\
       insert_atom(list, atom_type_e::SYMBOL, metal, buff); \
     } \
-    buff.clear(); \
-    break;
+    break;}
 
 void parser_c::parse(list_t *list, std::string &line_data) {
 
-  std::string buff;
   while(_trace.col < line_data.size()) {
 
     auto c = line_data[_trace.col];
@@ -128,8 +128,8 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       continue;
     }
 
-    buff = buff + c;
     switch (c) {
+      ADD_SYM('\'', meta_e::SINGLE_QUOTE)
       ADD_SYM('~', meta_e::TILDE)
       ADD_SYM('`', meta_e::BACK_TICK)
       ADD_SYM('@', meta_e::AT)
@@ -176,8 +176,6 @@ void parser_c::parse(list_t *list, std::string &line_data) {
 
         _active_lists.push({});
         parse(&_active_lists.top(), line_data);
-
-        buff.pop_back();
         break;
       }
 
@@ -227,38 +225,8 @@ void parser_c::parse(list_t *list, std::string &line_data) {
         }
         value = value.substr(1, value.size() - 2);
         insert_atom(list, atom_type_e::STRING, meta_e::UNDEFINED, value);
-        buff.clear();
         break;
       }
-
-    case '\'': {
-      bool in_str{true};
-      std::string value = "'";
-      decltype(_trace.col) start = _trace.col++;
-      while (_trace.col < line_data.size()) {
-        if (line_data[_trace.col] == '\'') {
-          if (_trace.col > 0 && line_data[_trace.col - 1] != '\\') {
-            value += line_data[_trace.col];
-            break;
-          }
-        }
-        if (line_data[_trace.col] == '\\' && _trace.col + 1 < line_data.size()) {
-          if (check_for_chars(value, line_data[_trace.col + 1])) {
-            _trace.col += 2;
-            continue;
-          }
-        }
-        value += line_data[_trace.col++];
-      }
-      if (!value.ends_with('\'')) {
-        emit_error("Unterminated char");
-        return;
-      }
-      value = value.substr(1, value.size() - 2);
-      insert_atom(list, atom_type_e::CHAR, meta_e::UNDEFINED, value);
-      line_data.clear();
-      break;
-    }
 
     default: {
          if (std::isdigit(line_data[_trace.col]) || line_data[_trace.col] == '-') {
@@ -311,7 +279,6 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       }
     }
     _trace.col++;
-    buff.clear();
   }
 }
 

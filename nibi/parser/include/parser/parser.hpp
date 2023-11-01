@@ -30,7 +30,7 @@ enum class meta_e {
   PIPE, OR, COLON, COMMA, PERIOD,
   LT, GT, LTE, GTE, LSH, RSH, QUESTION_MARK, FORWARD_SLASH,
   SCOPE,
-  EQUAL_EQUAL,
+  EQUAL_EQUAL, SINGLE_QUOTE
 };
 
 class atom_c {
