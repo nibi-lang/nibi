@@ -161,8 +161,8 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       ADD_DOUBLE_SYM('!', '=', meta_e::EXCLAMATION_POINT, meta_e::NOT_EQUAL);
       ADD_DOUBLE_SYM(':', ':', meta_e::COLON, meta_e::SCOPE);
       ADD_DOUBLE_SYM('|', '|', meta_e::PIPE, meta_e::OR);
-      ADD_TRIPPLE_SYM('<', '=', '<', meta_e::LT, meta_e::LTE, meta_e::LSH);
-      ADD_TRIPPLE_SYM('>', '=', '>', meta_e::GT, meta_e::GTE, meta_e::RSH);
+      ADD_DOUBLE_SYM('>', '>', meta_e::GT, meta_e::RSH);
+      ADD_TRIPPLE_SYM('<', '-', '<', meta_e::LT, meta_e::LEFT_ARROW, meta_e::LSH);
 
       case '(': {
         size_t line = _trace.line;

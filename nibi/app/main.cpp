@@ -25,7 +25,7 @@ void check_parser();
 
 int main(int argc, char **argv) {
 
-  //check_parser();
+  check_parser();
 
   
 
@@ -49,7 +49,7 @@ void check_parser() {
   parser.finish();
   std::cout << "\n\n";
 
-  parser.submit("(<= + ;Now this should be okay", 1);
+  parser.submit("(<- + ;Now this should be okay", 1);
   parser.submit(R"("This is a \"string\"")", 2);
   parser.submit(")", 3);
   parser.finish();
@@ -59,11 +59,11 @@ void check_parser() {
   parser.finish();
   std::cout << "\n\n";
 
-  parser.submit("(<= 1 2)");
+  parser.submit("(<- 1 2)");
   parser.finish();
   std::cout << "\n\n";
 
-  parser.submit("(<= 1 (- ");
+  parser.submit("(<- 1 (- ");
   parser.submit("1 2))");
   parser.finish();
   std::cout << "\n\n";
