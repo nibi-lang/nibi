@@ -1,5 +1,5 @@
-#include <parser/parser.hpp>
-#include <parser/file_parser.hpp>
+#include "parser/parser.hpp"
+#include "parser/file_parser.hpp"
 
 #include <iostream>
 
@@ -28,11 +28,11 @@ int main(int argc, char **argv) {
   check_parser();
 
   parser_receiver_c prc;
-  if (!parser::from_file(prc, "example.nibi")) {
-    std::cerr << "Failed to parse file\n";
-    return 1;
-  }
-
+//  if (!parser::from_file(prc, "example.nibi")) {
+//    std::cerr << "Failed to parse file\n";
+//    return 1;
+//  }
+//
   return 0;
 }
 
@@ -73,3 +73,4 @@ void check_parser() {
 
 
 }
+
