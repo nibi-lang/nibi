@@ -27,14 +27,11 @@ int main(int argc, char **argv) {
 
   check_parser();
 
-  
-
   parser_receiver_c prc;
   if (!parser::from_file(prc, "example.nibi")) {
     std::cerr << "Failed to parse file\n";
     return 1;
   }
-
 
   return 0;
 }
@@ -44,6 +41,10 @@ void check_parser() {
   parser_receiver_c prc;
 
   parser::parser_c parser(prc);
+
+  parser.submit("(let x :u8 0)");
+  parser.finish();
+  std::cout << "\n\n";
 
   parser.submit("(+ (- - - - (* * *)  - - ) + + + )");
   parser.finish();

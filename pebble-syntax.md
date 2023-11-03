@@ -76,8 +76,8 @@ Structs
 ; Setting a struct
 
 (let start :coord       ; coord has become a type-tag
-    ::x 0               ; Scoped parameter assignment (required)
-    ::y 0)
+    :x 0                ; Scoped parameter assignment (required)
+    :y 0)
 
 (put start.x)           ; Access
 ```
@@ -149,9 +149,9 @@ Defining named scopes helps with naming and organization, so it can be done as s
         (+ lhs rhs))
 )
 
-(puts math::pi)
+(puts math.pi)
 
-(puts (math::add 10 4))
+(puts (math.add 10 4))
 
 
 ; Scopes will stay alive within their function unless they are made to be anonymous.
@@ -332,8 +332,8 @@ Uses within nibi (ideaing again)
                 ::minor 1
                 ::patch 0)))
 
-        (let hash :str compiler::githash)
-        (let date :u64 compiler::datetime)
+        (let hash :str compiler.githash)
+        (let date :u64 compiler.datetime)
     )
 )
 ```
@@ -355,6 +355,6 @@ the data wouldn't be available until runtime (user io/etc.)
 (fn main :u8 (args :list)
     (io.println 
         "Build hash: " 
-        (compexpr (<- app-info::hash))
+        (compexpr (<- app-info.hash))
         ))
 ```

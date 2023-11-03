@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cctype>
 #include <map>
 #include <regex>
 
@@ -10,7 +11,6 @@ namespace parser {
 namespace {
 
 static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
-static std::regex is_identifier(R"([_:]?[a-zA-Z_\-][a-zA-Z0-9_\-]{0,31})");
 static std::map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
     {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
@@ -159,7 +159,6 @@ void parser_c::parse(list_t *list, std::string &line_data) {
       ADD_SYM('/', meta_e::FORWARD_SLASH)
       ADD_DOUBLE_SYM('=', '=', meta_e::EQUAL, meta_e::EQUAL_EQUAL);
       ADD_DOUBLE_SYM('!', '=', meta_e::EXCLAMATION_POINT, meta_e::NOT_EQUAL);
-      ADD_DOUBLE_SYM(':', ':', meta_e::COLON, meta_e::SCOPE);
       ADD_DOUBLE_SYM('|', '|', meta_e::PIPE, meta_e::OR);
       ADD_DOUBLE_SYM('>', '>', meta_e::GT, meta_e::RSH);
       ADD_TRIPPLE_SYM('<', '-', '<', meta_e::LT, meta_e::LEFT_ARROW, meta_e::LSH);
@@ -276,18 +275,30 @@ void parser_c::parse(list_t *list, std::string &line_data) {
 
          std::string word;
          word += line_data[_trace.col];
+
+         auto meta_type = meta_e::UNDEFINED;
          while (_trace.col + 1 < line_data.size() && !std::isspace(line_data[_trace.col + 1]) &&
                 line_data[_trace.col + 1] != '(' && line_data[_trace.col + 1] != ')' &&
                 line_data[_trace.col + 1] != '[' && line_data[_trace.col + 1] != ']' &&
                 line_data[_trace.col + 1] != '{' && line_data[_trace.col + 1] != '}') {
+
+           if ('.' == line_data[_trace.col + 1]) {
+              meta_type = meta_e::DOT_ACCESS;
+           }
+
            word += line_data[_trace.col + 1];
            _trace.col++;
          }
-         if (std::regex_match(word, is_identifier)) {
-          insert_atom(list, atom_type_e::SYMBOL, meta_e::IDENTIFIER, word);
-         } else {
-            emit_error("Malformed identifier");
+
+         if (word[0] == ':') {
+            if (meta_e::DOT_ACCESS == meta_type)
+              insert_atom(list, atom_type_e::SYMBOL, meta_e::DOT_TAG, word);
+            else
+              insert_atom(list, atom_type_e::SYMBOL, meta_e::TAG, word);
+            break;
          }
+
+         insert_atom(list, atom_type_e::SYMBOL, meta_e::IDENTIFIER, word);
          break;
       }
     }
