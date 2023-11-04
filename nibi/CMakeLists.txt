@@ -4,15 +4,14 @@ project(nibi)
 
 set(CMAKE_CXX_STANDARD 23)
 
-set(PARSER_SOURCES
-  parser/parser.cpp
-  parser/file_parser.cpp)
+set(INTAKE_SOURCES
+  front/lexer.cpp
+  front/file_intake.cpp
+  front/parser.cpp)
 
 set(APP_SOURCES
-  ${PARSER_SOURCES}
+  ${INTAKE_SOURCES}
   app/main.cpp)
-
-message(STATUS "Parser sources: ${PARSER_SOURCES}")
 
 include_directories(${PROJECT_SOURCE_DIR})
 

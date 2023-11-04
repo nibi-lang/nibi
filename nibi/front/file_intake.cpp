@@ -1,15 +1,15 @@
-#include "file_parser.hpp"
-#include "parser.hpp"
+#include "file_intake.hpp"
+#include "lexer.hpp"
 
 #include <fstream>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
-namespace parser {
+namespace front {
 
 extern bool from_file(
-  parser::receiver_if &receiver,
+  front::atom_receiver_if &receiver,
   const std::string &file_name) {
 
   auto emit_error = [&](const std::string& msg) {
@@ -18,7 +18,7 @@ extern bool from_file(
     error_message += ": ";
     error_message += msg;
 
-    error_s e{error_message, 0, 0};
+    error_s e{error_message, {0, 0}};
     receiver.on_error(e);
   };
 
@@ -36,17 +36,17 @@ extern bool from_file(
     return false;
   }
 
-  parser_c parser(receiver);
+  lexer_c lexer(receiver);
 
   size_t line_no{1};
   std::string line;
   while(std::getline(in, line)) {
-    parser.submit(line, line_no++);
+    lexer.submit(line, line_no++);
   }
 
   in.close();
 
-  return parser.finish();
+  return lexer.finish();
 }
 
 } // namespace

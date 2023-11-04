@@ -1,10 +1,11 @@
 #pragma once
 
+#include "types.hpp"
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace parser {
+namespace front {
 
 enum class atom_type_e {
   UNDEFINED = 0,
@@ -40,24 +41,29 @@ public:
               std::string data,
               const size_t line,
               const size_t col)
-    : line(line),
-      col(col),
+    : pos(line, col),
       atom_type(atom_type),
       meta(meta),
       data(data) {}
-  size_t line{0};
-  size_t col{0};
+  pos_s pos;
   atom_type_e atom_type{atom_type_e::UNDEFINED};
   meta_e meta{meta_e::UNDEFINED};
   std::string data;
 };
 
-struct error_s {
-  std::string message;
-  size_t line{0};
-  size_t col{0};
-};
+using atom_list_t = std::vector<std::unique_ptr<atom_c>>;
 
-using list_t = std::vector<std::unique_ptr<atom_c>>;
+extern void print_list(atom_list_t& list);
+
+class atom_receiver_if {
+public:
+  //! \brief Called in the event of a parsing error
+  virtual void on_error(error_s) = 0;
+  //! \brief Called when a full list has been parsed
+  virtual void on_list(atom_list_t) = 0;
+  //! \brief Called when a top-most list has been completly parsed
+  //!        after all potential sub-lists
+  virtual void on_top_list_complete() = 0;
+};
 
 } // namespace

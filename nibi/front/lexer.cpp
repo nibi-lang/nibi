@@ -1,4 +1,4 @@
-#include "parser/parser.hpp"
+#include "lexer.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -6,7 +6,7 @@
 #include <map>
 #include <regex>
 
-namespace parser {
+namespace front {
 
 namespace {
 
@@ -27,15 +27,15 @@ inline bool check_for_chars(std::string &buffer, char c) {
 
 } // namespace
 
-void print_list(parser::list_t &list) {
+void print_list(front::atom_list_t &list) {
   for(auto &atom : list) {
-    std::cout << " ATOM (" << atom->line << ":" << atom->col << ")[" << atom->data << "]";
+    std::cout << " ATOM (" << atom->pos.line << ":" << atom->pos.col << ")[" << atom->data << "]";
   }
   std::cout << std::endl;
 }
 
-void parser_c::insert_atom(
-  list_t *list,
+void lexer_c::insert_atom(
+  atom_list_t *list,
   const atom_type_e type,
   const meta_e meta,
   const std::string &data) {
@@ -52,7 +52,7 @@ void parser_c::insert_atom(
           _trace.col));
 }
 
-void parser_c::submit(const char* data, size_t line) {
+void lexer_c::submit(const char* data, size_t line) {
   if (!data) {
     return;
   }
@@ -60,7 +60,7 @@ void parser_c::submit(const char* data, size_t line) {
   return submit(val, line);
 }
 
-void parser_c::submit(std::string &data, size_t line) {
+void lexer_c::submit(std::string &data, size_t line) {
 
   if (data.empty())
     return;
@@ -79,7 +79,7 @@ void parser_c::submit(std::string &data, size_t line) {
   }
 }
 
-bool parser_c::finish() {
+bool lexer_c::finish() {
   if (!_active_lists.empty()) {
 
     std::cout << "Lists active: " << _active_lists.size() << std::endl;
@@ -127,7 +127,7 @@ bool parser_c::finish() {
     } \
     break;}
 
-void parser_c::parse(list_t *list, std::string &line_data) {
+void lexer_c::parse(atom_list_t *list, std::string &line_data) {
 
   while(_trace.col < line_data.size()) {
 
@@ -306,13 +306,13 @@ void parser_c::parse(list_t *list, std::string &line_data) {
   }
 }
 
-void parser_c::emit_error(const std::string &err) {
-  error_s e{err, _trace.line, _trace.col};
+void lexer_c::emit_error(const std::string &err) {
+  error_s e{err, {_trace.line, _trace.col}};
   _receiver.on_error(e);
   reset();
 }
 
-void parser_c::reset() {
+void lexer_c::reset() {
   _trace = {0,0,0};
   _active_lists = {};
 }

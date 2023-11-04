@@ -2,14 +2,11 @@
 
 #include <stack>
 
-#include "types.hpp"
-#include "interfaces.hpp"
+#include "atoms.hpp"
 
-namespace parser {
+namespace front {
 
-extern void print_list(list_t& list);
-
-//! \class parser_c
+//! \class lexer_c
 //! \brief A parser that allows data to be submitted to
 //!        it in pieces. When a list is detected/parsed
 //!        a callback will fire handing the list over.
@@ -20,10 +17,10 @@ extern void print_list(list_t& list);
 //        (+ 1 2 (/ 1 2))   ->    (/ 1 2) (+ 1 2 LOAD_ARG)
 //
 //
-class parser_c {
+class lexer_c {
 public:
-  parser_c() = delete;
-  parser_c(parser::receiver_if &receiver)
+  lexer_c() = delete;
+  lexer_c(front::atom_receiver_if &receiver)
     : _receiver(receiver) {}
 
   //! \brief Submit some string data to the parser.
@@ -42,7 +39,7 @@ public:
   bool finish();
 
 private:
-  parser::receiver_if &_receiver;
+  front::atom_receiver_if &_receiver;
 
   struct {
     size_t pdepth{0};
@@ -50,15 +47,15 @@ private:
     size_t col{0};
   } _trace;
 
-  void insert_atom(list_t *list,
+  void insert_atom(atom_list_t *list,
     const atom_type_e,
     const meta_e,
     const std::string&);
-  void parse(list_t* list, std::string &string_data);
+  void parse(atom_list_t* list, std::string &string_data);
   void emit_error(const std::string&);
   void reset();
 
-  std::stack<list_t> _active_lists;
+  std::stack<atom_list_t> _active_lists;
 };
 
 } // namespace
