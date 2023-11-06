@@ -3,13 +3,6 @@
 
 #include <iostream> // todo: replace with logger
 
-/*
-      Byte-encoded instruction layout
-
-      [   id    |      len      |   data ... ]
-        1 byte       4 bytes       variable
-*/
-
 namespace machine {
 
 namespace {
@@ -34,13 +27,14 @@ bool instruction_set_builder_c::encode_instruction(
     return false;
   }
   _data.push_back((uint8_t)id);
-  bytes_t encoded_len = tools::pack_4(ins_data.size());
+  bytes_t encoded_len = tools::pack<uint32_t>(ins_data.size());
   _data.insert(_data.end(), encoded_len.begin(), encoded_len.end());
   _data.insert(_data.end(), ins_data.begin(), ins_data.end());
   return true;
 };
 
-std::unique_ptr<instruction_if> instruction_set_builder_c::finalize() {
+std::unique_ptr<instruction_if>
+instruction_set_builder_c::get_instruction_interface() {
   _data.shrink_to_fit();
   
   auto final_instructions =
@@ -72,7 +66,16 @@ bool instruction_set_builder_c::instruction_set_c::populate(
       return false;
     }
 
+    instruction_view_s* iv = (instruction_view_s*)(
+        (uint8_t*)(data.data() + i));
+
+    std::cout << "i=" << i << " cb=" << (int)current_byte
+              << " cba=" << (size_t)(&current_byte)
+              << " da=" << (size_t)(data.data() + i) << std::endl;
+
     ins_id_e op = static_cast<ins_id_e>(current_byte);
+
+    std::cout << (int)op << " " << (int)iv->op << std::endl;
 
     if (current_byte < INS_DATA_BOUNDARY) {
       _instructions.push_back(instruction_s{op, nullptr});
@@ -86,7 +89,7 @@ bool instruction_set_builder_c::instruction_set_c::populate(
       data.begin() + i + DATA_LEN_FIELD_SIZE_BYTES);
 
     std::optional<uint32_t> unpacked_len =
-      tools::unpack_4(instruction_data_len_encoded);
+      tools::unpack<uint32_t>(instruction_data_len_encoded);
 
     if (!unpacked_len.has_value()) {
       // Todo: log

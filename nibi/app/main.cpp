@@ -99,17 +99,17 @@ void check_ins_builder() {
   std::vector<test_case_s> tcs {
 
     { machine::ins_id_e::LOAD_INT,
-      machine::tools::pack_4(420) },
+      machine::tools::pack<uint32_t>(420) },
 
     { machine::ins_id_e::LOAD_REAL,
-      machine::tools::pack_4(
+      machine::tools::pack<uint32_t>(
         machine::tools::real_to_uint64_t(8.88)) },
 
     { machine::ins_id_e::LOAD_INT,
-      machine::tools::pack_4(69) },
+      machine::tools::pack<uint32_t>(69) },
 
     { machine::ins_id_e::LOAD_REAL,
-      machine::tools::pack_4(
+      machine::tools::pack<uint32_t>(
         machine::tools::real_to_uint64_t(3.14159)) },
     
     { machine::ins_id_e::EXEC_ADD, {} },
@@ -119,10 +119,10 @@ void check_ins_builder() {
     { machine::ins_id_e::EXEC_ADD, {} },
     
     { machine::ins_id_e::LOAD_INT,
-      machine::tools::pack_4(24) },
+      machine::tools::pack<uint32_t>(24) },
 
     { machine::ins_id_e::LOAD_REAL,
-      machine::tools::pack_4(
+      machine::tools::pack<uint32_t>(
         machine::tools::real_to_uint64_t(2.71828)) },
 
     { machine::ins_id_e::EXEC_MUL, {} }
@@ -154,7 +154,8 @@ void check_ins_builder() {
 
   std::cout << "MAIN: Finalizing and checking..\n";
 
-  std::unique_ptr<machine::instruction_if> insif = isbc.finalize();
+  std::unique_ptr<machine::instruction_if> insif =
+    isbc.get_instruction_interface();
 
   if (insif == nullptr) {
     std::cerr << "Failed to finalize bytecode" << std::endl;

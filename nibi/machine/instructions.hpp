@@ -33,8 +33,52 @@ enum class ins_id_e : uint8_t {
   LOAD_RESULT,
   LOAD_VAR,
   EXEC_SYMBOL,
+
+  JUMP_TO,  // Byte index of instruction set to jump to
+
   ENUM_BOUNDARY,
 };
+
+struct execution_error_s {
+  std::string message;
+  // TODO: Add specific, helpful, debug data
+};
+
+class instruction_error_handler_if {
+public:
+  //! \brief Handle an error that arose from
+  //!        attempting to execute a specific
+  //!        machine instruction.
+  //! \note It is the handler's responsibility to 
+  //!       know where in the source document that
+  //!       the bytecode at the given index was 
+  //!       generated from to report the error to
+  //!       the user
+  virtual void on_error(
+      const uint64_t instruction_index,
+      const execution_error_s err) = 0;
+};
+using error_handler_ptr = std::unique_ptr<instruction_error_handler_if>;
+
+class instruction_receiver_if {
+public:
+  //! \brief Handle a set of instructions
+  //! \param instructions The encoded instruction(s)
+  //! \param error_handler The handler that should be 
+  //!        called upon if an error occurs within the 
+  //!        set of instructions
+  virtual void handle_instructions(
+      const bytes_t& instructions,
+      error_handler_ptr error_handler) = 0;
+};
+
+#pragma pack(push, 1)
+struct instruction_view_s {
+  uint8_t op{0};
+  std::uint32_t data_len{0};
+  uint8_t* data{nullptr};
+};
+#pragma pack(pop)
 
 #pragma pack(push, 1)
 //! \brief A single instruction, along with
@@ -45,12 +89,28 @@ struct instruction_s {
 };
 #pragma pack(pop)
 
+
+/*
+      Byte-encoded instruction layout
+
+      [   id    |      len      |   data ... ]
+        1 byte       4 bytes       variable
+*/
+
 //! \brief Builder for encoding/ decoding
 //!        an instruction set
 class instruction_set_builder_c {
 public:
   //! \brief Interface to interact with decoded
   //!        instructions 
+  //!
+  //! \note The set interface should prob. not be used
+  //!       for runtime execution of instructions. 
+  //!       Each instruction in the list from this 
+  //!       generated interface will have 8 bytes overhead
+  //!       for EVERY instruction to handle the data pointer.
+  //!       - For runtime execution it is recommended that the
+  //!         instructions are hand-decoded at execution time.
   class instruction_set_if {
     public:
     virtual ~instruction_set_if() = default;
@@ -78,7 +138,8 @@ public:
   //!          detected
   //! \note After this call on success, the builder may be 
   //!       disregarded
-  [[nodiscard]] std::unique_ptr<instruction_set_if> finalize();
+  [[nodiscard]] std::unique_ptr<instruction_set_if> 
+    get_instruction_interface();
 
   //! \brief Encode a data-less instruction
   [[nodiscard]] bool encode_instruction(const ins_id_e id);

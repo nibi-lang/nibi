@@ -10,7 +10,8 @@ set(INTAKE_SOURCES
   front/parser.cpp)
 
 set(MACHINE_SOURCES
-  machine/instructions.cpp)
+  machine/instructions.cpp
+  machine/engine.cpp)
 
 set(APP_SOURCES
   ${INTAKE_SOURCES}
