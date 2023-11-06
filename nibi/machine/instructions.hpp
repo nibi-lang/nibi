@@ -76,7 +76,7 @@ public:
 struct instruction_view_s {
   uint8_t op{0};
   std::uint32_t data_len{0};
-  uint8_t* data{nullptr};
+  uint8_t data[];
 };
 #pragma pack(pop)
 

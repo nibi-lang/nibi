@@ -6,7 +6,9 @@
 namespace machine {
 
 namespace {
-  static constexpr uint8_t DATA_LEN_FIELD_SIZE_BYTES = 4;
+  static constexpr uint8_t FIELD_OP_SIZE_BYTES = 1;
+  static constexpr uint8_t FIELD_DATA_LEN_SIZE_BYTES = 4;
+
 }
 
 instruction_set_builder_c::instruction_set_builder_c() {
@@ -51,65 +53,48 @@ instruction_set_builder_c::get_instruction_interface() {
 
 bool instruction_set_builder_c::instruction_set_c::populate(
   const bytes_t& data) {
+
   _data.clear();
 
-  for (size_t i = 0; i < data.size(); i++) {
-    auto& current_byte = data[i];
+  size_t idx{0};
+  while(idx < data.size()) {
+    auto& current_byte = data[idx];
 
     if (current_byte >= (uint8_t)ins_id_e::ENUM_BOUNDARY) {
       // Todo: log
       std::cout << "TODO:LOG machine::isbc: Byte is >= boundary " 
                 << (int)ins_id_e::ENUM_BOUNDARY 
                 << std::endl;
-      std::cout << "i = " << i << std::endl;
+      std::cout << "i = " << idx << std::endl;
       std::cout << "size = " << data.size() << std::endl;
       return false;
     }
 
-    instruction_view_s* iv = (instruction_view_s*)(
-        (uint8_t*)(data.data() + i));
-
-    std::cout << "i=" << i << " cb=" << (int)current_byte
-              << " cba=" << (size_t)(&current_byte)
-              << " da=" << (size_t)(data.data() + i) << std::endl;
-
-    ins_id_e op = static_cast<ins_id_e>(current_byte);
-
-    std::cout << (int)op << " " << (int)iv->op << std::endl;
+    instruction_view_s* iv =
+      (instruction_view_s*)((uint8_t*)(data.data() + idx));
 
     if (current_byte < INS_DATA_BOUNDARY) {
-      _instructions.push_back(instruction_s{op, nullptr});
+      _instructions.push_back(instruction_s{(ins_id_e)iv->op, nullptr});
+      idx += FIELD_OP_SIZE_BYTES;
       continue;
     }
 
-    i++;
+    idx += FIELD_OP_SIZE_BYTES + FIELD_DATA_LEN_SIZE_BYTES;
 
-    bytes_t instruction_data_len_encoded(
-      data.begin() + i,
-      data.begin() + i + DATA_LEN_FIELD_SIZE_BYTES);
-
-    std::optional<uint32_t> unpacked_len =
-      tools::unpack<uint32_t>(instruction_data_len_encoded);
-
-    if (!unpacked_len.has_value()) {
-      // Todo: log
-      std::cout << "TODO:LOG machine::isbc: Failed to pack value"
-                << std::endl;
+    if (idx + iv->data_len >= data.size() ) {
+      // Todo: Log here
+      std::cout << "Error: Insufficent data to construct instruction" << std::endl;
       return false;
     }
 
-    const uint32_t instruction_data_len = *unpacked_len;
-
-    i += DATA_LEN_FIELD_SIZE_BYTES;
-
     _instructions.push_back({
-      op,
+      (ins_id_e)iv->op,
       std::make_unique<bytes_t>(bytes_t(
-        data.begin() + i,
-        data.begin() + i + instruction_data_len))
+        iv->data,
+        iv->data + iv->data_len))
       });
 
-    i += instruction_data_len - 1; // Min one for loop inc
+    idx += iv->data_len;
   }
   return true;
 }
