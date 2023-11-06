@@ -4,13 +4,17 @@
 #include <iostream> // todo: replace with logger
 
 /*
-      Instruction layout
+      Byte-encoded instruction layout
 
       [   id    |      len      |   data ... ]
         1 byte       4 bytes       variable
 */
 
 namespace machine {
+
+namespace {
+  static constexpr uint8_t DATA_LEN_FIELD_SIZE_BYTES = 4;
+}
 
 instruction_set_builder_c::instruction_set_builder_c() {
   _data.reserve(MIBI_BYTE * 4);
@@ -55,7 +59,6 @@ bool instruction_set_builder_c::instruction_set_c::populate(
   const bytes_t& data) {
   _data.clear();
 
-
   for (size_t i = 0; i < data.size(); i++) {
     auto& current_byte = data[i];
 
@@ -80,7 +83,7 @@ bool instruction_set_builder_c::instruction_set_c::populate(
 
     bytes_t instruction_data_len_encoded(
       data.begin() + i,
-      data.begin() + i + 4);
+      data.begin() + i + DATA_LEN_FIELD_SIZE_BYTES);
 
     std::optional<uint32_t> unpacked_len =
       tools::unpack_4(instruction_data_len_encoded);
@@ -94,7 +97,7 @@ bool instruction_set_builder_c::instruction_set_c::populate(
 
     const uint32_t instruction_data_len = *unpacked_len;
 
-    i += 4;
+    i += DATA_LEN_FIELD_SIZE_BYTES;
 
     _instructions.push_back({
       op,
@@ -103,7 +106,7 @@ bool instruction_set_builder_c::instruction_set_c::populate(
         data.begin() + i + instruction_data_len))
       });
 
-    i += instruction_data_len - 1;
+    i += instruction_data_len - 1; // Min one for loop inc
   }
   return true;
 }
