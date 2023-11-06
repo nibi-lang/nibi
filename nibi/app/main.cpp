@@ -1,7 +1,9 @@
 #include "front/lexer.hpp"
 #include "front/file_intake.hpp"
 
+#include "machine/defines.hpp"
 #include "machine/instructions.hpp"
+#include "machine/byte_tools.hpp"
 
 #include <iostream>
 
@@ -24,7 +26,7 @@ public:
 };
 
 void check_front();
-void check_ins_alloc();
+void check_ins_builder();
 
 int main(int argc, char **argv) {
 
@@ -37,7 +39,7 @@ int main(int argc, char **argv) {
 //  }
 //
 
-  check_ins_alloc();
+  check_ins_builder();
 
   return 0;
 }
@@ -80,34 +82,146 @@ void check_front() {
 
 }
 
-void check_ins_alloc() {
+void check_ins_builder() {
 
-  std::cout << "sizeof instruction_c: " << sizeof(machine::instruction_c) << std::endl;
-  std::cout << "sizeof instruction_data_c: " << sizeof(machine::instruction_data_c) << std::endl;
-  
-  // Block size must be > sizeof(instruction_data_c)
-  {
+  std::cout << "MAIN: Checking machine::instruction*"
+            << std::endl;
 
-    machine::ins_blocks_t instruction_blocks;
-    machine::instruction_block_builder_c ibb(instruction_blocks);
+  std::cout << "Instruction size: "
+            << sizeof(machine::instruction_s)
+            << "\n";
+
+  struct test_case_s {
+    machine::ins_id_e id{machine::ins_id_e::ENUM_BOUNDARY};
+    machine::bytes_t data{};
+  };
+
+  std::vector<test_case_s> tcs {
+
+    { machine::ins_id_e::LOAD_INT,
+      machine::tools::pack_4(420) },
+
+    { machine::ins_id_e::LOAD_REAL,
+      machine::tools::pack_4(
+        machine::tools::real_to_uint64_t(8.88)) },
+
+    { machine::ins_id_e::LOAD_INT,
+      machine::tools::pack_4(69) },
+
+    { machine::ins_id_e::LOAD_REAL,
+      machine::tools::pack_4(
+        machine::tools::real_to_uint64_t(3.14159)) },
     
-    auto* new_ins = ibb.alloc(machine::ins_id_e::EXEC_SYMBOL, {});
-    if (nullptr == new_ins) {
-      std::cerr << "New ins was unable to be allocated" << std::endl;
+    { machine::ins_id_e::EXEC_ADD, {} },
+
+    { machine::ins_id_e::EXEC_DIV, {} },
+    
+    { machine::ins_id_e::EXEC_ADD, {} },
+    
+    { machine::ins_id_e::LOAD_INT,
+      machine::tools::pack_4(24) },
+
+    { machine::ins_id_e::LOAD_REAL,
+      machine::tools::pack_4(
+        machine::tools::real_to_uint64_t(2.71828)) },
+
+    { machine::ins_id_e::EXEC_MUL, {} }
+  };
+
+  machine::instruction_set_builder_c isbc;
+
+  for (auto&& ins : tcs) {
+
+    std::cout << "MAIN: Encoding id [" << (int)ins.id << "]\n";
+
+    if ((uint8_t)ins.id < machine::INS_DATA_BOUNDARY) { 
+      if (!isbc.encode_instruction(ins.id)) {
+        std::cerr << "Failed to encode non-data ins : "
+                  << (int)ins.id
+                  << std::endl;
+        std::exit(1);
+      }
+      continue;
+    }
+
+    if (!isbc.encode_instruction(ins.id, ins.data)) {
+      std::cerr << "Failed to encode data ins : "
+                << (int)ins.id
+                << std::endl;
       std::exit(1);
     }
-    std::cout << (int)(static_cast<machine::instruction_c*>(new_ins))->id << std::endl;
-
-    auto* another_ins = ibb.alloc(machine::ins_id_e::LOAD_INT, {});
-    if (nullptr == another_ins) {
-      std::cerr << "Another ins was unable to be allocated" << std::endl;
-      std::exit(1);
-    }
-
-    std::cout << (int)(static_cast<machine::instruction_c*>(another_ins))->id << std::endl;
-
-    std::cout << "There are a total of : " << ibb.block_count() << " blocks" << std::endl;
   }
 
+  std::cout << "MAIN: Finalizing and checking..\n";
+
+  std::unique_ptr<machine::instruction_if> insif = isbc.finalize();
+
+  if (insif == nullptr) {
+    std::cerr << "Failed to finalize bytecode" << std::endl;
+    std::exit(1);
+  }
+
+  if (tcs.size() != insif->size()) {
+    std::cout << "Different number of instructions came out..."
+              << "Expected "
+              << tcs.size()
+              << ", got "
+              << insif->size()
+              << std::endl;
+    std::exit(1);
+  }
+
+  for(size_t i = 0; i < tcs.size(); i++) {
+    auto &tc = tcs[i];
+    bool okay{false};
+    auto &actual = insif->get(i, okay);
+    if (!okay) {
+      std::cout << "Failed to get instruction from if - okay=false\n";
+      std::exit(1);
+    }
+
+    if (tc.id != actual.id) {
+      std::cout << "Incorrect id "
+                << (int)tc.id 
+                << " != "
+                << (int)actual.id
+                << std::endl;
+      std::exit(1);
+    }
+
+    if ((!actual.data) && tc.data.size()) {
+      std::cout << "Expected data, got nullopt" << std::endl;
+      std::exit(1);
+    }
+
+    if (actual.data &&
+        tc.data.size() != (*actual.data).size()) {
+      std::cout << "Incorrect instruction length. "
+                << tc.data.size()
+                << " != "
+                << (*actual.data).size()
+                << std::endl;
+      std::exit(1);
+    }
+
+    std::cout << "Checking "
+              << tc.data.size()
+              << " bytes for ["
+              << (int)tc.id
+              << "]" 
+              << std::endl;
+
+    for (auto j = 0; j < tc.data.size(); j++) {
+      if ((*actual.data)[j] != tc.data[j]) {
+        std::cout << "Incorrect byte at index " << j << ": " 
+                  << (int)tc.data[j] << " != "
+                  << (int)((*actual.data)[j])
+                  << std::endl;
+        std::exit(1);
+      }
+    }
+  }
+
+  std::cout << "PASS" << std::endl;
 }
 

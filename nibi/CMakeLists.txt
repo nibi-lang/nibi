@@ -9,8 +9,12 @@ set(INTAKE_SOURCES
   front/file_intake.cpp
   front/parser.cpp)
 
+set(MACHINE_SOURCES
+  machine/instructions.cpp)
+
 set(APP_SOURCES
   ${INTAKE_SOURCES}
+  ${MACHINE_SOURCES}
   app/main.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR})
