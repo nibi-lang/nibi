@@ -4,6 +4,7 @@
 #include "machine/defines.hpp"
 #include "machine/instructions.hpp"
 #include "machine/byte_tools.hpp"
+#include "machine/object.hpp"
 
 #include <iostream>
 #include <vector>
@@ -17,6 +18,11 @@ void show_help() {
 }
 
 int main(int argc, char **argv) {
+
+  {
+    machine::object_c x = machine::object_c::integer(33);
+  }
+
 
   std::vector<std::string> args(argv, argv + argc);
   front::intake::settings_s intake_settings;

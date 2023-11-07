@@ -1,7 +1,11 @@
 #pragma once
 
 #include "machine/instructions.hpp"
+#include "machine/object.hpp"
 #include "machine/memory_core.hpp"
+
+#include <queue>
+#include <stack>
 
 namespace machine {
 
@@ -53,8 +57,13 @@ private:
 
 
   struct execution_ctx_s {
-    const bytes_t& instructions;
+    const bytes_t* instructions{nullptr};
+    instruction_error_handler_if* error_handler{nullptr};
     size_t pc{0};
+    size_t instruction_number{0};
+
+    std::queue<object_c> proc_q;
+    std::stack<object_c> ret_s;
 
     // TODO: make objects to encpsulate data.
     //        - this queue will hold the results of calculations
@@ -68,13 +77,18 @@ private:
     //
  //   std::queue<object_c> proc_q;
  //   std::stack<object_c> return_stack;
+ 
   };
 
+  execution_ctx_s _ctx;
 
   memory_core_c& _memory;
 
   [[nodiscard]] execution_error_s
     generate_error(const std::string& msg) const;
+
+  void execute_ctx(execution_ctx_s &ctx);
+  void execute(execution_ctx_s &ctx, instruction_view_s*);
 };
 
 

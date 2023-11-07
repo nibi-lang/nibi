@@ -107,10 +107,15 @@ void parser_c::on_list(atom_list_t list) {
       state.instruction_block.bump(), list[0]->pos);
   forge::load_instruction(data, machine::ins_id_e::NEW_PROC_FRAME);
 
-  for(auto &&atom : list) {
-    decompose(atom);
-    state.list_depth++;
+  for(size_t i = 1; i < list.size(); i++) {
+    decompose(list[i]);
   }
+
+  _tracer->register_instruction(
+      state.instruction_block.bump(), list[0]->pos);
+  decompose(list[0]);
+
+  state.list_depth++;
 
   _tracer->register_instruction(
       state.instruction_block.bump(), list.back()->pos);
@@ -150,12 +155,20 @@ void parser_c::decompose(atom_ptr& atom) {
     case atom_type_e::SYMBOL:
       return decompose_symbol(
         atom->meta,
-        atom->data);
+        atom->data,
+        atom->pos);
   }
 }
 
+#define PARSER_LOAD_AND_EXPECT_GTE_N(op, n) \
+ forge::load_instruction( \
+     data, machine::ins_id_e::EXPECT_GTE_N_ARGS, machine::tools::pack<uint64_t>(2)); \
+  _tracer->register_instruction(\
+      state.instruction_block.bump(), pos); \
+ return forge::load_instruction(data, op);
+
 void parser_c::decompose_symbol(
-  const meta_e& meta, const std::string& str) {
+  const meta_e& meta, const std::string& str, const pos_s& pos) {
 
   auto& block = state.instruction_block;
   auto& data = block.data;
@@ -182,16 +195,11 @@ void parser_c::decompose_symbol(
       }
       return forge::load_symbol(data, str);
     }
-    case meta_e::PLUS:
-      return forge::load_instruction(data, machine::ins_id_e::EXEC_ADD);
-    case meta_e::SUB:
-      return forge::load_instruction(data, machine::ins_id_e::EXEC_SUB);
-    case meta_e::ASTERISK:
-      return forge::load_instruction(data, machine::ins_id_e::EXEC_MUL);
-    case meta_e::FORWARD_SLASH:
-      return forge::load_instruction(data, machine::ins_id_e::EXEC_DIV);
-    case meta_e::MOD:
-      return forge::load_instruction(data, machine::ins_id_e::EXEC_MOD);
+    case meta_e::PLUS: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
+    case meta_e::SUB: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_SUB, 2);
+    case meta_e::ASTERISK: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MUL, 2);
+    case meta_e::FORWARD_SLASH: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_DIV, 2);
+    case meta_e::MOD: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MOD, 2);
   }
 }
 

@@ -61,6 +61,9 @@ enum class ins_id_e : uint8_t {
   LOAD_SYMBOL,
   EXEC_SYMBOL,
 
+  EXPECT_N_ARGS,
+  EXPECT_GTE_N_ARGS,
+
   JUMP_TO,  // Byte index of instruction set to jump to
 
   ENUM_BOUNDARY,

@@ -13,7 +13,8 @@ set(INTAKE_SOURCES
 
 set(MACHINE_SOURCES
   machine/instructions.cpp
-  machine/engine.cpp)
+  machine/engine.cpp
+  machine/object.cpp)
 
 set(APP_SOURCES
   ${INTAKE_SOURCES}

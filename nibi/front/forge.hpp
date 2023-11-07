@@ -17,6 +17,13 @@ static inline void load_instruction(
   const machine::ins_id_e& op,
   const machine::bytes_t& data) {
   target.push_back((uint8_t)op);
+
+  auto len_encoded = machine::tools::pack<uint32_t>(data.size());
+  target.insert(
+    target.end(),
+    len_encoded.begin(),
+    len_encoded.end());
+
   target.insert(
     target.end(),
     data.begin(),

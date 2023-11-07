@@ -46,7 +46,7 @@ private:
   machine::instruction_receiver_if& _ins_receiver;
 
   void decompose(atom_ptr&);
-  void decompose_symbol(const meta_e&, const std::string&);
+  void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos);
 };
 
 } // namespace

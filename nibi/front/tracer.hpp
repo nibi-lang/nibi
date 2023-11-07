@@ -6,6 +6,8 @@
 #include <map>
 #include <memory>
 
+#include <iostream> // TODO: remove
+
 namespace front {
 
 //! \brief Object that produces "tracers" for a given
@@ -41,6 +43,12 @@ public:
       auto target = _file_map.find(instruction_index);
 
       if (target == _file_map.end()) {
+
+        for(auto [x, y] : _file_map) {
+          std::cout << "idx: " << x << " | pos: " << y.line << ", " << y.col << "\n";
+        }
+
+
         err.message =
           std::string("Unable to load locator for instruction: ") +
           std::to_string(instruction_index) + 
@@ -50,7 +58,6 @@ public:
         _parent.trace_error(pos, err);
         return;
       }
-
       _parent.trace_error(target->second, err);
     }
 

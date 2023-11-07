@@ -1,0 +1,265 @@
+#pragma once
+
+#include <string>
+#include <cstdint>
+#include <cstring>
+#include <vector>
+#include <memory>
+
+namespace machine {
+
+enum class data_type_e {
+  NONE,
+  BOOLEAN,
+  INTEGER,
+  REAL,
+  STRING,
+  BYTES,
+  REF,
+  ERROR
+};
+
+extern const char* data_type_to_string(const data_type_e&);
+
+struct object_meta_data_s {
+  size_t bytecode_origin_id{0};
+  object_meta_data_s* clone() {
+    return new object_meta_data_s {
+      bytecode_origin_id
+    };
+  }
+  std::string to_string() const;
+};
+
+struct object_byte_data_s {
+  object_byte_data_s() = delete;
+  object_byte_data_s(uint8_t* in_data, const size_t& len) {
+    if (in_data == nullptr || len == 0) { return; }
+    data = new uint8_t[len];
+    std::memcpy(data, in_data, len);
+  }
+  ~object_byte_data_s() {
+    if (data) {
+      delete[] data;
+    }
+  }
+  object_byte_data_s* clone() {
+    return new object_byte_data_s(data, len);
+  }
+  std::string to_string() const;
+  uint8_t* data{nullptr};
+  size_t len{0};
+};
+
+struct object_error_data_s {
+  std::string message;
+  std::string operation;
+
+  object_error_data_s(
+    const std::string& msg,
+    const std::string& op)
+    : message(msg),
+      operation(op){}
+  object_error_data_s* clone() const {
+    return new object_error_data_s{message, operation};
+  }
+  std::string to_string() const;
+};
+
+// Wrappers to wash away type ambiguity on 
+// object constructor
+struct wrap_bool_s{ bool &data; };
+struct wrap_int_s{ int64_t &data; };
+struct wrap_real_s{ double &data; };
+struct wrap_mem_ref_s{ uint64_t &data; };
+
+#pragma pack(push, 1)
+class object_c {
+public:
+  object_meta_data_s* meta{nullptr}; 
+  data_type_e type{data_type_e::NONE};
+
+  static object_c boolean(bool val=false) { return object_c(wrap_bool_s{val}); }
+  static object_c integer(int64_t val=0) { return object_c(wrap_int_s{val}); }
+  static object_c real(double val=0.00) { return object_c(wrap_real_s{val}); }
+  static object_c ref(uint64_t val=0) { return object_c(wrap_mem_ref_s{val}); }
+
+  object_c(){}
+  object_c(const wrap_bool_s& val)
+    : type{data_type_e::BOOLEAN}
+    { data.boolean = val.data; }
+  object_c(const wrap_int_s& val)
+    : type{data_type_e::INTEGER}
+    { data.integer = val.data; }
+  object_c(const wrap_real_s& val)
+  : type{data_type_e::REAL}
+    { data.real = val.data; }
+  object_c(const wrap_mem_ref_s& val) 
+    : type{data_type_e::REF}
+    { data.memory_ref = val.data; }
+  object_c(char* val, const size_t& len)
+    : type{data_type_e::STRING}
+    { data.str = new object_byte_data_s((uint8_t*)val, len); }
+  object_c(uint8_t* val, const size_t& len)
+    : type{data_type_e::BYTES}
+    { data.str = new object_byte_data_s(val, len); }
+  object_c(const object_error_data_s& err)
+    : type{data_type_e::ERROR}
+    { data.err = err.clone(); }
+
+  ~object_c() { clean(); }
+
+  object_c clone() const {
+    object_c o;
+    o.type = this->type;
+    o.meta = this->meta->clone();
+    o.data = this->data;
+
+    if (is_str()) { o.data.str = this->data.str->clone(); }
+    else if (is_bytes()) {
+      o.data.bytes = this->data.bytes->clone(); }
+    return o;
+  }
+
+  void update_from(const object_c& o) {
+    this->clean();
+    this->type = o.type;
+    this->meta = o.meta->clone();
+    this->data = o.data;
+    if (is_str()) { this->data.str = o.data.str->clone(); }
+    else if (is_bytes()) {
+      this->data.bytes = o.data.bytes->clone(); }
+  }
+
+  bool is_bool() const {
+    return type == data_type_e::BOOLEAN;
+  }
+  bool is_integer() const {
+    return type == data_type_e::INTEGER;
+  }
+  bool is_real() const {
+    return type == data_type_e::REAL;
+  }
+  bool is_str() const {
+    return type == data_type_e::STRING;
+  }
+  bool is_bytes() const {
+    return type == data_type_e::BYTES;
+  }
+  bool is_ref() const {
+    return type == data_type_e::REF;
+  }
+  bool is_err() const {
+    return type == data_type_e::ERROR;
+  }
+  bool is_ptr_type() const {
+    return (is_str() || is_bytes() || is_err());
+  }
+  bool req_free() const {
+    if (!is_ptr_type()) {
+      return false;
+    }
+    return (data.bytes != nullptr);
+  }
+  bool is_numeric() const {
+    return is_bool() || is_integer() || is_real();
+  }
+  char* as_raw_str(bool& okay) {
+    okay = false;
+    if (!is_str()) { return nullptr; }
+    if (data.str->data == nullptr) { return nullptr; }
+    okay = true;
+    return (char*)data.str->data;
+  }
+
+  std::string to_string() const;
+  std::string dump_to_string() const;
+
+  // These methods are not safe on their own.
+  // It is up to the caller to ensure the correct
+  // type is being accessed, otherwise we get UB
+  bool& as_bool() { return data.boolean; }
+  int64_t& as_integer() { return data.integer; }
+  double& as_real() { return data.real; }
+  uint64_t& as_ref() { return data.memory_ref; }
+  object_byte_data_s* as_bytes() { return data.bytes; }
+
+  double to_real() const {
+    if (is_real()) { return data.real; }
+    if (is_integer()) { return (double) data.integer; }
+    else if (is_bool()) { return (double) data.boolean; }
+    return 0.00;
+  }
+
+  int64_t to_integer() const {
+    if (is_integer()) { return data.integer; }
+    if (is_real()) { return (int64_t) data.real; }
+    else if (is_bool()) { return (int64_t) data.boolean; }
+    return 0;
+  }
+
+#define MACHINE_OBJECT_C_OPERATION(math_op) \
+    if (!is_numeric() || !o.is_numeric()) { return object_c(); } \
+    if (o.is_real() || is_real()) { \
+      return real(to_real() math_op o.to_real());\
+    }\
+    return integer(to_integer() math_op o.to_integer());\
+
+  object_c operator+ (const object_c& o) {
+    MACHINE_OBJECT_C_OPERATION(+)
+  }
+  object_c operator- (const object_c& o) {
+    MACHINE_OBJECT_C_OPERATION(-)
+  }
+  object_c operator/ (const object_c& o) {
+    if (o.to_integer() == 0) { 
+      return object_c(object_error_data_s(
+            "Attempt to divide by zero",
+            "division"));
+    }
+    MACHINE_OBJECT_C_OPERATION(/)
+  }
+  object_c operator* (const object_c& o) {
+    MACHINE_OBJECT_C_OPERATION(*)
+  }
+  object_c operator% (const object_c& o) {
+    if (!is_integer() && !o.is_integer()) {
+      return object_c(object_error_data_s(
+            "Attempt to perform modulous on non-integer object",
+            "modulous"));
+    }
+    return integer(data.integer % o.data.integer);
+  }
+
+private:
+  union {
+    bool boolean;
+    int64_t integer;
+    double real;
+    uint64_t memory_ref;
+    object_byte_data_s* str;
+    object_byte_data_s* bytes;
+    object_error_data_s* err;
+  } data{0};
+
+  void clean() {
+    if (is_err() && data.err != nullptr) {
+      delete data.err;
+    }
+    else if ((is_str() || is_bytes()) && data.bytes != nullptr) {
+      delete data.str;
+    }
+    delete this->meta;
+    this->type = data_type_e::NONE;
+    data.integer = 0;
+  }
+};
+#pragma pack(pop)
+
+using object_ptr = std::shared_ptr<object_c>;
+
+constexpr auto allocate_object = [](auto... args) -> object_ptr {
+  return std::make_shared<object_c>(args...);
+};
+
+} // namespace

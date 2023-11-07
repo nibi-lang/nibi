@@ -31,6 +31,18 @@ static inline std::optional<T> unpack(const std::vector<uint8_t>& data) {
   return {*val};
 }
 
+template<
+  typename T,
+  typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
+static inline T quick_unpack(const std::vector<uint8_t>& data) {
+  T val = (T*)(data.data());
+  return val;
+}
+
+
+
+
+
 static inline std::vector<uint8_t> pack_string(const std::string& str) {
   return std::vector<uint8_t>(str.begin(), str.end());
 }
