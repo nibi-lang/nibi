@@ -1,5 +1,5 @@
 #include "front/lexer.hpp"
-#include "front/file_intake.hpp"
+#include "front/intake.hpp"
 
 #include "machine/defines.hpp"
 #include "machine/instructions.hpp"
@@ -7,45 +7,18 @@
 
 #include <iostream>
 
-
-class atom_list_receiver_c final : public front::atom_receiver_if {
-public:
-  virtual void on_error(front::error_s err) override {
-    std::cout << "Error (" << err.pos.line << ":" << err.pos.col << ") " << err.message << std::endl;
-    std::exit(1);
-  }
-
-  virtual void on_list(front::atom_list_t list) override {
-    std::cout << "Received list of length: " << list.size() << std::endl;
-    front::print_list(list);
-  }
-
-  virtual void on_top_list_complete() override {
-    std::cout << "[ A list was completed! ]" << std::endl;
-  }
-};
-
-void check_front();
-void check_ins_builder();
+namespace {
+  front::intake::settings_s settings;
+}
 
 int main(int argc, char **argv) {
 
- // check_front();
-
- // atom_list_receiver_c prc;
-//  if (!front::from_file(prc, "example.nibi")) {
-//    std::cerr << "Failed to parse file\n";
-//    return 1;
-//  }
-//
-
-  check_ins_builder();
-
-  return 0;
+  return front::intake::repl(settings);
 }
 
-void check_front() {
 
+/*
+void check_front() {
   atom_list_receiver_c prc;
 
   front::lexer_c lexer(prc);
@@ -77,9 +50,6 @@ void check_front() {
   lexer.finish();
   std::cout << "\n\n";
   // TODO: Add tests. CPPUTests? Google tests? home made tests?
-
-
-
 }
 
 void check_ins_builder() {
@@ -226,3 +196,4 @@ void check_ins_builder() {
   std::cout << "PASS" << std::endl;
 }
 
+*/

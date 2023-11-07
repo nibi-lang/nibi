@@ -13,6 +13,8 @@ namespace {
   constexpr uint8_t INS_DATA_BOUNDARY = 128;
 }
 
+using bytecode_idx_t = uint16_t;
+
 //! \brief Instruction operation id
 enum class ins_id_e : uint8_t {
   NOP = 0,
@@ -20,6 +22,8 @@ enum class ins_id_e : uint8_t {
   EXEC_SUB,
   EXEC_DIV,
   EXEC_MUL,
+  EXEC_ASSIGN,
+  EXEC_LOAD_RESULT, // Load result
   
   // ..
   // ..
@@ -55,8 +59,8 @@ public:
   //!       generated from to report the error to
   //!       the user
   virtual void on_error(
-      const uint64_t instruction_index,
-      const execution_error_s err) = 0;
+      const bytecode_idx_t& instruction_index,
+      execution_error_s err) = 0;
 };
 using error_handler_ptr = std::unique_ptr<instruction_error_handler_if>;
 

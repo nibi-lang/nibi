@@ -5,9 +5,11 @@ project(nibi)
 set(CMAKE_CXX_STANDARD 23)
 
 set(INTAKE_SOURCES
+  front/intake.cpp
   front/lexer.cpp
-  front/file_intake.cpp
-  front/parser.cpp)
+  front/parser.cpp
+  front/intake.cpp
+  front/tracer.cpp)
 
 set(MACHINE_SOURCES
   machine/instructions.cpp
