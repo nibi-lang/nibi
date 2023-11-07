@@ -9,40 +9,66 @@
 #include <fstream>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 
 
 namespace front {
 namespace intake {
 
+namespace {
+
 struct intake_group_s {
   bool in_repl{false};
+  traced_file_ptr traced_file{nullptr};
   tracer_ptr tracer{nullptr};
 
   machine::engine_c engine;
   parser_c parser;
   lexer_c lexer;
 
-  intake_group_s(tracer_ptr& tracer, bool in_repl=false)
+  intake_group_s(
+      traced_file_ptr& traced_file, 
+      runtime::context_c &ctx,
+      bool in_repl=false)
     : in_repl{in_repl},
-      tracer(tracer),
+      traced_file(traced_file),
+      tracer(traced_file->get_tracer()),
+      engine(ctx.get_memory_core()),
       parser(tracer, engine),
-      lexer(parser) {}
+      lexer(parser) {
 
+      // Tracers may need to live beyond parsers, 
+      // so we give them a ref to the trace stuff
+      ctx.add_traced_file(traced_file);
+      ctx.add_tracer(traced_file->get_name(), tracer);
+    }
 };
+
+} // namespace
+
 
 // -------------------------------------------------
 
-uint8_t repl(const settings_s& settings) {
-  std::cerr << "Not yet complete\n";
-  return 1;
+uint8_t repl(settings_s& settings) {
+
+  traced_file_ptr traced_file = front::allocate_traced_file("REPL");
+  intake_group_s ig(traced_file, settings.ctx, true);
+
+  std::string line;
+  size_t line_no{1};
+  while (std::getline(std::cin, line)) {
+    ig.lexer.submit(line, line_no++);
+  }
+  return 0;
 }
 
 // -------------------------------------------------
 
 uint8_t dir(
-    const settings_s& settings,
+    settings_s& settings,
     const std::string& target) {
+  std::cout << "NOT YET COMPLETE" << std::endl;
   std::cout << "front::intake::dir: " << target << std::endl;
   return 1;
 }
@@ -50,16 +76,16 @@ uint8_t dir(
 // -------------------------------------------------
 
 uint8_t file(
-    const settings_s& settings,
+    settings_s& settings,
     const std::string& target) {
   
   std::cout << "front::intake::file: " << target << std::endl;
 
-  tracer_ptr tracer = front::allocate_tracer(target);
-  intake_group_s ig(tracer);
+  traced_file_ptr traced_file = front::allocate_traced_file(target);
+  intake_group_s ig(traced_file, settings.ctx);
 
   {
-    std::filesystem::path path(target);
+    std::filesystem::path path(target); 
     if (!std::filesystem::is_regular_file(path)) {
       std::cout << "Not a regular file"
                 << std::endl;

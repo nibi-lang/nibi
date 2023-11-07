@@ -83,7 +83,7 @@ bool lexer_c::finish() {
   if (!_active_lists.empty()) {
 
     std::cout << "Lists active: " << _active_lists.size() << std::endl;
-      print_list(_active_lists.top());
+    print_list(_active_lists.top());
 
     emit_error("Incomplete list - Finish indicated with data buffered");
     return false;

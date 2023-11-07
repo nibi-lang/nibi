@@ -1,6 +1,7 @@
 #pragma once
 
 #include "machine/instructions.hpp"
+#include "machine/memory_core.hpp"
 
 namespace machine {
 
@@ -16,18 +17,61 @@ namespace machine {
 class engine_c : public instruction_receiver_if {
 public:
 
-  struct settings_s {};
+  /*
+      Discuss state with the one sending instructions to see if the 
+      item is a top leve item or not. 
+
+      If it is, and its a function we know we can allow updates to the 
+      bytecode as it executes to optimize it.
+
+      If it isn't but its a hot-loop we should also be able to tell at 
+      this stage
+
+      - Perhaps we could send a state struct with "hints" and
+        configurations about the received chunk of code
+
+
+      -
+
+
+  */
+
+  engine_c(memory_core_c& memory)
+    : _memory(memory){}
 
   void handle_instructions(
     const bytes_t& instructions,
-    error_handler_ptr error_handler) override;
+    instruction_error_handler_if& error_handler) override;
 
+  virtual void reset_instruction_handling() override;
 private:
 
   struct function_s {
     bytes_t data;
-    error_handler_ptr error_handler{nullptr};
+    instruction_error_handler_if& error_handler;
   };
+
+
+  struct execution_ctx_s {
+    const bytes_t& instructions;
+    size_t pc{0};
+
+    // TODO: make objects to encpsulate data.
+    //        - this queue will hold the results of calculations
+    //          and be used to process_data
+    //
+    //          [ object<3.14> object<3.00> ]
+    //
+    //          EXEC_ADD
+    //
+    //          [ object<6.14 ]
+    //
+ //   std::queue<object_c> proc_q;
+ //   std::stack<object_c> return_stack;
+  };
+
+
+  memory_core_c& _memory;
 
   [[nodiscard]] execution_error_s
     generate_error(const std::string& msg) const;

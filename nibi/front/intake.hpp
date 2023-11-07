@@ -2,27 +2,24 @@
 
 #include <cstdint>
 #include <string>
+#include "runtime/context.hpp"
 
 namespace front {
 namespace intake {
 
 struct settings_s {
-  //  - Input arguments
-  //  - User flags, etc
-  //
-  //
-  // engine_c::settings_s
+  runtime::context_c ctx;
 };
 
 extern uint8_t repl(
-  const settings_s& settings_s);
+  settings_s& settings_s);
 
 extern uint8_t file(
-  const settings_s& settings_s,
+  settings_s& settings_s,
   const std::string&); 
 
 extern uint8_t dir(
-  const settings_s& settings_s,
+  settings_s& settings_s,
   const std::string&);
 
 } // namespace

@@ -5,12 +5,6 @@
 
 namespace machine {
 
-namespace {
-  static constexpr uint8_t FIELD_OP_SIZE_BYTES = 1;
-  static constexpr uint8_t FIELD_DATA_LEN_SIZE_BYTES = 4;
-
-}
-
 instruction_set_builder_c::instruction_set_builder_c() {
   _data.reserve(MIBI_BYTE * 4);
 }

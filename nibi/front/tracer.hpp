@@ -60,7 +60,7 @@ public:
   };
 
   //! \brief Create a new tracer for the current file
-  std::unique_ptr<traced_file_c::tracer_c> get_tracer() {
+  std::shared_ptr<traced_file_c::tracer_c> get_tracer() {
     return std::make_unique<tracer_c>(*this);
   }
 
@@ -68,15 +68,23 @@ public:
   void trace_error(const pos_s& pos,
                    machine::execution_error_s error);
 
+  std::string get_name() const { return _file_name; }
+
 private:
   std::string _file_name;
 };
 
-using tracer_ptr = std::shared_ptr<traced_file_c>;
+using tracer_ptr = std::shared_ptr<traced_file_c::tracer_c>;
+using traced_file_ptr = std::shared_ptr<traced_file_c>;
+
+constexpr auto allocate_traced_file = [](auto... args)
+  -> traced_file_ptr {
+    return std::make_shared<traced_file_c>(args...);
+  };
 
 constexpr auto allocate_tracer = [](auto... args)
   -> tracer_ptr {
-    return std::make_shared<traced_file_c>(args...);
+    return std::make_shared<traced_file_c::tracer_c>(args...);
   };
 
 } // namespace

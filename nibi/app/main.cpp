@@ -6,16 +6,27 @@
 #include "machine/byte_tools.hpp"
 
 #include <iostream>
+#include <vector>
 
 namespace {
   front::intake::settings_s settings;
 }
 
-int main(int argc, char **argv) {
+void show_help() {
 
-  return front::intake::repl(settings);
 }
 
+int main(int argc, char **argv) {
+
+  std::vector<std::string> args(argv, argv + argc);
+  front::intake::settings_s intake_settings;
+
+  // TODO: Give this a proper argument handler
+  if (argc >= 2) {
+    return front::intake::file(intake_settings, args[1]);
+  }
+  return front::intake::repl(settings);
+}
 
 /*
 void check_front() {

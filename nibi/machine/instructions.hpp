@@ -1,6 +1,7 @@
 #pragma once
 
 #include "machine/defines.hpp"
+#include "machine/byte_tools.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -12,6 +13,8 @@ namespace machine {
 namespace {
   constexpr uint8_t INS_DATA_BOUNDARY = 128;
 }
+static constexpr uint8_t FIELD_OP_SIZE_BYTES = 1;
+static constexpr uint8_t FIELD_DATA_LEN_SIZE_BYTES = 4;
 
 using bytecode_idx_t = uint16_t;
 
@@ -22,20 +25,40 @@ enum class ins_id_e : uint8_t {
   EXEC_SUB,
   EXEC_DIV,
   EXEC_MUL,
+  EXEC_MOD,
   EXEC_ASSIGN,
   EXEC_LOAD_RESULT, // Load result
   
+  NEW_PROC_FRAME,
+  POP_PROC_FRAME, // Remove proc frame, push value onto return stack
+
+  LOAD_RESULT,       // Load argument from return stack and into proc_q
   // ..
   // ..
   // builtins
   // ..
   // ..
+  //
+  //
+  INIT_STATIC_INS,  // Start storing instructions into a buffer for later execution
+  COLL_STATIC_INS,  // Store static instructions in memory, produce an id to refer to them
+
+  // IDEAS
+    NEW_FLAG, // (data: int) : Create a flag that the code can use to mutex as engine may have multiple contexts running
+    SET_FLAG, // (data: int) : Arbitrary flag setting to permit instruction-based mutexing
+    GET_FLAG, // (data: int) : Safe read and acquire of flag
+    REL_FLAG, // (data: int) : Release a given flag iff the execution context is carrying it
+
+    DUMP,     // Spit engine state information out to the console
+
+    YIELD,    // Pause exectuion of current context and save state to continue later
+
+  // -----------
 
   LOAD_STRING = INS_DATA_BOUNDARY,
   LOAD_INT,
   LOAD_REAL,
-  LOAD_RESULT,
-  LOAD_VAR,
+  LOAD_SYMBOL,
   EXEC_SYMBOL,
 
   JUMP_TO,  // Byte index of instruction set to jump to
@@ -50,6 +73,7 @@ struct execution_error_s {
 
 class instruction_error_handler_if {
 public:
+  virtual ~instruction_error_handler_if() = default;
   //! \brief Handle an error that arose from
   //!        attempting to execute a specific
   //!        machine instruction.
@@ -62,10 +86,14 @@ public:
       const bytecode_idx_t& instruction_index,
       execution_error_s err) = 0;
 };
-using error_handler_ptr = std::unique_ptr<instruction_error_handler_if>;
 
 class instruction_receiver_if {
 public:
+  struct meta_c {
+    bool top_level{false};
+    bool contains_loops{false};
+  };
+
   //! \brief Handle a set of instructions
   //! \param instructions The encoded instruction(s)
   //! \param error_handler The handler that should be 
@@ -73,7 +101,9 @@ public:
   //!        set of instructions
   virtual void handle_instructions(
       const bytes_t& instructions,
-      error_handler_ptr error_handler) = 0;
+      instruction_error_handler_if& error_handler) = 0;
+
+  virtual void reset_instruction_handling() = 0;
 };
 
 #pragma pack(push, 1)

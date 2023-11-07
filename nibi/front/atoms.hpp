@@ -13,7 +13,6 @@ enum class atom_type_e {
   INTEGER,      // Note: We don't care about size of integers in the parser
   REAL,
   STRING,
-  CHAR,
   LOAD_ARG,    // Pull result of previous computation as an argument
 };
 
@@ -51,7 +50,8 @@ public:
   std::string data;
 };
 
-using atom_list_t = std::vector<std::unique_ptr<atom_c>>;
+using atom_ptr = std::unique_ptr<atom_c>;
+using atom_list_t = std::vector<atom_ptr>;
 
 extern void print_list(atom_list_t& list);
 

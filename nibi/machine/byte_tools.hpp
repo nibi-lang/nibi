@@ -4,6 +4,7 @@
 #include <vector>
 #include <optional>
 #include <type_traits>
+#include <string>
 
 namespace machine {
 namespace tools {
@@ -28,6 +29,10 @@ static inline std::optional<T> unpack(const std::vector<uint8_t>& data) {
   }
   T* val = (T*)(data.data());
   return {*val};
+}
+
+static inline std::vector<uint8_t> pack_string(const std::string& str) {
+  return std::vector<uint8_t>(str.begin(), str.end());
 }
 
 static inline uint64_t real_to_uint64_t(const double& value) {
