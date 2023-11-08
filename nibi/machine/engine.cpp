@@ -37,7 +37,8 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 
   const bytes_t& ins = *ctx.instructions;
 
-  while(ctx.pc < ctx.instructions->size()) {
+  while(_engine_okay && 
+        ctx.pc < ctx.instructions->size()) {
 
     auto& current_byte = ins[ctx.pc];
 
@@ -71,52 +72,99 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
   break; \
 }
 
+#define RAISE_ERROR(s) \
+  ctx.error_handler->on_error( \
+    ctx.instruction_number, \
+    execution_error_s{s}); \
+  _engine_okay = false; \
+  return;
+
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: break;
-    case ins_id_e::EXEC_ASSIGN: {
-   //   std::string name((char*)iv->data, iv->data_len);
-   //   _scope.current()->insert(name, ctx.proc_q.front());
-   //   ctx.proc_q.pop();
-   //
-   //
-   //     -- Add LOAD_SYMBOL, etc AND THEN we can do this
-   //
-   //
-      break;
-    }
+
+    case ins_id_e::PUSH_PROC_FRAME: break;
+    case ins_id_e::POP_PROC_FRAME: break;
     case ins_id_e::EXEC_ADD: BINARY_OP(+);
     case ins_id_e::EXEC_SUB: BINARY_OP(-);
     case ins_id_e::EXEC_DIV: BINARY_OP(/);
     case ins_id_e::EXEC_MUL: BINARY_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
+    case ins_id_e::EXEC_ASSIGN: {
+      auto target = ctx.proc_q.front();
+      ctx.proc_q.pop();
+
+      bool okay{false};
+      if (!target.as_raw_str(okay) || !okay) {
+
+        fmt::print("\tType: {}\t'{}'\n",
+            data_type_to_string(target.type),
+            target.to_string());
+
+
+        RAISE_ERROR(
+            "Expected identifier as first argument to assignment");
+      }
+
+      _scope.current()->insert(
+          target.to_string(),
+          ctx.proc_q.front());
+
+      ctx.proc_q.pop();
+
+
+      break;
+    }
+    case ins_id_e::EXPECT_OBJECT_TYPE: {
+      data_type_e expected = (data_type_e)((uint8_t)(*(uint8_t*)(iv->data)));
+      if (!ctx.proc_q.size()) {
+        RAISE_ERROR(
+          fmt::format(
+            "Expected object type '{}' got 'none',",
+             data_type_to_string(expected))); 
+      }
+      break;
+    }
     case ins_id_e::EXPECT_N_ARGS: {
-      uint64_t expected_size = *(uint8_t*)(iv->data);
+      uint8_t expected_size = *(uint8_t*)(iv->data);
       if (ctx.proc_q.size() != expected_size) {
-        ctx.error_handler->on_error(
-          ctx.instruction_number,
-          execution_error_s{
-              fmt::format(
-                  "Expected exactly '{}' arguments. Got '{}'.", 
-                  expected_size, ctx.proc_q.size())});
+        RAISE_ERROR(
+          fmt::format(
+           "Expected exactly '{}' arguments. Got '{}'.", 
+           expected_size, ctx.proc_q.size()));
+
       }
       break;
     }
     case ins_id_e::EXPECT_GTE_N_ARGS: {
-      uint64_t expected_size = *(uint8_t*)(iv->data);
+      uint8_t expected_size = *(uint8_t*)(iv->data);
       if (ctx.proc_q.size() != expected_size) {
-        ctx.error_handler->on_error(
-          ctx.instruction_number,
-          execution_error_s{
-              fmt::format(
-                  "Expected at least '{}' arguments. Got '{}'.",
-                  expected_size, ctx.proc_q.size())});
+        RAISE_ERROR(
+          fmt::format(
+            "Expected at least '{}' arguments. Got '{}'.",
+            expected_size, ctx.proc_q.size()));
       }
       break;
     }
-    case ins_id_e::LOAD_INT:
+    case ins_id_e::PUSH_INT:
       ctx.proc_q.push(
         object_c::integer(*(int64_t*)(iv->data)));
+      break;
+    case ins_id_e::PUSH_REAL:
+      ctx.proc_q.push(
+        object_c::real(*(double*)(iv->data)));
+      break;
+    case ins_id_e::PUSH_IDENTIFIER:
+
+      fmt::print("push {} len string: {}\n",
+          iv->data_len,
+          *(iv->data));
+      ctx.proc_q.push(
+        object_c::identifier((char*)(iv->data), iv->data_len));
+      break;
+    case ins_id_e::PUSH_STRING:
+      ctx.proc_q.push(
+        object_c::str((char*)(iv->data), iv->data_len));
       break;
     default: {
       std::cout << "OP:" << (int)iv->op << " not implemented yet\n";

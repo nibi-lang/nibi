@@ -5,6 +5,7 @@
 #include <optional>
 #include <type_traits>
 #include <string>
+#include <fmt/format.h>
 
 namespace machine {
 namespace tools {
@@ -39,12 +40,10 @@ static inline T quick_unpack(const std::vector<uint8_t>& data) {
   return val;
 }
 
-
-
-
-
 static inline std::vector<uint8_t> pack_string(const std::string& str) {
-  return std::vector<uint8_t>(str.begin(), str.end());
+  auto x = std::vector<uint8_t>(str.begin(), str.end());
+  x.push_back(0);
+  return x;
 }
 
 static inline uint64_t real_to_uint64_t(const double& value) {

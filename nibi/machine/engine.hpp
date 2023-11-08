@@ -113,8 +113,7 @@ private:
   execution_ctx_s _ctx;
   memory_core_c& _memory;
   scope_c _scope;
-
-
+  bool _engine_okay{true};
 
 
   [[nodiscard]] execution_error_s

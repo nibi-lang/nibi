@@ -27,15 +27,17 @@ enum class ins_id_e : uint8_t {
   EXEC_MUL,
   EXEC_MOD,
   EXEC_ASSIGN,
-  EXEC_LOAD_RESULT, // Load result
-  
+
+  PUSH_RESULT,       // Load argument from return stack and into proc_q
+
   PUSH_PROC_FRAME,  // Indicate new individual process frame (an individual list)
   POP_PROC_FRAME, // Remove proc frame, push value onto return stack
 
-  PUSH_SCOPE,     // Indicate new variable / name scope
-  POP_SCOPE,
+//  PUSH_SCOPE,     // Indicate new variable / name scope
+//  POP_SCOPE,
 
-  LOAD_RESULT,       // Load argument from return stack and into proc_q
+
+
   // ..
   // ..
   // builtins
@@ -43,32 +45,31 @@ enum class ins_id_e : uint8_t {
   // ..
   //
   //
-  INIT_STATIC_INS,  // Start storing instructions into a buffer for later execution
-  COLL_STATIC_INS,  // Store static instructions in memory, produce an id to refer to them
+//  INIT_STATIC_INS,  // Start storing instructions into a buffer for later execution
+//  COLL_STATIC_INS,  // Store static instructions in memory, produce an id to refer to them
 
   // IDEAS
-    NEW_FLAG, // (data: int) : Create a flag that the code can use to mutex as engine may have multiple contexts running
-    SET_FLAG, // (data: int) : Arbitrary flag setting to permit instruction-based mutexing
-    GET_FLAG, // (data: int) : Safe read and acquire of flag
-    REL_FLAG, // (data: int) : Release a given flag iff the execution context is carrying it
-
-    DUMP,     // Spit engine state information out to the console
-
-    YIELD,    // Pause exectuion of current context and save state to continue later
+//    NEW_FLAG, // (data: int) : Create a flag that the code can use to mutex as engine may have multiple contexts running
+//    SET_FLAG, // (data: int) : Arbitrary flag setting to permit instruction-based mutexing
+//    GET_FLAG, // (data: int) : Safe read and acquire of flag
+//    REL_FLAG, // (data: int) : Release a given flag iff the execution context is carrying it
+//
+//    DUMP,     // Spit engine state information out to the console
+//
+//    YIELD,    // Pause exectuion of current context and save state to continue later
 
   // -----------
 
-  LOAD_STRING = INS_DATA_BOUNDARY,
-  LOAD_INT,
-  LOAD_REAL,
-  LOAD_SYMBOL,
-  EXEC_SYMBOL,
+  PUSH_STRING = INS_DATA_BOUNDARY,
+  PUSH_INT,
+  PUSH_REAL,
+  PUSH_IDENTIFIER,
 
   EXPECT_N_ARGS,
   EXPECT_GTE_N_ARGS,
   EXPECT_OBJECT_TYPE,
 
-  JUMP_TO,  // Byte index of instruction set to jump to
+ // JUMP_TO,  // Byte index of instruction set to jump to
 
 
   ENUM_BOUNDARY,

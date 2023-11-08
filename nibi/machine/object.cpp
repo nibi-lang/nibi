@@ -12,6 +12,7 @@ const char* data_type_to_string(const data_type_e& type) {
     case data_type_e::STRING: return "string";
     case data_type_e::BYTES: return "bytes";
     case data_type_e::ERROR: return "error";
+    case data_type_e::IDENTIFIER: return "identifier";
   }
   return "unknown";
 }
@@ -54,6 +55,8 @@ std::string object_c::to_string() const {
       if (data.err == nullptr) return "";
       return data.err->to_string();
     }
+    case data_type_e::IDENTIFIER:
+      [[fallthrough]];
     case data_type_e::STRING: {
       if (data.str == nullptr) return "";
       if (data.str->data == nullptr) return "";

@@ -45,6 +45,9 @@ namespace {
   inline static void expect_string(builtin_s& bs) {
     return expect_type(bs, machine::data_type_e::STRING);
   }
+  inline static void expect_identifier(builtin_s& bs) {
+    return expect_type(bs, machine::data_type_e::IDENTIFIER);
+  }
   inline static void expect_bytes(builtin_s& bs) {
     return expect_type(bs, machine::data_type_e::BYTES);
   }
@@ -77,7 +80,7 @@ builtin_s builtin_let() {
 
   expect_exactly_n_args(code, 2);
 
-  expect_string(code);
+  expect_identifier(code);
 
   add_instruction(
     code,

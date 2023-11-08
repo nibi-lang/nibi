@@ -5,6 +5,7 @@
 #include <cstring>
 #include <vector>
 #include <memory>
+#include <fmt/format.h>
 
 namespace machine {
 
@@ -16,6 +17,7 @@ enum class data_type_e {
   STRING,
   BYTES,
   REF,
+  IDENTIFIER,
   ERROR
 };
 
@@ -33,10 +35,17 @@ struct object_meta_data_s {
 
 struct object_byte_data_s {
   object_byte_data_s() = delete;
-  object_byte_data_s(uint8_t* in_data, const size_t& len) {
-    if (in_data == nullptr || len == 0) { return; }
-    data = new uint8_t[len];
-    std::memcpy(data, in_data, len);
+  object_byte_data_s(uint8_t* in_data, const size_t& in_len) {
+    if (in_data == nullptr || in_len == 0) { return; }
+    data = new uint8_t[in_len];
+    std::memcpy(data, in_data, in_len);
+    this->len = in_len;
+
+    fmt::print("Construct new byte data of len {}\n", len);
+    for(auto i = 0; i < len; i++) {
+      fmt::print("{} ", (char)data[i]);
+    }
+    fmt::print("\n");
   }
   ~object_byte_data_s() {
     if (data) {
@@ -44,6 +53,8 @@ struct object_byte_data_s {
     }
   }
   object_byte_data_s* clone() {
+
+    fmt::print("Clone new byte data of len {}\n", len);
     return new object_byte_data_s(data, len);
   }
   std::string to_string() const;
@@ -72,6 +83,7 @@ struct wrap_bool_s{ bool &data; };
 struct wrap_int_s{ int64_t &data; };
 struct wrap_real_s{ double &data; };
 struct wrap_mem_ref_s{ uint64_t &data; };
+struct wrap_identifier_s{ char* data; size_t len; };
 
 #pragma pack(push, 1)
 class object_c {
@@ -83,11 +95,15 @@ public:
   static object_c integer(int64_t val=0) { return object_c(wrap_int_s{val}); }
   static object_c real(double val=0.00) { return object_c(wrap_real_s{val}); }
   static object_c ref(uint64_t val=0) { return object_c(wrap_mem_ref_s{val}); }
+  static object_c identifier(char* val, size_t len) { return object_c(wrap_identifier_s{val, len}); }
+  static object_c str(char* val, size_t len) { return object_c(val, len); }
 
   object_c(){}
   object_c(const object_c &o) {
     update_from(o);
   }
+
+
   object_c(const wrap_bool_s& val)
     : type{data_type_e::BOOLEAN}
     { data.boolean = val.data; }
@@ -102,36 +118,57 @@ public:
     { data.memory_ref = val.data; }
   object_c(char* val, const size_t& len)
     : type{data_type_e::STRING}
-    { data.str = new object_byte_data_s((uint8_t*)val, len); }
+    { setup_str(val, len); }
   object_c(uint8_t* val, const size_t& len)
     : type{data_type_e::BYTES}
     { data.str = new object_byte_data_s(val, len); }
   object_c(const object_error_data_s& err)
     : type{data_type_e::ERROR}
     { data.err = err.clone(); }
+  object_c(const wrap_identifier_s& val)
+    : type{data_type_e::IDENTIFIER}
+    { setup_str(val.data, val.len); }
 
   ~object_c() { clean(); }
 
   object_c clone() const {
     object_c o;
     o.type = this->type;
-    o.meta = this->meta->clone();
-    o.data = this->data;
 
+    if (this->meta) o.meta = this->meta->clone();
     if (is_str()) { o.data.str = this->data.str->clone(); }
     else if (is_bytes()) {
       o.data.bytes = this->data.bytes->clone(); }
+    else
+      o.data = this->data;
     return o;
   }
 
   void update_from(const object_c& o) {
+    
+
+    fmt::print("Updating object to : {}\n", data_type_to_string(o.type));
+
     this->clean();
     this->type = o.type;
-    if (this->meta) this->meta = o.meta->clone();
-    this->data = o.data;
-    if (is_str()) { this->data.str = o.data.str->clone(); }
-    else if (is_bytes()) {
+    if (o.meta) {
+      if (this->meta) delete this->meta;
+      this->meta = o.meta->clone();
+    }
+    if (o.is_str()) {
+      fmt::print("0) Other type {} Other string {}\n\n",
+          data_type_to_string(o.type),
+          (char*)o.data.str->data);
+
+      this->data.str = o.data.str->clone();
+
+   //   fmt::print("1) Other string {}\nThis string {}\n\n",
+   //       (char*)o.data.str, (char*)this->data.str);
+    }
+    else if (o.is_bytes()) {
       this->data.bytes = o.data.bytes->clone(); }
+    else
+      this->data = o.data;
   }
 
   bool is_bool() const {
@@ -144,7 +181,8 @@ public:
     return type == data_type_e::REAL;
   }
   bool is_str() const {
-    return type == data_type_e::STRING;
+    return type == data_type_e::STRING ||
+           type == data_type_e::IDENTIFIER;
   }
   bool is_bytes() const {
     return type == data_type_e::BYTES;
@@ -166,6 +204,9 @@ public:
   }
   bool is_numeric() const {
     return is_bool() || is_integer() || is_real();
+  }
+  bool is_identifier() const {
+    return type == data_type_e::IDENTIFIER;
   }
   char* as_raw_str(bool& okay) {
     okay = false;
@@ -208,6 +249,10 @@ public:
     }\
     return integer(to_integer() math_op o.to_integer());\
 
+  object_c& operator= (const object_c &o) {
+    update_from(o);
+    return *this;
+  }
   object_c operator+ (const object_c& o) {
     MACHINE_OBJECT_C_OPERATION(+)
   }
@@ -244,6 +289,12 @@ private:
     object_byte_data_s* bytes;
     object_error_data_s* err;
   } data{0};
+
+  void setup_str(char* val, size_t len) {
+    data.str = new object_byte_data_s((uint8_t*)val, len);
+
+    fmt::print("Just setup string: {}\n", (char*)data.str->data);
+  }
 
   void clean() {
     if (is_err() && data.err != nullptr) {

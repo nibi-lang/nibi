@@ -3,6 +3,7 @@
 #include "machine/instructions.hpp"
 #include "machine/object.hpp"
 #include "front/builtins.hpp"
+#include <fmt/format.h>
 
 #include <iostream>
 
@@ -98,12 +99,12 @@ void parser_c::decompose(atom_ptr& atom) {
     case atom_type_e::STRING:
       return forge::load_instruction(
         data,
-        machine::ins_id_e::LOAD_STRING,
+        machine::ins_id_e::PUSH_STRING,
         machine::tools::pack_string(atom->data));
     case atom_type_e::LOAD_ARG:
       return forge::load_instruction(
         data,
-        machine::ins_id_e::LOAD_RESULT);
+        machine::ins_id_e::PUSH_RESULT);
     case atom_type_e::SYMBOL:
       return decompose_symbol(
         atom->meta,
@@ -150,7 +151,13 @@ void parser_c::decompose_symbol(
           return;
         }
       }
-      return forge::load_symbol(data, str);
+
+      fmt::print("Packing: {}\n", str);
+
+      return forge::load_instruction(
+        data,
+        machine::ins_id_e::PUSH_IDENTIFIER,
+        machine::tools::pack_string(str));
     }
     case meta_e::PLUS:
       PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
