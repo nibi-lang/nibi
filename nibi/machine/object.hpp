@@ -85,6 +85,9 @@ public:
   static object_c ref(uint64_t val=0) { return object_c(wrap_mem_ref_s{val}); }
 
   object_c(){}
+  object_c(const object_c &o) {
+    update_from(o);
+  }
   object_c(const wrap_bool_s& val)
     : type{data_type_e::BOOLEAN}
     { data.boolean = val.data; }
@@ -124,7 +127,7 @@ public:
   void update_from(const object_c& o) {
     this->clean();
     this->type = o.type;
-    this->meta = o.meta->clone();
+    if (this->meta) this->meta = o.meta->clone();
     this->data = o.data;
     if (is_str()) { this->data.str = o.data.str->clone(); }
     else if (is_bytes()) {

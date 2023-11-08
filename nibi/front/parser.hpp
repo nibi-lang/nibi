@@ -4,6 +4,7 @@
 #include "tracer.hpp"
 #include "machine/instructions.hpp"
 #include "runtime/context.hpp"
+#include "builtins.hpp"
 
 namespace front {
 
@@ -24,8 +25,12 @@ public:
 private:
   struct block_s {
     machine::bytes_t data;
-    machine::bytecode_idx_t bc_index{0};
-    machine::bytecode_idx_t bump() { return bc_index++; }
+    size_t instruction_index{0};
+    size_t bump(size_t count=1) {
+      size_t v = instruction_index;
+      instruction_index += count;
+      return v;
+    }
   };
 
   struct state_s {
@@ -34,7 +39,7 @@ private:
     bool function_symbol_expected{false};
     void reset() {
       instruction_block.data.clear();
-      instruction_block.bc_index = 0;
+      instruction_block.instruction_index = 0;
       list_depth = 0;
       function_symbol_expected = false;
     }
@@ -44,6 +49,7 @@ private:
 
   tracer_ptr _tracer{nullptr};
   machine::instruction_receiver_if& _ins_receiver;
+  front::builtins::builtin_map_t* _builtin_map{nullptr};
 
   void decompose(atom_ptr&);
   void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos);

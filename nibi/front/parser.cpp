@@ -1,67 +1,19 @@
 #include "parser.hpp"
 #include "forge.hpp"
 #include "machine/instructions.hpp"
+#include "machine/object.hpp"
+#include "front/builtins.hpp"
 
 #include <iostream>
 
 namespace front {
-
-namespace {
-  struct builtin_s {
-    machine::bytes_t instructions;
-  };
-}
-
-static std::unique_ptr<
-  std::map<std::string, builtin_s>> builtins{nullptr};
-
-
-
-static inline void populate_builtins() {
-  
-  if (builtins) { return; }
-
-  builtins = std::make_unique<
-    std::map<std::string, builtin_s>>();
-
-  builtins->insert(std::make_pair("let",
-    builtin_s{
-      machine::bytes_t{ (uint8_t)machine::ins_id_e::EXEC_ASSIGN }
-      }
-    )
-  );
-
-
-  // TODO: Populate builtin instruction's byte code
-  //
-  //    - Validate argument count, checkable types (VAR, STR, INT, REAL)
-  //          ex:  LOAD_VAR, ASSERT_TYPE, Etc
-  //          ^ -- Don't attempt to DO this here, generate the CODE to
-  //               do this upon execution.
-  //
-  //    More for functions:
-  //      INIT_STATIC_INS (for defn)
-  //      COLL_STATIC_INS (For defn
-  //
-  //          - All "static" instructions should assume that they
-  //            _may_ be optimized by the engine
-  //
-  //      ENTER_SCOPE (with marker data for named/ tagged scopes),  
-  //      LEAVE_SCOPE (with marker containing the tag to leave),
-  //
-  //      
-  //      
-  //
-  //
-}
-
 
 parser_c::parser_c(
   tracer_ptr tracer,
   machine::instruction_receiver_if& ins_receiver)
   : _tracer(tracer),
     _ins_receiver(ins_receiver) {
-  populate_builtins();
+  _builtin_map = &builtins::get_builtins();
 }
 
 void parser_c::on_error(error_s error) {
@@ -105,7 +57,7 @@ void parser_c::on_list(atom_list_t list) {
 
   _tracer->register_instruction(
       state.instruction_block.bump(), list[0]->pos);
-  forge::load_instruction(data, machine::ins_id_e::NEW_PROC_FRAME);
+  forge::load_instruction(data, machine::ins_id_e::PUSH_PROC_FRAME);
 
   for(size_t i = 1; i < list.size(); i++) {
     decompose(list[i]);
@@ -162,7 +114,7 @@ void parser_c::decompose(atom_ptr& atom) {
 
 #define PARSER_LOAD_AND_EXPECT_GTE_N(op, n) \
  forge::load_instruction( \
-     data, machine::ins_id_e::EXPECT_GTE_N_ARGS, machine::tools::pack<uint64_t>(2)); \
+     data, machine::ins_id_e::EXPECT_GTE_N_ARGS, machine::tools::pack<uint8_t>(2)); \
   _tracer->register_instruction(\
       state.instruction_block.bump(), pos); \
  return forge::load_instruction(data, op);
@@ -184,22 +136,32 @@ void parser_c::decompose_symbol(
     }
     case meta_e::IDENTIFIER: { 
       {
-        auto id = builtins->find(str);
-        if (id != builtins->end()) {
+        auto id = _builtin_map->find(str);
+        if (id != _builtin_map->end()) {
           data.insert(
             data.end(),
-            id->second.instructions.begin(),
-            id->second.instructions.end());
+            id->second.data.begin(),
+            id->second.data.end());
+          
+          // Jump the instructions that we've used
+          // - Minus 1 as we've already accounted for 1 instruction
+          //   before coming to this method
+          state.instruction_block.bump(id->second.num_instructions-1);
           return;
         }
       }
       return forge::load_symbol(data, str);
     }
-    case meta_e::PLUS: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
-    case meta_e::SUB: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_SUB, 2);
-    case meta_e::ASTERISK: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MUL, 2);
-    case meta_e::FORWARD_SLASH: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_DIV, 2);
-    case meta_e::MOD: PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MOD, 2);
+    case meta_e::PLUS:
+      PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
+    case meta_e::SUB:
+      PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_SUB, 2);
+    case meta_e::ASTERISK:
+      PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MUL, 2);
+    case meta_e::FORWARD_SLASH:
+      PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_DIV, 2);
+    case meta_e::MOD:
+      PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MOD, 2);
   }
 }
 

@@ -1,5 +1,6 @@
 #include "machine/engine.hpp"
 #include "machine/byte_tools.hpp"
+#include <fmt/format.h>
 
 #include <iostream> // TODO: remove
 
@@ -73,39 +74,43 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: break;
+    case ins_id_e::EXEC_ASSIGN: {
+   //   std::string name((char*)iv->data, iv->data_len);
+   //   _scope.current()->insert(name, ctx.proc_q.front());
+   //   ctx.proc_q.pop();
+   //
+   //
+   //     -- Add LOAD_SYMBOL, etc AND THEN we can do this
+   //
+   //
+      break;
+    }
     case ins_id_e::EXEC_ADD: BINARY_OP(+);
     case ins_id_e::EXEC_SUB: BINARY_OP(-);
-    case ins_id_e::EXEC_DIV: BINARY_OP(/);  
-    case ins_id_e::EXEC_MUL: BINARY_OP(*);  
-    case ins_id_e::EXEC_MOD: BINARY_OP(%);  
+    case ins_id_e::EXEC_DIV: BINARY_OP(/);
+    case ins_id_e::EXEC_MUL: BINARY_OP(*);
+    case ins_id_e::EXEC_MOD: BINARY_OP(%);
     case ins_id_e::EXPECT_N_ARGS: {
-
-      // TODO: we need fmtlib or something so these aren't
-      //       everywhere
-      uint64_t expected_size = *(int64_t*)(iv->data);
+      uint64_t expected_size = *(uint8_t*)(iv->data);
       if (ctx.proc_q.size() != expected_size) {
-        std::string msg = "Expected exactly'";
-        msg += std::to_string(expected_size);
-        msg += "' arguments. Got: '";
-        msg += std::to_string(ctx.proc_q.size());
-        msg += "'";
         ctx.error_handler->on_error(
           ctx.instruction_number,
-          execution_error_s{msg});
+          execution_error_s{
+              fmt::format(
+                  "Expected exactly '{}' arguments. Got '{}'.", 
+                  expected_size, ctx.proc_q.size())});
       }
       break;
     }
     case ins_id_e::EXPECT_GTE_N_ARGS: {
-      uint64_t expected_size = *(int64_t*)(iv->data);
+      uint64_t expected_size = *(uint8_t*)(iv->data);
       if (ctx.proc_q.size() != expected_size) {
-        std::string msg = "Expected at least '";
-        msg += std::to_string(expected_size);
-        msg += "' arguments. Got: '";
-        msg += std::to_string(ctx.proc_q.size());
-        msg += "'";
         ctx.error_handler->on_error(
           ctx.instruction_number,
-          execution_error_s{msg});
+          execution_error_s{
+              fmt::format(
+                  "Expected at least '{}' arguments. Got '{}'.",
+                  expected_size, ctx.proc_q.size())});
       }
       break;
     }

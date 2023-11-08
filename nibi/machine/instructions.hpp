@@ -29,8 +29,11 @@ enum class ins_id_e : uint8_t {
   EXEC_ASSIGN,
   EXEC_LOAD_RESULT, // Load result
   
-  NEW_PROC_FRAME,
+  PUSH_PROC_FRAME,  // Indicate new individual process frame (an individual list)
   POP_PROC_FRAME, // Remove proc frame, push value onto return stack
+
+  PUSH_SCOPE,     // Indicate new variable / name scope
+  POP_SCOPE,
 
   LOAD_RESULT,       // Load argument from return stack and into proc_q
   // ..
@@ -63,8 +66,10 @@ enum class ins_id_e : uint8_t {
 
   EXPECT_N_ARGS,
   EXPECT_GTE_N_ARGS,
+  EXPECT_OBJECT_TYPE,
 
   JUMP_TO,  // Byte index of instruction set to jump to
+
 
   ENUM_BOUNDARY,
 };

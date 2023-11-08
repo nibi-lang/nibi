@@ -41,7 +41,9 @@ public:
   */
 
   engine_c(memory_core_c& memory)
-    : _memory(memory){}
+    : _memory(memory),
+      _scope(_memory.global_var_env){
+    }
 
   void handle_instructions(
     const bytes_t& instructions,
@@ -63,7 +65,7 @@ private:
     size_t instruction_number{0};
 
     std::queue<object_c> proc_q;
-    std::stack<object_c> ret_s;
+    std::stack<object_c> return_stack;
 
     // TODO: make objects to encpsulate data.
     //        - this queue will hold the results of calculations
@@ -80,9 +82,40 @@ private:
  
   };
 
-  execution_ctx_s _ctx;
+  class scope_c {
+  public:
+    scope_c() = delete;
+    scope_c(env_c& global_env)
+      : _global(&global_env){}
 
+    [[nodiscard]] env_c* current() {
+      if (_scopes.empty()) {
+        return _global;
+      }
+      return _scopes.top();
+    };
+
+    void push_scope() {
+      _scopes.push(new env_c(current()));
+    }
+
+    void pop_scope() {
+      if (_scopes.empty()) return;
+      delete _scopes.top();
+      _scopes.pop();
+    } 
+
+  private:
+    env_c* _global{nullptr};
+    std::stack<env_c*> _scopes;
+  };
+
+  execution_ctx_s _ctx;
   memory_core_c& _memory;
+  scope_c _scope;
+
+
+
 
   [[nodiscard]] execution_error_s
     generate_error(const std::string& msg) const;
