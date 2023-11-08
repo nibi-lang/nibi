@@ -46,19 +46,10 @@ void parser_c::on_top_list_complete() {
 
 void parser_c::on_list(atom_list_t list) {
 
-  std::cout << "Parser got an atom list : "
-            << list.size()
-            << std::endl;
-  print_list(list);
-
   if (list.empty()) return;
 
   auto& block = state.instruction_block;
   auto& data = block.data;
-
-  _tracer->register_instruction(
-      state.instruction_block.bump(), list[0]->pos);
-  forge::load_instruction(data, machine::ins_id_e::PUSH_PROC_FRAME);
 
   for(size_t i = 1; i < list.size(); i++) {
     decompose(list[i]);
@@ -72,7 +63,7 @@ void parser_c::on_list(atom_list_t list) {
 
   _tracer->register_instruction(
       state.instruction_block.bump(), list.back()->pos);
-  forge::load_instruction(data, machine::ins_id_e::POP_PROC_FRAME);
+  forge::load_instruction(data, machine::ins_id_e::SAVE_RESULTS);
 }
 
 void parser_c::decompose(atom_ptr& atom) {
@@ -151,8 +142,6 @@ void parser_c::decompose_symbol(
           return;
         }
       }
-
-      fmt::print("Packing: {}\n", str);
 
       return forge::load_instruction(
         data,

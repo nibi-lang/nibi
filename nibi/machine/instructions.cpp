@@ -1,13 +1,60 @@
 #include "instructions.hpp"
 #include "byte_tools.hpp"
-
+#include <fmt/format.h>
 #include <iostream> // todo: replace with logger
 
 namespace machine {
 
-instruction_set_builder_c::instruction_set_builder_c() {
-  _data.reserve(MIBI_BYTE * 4);
+void print_instruction_data(const uint8_t* bytes, size_t len) {
+
+  uint64_t idx{0};
+  uint64_t instruction_count{0};
+
+  struct ins_info_s {
+    instruction_view_s* ins{nullptr};
+    uint64_t ins_num{0};
+    uint64_t byte_idx{0};
+  };
+
+  std::vector<ins_info_s> instructions;
+
+  while(idx < len) {
+
+    auto& current_byte = bytes[idx];
+
+    if (current_byte >= (uint8_t)ins_id_e::ENUM_BOUNDARY) {
+      fmt::print("ERROR: Detected ENUM_BOUNDARY\n");
+      return;
+    }
+
+    instruction_view_s* iv =
+      (instruction_view_s*)
+      ((uint8_t*)(bytes + idx));
+
+    instructions.push_back({
+      (instruction_view_s*)((uint8_t*)(bytes + idx)),
+      instruction_count,
+      idx});
+
+    idx += FIELD_OP_SIZE_BYTES;
+    if (current_byte >= INS_DATA_BOUNDARY) {
+      idx += FIELD_DATA_LEN_SIZE_BYTES + instructions.back().ins->data_len;
+    }
+
+    instruction_count++;
+  }
+
+  fmt::print("\n\n\tINSTRUCTION DUMP\n\n");
+  for(auto &&x : instructions) {
+    fmt::print("op {}\t| ins# {}\t| bci {}\n",
+        (int)x.ins->op, x.ins_num, x.byte_idx);
+  }
+  fmt::print("\n\n");
 }
+
+
+/*
+
 
 bool instruction_set_builder_c::encode_instruction(const ins_id_e id) {
   if ((uint8_t)id >= INS_DATA_BOUNDARY) {
@@ -106,5 +153,7 @@ const instruction_s& instruction_set_builder_c::instruction_set_c::get(
 const size_t instruction_set_builder_c::instruction_set_c::size() const {
   return _instructions.size();
 }
+
+*/
 
 } // namespace

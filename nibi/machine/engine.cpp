@@ -6,31 +6,36 @@
 
 namespace machine {
 
-void engine_c::reset_instruction_handling() {
-  // Clear process frames and reset 
+#define RAISE_ERROR(s) \
+  print_instruction_data(ctx.instructions->data(), ctx.instructions->size()); \
+  ctx.error_handler->on_error( \
+    ctx.instruction_number, \
+    execution_error_s{s}); \
+  _engine_okay = false; \
+  return;
 
-  std::cout << "Engine asked to reset instruction handling" << std::endl;
+void engine_c::reset_instruction_handling() {
+
+  if (_print_result) {
+    while(!_ctx.result_q.empty()) {
+      fmt::print("{} ", _ctx.result_q.front().dump_to_string(true));
+      _ctx.result_q.pop();
+    }
+    fmt::print("\n");
+  }
+
+  _engine_okay = true;
+  _ctx.reset();
 }
 
 void engine_c::handle_instructions(
   const bytes_t& instructions,
   instruction_error_handler_if& error_handler) {
 
-  std::cout << "Engine got "
-            << instructions.size()
-            << " bytes of instructions to execute\n";
-
-  _ctx.pc = 0;
   _ctx.instructions = &instructions;
   _ctx.error_handler = &error_handler;
 
   execute_ctx(_ctx);
-}
-
-execution_error_s engine_c::generate_error(
-  const std::string& msg) const {
-  // TODO: Add other debug info`
-  return {msg};
 }
 
 void engine_c::execute_ctx(execution_ctx_s &ctx) {
@@ -43,8 +48,7 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
     auto& current_byte = ins[ctx.pc];
 
     if (current_byte >= (uint8_t)ins_id_e::ENUM_BOUNDARY) {
-      // Push error object and return
-      return;
+      RAISE_ERROR(fmt::format("Invalid instruction `{}`\n", (int)current_byte));
     }
 
     instruction_view_s* iv =
@@ -68,23 +72,20 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
   ctx.proc_q.pop(); \
   auto rhs = ctx.proc_q.front(); \
   ctx.proc_q.pop(); \
+  if (!(lhs.conditional_self_load(_scope.current()))) {\
+      RAISE_ERROR(fmt::format("Unknown variable `{}`\n", lhs.dump_to_string(true))) \
+  } \
+  if (!(rhs.conditional_self_load(_scope.current()))) { \
+      RAISE_ERROR(fmt::format("Unknown variable `{}`\n", rhs.dump_to_string(true))) \
+  } \
   ctx.proc_q.push(lhs operation rhs); \
   break; \
 }
-
-#define RAISE_ERROR(s) \
-  ctx.error_handler->on_error( \
-    ctx.instruction_number, \
-    execution_error_s{s}); \
-  _engine_okay = false; \
-  return;
 
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: break;
 
-    case ins_id_e::PUSH_PROC_FRAME: break;
-    case ins_id_e::POP_PROC_FRAME: break;
     case ins_id_e::EXEC_ADD: BINARY_OP(+);
     case ins_id_e::EXEC_SUB: BINARY_OP(-);
     case ins_id_e::EXEC_DIV: BINARY_OP(/);
@@ -96,14 +97,10 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
 
       bool okay{false};
       if (!target.as_raw_str(okay) || !okay) {
-
-        fmt::print("\tType: {}\t'{}'\n",
-            data_type_to_string(target.type),
-            target.to_string());
-
-
         RAISE_ERROR(
-            "Expected identifier as first argument to assignment");
+            fmt::format(
+              "Expected identifier as first argument to assignment, got {}\n",
+              target.dump_to_string(true)));
       }
 
       _scope.current()->insert(
@@ -112,7 +109,8 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
 
       ctx.proc_q.pop();
 
-
+      // TODO:
+      // Push a reference to the stored variable so we _could_ chain assignments
       break;
     }
     case ins_id_e::EXPECT_OBJECT_TYPE: {
@@ -120,7 +118,7 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       if (!ctx.proc_q.size()) {
         RAISE_ERROR(
           fmt::format(
-            "Expected object type '{}' got 'none',",
+            "Expected object type '{}' got 'none'\n",
              data_type_to_string(expected))); 
       }
       break;
@@ -130,9 +128,8 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       if (ctx.proc_q.size() != expected_size) {
         RAISE_ERROR(
           fmt::format(
-           "Expected exactly '{}' arguments. Got '{}'.", 
+           "Expected exactly '{}' arguments. Got '{}'\n", 
            expected_size, ctx.proc_q.size()));
-
       }
       break;
     }
@@ -141,9 +138,23 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       if (ctx.proc_q.size() != expected_size) {
         RAISE_ERROR(
           fmt::format(
-            "Expected at least '{}' arguments. Got '{}'.",
+            "Expected at least '{}' arguments. Got '{}'\n",
             expected_size, ctx.proc_q.size()));
       }
+      break;
+    }
+    case ins_id_e::SAVE_RESULTS: {
+      while(!ctx.proc_q.empty()) {
+        ctx.result_q.push(ctx.proc_q.front());
+        //fmt::print("moved: {} from proc_q to result_q\n", ctx.proc_q.front().dump_to_string(true));
+        ctx.proc_q.pop();
+      }
+      break;
+    }
+    case ins_id_e::PUSH_RESULT: {
+      ctx.proc_q.push(ctx.result_q.front());
+      //fmt::print("moved: {} from result_q to proc_q\n", ctx.result_q.front().dump_to_string(true));
+      ctx.result_q.pop();
       break;
     }
     case ins_id_e::PUSH_INT:
@@ -155,10 +166,6 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
         object_c::real(*(double*)(iv->data)));
       break;
     case ins_id_e::PUSH_IDENTIFIER:
-
-      fmt::print("push {} len string: {}\n",
-          iv->data_len,
-          *(iv->data));
       ctx.proc_q.push(
         object_c::identifier((char*)(iv->data), iv->data_len));
       break;

@@ -8,6 +8,13 @@
 #include <string>
 #include <vector>
 
+/*
+      Byte-encoded instruction layout
+
+      [   id    |      len      |   data ... ]
+        1 byte       4 bytes       variable
+*/
+
 namespace machine {
 
 namespace {
@@ -30,12 +37,22 @@ enum class ins_id_e : uint8_t {
 
   PUSH_RESULT,       // Load argument from return stack and into proc_q
 
-  PUSH_PROC_FRAME,  // Indicate new individual process frame (an individual list)
-  POP_PROC_FRAME, // Remove proc frame, push value onto return stack
+  SAVE_RESULTS,      // Move results of computation to results queue
 
 //  PUSH_SCOPE,     // Indicate new variable / name scope
 //  POP_SCOPE,
 
+  /*
+
+
+        IDEA:
+
+              Add a debugif on engine that can callback on a debugger whenever a EXEC_BREAKPOINT
+              is set. Give that interface a means to interface with the engine and see information
+              around it.
+                  - Dump local instructions,
+                  - Decode local instructions, etc
+  */
 
 
   // ..
@@ -123,6 +140,19 @@ struct instruction_view_s {
 };
 #pragma pack(pop)
 
+
+
+extern void print_instruction_data(const uint8_t* bytes, size_t len);
+
+
+
+/*
+
+
+   // ALL OF THIS WAS USED FOR TESTING AND DESIGN,
+   // WILL BE REMOVED SOON-ISH
+
+
 #pragma pack(push, 1)
 //! \brief A single instruction, along with
 //!        its potential data
@@ -132,13 +162,6 @@ struct instruction_s {
 };
 #pragma pack(pop)
 
-
-/*
-      Byte-encoded instruction layout
-
-      [   id    |      len      |   data ... ]
-        1 byte       4 bytes       variable
-*/
 
 //! \brief Builder for encoding/ decoding
 //!        an instruction set
@@ -233,5 +256,5 @@ private:
 
 using instruction_if = 
   instruction_set_builder_c::instruction_set_if;
-
+*/
 } // namespace 

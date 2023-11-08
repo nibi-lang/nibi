@@ -1,4 +1,6 @@
 #include "object.hpp"
+#include "env.hpp"
+#include <fmt/format.h>
 
 namespace machine {
 
@@ -71,7 +73,12 @@ std::string object_c::to_string() const {
   return "unknown";
 }
 
-std::string object_c::dump_to_string() const {
+std::string object_c::dump_to_string(bool simple) const {
+
+  if (simple) {
+    return fmt::format("object<{}>[{}]", data_type_to_string(type), to_string());
+  }
+
   std::string result = "object:";
   result += data_type_to_string(type);
   result += "\nmeta:";
@@ -81,5 +88,23 @@ std::string object_c::dump_to_string() const {
   result += to_string();
   return result;
 }
+
+[[nodiscard]] bool object_c::conditional_self_load(machine::env_c *env) {
+  if (!env) { return false; }
+  if (type != data_type_e::IDENTIFIER) {
+    return true;
+  }
+
+  object_c* target = env->get(this->to_string());
+  if (target == nullptr) {
+    return false;
+  }
+
+  update_from(*target);
+
+  return true;
+}
+
+
 
 } // namespace

@@ -16,7 +16,7 @@ public:
 
   [[nodiscard]] inline object_c* get(const std::string& var) {
     auto target = _map.find(var);
-    if (target == _map.end()) {
+    if (target != _map.end()) {
       return &target->second;
     }
     if (_parent) { return _parent->get(var); }
@@ -30,7 +30,7 @@ public:
   }
 
   inline void insert(const std::string& var, const object_c& o) {
-    _map[var] = o.clone();
+    _map[var] = o;
   }
 
   [[nodiscard]] inline bool exists(const std::string& var) {

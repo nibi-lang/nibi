@@ -19,7 +19,6 @@ namespace intake {
 namespace {
 
 struct intake_group_s {
-  bool in_repl{false};
   traced_file_ptr traced_file{nullptr};
   tracer_ptr tracer{nullptr};
 
@@ -31,12 +30,13 @@ struct intake_group_s {
       traced_file_ptr& traced_file, 
       runtime::context_c &ctx,
       bool in_repl=false)
-    : in_repl{in_repl},
-      traced_file(traced_file),
+    : traced_file(traced_file),
       tracer(traced_file->get_tracer()),
       engine(ctx.get_memory_core()),
       parser(tracer, engine),
       lexer(parser) {
+
+      engine.set_print_results(in_repl);
 
       // Tracers may need to live beyond parsers, 
       // so we give them a ref to the trace stuff

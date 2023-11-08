@@ -5,9 +5,10 @@
 #include <cstring>
 #include <vector>
 #include <memory>
-#include <fmt/format.h>
 
 namespace machine {
+
+class env_c;
 
 enum class data_type_e {
   NONE,
@@ -37,15 +38,9 @@ struct object_byte_data_s {
   object_byte_data_s() = delete;
   object_byte_data_s(uint8_t* in_data, const size_t& in_len) {
     if (in_data == nullptr || in_len == 0) { return; }
-    data = new uint8_t[in_len];
-    std::memcpy(data, in_data, in_len);
     this->len = in_len;
-
-    fmt::print("Construct new byte data of len {}\n", len);
-    for(auto i = 0; i < len; i++) {
-      fmt::print("{} ", (char)data[i]);
-    }
-    fmt::print("\n");
+    this->data = new uint8_t[this->len];
+    std::memcpy(this->data, in_data, this->len);
   }
   ~object_byte_data_s() {
     if (data) {
@@ -53,8 +48,6 @@ struct object_byte_data_s {
     }
   }
   object_byte_data_s* clone() {
-
-    fmt::print("Clone new byte data of len {}\n", len);
     return new object_byte_data_s(data, len);
   }
   std::string to_string() const;
@@ -102,8 +95,6 @@ public:
   object_c(const object_c &o) {
     update_from(o);
   }
-
-
   object_c(const wrap_bool_s& val)
     : type{data_type_e::BOOLEAN}
     { data.boolean = val.data; }
@@ -131,6 +122,8 @@ public:
 
   ~object_c() { clean(); }
 
+  [[nodiscard]] bool conditional_self_load(env_c* env);
+
   object_c clone() const {
     object_c o;
     o.type = this->type;
@@ -145,28 +138,16 @@ public:
   }
 
   void update_from(const object_c& o) {
-    
-
-    fmt::print("Updating object to : {}\n", data_type_to_string(o.type));
-
     this->clean();
     this->type = o.type;
     if (o.meta) {
       if (this->meta) delete this->meta;
       this->meta = o.meta->clone();
     }
-    if (o.is_str()) {
-      fmt::print("0) Other type {} Other string {}\n\n",
-          data_type_to_string(o.type),
-          (char*)o.data.str->data);
-
+    if (o.is_str())
       this->data.str = o.data.str->clone();
-
-   //   fmt::print("1) Other string {}\nThis string {}\n\n",
-   //       (char*)o.data.str, (char*)this->data.str);
-    }
-    else if (o.is_bytes()) {
-      this->data.bytes = o.data.bytes->clone(); }
+    else if (o.is_bytes())
+      this->data.bytes = o.data.bytes->clone();
     else
       this->data = o.data;
   }
@@ -217,7 +198,7 @@ public:
   }
 
   std::string to_string() const;
-  std::string dump_to_string() const;
+  std::string dump_to_string(bool simple=false) const;
 
   // These methods are not safe on their own.
   // It is up to the caller to ensure the correct
@@ -290,10 +271,8 @@ private:
     object_error_data_s* err;
   } data{0};
 
-  void setup_str(char* val, size_t len) {
+  inline void setup_str(char* val, size_t len) {
     data.str = new object_byte_data_s((uint8_t*)val, len);
-
-    fmt::print("Just setup string: {}\n", (char*)data.str->data);
   }
 
   void clean() {
