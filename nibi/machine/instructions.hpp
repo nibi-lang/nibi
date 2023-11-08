@@ -34,6 +34,7 @@ enum class ins_id_e : uint8_t {
   EXEC_MUL,
   EXEC_MOD,
   EXEC_ASSIGN,
+  EXEC_REASSIGN,
 
   PUSH_RESULT,       // Load argument from return stack and into proc_q
 

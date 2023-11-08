@@ -5,8 +5,6 @@
 #include "front/builtins.hpp"
 #include <fmt/format.h>
 
-#include <iostream>
-
 namespace front {
 
 parser_c::parser_c(
@@ -18,8 +16,7 @@ parser_c::parser_c(
 }
 
 void parser_c::on_error(error_s error) {
-  std::cout << "Parser received an error report"
-            << std::endl;
+  fmt::print("Parser received an error report\n");;
 }
 
 void parser_c::on_top_list_complete() {
@@ -35,9 +32,6 @@ void parser_c::on_top_list_complete() {
   _ins_receiver.handle_instructions(
     state.instruction_block.data,
     *_tracer.get());
-
-  // If we want to show output on repl, we could do so by grabing
-  // the value here.
 
   _ins_receiver.reset_instruction_handling();
 
@@ -55,8 +49,6 @@ void parser_c::on_list(atom_list_t list) {
     decompose(list[i]);
   }
 
-  _tracer->register_instruction(
-      state.instruction_block.bump(), list[0]->pos);
   decompose(list[0]);
 
   state.list_depth++;
@@ -68,9 +60,6 @@ void parser_c::on_list(atom_list_t list) {
 
 void parser_c::decompose(atom_ptr& atom) {
 
-  _tracer->register_instruction(
-      state.instruction_block.bump(), atom->pos);
-
   auto& block = state.instruction_block;
   auto& data = block.data;
 
@@ -80,28 +69,35 @@ void parser_c::decompose(atom_ptr& atom) {
       break;
     }
     case atom_type_e::INTEGER:
-      return forge::load_raw<int64_t>(
+      forge::load_raw<int64_t>(
         data,
         std::stoull(atom->data.c_str()));
+      break;
     case atom_type_e::REAL:
-      return forge::load_raw<double>(
+      forge::load_raw<double>(
         data,
         std::stod(atom->data.c_str()));
+      break;
     case atom_type_e::STRING:
-      return forge::load_instruction(
+      forge::load_instruction(
         data,
         machine::ins_id_e::PUSH_STRING,
         machine::tools::pack_string(atom->data));
+      break;
     case atom_type_e::LOAD_ARG:
-      return forge::load_instruction(
+      forge::load_instruction(
         data,
         machine::ins_id_e::PUSH_RESULT);
-    case atom_type_e::SYMBOL:
-      return decompose_symbol(
+      break;
+    case atom_type_e::SYMBOL:   // Symbols log their own instruction 
+      return decompose_symbol(  // so we return here
         atom->meta,
         atom->data,
         atom->pos);
   }
+  
+  _tracer->register_instruction(
+      state.instruction_block.bump(), atom->pos);
 }
 
 #define PARSER_LOAD_AND_EXPECT_GTE_N(op, n) \
@@ -109,7 +105,8 @@ void parser_c::decompose(atom_ptr& atom) {
      data, machine::ins_id_e::EXPECT_GTE_N_ARGS, machine::tools::pack<uint8_t>(2)); \
   _tracer->register_instruction(\
       state.instruction_block.bump(), pos); \
- return forge::load_instruction(data, op);
+  forge::load_instruction(data, op); \
+  break;
 
 void parser_c::decompose_symbol(
   const meta_e& meta, const std::string& str, const pos_s& pos) {
@@ -119,12 +116,8 @@ void parser_c::decompose_symbol(
 
   switch (meta) {
     default: {
-      std::cerr << "META " << (int)meta << " : " << str
-        << " is not yet implemented " << std::endl;
-
-      std::cout 
-        << "Continuing with default behavior (assuming identifier)\n";
-      [[fallthrough]];
+      fmt::print("{} : {} is not yet implemented - Assuming its an identifier\n\n", (int)meta, str);
+      [[fallthrough]];                                                    
     }
     case meta_e::IDENTIFIER: { 
       {
@@ -134,19 +127,21 @@ void parser_c::decompose_symbol(
             data.end(),
             id->second.data.begin(),
             id->second.data.end());
-          
-          // Jump the instructions that we've used
-          // - Minus 1 as we've already accounted for 1 instruction
-          //   before coming to this method
-          state.instruction_block.bump(id->second.num_instructions-1);
+ 
+          // Add position for each instruction generated
+          for(size_t i = 0; i < id->second.num_instructions; i++) {
+            _tracer->register_instruction(
+                state.instruction_block.bump(), pos);
+          }
           return;
         }
       }
 
-      return forge::load_instruction(
+      forge::load_instruction(
         data,
         machine::ins_id_e::PUSH_IDENTIFIER,
         machine::tools::pack_string(str));
+      break;
     }
     case meta_e::PLUS:
       PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
@@ -159,6 +154,8 @@ void parser_c::decompose_symbol(
     case meta_e::MOD:
       PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MOD, 2);
   }
+  _tracer->register_instruction(
+      state.instruction_block.bump(), pos);
 }
 
 } // namespace

@@ -73,6 +73,7 @@ namespace {
   }
 } // namespace
   
+// ----------------------------------------------------------
 
 builtin_s builtin_let() {
 
@@ -91,10 +92,32 @@ builtin_s builtin_let() {
   return code;
 }
 
+// ----------------------------------------------------------
+
+builtin_s builtin_set() {
+
+  builtin_s code;
+
+  expect_exactly_n_args(code, 2);
+
+  expect_identifier(code);
+
+  add_instruction(
+    code,
+    machine::ins_id_e::EXEC_REASSIGN);
+
+  // we may want to place the value back on the queue as
+  // a ref to the obejct
+  return code;
+}
+
+// ----------------------------------------------------------
+
 builtin_map_t& get_builtins() {
   if (!builtin_code.empty()) { return builtin_code; }
 
   builtin_code["let"] = builtin_let();
+  builtin_code["set"] = builtin_set();
 
   return builtin_code;
 }

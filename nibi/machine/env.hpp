@@ -14,12 +14,12 @@ public:
   env_c(env_c* parent=nullptr)
     : _parent(parent){}
 
-  [[nodiscard]] inline object_c* get(const std::string& var) {
+  [[nodiscard]] inline object_c* get(const std::string& var, bool limit_scope=false) {
     auto target = _map.find(var);
     if (target != _map.end()) {
       return &target->second;
     }
-    if (_parent) { return _parent->get(var); }
+    if (_parent && !limit_scope) { return _parent->get(var); }
     return nullptr;
   }
 

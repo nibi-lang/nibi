@@ -122,7 +122,7 @@ public:
 
   ~object_c() { clean(); }
 
-  [[nodiscard]] bool conditional_self_load(env_c* env);
+  [[nodiscard]] bool conditional_self_load(env_c* env, bool limit_scope=false);
 
   object_c clone() const {
     object_c o;

@@ -89,13 +89,13 @@ std::string object_c::dump_to_string(bool simple) const {
   return result;
 }
 
-[[nodiscard]] bool object_c::conditional_self_load(machine::env_c *env) {
+[[nodiscard]] bool object_c::conditional_self_load(machine::env_c *env, bool limit_scope) {
   if (!env) { return false; }
   if (type != data_type_e::IDENTIFIER) {
     return true;
   }
 
-  object_c* target = env->get(this->to_string());
+  object_c* target = env->get(this->to_string(), limit_scope);
   if (target == nullptr) {
     return false;
   }

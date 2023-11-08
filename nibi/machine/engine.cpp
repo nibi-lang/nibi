@@ -85,32 +85,55 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: break;
-
     case ins_id_e::EXEC_ADD: BINARY_OP(+);
     case ins_id_e::EXEC_SUB: BINARY_OP(-);
     case ins_id_e::EXEC_DIV: BINARY_OP(/);
     case ins_id_e::EXEC_MUL: BINARY_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
     case ins_id_e::EXEC_ASSIGN: {
-      auto target = ctx.proc_q.front();
+      auto new_var = ctx.proc_q.front();
       ctx.proc_q.pop();
 
-      bool okay{false};
-      if (!target.as_raw_str(okay) || !okay) {
-        RAISE_ERROR(
-            fmt::format(
-              "Expected identifier as first argument to assignment, got {}\n",
-              target.dump_to_string(true)));
+      if (_scope.current()->get(new_var.to_string(), true)) {
+        RAISE_ERROR(fmt::format(
+          "Variable '{}' in assignment already exists in current scope\n",
+          new_var.to_string()));
+      }
+
+      auto* val = &ctx.proc_q.front();
+
+      if (val->type == data_type_e::IDENTIFIER && 
+         !val->conditional_self_load(_scope.current())) {
+          RAISE_ERROR(fmt::format("Unknown variable '{}' in assignment\n", val->to_string()));
       }
 
       _scope.current()->insert(
-          target.to_string(),
+          new_var.to_string(),
           ctx.proc_q.front());
 
       ctx.proc_q.pop();
 
       // TODO:
       // Push a reference to the stored variable so we _could_ chain assignments
+      break;
+    }
+    case ins_id_e::EXEC_REASSIGN: {
+      auto var = ctx.proc_q.front();
+      ctx.proc_q.pop();
+
+      std::string name = var.to_string();
+
+      auto* target = _scope.current()->get(name);
+
+      if (!target) {
+        RAISE_ERROR(fmt::format("Unknown variable '{}' in reassignment\n", name));
+      }
+    
+      target->update_from(ctx.proc_q.front());
+      ctx.proc_q.pop();
+
+      fmt::print("Reassigned {} as {}\n", name, target->dump_to_string(true));
+      // Push a reference to the stored variable
       break;
     }
     case ins_id_e::EXPECT_OBJECT_TYPE: {
@@ -120,6 +143,13 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
           fmt::format(
             "Expected object type '{}' got 'none'\n",
              data_type_to_string(expected))); 
+      }
+      if (ctx.proc_q.front().type != expected) {
+        RAISE_ERROR(
+          fmt::format(
+            "Expected object type '{}' got '{}'\n",
+             data_type_to_string(expected),
+             data_type_to_string(ctx.proc_q.front().type))); 
       }
       break;
     }
