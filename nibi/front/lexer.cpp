@@ -1,6 +1,6 @@
 #include "lexer.hpp"
 
-#include <iostream>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cctype>
 #include <map>
@@ -29,9 +29,9 @@ inline bool check_for_chars(std::string &buffer, char c) {
 
 void print_list(front::atom_list_t &list) {
   for(auto &atom : list) {
-    std::cout << " ATOM (" << atom->pos.line << ":" << atom->pos.col << ")[" << atom->data << "]";
+    fmt::print("ATOM ({}:{})[{}]", atom->pos.line, atom->pos.col, atom->data);
   }
-  std::cout << std::endl;
+  fmt::print("\n");
 }
 
 void lexer_c::insert_atom(
@@ -81,10 +81,6 @@ void lexer_c::submit(std::string &data, size_t line) {
 
 bool lexer_c::finish() {
   if (!_active_lists.empty()) {
-
-    std::cout << "Lists active: " << _active_lists.size() << std::endl;
-    print_list(_active_lists.top());
-
     emit_error("Incomplete list - Finish indicated with data buffered");
     return false;
   }

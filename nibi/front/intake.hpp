@@ -2,13 +2,15 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+
 #include "runtime/context.hpp"
 
 namespace front {
 namespace intake {
 
 struct settings_s {
-  runtime::context_c ctx;
+  runtime::context_c &ctx;
 };
 
 extern uint8_t repl(

@@ -5,8 +5,7 @@
 
 #include <map>
 #include <memory>
-
-#include <iostream> // TODO: remove
+#include <fmt/format.h>
 
 namespace front {
 
@@ -43,17 +42,11 @@ public:
       auto target = _file_map.find(instruction_index);
 
       if (target == _file_map.end()) {
-
+        // TODO: change this to show only on debug builds that ask for it
         for(auto [x, y] : _file_map) {
-          std::cout << "idx: " << x << " | pos: " << y.line << ", " << y.col << "\n";
+          fmt::print("idx: {} | pos {}, {}\n", x, y.line, y.col);
         }
-
-
-        err.message =
-          std::string("Unable to load locator for instruction: ") +
-          std::to_string(instruction_index) + 
-          std::string("\n") +
-          err.message;
+        err.message = fmt::format("Unable to load locator for instructions: {}\n", instruction_index);
         pos_s pos{0,0};
         _parent.trace_error(pos, err);
         return;

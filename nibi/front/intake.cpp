@@ -4,14 +4,13 @@
 #include "tracer.hpp"
 #include "machine/engine.hpp"
 
-#include <iostream>
+#include <fmt/format.h>
 
 #include <fstream>
 #include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
-
 
 namespace front {
 namespace intake {
@@ -40,6 +39,13 @@ struct intake_group_s {
 
       // Tracers may need to live beyond parsers, 
       // so we give them a ref to the trace stuff
+      //
+      //  TODO: Change the tracer stuff so that tracers only
+      //        exist during the time of consuming and first exection
+      //        of code. 
+      //
+      //        Make the engine copy over all trace data for long-term instructions
+      //
       ctx.add_traced_file(traced_file);
       ctx.add_tracer(traced_file->get_name(), tracer);
     }
@@ -68,8 +74,7 @@ uint8_t repl(settings_s& settings) {
 uint8_t dir(
     settings_s& settings,
     const std::string& target) {
-  std::cout << "NOT YET COMPLETE" << std::endl;
-  std::cout << "front::intake::dir: " << target << std::endl;
+  fmt::print("front::intake::dir is not yet completed\n");
   return 1;
 }
 
@@ -79,24 +84,20 @@ uint8_t file(
     settings_s& settings,
     const std::string& target) {
   
-  std::cout << "front::intake::file: " << target << std::endl;
-
   traced_file_ptr traced_file = front::allocate_traced_file(target);
   intake_group_s ig(traced_file, settings.ctx);
 
   {
     std::filesystem::path path(target); 
     if (!std::filesystem::is_regular_file(path)) {
-      std::cout << "Not a regular file"
-                << std::endl;
+      fmt::print("'{}' is not a regular file\n", target);
       return false;
     }
   }
 
   std::ifstream in(target);
   if (!in.is_open()) {
-    std::cout << "Unable to open file"
-              << std::endl;
+    fmt::print("Unable to open file: {}\n", target);
     return false;
   }
 
