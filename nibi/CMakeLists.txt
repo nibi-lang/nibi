@@ -6,6 +6,12 @@ set(CMAKE_CXX_STANDARD 23)
 
 find_package(fmt)
 
+include_directories(
+  ${PROJECT_SOURCE_DIR}
+  ${FMT_INCLUDE_DIR})
+
+# Language sources
+
 set(INTAKE_SOURCES
   front/intake.cpp
   front/lexer.cpp
@@ -23,15 +29,14 @@ set(NIBI_SOURCES
   ${INTAKE_SOURCES}
   ${MACHINE_SOURCES})
 
-include_directories(
-  ${PROJECT_SOURCE_DIR}
-  ${FMT_INCLUDE_DIR})
+# Make into lib for quicker compile time
+
+add_library(nibi_static STATIC ${NIBI_SOURCES})
 
 # Build the main app
 
 set(MAIN_APP_NAME "nibi")
 set(MAIN_APP_SOURCES
-  ${NIBI_SOURCES}
   apps/nibi/main.cpp)
 
 add_executable(${MAIN_APP_NAME}
@@ -39,13 +44,13 @@ add_executable(${MAIN_APP_NAME}
 
 target_link_libraries(
   ${MAIN_APP_NAME}
+  nibi_static
   fmt::fmt)
 
 # Build the debugger
 
 set(DEBUGGER_APP_NAME "ndb")
 set(DEBUGGER_APP_SOURCES
-  ${NIBI_SOURCES}
   apps/ndb/main.cpp)
 
 add_executable(${DEBUGGER_APP_NAME}
@@ -53,4 +58,5 @@ add_executable(${DEBUGGER_APP_NAME}
 
 target_link_libraries(
   ${DEBUGGER_APP_NAME}
+  nibi_static
   fmt::fmt)

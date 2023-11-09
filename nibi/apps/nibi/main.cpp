@@ -1,25 +1,8 @@
-#include "platform/system.hpp"
-
-#include "front/lexer.hpp"
-#include "front/intake.hpp"
-
-#include "machine/defines.hpp"
-#include "machine/instructions.hpp"
-#include "machine/byte_tools.hpp"
-#include "machine/object.hpp"
-
-#include <vector>
-#include <iostream>
-#include <filesystem>
+#include "apps/app.hpp"
 
 #define VERSION "0.0.0"
 
-namespace {
-}
-
-int show_help() {
-
-  fmt::print(R"(
+static std::string help_message = fmt::format(R"(
 
   Nibi Help Page [nibi v{}]
 
@@ -28,6 +11,7 @@ int show_help() {
 
   -h  --help                Show this message
   -v  --version             Show version
+  -t  --test                Run tests on target
 
   --------------------------------------------
 
@@ -39,65 +23,49 @@ int show_help() {
 
 )", VERSION);
 
-  return 0;
-}
+static std::string version_message = 
+  fmt::format("Nibi version: {}\n", VERSION);
 
-int show_version() {
-  fmt::print("Nibi version: {}\n", VERSION);
-  return 0;
+void arg_do_test(std::vector<std::string>& args, const size_t& i) {
+  fmt::print("User wants to test !\n");
+  return;
 }
 
 int main(int argc, char **argv) {
 
-  std::vector<std::string> target_args;
-  std::vector<std::string> target_stdin;
-  runtime::context_c runtime(target_args, target_stdin);
-  
-  front::intake::settings_s intake_settings {runtime};
-
-  std::string target;
+  app::data_ptr app_data {nullptr};
   {
-    std::vector<std::string> args(argv, argv + argc);
+    app::arg_map_t arg_map {
+      APP_ARG("-t", "--test", arg_do_test)
+    };
 
-    for(size_t i = 1; i < args.size(); i++) {
-
-      if (args[i] == "-h" || args[i] == "--help") {
-        return show_help();
-      }
-
-      if (args[i] == "-v" || args[i] == "--version") {
-        return show_version();
-      }
-
-      if (target.empty()) {
-        target = args[i];
-        continue;
-      }
-
-      target_args.push_back(args[i]);
-    }
+    app_data = app::make_data_ptr(
+      argc, argv,
+      help_message,
+      version_message,
+      arg_map);
   }
 
-  if (!platform::stdin_is_tty()) {
-    std::string x;
-    while(std::cin >> x) {
-      target_stdin.push_back(x);
-    }
+  if (!app_data->target.has_value()) {
+    return front::intake::repl(
+        app_data->intake_settings);
   }
 
-  if (target.empty()) {
-    return front::intake::repl(intake_settings);
+  if (std::filesystem::is_regular_file(*app_data->target)) {
+    return front::intake::file(
+        app_data->intake_settings,
+        *app_data->target);
   }
 
-  if (std::filesystem::is_regular_file(target)) {
-    return front::intake::file(intake_settings, target);
+  if (std::filesystem::is_directory(*app_data->target)) {
+    return front::intake::dir(
+        app_data->intake_settings,
+        *app_data->target);
   }
 
-  if (std::filesystem::is_directory(target)) {
-    return front::intake::dir(intake_settings, target);
-  }
-
-  fmt::print("Given target is not a file or directory: {}\n", target);
+  fmt::print(
+    "Given target is not a file or directory: {}\n",
+    *app_data->target);
   return 1;
 }
 

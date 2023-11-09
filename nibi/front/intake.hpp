@@ -11,6 +11,9 @@ namespace intake {
 
 struct settings_s {
   runtime::context_c &ctx;
+
+  settings_s(runtime::context_c &ctx)
+    : ctx(ctx){}
 };
 
 extern uint8_t repl(
