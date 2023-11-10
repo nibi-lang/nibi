@@ -113,14 +113,48 @@ builtin_s builtin_set() {
 
 // ----------------------------------------------------------
 
+builtin_s builtin_use() {
+
+  builtin_s code;
+
+  expect_at_least_n_args(code, 1);
+
+  add_instruction(
+    code,
+    machine::ins_id_e::EXEC_IMPORT);
+
+  return code;
+}
+
+// ----------------------------------------------------------
+
+builtin_s builtin_dbg() {
+
+  builtin_s code;
+
+  expect_at_least_n_args(code, 1);
+
+  add_instruction(
+    code,
+    machine::ins_id_e::EXEC_DBG);
+
+  return code;
+}
+
+// ----------------------------------------------------------
+
 builtin_map_t& get_builtins() {
   if (!builtin_code.empty()) { return builtin_code; }
 
   builtin_code["let"] = builtin_let();
   builtin_code["set"] = builtin_set();
+  builtin_code["use"] = builtin_use();
+  builtin_code["dbg"] = builtin_dbg();
 
   return builtin_code;
 }
+
+// ----------------------------------------------------------
 
 } // namespace
 } // namespace

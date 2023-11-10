@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <optional>
+#include <filesystem>
 
 namespace runtime {
 
@@ -18,7 +19,9 @@ public:
     std::vector<std::string> &program_args,
     std::vector<std::string> &stdin_pipe)
     : _args(program_args),
-      _stdin_pipe(stdin_pipe){}
+      _stdin_pipe(stdin_pipe){
+      _working_dir = std::filesystem::current_path();
+    }
 
   machine::memory_core_c& get_memory_core() {
     return _memory;
@@ -30,6 +33,10 @@ public:
 
   std::vector<std::string> &get_program_stdin_pipe() const {
     return _stdin_pipe;
+  }
+
+  std::filesystem::path &get_working_dir() {
+    return _working_dir;
   }
 
   void add_traced_file(
@@ -53,6 +60,8 @@ private:
     front::traced_file_ptr> _active_traced_files;
   std::unordered_map<std::string,
     front::tracer_ptr> _active_tracers;
+
+  std::filesystem::path _working_dir;
 };
 
 } // namespace

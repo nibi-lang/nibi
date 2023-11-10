@@ -82,8 +82,7 @@ struct data_s {
         }
       }
 
-      auto current_path = std::filesystem::current_path();
-      importer.add_include_dir(current_path);
+      importer.add_include_dir(runtime.get_working_dir());
   }
 };
 

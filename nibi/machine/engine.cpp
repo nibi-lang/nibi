@@ -20,8 +20,8 @@ void engine_c::reset_instruction_handling() {
     while(!_ctx.result_q.empty()) {
       fmt::print("{} ", _ctx.result_q.front().dump_to_string(true));
       _ctx.result_q.pop();
+      fmt::print("\n");
     }
-    fmt::print("\n");
   }
 
   _engine_okay = true;
@@ -82,6 +82,22 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
   break; \
 }
 
+#define FOR_ALL_ITEMS(body_) \
+  while(!ctx.proc_q.empty()) {\
+    auto item = ctx.proc_q.front(); \
+    ctx.proc_q.pop(); \
+    body_ \
+  }
+
+#define ASSERT_TYPE(item_, type_) \
+  if (item_.type != type_) { \
+    RAISE_ERROR( \
+      fmt::format(\
+        "Expected object type '{}' got '{}'\n",\
+         data_type_to_string(type_),\
+         data_type_to_string(item_.type)));\
+  }
+
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: break;
@@ -90,6 +106,36 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::EXEC_DIV: BINARY_OP(/);
     case ins_id_e::EXEC_MUL: BINARY_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
+    case ins_id_e::EXEC_DBG: {
+      FOR_ALL_ITEMS({
+        fmt::print("{}", item.dump_to_string(true));
+        if (item.type == data_type_e::IDENTIFIER) {
+          if (!item.conditional_self_load(_scope.current())) {
+            fmt::print(" = 'unset'");
+          } else {
+            fmt::print(" = '{}'", item.dump_to_string(true));
+          }
+        }
+        fmt::print("\n");
+      })
+      break;
+    }
+    case ins_id_e::EXEC_IMPORT: {
+      FOR_ALL_ITEMS({
+
+        ASSERT_TYPE(item, data_type_e::STRING)
+
+        std::filesystem::path target_path(item.to_string());
+        if (!_importer.import_file(
+              target_path,
+              _rt_ctx.get_working_dir())) {
+          RAISE_ERROR(
+            fmt::format("Failed to locate file for import '{}'",
+              item.to_string()));
+        }
+      })
+      break;
+    }
     case ins_id_e::EXEC_ASSIGN: {
       auto new_var = ctx.proc_q.front();
       ctx.proc_q.pop();
@@ -138,19 +184,7 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     }
     case ins_id_e::EXPECT_OBJECT_TYPE: {
       data_type_e expected = (data_type_e)((uint8_t)(*(uint8_t*)(iv->data)));
-      if (!ctx.proc_q.size()) {
-        RAISE_ERROR(
-          fmt::format(
-            "Expected object type '{}' got 'none'\n",
-             data_type_to_string(expected))); 
-      }
-      if (ctx.proc_q.front().type != expected) {
-        RAISE_ERROR(
-          fmt::format(
-            "Expected object type '{}' got '{}'\n",
-             data_type_to_string(expected),
-             data_type_to_string(ctx.proc_q.front().type))); 
-      }
+      ASSERT_TYPE(ctx.proc_q.front(), expected)
       break;
     }
     case ins_id_e::EXPECT_N_ARGS: {
@@ -165,7 +199,7 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     }
     case ins_id_e::EXPECT_GTE_N_ARGS: {
       uint8_t expected_size = *(uint8_t*)(iv->data);
-      if (ctx.proc_q.size() != expected_size) {
+      if (ctx.proc_q.size() < expected_size) {
         RAISE_ERROR(
           fmt::format(
             "Expected at least '{}' arguments. Got '{}'\n",

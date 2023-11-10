@@ -33,7 +33,7 @@ public:
       _scope(_rt_ctx.get_memory_core().global_var_env){
     }
 
-  void set_print_results(bool val) { _print_result = true; }
+  void set_print_results(bool val) { _print_result = val; }
 
   void handle_instructions(
     const bytes_t& instructions,

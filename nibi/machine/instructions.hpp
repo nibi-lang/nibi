@@ -28,6 +28,7 @@ using bytecode_idx_t = uint16_t;
 //! \brief Instruction operation id
 enum class ins_id_e : uint8_t {
   NOP = 0,
+  EXEC_IMPORT,
   EXEC_ADD,
   EXEC_SUB,
   EXEC_DIV,
@@ -35,6 +36,13 @@ enum class ins_id_e : uint8_t {
   EXEC_MOD,
   EXEC_ASSIGN,
   EXEC_REASSIGN,
+
+  // TODO:
+  //
+  //  EXEC_ASSERT
+  //
+
+  EXEC_DBG,          // Write out the data to the console
 
   PUSH_RESULT,       // Load argument from return stack and into proc_q
 
