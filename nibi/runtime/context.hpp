@@ -1,9 +1,9 @@
 #pragma once
-
 #include "front/tracer.hpp"
 #include "machine/memory_core.hpp"
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 namespace runtime {
 
@@ -42,7 +42,6 @@ public:
     front::tracer_ptr tracer) {
     _active_tracers[origin] = std::move(tracer);
   }
-
 
 private:
   std::vector<std::string> &_args;

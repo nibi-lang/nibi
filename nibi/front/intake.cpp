@@ -14,10 +14,11 @@ namespace intake {
 group_s::group_s(
       traced_file_ptr& traced_file, 
       runtime::context_c &ctx,
+      front::import_c &importer,
       bool in_repl)
     : traced_file(traced_file),
       tracer(traced_file->get_tracer()),
-      engine(ctx.get_memory_core()),
+      engine(ctx, importer),
       parser(tracer, engine),
       lexer(parser) {
 
@@ -42,7 +43,7 @@ group_s::group_s(
 uint8_t repl(settings_s& settings) {
 
   traced_file_ptr traced_file = front::allocate_traced_file("REPL");
-  group_s ig(traced_file, settings.ctx, true);
+  group_s ig(traced_file, settings.ctx, settings.importer, true);
 
   std::string line;
   size_t line_no{1};
@@ -68,7 +69,7 @@ uint8_t file(
     const std::string& target) {
   
   traced_file_ptr traced_file = front::allocate_traced_file(target);
-  group_s ig(traced_file, settings.ctx);
+  group_s ig(traced_file, settings.ctx, settings.importer);
 
   {
     std::filesystem::path path(target); 

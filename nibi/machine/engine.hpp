@@ -2,8 +2,7 @@
 
 #include "machine/instructions.hpp"
 #include "machine/object.hpp"
-#include "machine/memory_core.hpp"
-
+#include "front/imports.hpp"
 #include <queue>
 #include <stack>
 
@@ -28,9 +27,10 @@ public:
 
   */
 
-  engine_c(memory_core_c& memory)
-    : _memory(memory),
-      _scope(_memory.global_var_env){
+  engine_c(runtime::context_c& rt_ctx, front::import_c &importer)
+    : _rt_ctx(rt_ctx),
+      _importer(importer),
+      _scope(_rt_ctx.get_memory_core().global_var_env){
     }
 
   void set_print_results(bool val) { _print_result = true; }
@@ -41,11 +41,6 @@ public:
 
   virtual void reset_instruction_handling() override;
 private:
-
-  //struct function_s {
-  //  bytes_t data;
-  //  instruction_error_handler_if& error_handler;
-  //};
 
   struct execution_ctx_s {
     const bytes_t* instructions{nullptr};
@@ -70,11 +65,11 @@ private:
   public:
     scope_c() = delete;
     scope_c(env_c& global_env)
-      : _global(&global_env){}
+      : _global(global_env){}
 
     [[nodiscard]] env_c* current() {
       if (_scopes.empty()) {
-        return _global;
+        return &_global;
       }
       return _scopes.top();
     };
@@ -90,12 +85,13 @@ private:
     } 
 
   private:
-    env_c* _global{nullptr};
+    env_c& _global;
     std::stack<env_c*> _scopes;
   };
 
+  runtime::context_c &_rt_ctx;
+  front::import_c &_importer;
   execution_ctx_s _ctx;
-  memory_core_c& _memory;
   scope_c _scope;
   bool _engine_okay{true};
   bool _print_result{false};

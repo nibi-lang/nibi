@@ -9,6 +9,7 @@
 #include "tracer.hpp"
 #include "machine/engine.hpp"
 #include "runtime/context.hpp"
+#include "front/imports.hpp"
 
 namespace front {
 namespace intake {
@@ -24,14 +25,16 @@ struct group_s {
   group_s(
     traced_file_ptr& traced_file, 
     runtime::context_c &ctx,
+    front::import_c &importer,
     bool in_repl=false);
 };
 
 struct settings_s {
   runtime::context_c &ctx;
+  front::import_c &importer;
 
-  settings_s(runtime::context_c &ctx)
-    : ctx(ctx){}
+  settings_s(runtime::context_c &ctx, front::import_c& importer)
+    : ctx(ctx), importer(importer) {}
 };
 
 extern uint8_t repl(

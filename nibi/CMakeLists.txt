@@ -18,12 +18,14 @@ set(INTAKE_SOURCES
   front/parser.cpp
   front/intake.cpp
   front/tracer.cpp
-  front/builtins.cpp)
+  front/builtins.cpp
+  front/imports.cpp)
 
 set(MACHINE_SOURCES
   machine/instructions.cpp
   machine/engine.cpp
   machine/object.cpp)
+
 
 set(NIBI_SOURCES
   ${INTAKE_SOURCES}

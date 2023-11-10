@@ -9,6 +9,7 @@
 #include "platform/system.hpp"
 #include "front/intake.hpp"
 #include "runtime/context.hpp"
+#include "front/imports.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -34,15 +35,17 @@ struct data_s {
   std::vector<std::string> target_stdin;
   runtime::context_c runtime;
   front::intake::settings_s intake_settings;
+  front::import_c importer;
   std::optional<std::string> target;
-
+  
   data_s(
       int argc, char** argv,
       std::string help_msg,
       std::string version,
       arg_map_t& arg_map)
     : runtime(target_args, target_stdin),
-      intake_settings(runtime){ 
+      intake_settings(runtime, importer),
+      importer(runtime) { 
 
       std::vector<std::string> args(argv, argv + argc);
     
@@ -78,6 +81,9 @@ struct data_s {
           target_stdin.push_back(x);
         }
       }
+
+      auto current_path = std::filesystem::current_path();
+      importer.add_include_dir(current_path);
   }
 };
 

@@ -7,20 +7,26 @@
 #include <vector>
 #include <functional>
 #include <vector>
+#include "front/imports.hpp"
 
 namespace ndb {
 
-class ndb_c {
+class ndb_c : public front::import_c::intercepter_if {
 public:
   ndb_c(
+    front::import_c &importer,
     std::vector<std::string> target_args,
     std::vector<std::string> target_stdin);
 
   int execute(const std::string& target);
 
+  bool intercept_import(
+      std::filesystem::path& file_path,
+      std::filesystem::path& imported_from) override;
 private:
   using cmd_fn = std::function<void(std::vector<std::string>&)>;
   runtime::context_c _runtime;
+  front::import_c &_importer;
   std::unique_ptr<front::intake::group_s> _ig{nullptr};
 
   struct command_s {

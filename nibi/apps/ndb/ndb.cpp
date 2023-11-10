@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 
+
 #include <unordered_map>
 namespace {
   constexpr std::size_t MAX_HISTORY = 4092;
@@ -63,9 +64,10 @@ inline std::string& ltrim (std::string &line)
 namespace ndb {
 
 ndb_c::ndb_c(
+    front::import_c &importer,
     std::vector<std::string> target_args,
     std::vector<std::string> target_stdin)
-    : _runtime(target_args, target_stdin){
+    : _runtime(target_args, target_stdin), _importer(importer){
 
     _cmds = {
       { "help",   "Show help page",
@@ -73,10 +75,22 @@ ndb_c::ndb_c(
       { "run",    "Run the target application",
                   std::bind(&ndb::ndb_c::cmd_run, this, std::placeholders::_1) },
       { "quit",   "Quit the debugger",
-                  std::bind(&ndb::ndb_c::cmd_quit, this, std::placeholders::_1) }
+                  std::bind(&ndb::ndb_c::cmd_quit, this, std::placeholders::_1) },
       { "break",  "Set a break point at a line number",
                   std::bind(&ndb::ndb_c::cmd_break, this, std::placeholders::_1) }
     };
+}
+bool ndb_c::intercept_import(
+      std::filesystem::path& file_path,
+      std::filesystem::path& imported_from) {
+
+  fmt::print("NDB Has intercepted an import!\n");
+
+  
+  // TODO: "Import" The file into the debugger 
+
+
+  return false;
 }
 
 int ndb_c::execute(const std::string& target) {
@@ -94,7 +108,7 @@ int ndb_c::execute(const std::string& target) {
   front::traced_file_ptr traced_file = front::allocate_traced_file(target);
 
   _ig = std::make_unique<front::intake::group_s>(
-    traced_file, _runtime);
+    traced_file, _runtime, _importer);
   
   std::ifstream in(target);
   if (!in.is_open()) {
@@ -199,7 +213,7 @@ void ndb_c::cmd_quit(std::vector<std::string>& cmd) {
   state.running = false;
   state.repl_active = false;
 }
-void ndb_c::cmd_quit(std::vector<std::string>& cmd) {
+void ndb_c::cmd_break(std::vector<std::string>& cmd) {
   EXPECT_N_PARAMS("break", 1);
 
 

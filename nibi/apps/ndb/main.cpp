@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
   }
 
   ndb::ndb_c ndb(
+    app_data->importer,
     app_data->target_args,
     app_data->target_stdin);
 
