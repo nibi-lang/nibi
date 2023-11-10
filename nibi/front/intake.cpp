@@ -1,8 +1,4 @@
 #include "intake.hpp"
-#include "lexer.hpp"
-#include "parser.hpp"
-#include "tracer.hpp"
-#include "machine/engine.hpp"
 
 #include <fmt/format.h>
 
@@ -15,20 +11,10 @@
 namespace front {
 namespace intake {
 
-namespace {
-
-struct intake_group_s {
-  traced_file_ptr traced_file{nullptr};
-  tracer_ptr tracer{nullptr};
-
-  machine::engine_c engine;
-  parser_c parser;
-  lexer_c lexer;
-
-  intake_group_s(
+group_s::group_s(
       traced_file_ptr& traced_file, 
       runtime::context_c &ctx,
-      bool in_repl=false)
+      bool in_repl)
     : traced_file(traced_file),
       tracer(traced_file->get_tracer()),
       engine(ctx.get_memory_core()),
@@ -51,17 +37,12 @@ struct intake_group_s {
       ctx.add_traced_file(traced_file);
       ctx.add_tracer(traced_file->get_name(), tracer);
     }
-};
-
-} // namespace
-
-
 // -------------------------------------------------
 
 uint8_t repl(settings_s& settings) {
 
   traced_file_ptr traced_file = front::allocate_traced_file("REPL");
-  intake_group_s ig(traced_file, settings.ctx, true);
+  group_s ig(traced_file, settings.ctx, true);
 
   std::string line;
   size_t line_no{1};
@@ -87,7 +68,7 @@ uint8_t file(
     const std::string& target) {
   
   traced_file_ptr traced_file = front::allocate_traced_file(target);
-  intake_group_s ig(traced_file, settings.ctx);
+  group_s ig(traced_file, settings.ctx);
 
   {
     std::filesystem::path path(target); 

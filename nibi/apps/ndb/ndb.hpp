@@ -1,10 +1,12 @@
 #pragma once
 
 #include "front/intake.hpp"
-#include "front/lexer.hpp"
-#include "front/parser.hpp"
-#include "front/tracer.hpp"
-#include "machine/engine.hpp"
+
+#include <memory>
+#include <unordered_map>
+#include <vector>
+#include <functional>
+#include <vector>
 
 namespace ndb {
 
@@ -12,23 +14,47 @@ class ndb_c {
 public:
   ndb_c(
     std::vector<std::string> target_args,
-    std::vector<std::string> target_stdin)
-    : _runtime(target_args, target_stdin){}
+    std::vector<std::string> target_stdin);
 
   int execute(const std::string& target);
 
 private:
-  struct page_s {
-    struct tracers_s {
-      front::traced_file_ptr traced_file{nullptr};
-      front::tracer_ptr tracer{nullptr};
-    };
-    machine::engine_c engine;
-    front::parser_c parser;
-    front::lexer_c lexer;
+  using cmd_fn = std::function<void(std::vector<std::string>&)>;
+  runtime::context_c _runtime;
+  std::unique_ptr<front::intake::group_s> _ig{nullptr};
+
+  struct command_s {
+    std::string name;
+    std::string help;
+    cmd_fn fn;
   };
 
-  runtime::context_c _runtime;
+  std::vector<command_s> _cmds;
+
+  struct line_s {
+    uint64_t number{0};
+    std::string data;
+  };
+
+  struct state_s {
+    bool repl_active{true};
+    bool running{false};
+    std::unordered_map<size_t, uint64_t> breakpoints;
+    std::vector<line_s> file_data;
+  };
+
+  state_s state;
+
+  int repl();
+
+  void parse_command(std::string& cmd);
+
+
+  bool acknowledge(const std::string& message);
+  void cmd_help(std::vector<std::string>& cmd);
+  void cmd_run(std::vector<std::string>& cmd);
+  void cmd_quit(std::vector<std::string>& cmd);
+  void cmd_break(std::vector<std::string>& cmd);
 };
 
 } // namespace
