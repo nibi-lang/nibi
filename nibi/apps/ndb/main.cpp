@@ -1,5 +1,6 @@
 
 #include "apps/app.hpp"
+#include "ndb.hpp"
 
 #define VERSION "0.0.0"
 
@@ -48,31 +49,22 @@ int main(int argc, char **argv) {
       arg_map);
   }
 
+  ndb::ndb_c ndb(
+    app_data->target_args,
+    app_data->target_stdin);
+
   if (!app_data->target.has_value()) {
-    fmt::print("Target must be specified to debug\n");
+    fmt::print("No target given\n");
     return 1;
   }
 
   if (std::filesystem::is_regular_file(*app_data->target)) {
-    fmt::print("NOT YET COMPLETED\n");
-    return 0;
-
-    // TODO: Create the debugger
-
-    //return front::intake::file(
-    //    app_data->intake_settings,
-    //    *app_data->target);
+    return ndb.execute(*app_data->target);
   }
 
   if (std::filesystem::is_directory(*app_data->target)) {
-    fmt::print("NOT YET COMPLETED\n");
+    fmt::print("DIRECTORY RUNNING NOT YET COMPLETED\n");
     return 0;
-
-    // TODO: Create the debugger
-
-    //return front::intake::dir(
-    //    app_data->intake_settings,
-    //    *app_data->target);
   }
 
   fmt::print(

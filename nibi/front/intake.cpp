@@ -40,11 +40,13 @@ struct intake_group_s {
       // Tracers may need to live beyond parsers, 
       // so we give them a ref to the trace stuff
       //
-      //  TODO: Change the tracer stuff so that tracers only
-      //        exist during the time of consuming and first exection
-      //        of code. 
+      //  TODO:
+      //  Change the tracer stuff so that tracers only
+      //  exist during the time of consuming and first exection
+      //  of code. 
       //
-      //        Make the engine copy over all trace data for long-term instructions
+      //  Make the engine copy over all trace data for 
+      //  long-term instructions
       //
       ctx.add_traced_file(traced_file);
       ctx.add_tracer(traced_file->get_name(), tracer);

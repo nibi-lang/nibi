@@ -51,6 +51,7 @@ target_link_libraries(
 
 set(DEBUGGER_APP_NAME "ndb")
 set(DEBUGGER_APP_SOURCES
+  apps/ndb/ndb.cpp
   apps/ndb/main.cpp)
 
 add_executable(${DEBUGGER_APP_NAME}

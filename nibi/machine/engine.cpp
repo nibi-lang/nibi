@@ -176,14 +176,12 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::SAVE_RESULTS: {
       while(!ctx.proc_q.empty()) {
         ctx.result_q.push(ctx.proc_q.front());
-        //fmt::print("moved: {} from proc_q to result_q\n", ctx.proc_q.front().dump_to_string(true));
         ctx.proc_q.pop();
       }
       break;
     }
     case ins_id_e::PUSH_RESULT: {
       ctx.proc_q.push(ctx.result_q.front());
-      //fmt::print("moved: {} from result_q to proc_q\n", ctx.result_q.front().dump_to_string(true));
       ctx.result_q.pop();
       break;
     }
