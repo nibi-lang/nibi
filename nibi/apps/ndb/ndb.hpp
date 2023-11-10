@@ -11,6 +11,24 @@
 
 namespace ndb {
 
+/*
+    TODO: 
+
+    Make the debugger mock up the ins_receiver 
+    so we can make a full pass over the code and only handle 
+    imports. We intercept so we don't end up executing the
+    instructions. 
+
+    When receiving instructions we can build up a total list of bytecode
+    to work against.
+
+    When we hit imports, we should add them locally to memory so we
+    can manually feed them to the local engine later
+
+
+*/
+
+
 class ndb_c : public front::import_c::intercepter_if {
 public:
   ndb_c(
