@@ -5,6 +5,7 @@
 #include <cstring>
 #include <vector>
 #include <memory>
+#include <functional>
 
 namespace machine {
 
@@ -19,10 +20,23 @@ enum class data_type_e {
   BYTES,
   REF,
   IDENTIFIER,
+  CPPFN,
   ERROR
 };
 
 extern const char* data_type_to_string(const data_type_e&);
+
+class object_c;
+using object_list = std::vector<object_c>;
+using cpp_fn = std::function< machine::object_c(machine::object_list&, machine::env_c*)>;
+
+struct object_cpp_fn_data_s {
+  cpp_fn fn;
+  object_cpp_fn_data_s(cpp_fn& fn) : fn(fn) {}
+  object_cpp_fn_data_s* clone() {
+    return new object_cpp_fn_data_s(this->fn);
+  }
+};
 
 struct object_meta_data_s {
   size_t bytecode_origin_id{0};
@@ -119,6 +133,11 @@ public:
   object_c(const wrap_identifier_s& val)
     : type{data_type_e::IDENTIFIER}
     { setup_str(val.data, val.len); }
+  object_c(cpp_fn &fn)
+    : type{data_type_e::CPPFN}
+    {
+      data.cppfn = new object_cpp_fn_data_s(fn);
+    }
 
   ~object_c() { clean(); }
 
@@ -174,8 +193,11 @@ public:
   bool is_err() const {
     return type == data_type_e::ERROR;
   }
+  bool is_cpp_fn() const {
+    return type == data_type_e::CPPFN;
+  }
   bool is_ptr_type() const {
-    return (is_str() || is_bytes() || is_err());
+    return (is_str() || is_bytes() || is_err() || is_cpp_fn());
   }
   bool req_free() const {
     if (!is_ptr_type()) {
@@ -195,6 +217,12 @@ public:
     if (data.str->data == nullptr) { return nullptr; }
     okay = true;
     return (char*)data.str->data;
+  }
+  object_cpp_fn_data_s* as_cpp_fn() {
+    if (type != data_type_e::CPPFN) {
+      return nullptr;
+    }
+    return data.cppfn;
   }
 
   std::string to_string() const;
@@ -269,6 +297,7 @@ private:
     object_byte_data_s* str;
     object_byte_data_s* bytes;
     object_error_data_s* err;
+    object_cpp_fn_data_s* cppfn;
   } data{0};
 
   inline void setup_str(char* val, size_t len) {
@@ -281,6 +310,8 @@ private:
     }
     else if ((is_str() || is_bytes()) && data.bytes != nullptr) {
       delete data.str;
+    } else if (is_cpp_fn()) {
+      delete data.cppfn;
     }
     delete this->meta;
     this->type = data_type_e::NONE;
@@ -290,7 +321,6 @@ private:
 #pragma pack(pop)
 
 using object_ptr = std::shared_ptr<object_c>;
-
 constexpr auto allocate_object = [](auto... args) -> object_ptr {
   return std::make_shared<object_c>(args...);
 };

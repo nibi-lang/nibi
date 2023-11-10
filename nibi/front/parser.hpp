@@ -51,8 +51,8 @@ private:
   machine::instruction_receiver_if& _ins_receiver;
   front::builtins::builtin_map_t* _builtin_map{nullptr};
 
-  void decompose(atom_ptr&);
-  void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos);
+  void decompose(atom_ptr&, bool req_exec=false);
+  void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
 };
 
 } // namespace

@@ -98,6 +98,16 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
          data_type_to_string(item_.type)));\
   }
 
+#define LOAD(var_) \
+ if (var_.type != data_type_e::IDENTIFIER) {\
+    RAISE_ERROR(\
+      fmt::format("Expected identifier, got '{}'\n",\
+        data_type_to_string(var_.type)));\
+  }\
+  if (!var_.conditional_self_load(_scope.current())) { \
+     RAISE_ERROR(fmt::format("Unknown variable '{}'\n", var_.to_string()));\
+ }
+
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: break;
@@ -106,6 +116,17 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::EXEC_DIV: BINARY_OP(/);
     case ins_id_e::EXEC_MUL: BINARY_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
+    case ins_id_e::EXEC_IDENTIFIER: {
+      auto target = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      LOAD(target)
+      object_cpp_fn_data_s* cppfn = target.as_cpp_fn();
+      if (cppfn != nullptr) {
+        return call_cpp_fn(cppfn);
+      }
+      RAISE_ERROR("Object of non-cppfn can not yet be called.. NYD");
+      break;
+    }
     case ins_id_e::EXEC_DBG: {
       FOR_ALL_ITEMS({
         fmt::print("{}", item.dump_to_string(true));
@@ -239,6 +260,11 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       std::cout << "OP:" << (int)iv->op << " not implemented yet\n";
     }
   }
+}
+
+void engine_c::call_cpp_fn(object_cpp_fn_data_s* fnd) {
+
+  fmt::print("We need to call the CPP FN here");
 }
 
 

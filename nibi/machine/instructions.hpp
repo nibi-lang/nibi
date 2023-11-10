@@ -36,6 +36,7 @@ enum class ins_id_e : uint8_t {
   EXEC_MOD,
   EXEC_ASSIGN,
   EXEC_REASSIGN,
+  EXEC_IDENTIFIER,
 
   // TODO:
   //
@@ -103,6 +104,7 @@ enum class ins_id_e : uint8_t {
 
 struct execution_error_s {
   std::string message;
+  bool fatal{false};
   // TODO: Add specific, helpful, debug data
 };
 

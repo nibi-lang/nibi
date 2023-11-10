@@ -49,7 +49,7 @@ void parser_c::on_list(atom_list_t list) {
     decompose(list[i]);
   }
 
-  decompose(list[0]);
+  decompose(list[0], true);
 
   state.list_depth++;
 
@@ -58,7 +58,7 @@ void parser_c::on_list(atom_list_t list) {
   forge::load_instruction(data, machine::ins_id_e::SAVE_RESULTS);
 }
 
-void parser_c::decompose(atom_ptr& atom) {
+void parser_c::decompose(atom_ptr& atom, bool req_exec) {
 
   auto& block = state.instruction_block;
   auto& data = block.data;
@@ -93,7 +93,8 @@ void parser_c::decompose(atom_ptr& atom) {
       return decompose_symbol(  // so we return here
         atom->meta,
         atom->data,
-        atom->pos);
+        atom->pos,
+        req_exec);
   }
   
   _tracer->register_instruction(
@@ -109,7 +110,7 @@ void parser_c::decompose(atom_ptr& atom) {
   break;
 
 void parser_c::decompose_symbol(
-  const meta_e& meta, const std::string& str, const pos_s& pos) {
+  const meta_e& meta, const std::string& str, const pos_s& pos, bool req_exec) {
 
   auto& block = state.instruction_block;
   auto& data = block.data;
@@ -137,6 +138,13 @@ void parser_c::decompose_symbol(
         }
       }
 
+      if (req_exec) {
+        forge::load_instruction(
+          data,
+          machine::ins_id_e::EXEC_IDENTIFIER,
+          machine::tools::pack_string(str));
+        return;
+      }
       forge::load_instruction(
         data,
         machine::ins_id_e::PUSH_IDENTIFIER,

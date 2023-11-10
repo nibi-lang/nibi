@@ -14,6 +14,7 @@ struct builtin_s {
 
 using builtin_map_t = std::map<std::string, builtin_s>;
 
+// Get the builtin bytecode instruction groups
 extern builtin_map_t& get_builtins();
 
 } // namespace

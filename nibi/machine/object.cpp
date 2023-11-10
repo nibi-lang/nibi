@@ -15,6 +15,7 @@ const char* data_type_to_string(const data_type_e& type) {
     case data_type_e::BYTES: return "bytes";
     case data_type_e::ERROR: return "error";
     case data_type_e::IDENTIFIER: return "identifier";
+    case data_type_e::CPPFN: return "cppfn";
   }
   return "unknown";
 }
@@ -48,6 +49,7 @@ std::string object_error_data_s::to_string() const {
 std::string object_c::to_string() const {
   switch(type) {
     case data_type_e::NONE: return "none";
+    case data_type_e::CPPFN: return "<cppfn>";
     case data_type_e::BOOLEAN: return std::to_string(data.boolean);
     case data_type_e::INTEGER: return std::to_string(data.integer);
     case data_type_e::REAL: return std::to_string(data.real);
@@ -79,6 +81,7 @@ std::string object_c::dump_to_string(bool simple) const {
     return fmt::format("object<{}>[{}]", data_type_to_string(type), to_string());
   }
 
+  // TODO: update this to use fmt
   std::string result = "object:";
   result += data_type_to_string(type);
   result += "\nmeta:";
