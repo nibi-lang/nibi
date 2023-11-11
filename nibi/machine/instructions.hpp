@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <fmt/format.h>
 
 /*
       Byte-encoded instruction layout
@@ -36,7 +37,6 @@ enum class ins_id_e : uint8_t {
   EXEC_MOD,
   EXEC_ASSIGN,
   EXEC_REASSIGN,
-  EXEC_IDENTIFIER,
 
   // TODO:
   //
@@ -91,6 +91,7 @@ enum class ins_id_e : uint8_t {
   PUSH_INT,
   PUSH_REAL,
   PUSH_IDENTIFIER,
+  EXEC_IDENTIFIER,
 
   EXPECT_N_ARGS,
   EXPECT_GTE_N_ARGS,
@@ -148,6 +149,9 @@ struct instruction_view_s {
   uint8_t op{0};
   std::uint32_t data_len{0};
   uint8_t data[];
+  std::string to_string() {
+    return fmt::format("op:{}, len:{}", (int)op, data_len);
+  }
 };
 #pragma pack(pop)
 

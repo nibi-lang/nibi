@@ -41,9 +41,7 @@ static inline T quick_unpack(const std::vector<uint8_t>& data) {
 }
 
 static inline std::vector<uint8_t> pack_string(const std::string& str) {
-  auto x = std::vector<uint8_t>(str.begin(), str.end());
-  x.push_back(0);
-  return x;
+  return std::vector<uint8_t>(str.begin(), str.end());
 }
 
 static inline uint64_t real_to_uint64_t(const double& value) {

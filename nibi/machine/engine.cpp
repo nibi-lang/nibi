@@ -109,23 +109,30 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
  }
 
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
+
+
+
   switch((ins_id_e)iv->op) {
-    case ins_id_e::NOP: break;
+    case ins_id_e::NOP: 
+      fmt::print("NOP\n");
+      break;
     case ins_id_e::EXEC_ADD: BINARY_OP(+);
     case ins_id_e::EXEC_SUB: BINARY_OP(-);
     case ins_id_e::EXEC_DIV: BINARY_OP(/);
     case ins_id_e::EXEC_MUL: BINARY_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
     case ins_id_e::EXEC_IDENTIFIER: {
-      auto target = ctx.proc_q.front();
-      ctx.proc_q.pop();
-      LOAD(target)
-      object_cpp_fn_data_s* cppfn = target.as_cpp_fn();
-      if (cppfn != nullptr) {
-        return call_cpp_fn(cppfn);
+      std::string name((char*)(iv->data), iv->data_len);
+      auto* target_call = _scope.current()->get(name);
+      if (target_call == nullptr) {
+        RAISE_ERROR(
+          fmt::format("Call to unknown function '{}'", name));
       }
-      RAISE_ERROR("Object of non-cppfn can not yet be called.. NYD");
-      break;
+      object_cpp_fn_data_s* cppfn = target_call->as_cpp_fn();
+      if (cppfn == nullptr) {
+        RAISE_ERROR(fmt::format("Object of non-cppfn can not yet be called.. NYD"));
+      }
+      return call_cpp_fn(cppfn, ctx);
     }
     case ins_id_e::EXEC_DBG: {
       FOR_ALL_ITEMS({
@@ -262,9 +269,17 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   }
 }
 
-void engine_c::call_cpp_fn(object_cpp_fn_data_s* fnd) {
-
-  fmt::print("We need to call the CPP FN here");
+void engine_c::call_cpp_fn(object_cpp_fn_data_s* fnd, execution_ctx_s &ctx) {
+  std::vector<object_c> params;
+  FOR_ALL_ITEMS({
+    if (item.type == data_type_e::IDENTIFIER) {
+      if (!item.conditional_self_load(_scope.current())) { \
+        RAISE_ERROR(fmt::format("Unknown variable '{}'\n", item.to_string()));\
+      }
+    }
+    params.push_back(item);
+  })
+  fnd->fn(params, *_scope.current());
 }
 
 

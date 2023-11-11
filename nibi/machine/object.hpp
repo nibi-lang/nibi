@@ -28,7 +28,7 @@ extern const char* data_type_to_string(const data_type_e&);
 
 class object_c;
 using object_list = std::vector<object_c>;
-using cpp_fn = std::function< machine::object_c(machine::object_list&, machine::env_c*)>;
+using cpp_fn = std::function<machine::object_c(machine::object_list&, machine::env_c&)>;
 
 struct object_cpp_fn_data_s {
   cpp_fn fn;
@@ -104,6 +104,7 @@ public:
   static object_c ref(uint64_t val=0) { return object_c(wrap_mem_ref_s{val}); }
   static object_c identifier(char* val, size_t len) { return object_c(wrap_identifier_s{val, len}); }
   static object_c str(char* val, size_t len) { return object_c(val, len); }
+  static object_c fn(cpp_fn fn) { return object_c(fn); }
 
   object_c(){}
   object_c(const object_c &o) {
@@ -151,6 +152,8 @@ public:
     if (is_str()) { o.data.str = this->data.str->clone(); }
     else if (is_bytes()) {
       o.data.bytes = this->data.bytes->clone(); }
+    else if (is_cpp_fn())
+      o.data.cppfn = this->data.cppfn->clone();
     else
       o.data = this->data;
     return o;
@@ -167,6 +170,8 @@ public:
       this->data.str = o.data.str->clone();
     else if (o.is_bytes())
       this->data.bytes = o.data.bytes->clone();
+    else if (o.is_cpp_fn())
+      this->data.cppfn = o.data.cppfn->clone();
     else
       this->data = o.data;
   }
@@ -310,7 +315,7 @@ private:
     }
     else if ((is_str() || is_bytes()) && data.bytes != nullptr) {
       delete data.str;
-    } else if (is_cpp_fn()) {
+    } else if (is_cpp_fn() && data.cppfn) {
       delete data.cppfn;
     }
     delete this->meta;

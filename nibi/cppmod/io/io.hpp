@@ -1,15 +1,11 @@
-#pragma once
+#include "machine/env.hpp"
+#include "machine/object.hpp"
+#include "runtime/context.hpp"
 
-#include "cppmod/module.hpp"
-
-namespace io_module {
-
-class io_c final : public cppmod::module_if {
-public:
-  io_c(runtime::context_c &ctx)
-    : module_if("io", 
-
-};
-
+namespace cppmod {
+namespace io {
+extern machine::object_c print(machine::object_list& list, machine::env_c& env);
+extern machine::object_c println(machine::object_list& list, machine::env_c& env);
 } // namespace
-:wq
+} // namespace 
+

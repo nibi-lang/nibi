@@ -26,10 +26,14 @@ set(MACHINE_SOURCES
   machine/engine.cpp
   machine/object.cpp)
 
+set(CPPMOD_SOURCES
+  cppmod/modules.cpp
+  cppmod/io/io.cpp)
 
 set(NIBI_SOURCES
   ${INTAKE_SOURCES}
-  ${MACHINE_SOURCES})
+  ${MACHINE_SOURCES}
+  ${CPPMOD_SOURCES})
 
 # Make into lib for quicker compile time
 
