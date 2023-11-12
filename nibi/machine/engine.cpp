@@ -134,7 +134,7 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
         RAISE_ERROR(
           fmt::format("Call to unknown function '{}'", name));
       }
-      object_cpp_fn_data_s* cppfn = target_call->as_cpp_fn();
+      object_cpp_fn_c* cppfn = target_call->as_cpp_fn();
       if (cppfn == nullptr) {
         RAISE_ERROR(fmt::format("Object of non-cppfn can not yet be called.. NYD"));
       }
@@ -275,7 +275,7 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
   }
 }
 
-void engine_c::call_cpp_fn(object_cpp_fn_data_s* fnd, execution_ctx_s &ctx) {
+void engine_c::call_cpp_fn(object_cpp_fn_c* fnd, execution_ctx_s &ctx) {
   std::vector<object_c> params;
   FOR_ALL_ITEMS({
     if (item.type == data_type_e::IDENTIFIER) {

@@ -6,22 +6,26 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <fmt/format.h>
 
 namespace machine {
 
 class env_c;
 
-enum class data_type_e {
+namespace {
+  constexpr size_t COMPLEX_DATA_BOUNDARY = 20;
+}
+
+enum class data_type_e : uint8_t {
   NONE,
   BOOLEAN,
   INTEGER,
   REAL,
-  STRING,
-  BYTES,
   REF,
+  STRING = COMPLEX_DATA_BOUNDARY,
+  BYTES,
   IDENTIFIER,
   CPPFN,
-
   ERROR
 };
 
@@ -31,15 +35,64 @@ class object_c;
 using object_list = std::vector<object_c>;
 using cpp_fn = std::function<machine::object_c(machine::object_list&, machine::env_c&)>;
 
+class complex_object_c {
+  public:
+    complex_object_c() = default;
+    virtual ~complex_object_c() = default;
+    virtual complex_object_c* clone() = 0;
+    virtual std::string to_string() = 0;
+};
 
-
-
-struct object_cpp_fn_data_s {
-  cpp_fn fn;
-  object_cpp_fn_data_s(cpp_fn& fn) : fn(fn) {}
-  object_cpp_fn_data_s* clone() {
-    return new object_cpp_fn_data_s(this->fn);
+class object_bytes_c final : public complex_object_c {
+public:
+  object_bytes_c(uint8_t* in_data, const size_t& in_len) {
+      this->len = in_len;
+      this->data = new uint8_t[this->len];
+      std::memcpy(this->data, in_data, this->len);
+    }
+  ~object_bytes_c() {
+    if (data) {
+      delete[] data;
+    }
   }
+  complex_object_c* clone() override { 
+    return new object_bytes_c(data, len);
+  }
+  std::string to_string() override { 
+    std::string result = "[ ";
+    for(size_t i = 0; i < len; i++) {
+      result += std::to_string(static_cast<int>(data[i]));
+      result += " ";
+    }
+    result += "]";
+    return result;
+  }
+  uint8_t* data{nullptr};
+  size_t len{0};
+};
+
+class object_cpp_fn_c final : public complex_object_c {
+public:
+  object_cpp_fn_c(cpp_fn fn) : fn(fn) {}
+  ~object_cpp_fn_c() = default;
+  complex_object_c* clone() override { 
+    return new object_cpp_fn_c(fn);
+  }
+  std::string to_string() override { return "<cppfn>"; }
+  cpp_fn fn;
+};
+
+class object_error_c final : public complex_object_c {
+public:
+  object_error_c(const std::string& op, const std::string& message)
+    : op(op), message(message) {}
+  ~object_error_c() = default;
+  complex_object_c* clone() override { 
+    return new object_error_c(op, message);
+  }
+  std::string to_string() override { return fmt::format("Error. op:{} message:{}", op, message); }
+  std::string op;
+  std::string message;
 };
 
 struct object_meta_data_s {
@@ -48,42 +101,6 @@ struct object_meta_data_s {
     return new object_meta_data_s {
       bytecode_origin_id
     };
-  }
-  std::string to_string() const;
-};
-
-struct object_byte_data_s {
-  object_byte_data_s() = delete;
-  object_byte_data_s(uint8_t* in_data, const size_t& in_len) {
-    if (in_data == nullptr || in_len == 0) { return; }
-    this->len = in_len;
-    this->data = new uint8_t[this->len];
-    std::memcpy(this->data, in_data, this->len);
-  }
-  ~object_byte_data_s() {
-    if (data) {
-      delete[] data;
-    }
-  }
-  object_byte_data_s* clone() {
-    return new object_byte_data_s(data, len);
-  }
-  std::string to_string() const;
-  uint8_t* data{nullptr};
-  size_t len{0};
-};
-
-struct object_error_data_s {
-  std::string message;
-  std::string operation;
-
-  object_error_data_s(
-    const std::string& msg,
-    const std::string& op)
-    : message(msg),
-      operation(op){}
-  object_error_data_s* clone() const {
-    return new object_error_data_s{message, operation};
   }
   std::string to_string() const;
 };
@@ -131,17 +148,17 @@ public:
     { setup_str(val, len); }
   object_c(uint8_t* val, const size_t& len)
     : type{data_type_e::BYTES}
-    { data.str = new object_byte_data_s(val, len); }
-  object_c(const object_error_data_s& err)
+    { data.co = new object_bytes_c(val, len); }
+  object_c(object_error_c err)
     : type{data_type_e::ERROR}
-    { data.err = err.clone(); }
+    { data.co = err.clone(); }
   object_c(const wrap_identifier_s& val)
     : type{data_type_e::IDENTIFIER}
     { setup_str(val.data, val.len); }
   object_c(cpp_fn &fn)
     : type{data_type_e::CPPFN}
     {
-      data.cppfn = new object_cpp_fn_data_s(fn);
+      data.co = new object_cpp_fn_c(fn);
     }
 
   ~object_c() { clean(); }
@@ -151,13 +168,9 @@ public:
   object_c clone() const {
     object_c o;
     o.type = this->type;
-
     if (this->meta) o.meta = this->meta->clone();
-    if (is_str()) { o.data.str = this->data.str->clone(); }
-    else if (is_bytes()) {
-      o.data.bytes = this->data.bytes->clone(); }
-    else if (is_cpp_fn())
-      o.data.cppfn = this->data.cppfn->clone();
+    if (this->heap_allocated())
+      o.data.co = this->data.co->clone();
     else
       o.data = this->data;
     return o;
@@ -167,15 +180,10 @@ public:
     this->clean();
     this->type = o.type;
     if (o.meta) {
-      if (this->meta) delete this->meta;
       this->meta = o.meta->clone();
     }
-    if (o.is_str())
-      this->data.str = o.data.str->clone();
-    else if (o.is_bytes())
-      this->data.bytes = o.data.bytes->clone();
-    else if (o.is_cpp_fn())
-      this->data.cppfn = o.data.cppfn->clone();
+    if (o.heap_allocated())
+      this->data.co = o.data.co->clone();
     else
       this->data = o.data;
   }
@@ -206,13 +214,13 @@ public:
     return type == data_type_e::CPPFN;
   }
   bool is_ptr_type() const {
-    return (is_str() || is_bytes() || is_err() || is_cpp_fn());
+    return ((uint8_t)type >= COMPLEX_DATA_BOUNDARY);
   }
-  bool req_free() const {
+  bool heap_allocated() const {
     if (!is_ptr_type()) {
       return false;
     }
-    return (data.bytes != nullptr);
+    return (data.co != nullptr);
   }
   bool is_numeric() const {
     return is_bool() || is_integer() || is_real();
@@ -223,15 +231,15 @@ public:
   char* as_raw_str(bool& okay) {
     okay = false;
     if (!is_str()) { return nullptr; }
-    if (data.str->data == nullptr) { return nullptr; }
+    if (data.co == nullptr) { return nullptr; }
     okay = true;
-    return (char*)data.str->data;
+    return (char*)(reinterpret_cast<object_bytes_c*>(data.co)->data);
   }
-  object_cpp_fn_data_s* as_cpp_fn() {
+  object_cpp_fn_c* as_cpp_fn() {
     if (type != data_type_e::CPPFN) {
       return nullptr;
     }
-    return data.cppfn;
+    return reinterpret_cast<object_cpp_fn_c*>(data.co);
   }
 
   std::string to_string() const;
@@ -244,7 +252,7 @@ public:
   int64_t& as_integer() { return data.integer; }
   double& as_real() { return data.real; }
   uint64_t& as_ref() { return data.memory_ref; }
-  object_byte_data_s* as_bytes() { return data.bytes; }
+  object_bytes_c* as_bytes() { return reinterpret_cast<object_bytes_c*>(data.co); }
 
   double to_real() const {
     if (is_real()) { return data.real; }
@@ -279,7 +287,7 @@ public:
   }
   object_c operator/ (const object_c& o) {
     if (o.to_integer() == 0) { 
-      return object_c(object_error_data_s(
+      return object_c(object_error_c(
             "Attempt to divide by zero",
             "division"));
     }
@@ -290,7 +298,7 @@ public:
   }
   object_c operator% (const object_c& o) {
     if (!is_integer() && !o.is_integer()) {
-      return object_c(object_error_data_s(
+      return object_c(object_error_c(
             "Attempt to perform modulous on non-integer object",
             "modulous"));
     }
@@ -303,26 +311,16 @@ private:
     int64_t integer;
     double real;
     uint64_t memory_ref;
-    object_byte_data_s* str;
-    object_byte_data_s* bytes;
-    object_error_data_s* err;
-    object_cpp_fn_data_s* cppfn;
+    complex_object_c* co;
   } data{0};
 
   inline void setup_str(char* val, size_t len) {
-    data.str = new object_byte_data_s((uint8_t*)val, len);
+    data.co = new object_bytes_c((uint8_t*)val, len);
   }
 
   void clean() {
-    if (is_err() && data.err != nullptr) {
-      delete data.err;
-    }
-    else if ((is_str() || is_bytes()) && data.bytes != nullptr) {
-      delete data.str;
-    } else if (is_cpp_fn() && data.cppfn) {
-      delete data.cppfn;
-    }
-    delete this->meta;
+    if (this->heap_allocated()) { delete this->data.co; }
+    if (this->meta) { delete this->meta; }
     this->type = data_type_e::NONE;
     data.integer = 0;
   }

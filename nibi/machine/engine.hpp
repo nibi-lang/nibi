@@ -98,7 +98,7 @@ private:
 
   void execute_ctx(execution_ctx_s &ctx);
   void execute(execution_ctx_s &ctx, instruction_view_s*);
-  void call_cpp_fn(object_cpp_fn_data_s* fnd, execution_ctx_s &ctx);
+  void call_cpp_fn(object_cpp_fn_c* fnd, execution_ctx_s &ctx);
 };
 
 

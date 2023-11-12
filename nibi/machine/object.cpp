@@ -1,6 +1,5 @@
 #include "object.hpp"
 #include "env.hpp"
-#include <fmt/format.h>
 
 namespace machine {
 
@@ -21,29 +20,7 @@ const char* data_type_to_string(const data_type_e& type) {
 }
 
 std::string object_meta_data_s::to_string() const {
-  std::string result;
-  result += "bytecode origin index: ";
-  result += std::to_string(bytecode_origin_id);
-  return result;
-}
-
-std::string object_byte_data_s::to_string() const {
- std::string result = "[ ";
- for(size_t i = 0; i < len; i++) {
-   result += std::to_string(static_cast<int>(data[i]));
-   result += " ";
- }
- result += "]";
- return result;
-}
-
-std::string object_error_data_s::to_string() const {
-  std::string result = "ERROR\n";
-  result += message;
-  result += "\n";
-  result += operation;
-  result += "\n";
-  return result;
+  return fmt::format("Origin index: {}", bytecode_origin_id);
 }
 
 std::string object_c::to_string() const {
@@ -54,23 +31,16 @@ std::string object_c::to_string() const {
     case data_type_e::INTEGER: return std::to_string(data.integer);
     case data_type_e::REAL: return std::to_string(data.real);
     case data_type_e::REF: return std::to_string(data.memory_ref);
-    case data_type_e::ERROR: {
-      if (data.err == nullptr) return "";
-      if (data.err == nullptr) return "";
-      return data.err->to_string();
-    }
+    case data_type_e::ERROR:
+      return reinterpret_cast<object_error_c*>(data.co)->to_string();
     case data_type_e::IDENTIFIER:
       [[fallthrough]];
     case data_type_e::STRING: {
-      if (data.str == nullptr) return "";
-      if (data.str->data == nullptr) return "";
-      return std::string((char*)data.str->data, data.str->len);
+      auto* o = reinterpret_cast<object_bytes_c*>(data.co);
+      return std::string((char*)o->data, o->len);
     }
-    case data_type_e::BYTES: {
-      if (data.bytes == nullptr) return "[ ]";
-      if (data.bytes->data == nullptr) return "[ ]";
-      return data.bytes->to_string();
-    }
+    case data_type_e::BYTES:
+      return reinterpret_cast<object_bytes_c*>(data.co)->to_string();
   }
   return "unknown";
 }
