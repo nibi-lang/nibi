@@ -54,6 +54,8 @@ private:
 
     inline void next() { current_list_idx++; }
 
+    inline bool good() { return current_list_idx < current_list->size(); }
+
     inline bool has_next() {
       if (!current_list) { return false; }
       if (current_list_idx + 1 >= current_list->size()) { return false; }

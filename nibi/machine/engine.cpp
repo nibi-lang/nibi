@@ -40,6 +40,9 @@ void engine_c::handle_instructions(
 
 void engine_c::execute_ctx(execution_ctx_s &ctx) {
 
+  //print_instruction_data(ctx.instructions->data(), ctx.instructions->size()); \
+
+
   const bytes_t& ins = *ctx.instructions;
 
   while(_engine_okay && 
@@ -110,7 +113,10 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
 
-
+  //if (iv->op >= INS_DATA_BOUNDARY) {
+  //  fmt::print("Op data len : {}\n", iv->data_len);
+  //}
+  //fmt::print("op: {} | idx: {}\n", ins_to_string((ins_id_e)iv->op), ctx.instruction_number);
 
   switch((ins_id_e)iv->op) {
     case ins_id_e::NOP: 

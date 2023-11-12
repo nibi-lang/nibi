@@ -21,6 +21,7 @@ enum class data_type_e {
   REF,
   IDENTIFIER,
   CPPFN,
+
   ERROR
 };
 
@@ -29,6 +30,9 @@ extern const char* data_type_to_string(const data_type_e&);
 class object_c;
 using object_list = std::vector<object_c>;
 using cpp_fn = std::function<machine::object_c(machine::object_list&, machine::env_c&)>;
+
+
+
 
 struct object_cpp_fn_data_s {
   cpp_fn fn;

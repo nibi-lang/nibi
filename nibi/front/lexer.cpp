@@ -270,6 +270,7 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
          std::string word;
          word += line_data[_trace.col];
 
+         // TODO : Make end symbols a set that we search against:
          auto meta_type = meta_e::IDENTIFIER;
          while (_trace.col + 1 < line_data.size() && !std::isspace(line_data[_trace.col + 1]) &&
                 line_data[_trace.col + 1] != '(' && line_data[_trace.col + 1] != ')' &&

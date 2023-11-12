@@ -26,28 +26,6 @@ static constexpr uint8_t FIELD_DATA_LEN_SIZE_BYTES = 4;
 
 using bytecode_idx_t = uint16_t;
 
-//! \brief Instruction operation id
-enum class ins_id_e : uint8_t {
-  NOP = 0,
-  EXEC_IMPORT,
-  EXEC_ADD,
-  EXEC_SUB,
-  EXEC_DIV,
-  EXEC_MUL,
-  EXEC_MOD,
-  EXEC_ASSIGN,
-  EXEC_REASSIGN,
-
-  // TODO:
-  //
-  //  EXEC_ASSERT
-  //
-
-  EXEC_DBG,          // Write out the data to the console
-
-  PUSH_RESULT,       // Load argument from return stack and into proc_q
-
-  SAVE_RESULTS,      // Move results of computation to results queue
 
 //  PUSH_SCOPE,     // Indicate new variable / name scope
 //  POP_SCOPE,
@@ -87,21 +65,37 @@ enum class ins_id_e : uint8_t {
 
   // -----------
 
+  // TODO:
+  //
+  //  EXEC_ASSERT
+  //
+
+//! \brief Instruction operation id
+enum class ins_id_e : uint8_t {
+  NOP = 0,
+  EXEC_IMPORT,
+  EXEC_ADD,
+  EXEC_SUB,
+  EXEC_DIV,
+  EXEC_MUL,
+  EXEC_MOD,
+  EXEC_ASSIGN,
+  EXEC_REASSIGN,
+  EXEC_DBG,          // Write out the data to the console
+  PUSH_RESULT,       // Load argument from return stack and into proc_q
+  SAVE_RESULTS,      // Move results of computation to results queue
   PUSH_STRING = INS_DATA_BOUNDARY,
   PUSH_INT,
   PUSH_REAL,
   PUSH_IDENTIFIER,
   EXEC_IDENTIFIER,
-
   EXPECT_N_ARGS,
   EXPECT_GTE_N_ARGS,
   EXPECT_OBJECT_TYPE,
-
- // JUMP_TO,  // Byte index of instruction set to jump to
-
-
   ENUM_BOUNDARY,
 };
+
+extern const char* ins_to_string(const ins_id_e& id);
 
 struct execution_error_s {
   std::string message;

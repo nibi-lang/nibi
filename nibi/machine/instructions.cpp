@@ -47,11 +47,37 @@ void print_instruction_data(const uint8_t* bytes, size_t len) {
   fmt::print("\n\n\tINSTRUCTION DUMP\n\n");
   for(auto &&x : instructions) {
     fmt::print("op {}\t| ins# {}\t| bci {}\n",
-        (int)x.ins->op, x.ins_num, x.byte_idx);
+        ins_to_string((ins_id_e)x.ins->op), x.ins_num, x.byte_idx);
   }
   fmt::print("\n\n");
 }
 
+const char* ins_to_string(const ins_id_e& id) {
+  switch (id) {
+  case ins_id_e::NOP: { return "NOP"; }
+  case ins_id_e::EXEC_IMPORT: { return "IMPORT"; }
+  case ins_id_e::EXEC_ADD: { return "ADD"; }
+  case ins_id_e::EXEC_SUB: { return "SUB"; }
+  case ins_id_e::EXEC_DIV: { return "DIV"; }
+  case ins_id_e::EXEC_MUL: { return "MUL"; }
+  case ins_id_e::EXEC_MOD: { return "MOD"; }
+  case ins_id_e::EXEC_ASSIGN: { return "ASSIGN"; }
+  case ins_id_e::EXEC_REASSIGN: { return "REASSIGN"; }
+  case ins_id_e::EXEC_DBG: { return "DBG"; }
+  case ins_id_e::PUSH_RESULT: { return "P_RESULT"; }
+  case ins_id_e::SAVE_RESULTS: { return "S_RESULTS"; }      
+  case ins_id_e::PUSH_STRING: { return "P_STRING"; }
+  case ins_id_e::PUSH_INT: { return "P_INT"; }
+  case ins_id_e::PUSH_REAL: { return "P_REAL"; }
+  case ins_id_e::PUSH_IDENTIFIER: { return "P_ID"; }
+  case ins_id_e::EXEC_IDENTIFIER: { return "E_ID"; }
+  case ins_id_e::EXPECT_N_ARGS: { return "EX_N_ARG"; }
+  case ins_id_e::EXPECT_GTE_N_ARGS: { return "EX_GTE_N_ARGS"; }
+  case ins_id_e::EXPECT_OBJECT_TYPE: { return "EX_OBJ_TYPE"; }
+  case ins_id_e::ENUM_BOUNDARY: { return "ENUM_BOUNDARY"; }
+  }
+  return "UNKNOWN";
+}
 
 /*
 

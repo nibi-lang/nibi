@@ -50,10 +50,11 @@ void parser_c::on_list(atom_list_t list) {
 
   state.current_list = &list;
 
-  do {
+  for(state.current_list_idx = 1;
+      state.current_list_idx < state.current_list->size();
+      state.current_list_idx++) {
     decompose(state.get_current());
-    state.next();
-  } while (state.has_next());
+  }
 
   decompose(list[0], true);
 
@@ -126,9 +127,6 @@ void parser_c::decompose_symbol(
       fmt::print("{} : {} is not yet implemented - Assuming its an identifier\n\n", (int)meta, str);
       [[fallthrough]];                                                    
     }
-    case meta_e::ACCESSOR: {
-      return build_accessor(str, req_exec);
-    }
     case meta_e::IDENTIFIER: { 
       {
         auto id = _builtin_map->find(str);
@@ -148,10 +146,13 @@ void parser_c::decompose_symbol(
       }
       forge::load_instruction(
         data,
-        ((req_exec) ? machine::ins_id_e::EXEC_IDENTIFIER :
-                      machine::ins_id_e::PUSH_IDENTIFIER)),
-        machine::tools::pack_string(str);
+        (req_exec) ? machine::ins_id_e::EXEC_IDENTIFIER :
+                      machine::ins_id_e::PUSH_IDENTIFIER,
+        machine::tools::pack_string(str));
       break;
+    }
+    case meta_e::ACCESSOR: {
+      return build_accessor(str, req_exec);
     }
     case meta_e::PLUS:
       PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
