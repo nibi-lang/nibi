@@ -3,7 +3,9 @@
 #include "machine/instructions.hpp"
 #include "machine/object.hpp"
 #include "front/builtins.hpp"
+#include <stack>
 #include <fmt/format.h>
+#include <sstream>
 
 namespace front {
 
@@ -17,6 +19,7 @@ parser_c::parser_c(
 
 void parser_c::on_error(error_s error) {
   fmt::print("Parser received an error report\n");;
+  _tracer->on_error(error);
 }
 
 void parser_c::on_top_list_complete() {
@@ -45,9 +48,12 @@ void parser_c::on_list(atom_list_t list) {
   auto& block = state.instruction_block;
   auto& data = block.data;
 
-  for(size_t i = 1; i < list.size(); i++) {
-    decompose(list[i]);
-  }
+  state.current_list = &list;
+
+  do {
+    decompose(state.get_current());
+    state.next();
+  } while (state.has_next());
 
   decompose(list[0], true);
 
@@ -120,6 +126,9 @@ void parser_c::decompose_symbol(
       fmt::print("{} : {} is not yet implemented - Assuming its an identifier\n\n", (int)meta, str);
       [[fallthrough]];                                                    
     }
+    case meta_e::ACCESSOR: {
+      return build_accessor(str, req_exec);
+    }
     case meta_e::IDENTIFIER: { 
       {
         auto id = _builtin_map->find(str);
@@ -137,18 +146,11 @@ void parser_c::decompose_symbol(
           return;
         }
       }
-
-      if (req_exec) {
-        forge::load_instruction(
-          data,
-          machine::ins_id_e::EXEC_IDENTIFIER,
-          machine::tools::pack_string(str));
-        return;
-      }
       forge::load_instruction(
         data,
-        machine::ins_id_e::PUSH_IDENTIFIER,
-        machine::tools::pack_string(str));
+        ((req_exec) ? machine::ins_id_e::EXEC_IDENTIFIER :
+                      machine::ins_id_e::PUSH_IDENTIFIER)),
+        machine::tools::pack_string(str);
       break;
     }
     case meta_e::PLUS:
@@ -164,6 +166,34 @@ void parser_c::decompose_symbol(
   }
   _tracer->register_instruction(
       state.instruction_block.bump(), pos);
+}
+
+void parser_c::build_accessor(const std::string& str, bool req_exec) {
+
+  std::stack<std::string> fields; 
+
+  std::vector<std::string> accessors;
+  accessors.reserve(10);
+
+  std::string target;
+  std::stringstream source(str);
+
+  while (std::getline(source, target, '.')) {
+    accessors.push_back(target);
+  }
+
+  for(auto i = 0; i < accessors.size()-1; i++) {
+    fmt::print("LOAD ENV {} \n", accessors[i]);
+    fields.push(accessors[i]);
+  }
+
+  fmt::print("Call ID: {}\n", accessors.back());
+
+  while(!fields.empty()) {
+    
+    fmt::print("UNLOAD ENV {}\n", fields.top());
+    fields.pop();
+  }
 }
 
 } // namespace

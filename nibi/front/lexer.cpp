@@ -149,8 +149,6 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
       ADD_SYM('}', meta_e::RIGHT_CURLY)
       ADD_SYM('[', meta_e::LEFT_BRACKET)
       ADD_SYM(']', meta_e::RIGHT_BRACKET)
-      ADD_SYM(',', meta_e::COMMA)
-      ADD_SYM('.', meta_e::PERIOD)
       ADD_SYM('?', meta_e::QUESTION_MARK)
       ADD_SYM('/', meta_e::FORWARD_SLASH)
       ADD_DOUBLE_SYM('=', '=', meta_e::EQUAL, meta_e::EQUAL_EQUAL);
@@ -272,29 +270,25 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
          std::string word;
          word += line_data[_trace.col];
 
-         auto meta_type = meta_e::UNDEFINED;
+         auto meta_type = meta_e::IDENTIFIER;
          while (_trace.col + 1 < line_data.size() && !std::isspace(line_data[_trace.col + 1]) &&
                 line_data[_trace.col + 1] != '(' && line_data[_trace.col + 1] != ')' &&
                 line_data[_trace.col + 1] != '[' && line_data[_trace.col + 1] != ']' &&
                 line_data[_trace.col + 1] != '{' && line_data[_trace.col + 1] != '}') {
 
-           if ('.' == line_data[_trace.col + 1]) {
-              meta_type = meta_e::DOT_ACCESS;
-           }
-
            word += line_data[_trace.col + 1];
+           if (line_data[_trace.col + 1] == '.') {
+             meta_type = meta_e::ACCESSOR;
+           }
            _trace.col++;
          }
 
          if (word[0] == ':') {
-            if (meta_e::DOT_ACCESS == meta_type)
-              insert_atom(list, atom_type_e::SYMBOL, meta_e::DOT_TAG, word);
-            else
-              insert_atom(list, atom_type_e::SYMBOL, meta_e::TAG, word);
+            insert_atom(list, atom_type_e::SYMBOL, meta_e::TAG, word);
             break;
          }
 
-         insert_atom(list, atom_type_e::SYMBOL, meta_e::IDENTIFIER, word);
+         insert_atom(list, atom_type_e::SYMBOL, meta_type, word);
          break;
       }
     }

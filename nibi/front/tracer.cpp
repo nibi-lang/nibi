@@ -6,7 +6,8 @@ namespace front {
 
 void traced_file_c::trace_error(
   const pos_s& pos,
-  machine::execution_error_s error) {
+  const std::string& message,
+  bool is_fatal) {
 
   std::cout << "NOT YET IMPLEMENTED" << std::endl;
 
@@ -18,8 +19,12 @@ void traced_file_c::trace_error(
             << ", Col: "
             << pos.col
             << "\nMessage: "
-            << error.message
+            << message
             << std::endl;
+
+  if (is_fatal) {
+    std::exit(1);
+  }
 }
 
 } // namespace

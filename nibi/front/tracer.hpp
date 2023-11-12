@@ -34,6 +34,10 @@ public:
       _file_map[instruction_index] = position;
     }
 
+    void on_error(const error_s& err) {
+      _parent.trace_error(err.pos, err.message, true);
+    }
+
     // From the interface, used to indicate errors
     void on_error(
       const machine::bytecode_idx_t& instruction_index,
@@ -48,10 +52,10 @@ public:
         }
         err.message = fmt::format("Unable to load locator for instructions: {}\n", instruction_index);
         pos_s pos{0,0};
-        _parent.trace_error(pos, err);
+        _parent.trace_error(pos, err.message, true);
         return;
       }
-      _parent.trace_error(target->second, err);
+      _parent.trace_error(target->second, err.message, err.fatal);
     }
 
   private:
@@ -66,7 +70,8 @@ public:
 
   //! \brief Trace an error in this traced_file_c
   void trace_error(const pos_s& pos,
-                   machine::execution_error_s error);
+                   const std::string& message,
+                   bool is_fatal);
 
   std::string get_name() const { return _file_name; }
 
