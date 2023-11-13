@@ -40,7 +40,7 @@ void engine_c::handle_instructions(
 
 void engine_c::execute_ctx(execution_ctx_s &ctx) {
 
-  //print_instruction_data(ctx.instructions->data(), ctx.instructions->size()); \
+  //print_instruction_data(ctx.instructions->data(), ctx.instructions->size()); 
 
   const bytes_t& ins = *ctx.instructions;
 

@@ -4,7 +4,7 @@
 #include "tracer.hpp"
 #include "machine/instructions.hpp"
 #include "runtime/context.hpp"
-#include "builtins.hpp"
+#include "forge.hpp"
 
 namespace front {
 
@@ -24,76 +24,32 @@ public:
 
 private:
 
-  struct block_s {
-    pos_s origin;
-    machine::bytes_t data;
-  };
-  using block_list_t = std::vector<block_s>;
 
   machine::bytes_t instruction_set;
 
-  void merge_and_register_instructions(block_list_t&);
-/*
-  struct old_block_s {
-    machine::bytes_t data;
-    size_t instruction_index{0};
-    size_t bump(size_t count=1) {
-      size_t v = instruction_index;
-      instruction_index += count;
-      return v;
-    }
-  };
-
-  struct state_s {
-    old_block_s instruction_block;
-    size_t list_depth{0};
-    bool function_symbol_expected{false};
-    atom_list_t* current_list{nullptr};
-    size_t current_list_idx{1};
-    void reset() {
-      instruction_block.data.clear();
-      instruction_block.instruction_index = 0;
-      list_depth = 0;
-      function_symbol_expected = false;
-      current_list_idx = 1;
-      current_list = nullptr;
-    }
-
-    inline atom_ptr& get_current() const {
-      return (*current_list)[current_list_idx];
-    }
-
-    inline void next() { current_list_idx++; }
-    inline bool good() { return current_list_idx < current_list->size(); }
-    inline bool has_next() {
-      if (!current_list) { return false; }
-      if (current_list_idx + 1 >= current_list->size()) { return false; }
-      return true;
-    }
-
-    inline bool is_next(const meta_e& x) {
-      if (!has_next()) { return false; }
-      return (*current_list)[current_list_idx + 1]->meta == x;
-    }
-  };
-
-  state_s state;
-*/
+  void merge_and_register_instructions(forge::block_list_t&);
 
   tracer_ptr _tracer{nullptr};
   machine::instruction_receiver_if& _ins_receiver;
-  front::builtins::builtin_map_t* _builtin_map{nullptr};
 
   std::vector<atom_list_t> _lists;
 
-  std::map<std::string, std::function<block_list_t()>> _decomp_map;
+  std::map<std::string, 
+    std::function<forge::block_list_t(atom_list_t&)>> _decomp_map;
 
   void generate();
-  [[nodiscard]] block_list_t decompose_atom_list(atom_list_t& list);
-  [[nodiscard]] block_s standard_decompose(atom_ptr&, bool req_exec=false);
-  [[nodiscard]] block_s decompose_symbol(atom_ptr&, bool req_exec=false);
+  [[nodiscard]] forge::block_list_t decompose_atom_list(
+      atom_list_t& list);
+  void standard_decompose(
+      forge::block_list_t&, atom_ptr&, bool req_exec=false);
+  void decompose_symbol(
+      forge::block_list_t&, atom_ptr&, bool req_exec=false);
 
-  [[nodiscard]] block_list_t decompose_if();
+  forge::block_list_t decompose_let(atom_list_t&);
+  forge::block_list_t decompose_set(atom_list_t&);
+  forge::block_list_t decompose_use(atom_list_t&);
+  forge::block_list_t decompose_dbg(atom_list_t&);
+  forge::block_list_t decompose_if(atom_list_t&);
      // const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
 };
 

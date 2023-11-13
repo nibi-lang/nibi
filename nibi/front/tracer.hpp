@@ -65,22 +65,14 @@ public:
         target = &_file_group[i];
       }
 
+      if (!target) {
+        fmt::print("Unable to locate any target...\nError: {}", err.message);
+        return;
+      }
+
       fmt::print("Tracer suspects instruction is '{}' at line:{}, col:{}\n",
           target->id, target->pos.line, target->pos.col);
 
-      /*
-      auto target = _file_map.find(instruction_index);
-      if (target == _file_map.end()) {
-        // TODO: change this to show only on debug builds that ask for it
-        for(auto [x, y] : _file_map) {
-          fmt::print("idx: {} | pos {}, {}\n", x, y.line, y.col);
-        }
-        err.message = fmt::format("Unable to load locator for instructions: {}\n", instruction_index);
-        pos_s pos{0,0};
-        _parent.trace_error(pos, err.message, true);
-        return;
-      }
-      */
       _parent.trace_error(target->pos, err.message, err.fatal);
     }
 

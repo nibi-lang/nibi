@@ -18,7 +18,6 @@ set(INTAKE_SOURCES
   front/generator.cpp
   front/intake.cpp
   front/tracer.cpp
-  front/builtins.cpp
   front/imports.cpp)
 
 set(MACHINE_SOURCES
