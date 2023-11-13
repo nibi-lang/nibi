@@ -23,7 +23,18 @@ public:
   void on_top_list_complete() override;
 
 private:
+
   struct block_s {
+    pos_s origin;
+    machine::bytes_t data;
+  };
+  using block_list_t = std::vector<block_s>;
+
+  machine::bytes_t instruction_set;
+
+  void merge_and_register_instructions(block_list_t&);
+/*
+  struct old_block_s {
     machine::bytes_t data;
     size_t instruction_index{0};
     size_t bump(size_t count=1) {
@@ -34,7 +45,7 @@ private:
   };
 
   struct state_s {
-    block_s instruction_block;
+    old_block_s instruction_block;
     size_t list_depth{0};
     bool function_symbol_expected{false};
     atom_list_t* current_list{nullptr};
@@ -67,6 +78,7 @@ private:
   };
 
   state_s state;
+*/
 
   tracer_ptr _tracer{nullptr};
   machine::instruction_receiver_if& _ins_receiver;
@@ -74,12 +86,15 @@ private:
 
   std::vector<atom_list_t> _lists;
 
-  std::map<std::string, std::function<void()>> _decomp_map;
+  std::map<std::string, std::function<block_list_t()>> _decomp_map;
 
   void generate();
-  void decompose_if();
-  void standard_decompose(atom_ptr&, bool req_exec=false);
-  void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
+  [[nodiscard]] block_list_t decompose_atom_list(atom_list_t& list);
+  [[nodiscard]] block_s standard_decompose(atom_ptr&, bool req_exec=false);
+  [[nodiscard]] block_s decompose_symbol(atom_ptr&, bool req_exec=false);
+
+  [[nodiscard]] block_list_t decompose_if();
+     // const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
 };
 
 } // namespace

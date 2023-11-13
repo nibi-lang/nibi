@@ -6,6 +6,7 @@
 #include <stack>
 #include <fmt/format.h>
 #include <sstream>
+#include <iterator>
 
 namespace front {
 
@@ -42,60 +43,98 @@ void generator_c::on_top_list_complete() {
 
   generate();
 
-  _ins_receiver.handle_instructions(
-    state.instruction_block.data,
-    *_tracer.get());
+
+
+ _ins_receiver.handle_instructions(
+   instruction_set,
+   *_tracer.get());
 
   _ins_receiver.reset_instruction_handling();
 
-  state.reset(); 
 }
-
 
 void generator_c::on_list(atom_list_t list) {
   if (list.empty()) return;
   _lists.push_back(std::move(list));
 }
 
+void generator_c::merge_and_register_instructions(block_list_t &blocks) {
+
+  instruction_set.clear();
+
+  std::size_t counter{0};
+  for(auto &&block : blocks) {
+    // TODO: This will register one position PER BLOCK which MAY contain
+    //       multiple instructions. Tracer will have to learn to walk backwards
+    //       from error'd instruction to last known block pos
+    _tracer->register_instruction(
+      counter++, block.origin);
+
+    instruction_set.insert(
+      instruction_set.end(),
+      block.data.begin(),
+      block.data.end());
+  }
+}
+
 void generator_c::generate() {
 
+  block_list_t blocks;
   auto& top_list = _lists.back();
-
-  fmt::print("_lists is of size: {}\n", _lists.size());
-  fmt::print("Top list is of size: {}\n", top_list.size());
-
-  fmt::print("First item : {}\n",
-    top_list[0]->data);
-
   auto decomposition_method = _decomp_map.find(top_list[0]->data);
+  if (decomposition_method != _decomp_map.end()) {
+    auto block_list = decomposition_method->second();
+    blocks.insert(
+      blocks.end(),
+      block_list.begin(),
+      block_list.end());
+  } else {
+    for(auto list = _lists.begin(); list != _lists.end(); list++) {
+      auto block_list = decompose_atom_list(*list);
+      blocks.insert(
+        blocks.end(),
+        block_list.begin(),
+        block_list.end());
+
+      // Save the results of each list execution
+      forge::load_instruction(
+        blocks.back().data,
+        machine::ins_id_e::SAVE_RESULTS);
+    }
+  }
+
+  return merge_and_register_instructions(blocks);
+}
+
+generator_c::block_list_t generator_c::decompose_atom_list(atom_list_t& list) {
+
+  if (list[0]->atom_type == atom_type_e::NOP) {
+    on_error({"First element of list can not be empty", list[0]->pos});
+    return {};
+  }
+
+  fmt::print("Decomposing list: ");
+  print_list(list);
+
+  block_list_t blocks;
+  blocks.reserve(list.size());
+
+  auto decomposition_method = _decomp_map.find(list[0]->data);
   if (decomposition_method != _decomp_map.end()) {
     return decomposition_method->second();
   }
 
-  for(auto &&list : _lists) {
-    auto& block = state.instruction_block;
-    auto& data = block.data;
-
-    state.current_list = &list;
-
-    for(state.current_list_idx = 1;
-        state.current_list_idx < state.current_list->size();
-        state.current_list_idx++) {
-      standard_decompose(state.get_current());
-    }
-
-    standard_decompose(list[0], true);
-    // TODO: cant let first item be NOP
-
-    state.list_depth++;
-
-    _tracer->register_instruction(
-        state.instruction_block.bump(), list.back()->pos);
-    forge::load_instruction(data, machine::ins_id_e::SAVE_RESULTS);
+  for(std::size_t i = 1; i < list.size(); i++) {
+    blocks.push_back(standard_decompose(list[i]));
   }
+  
+  blocks.push_back(standard_decompose(list[0], true));
+
+  return blocks;
 }
 
-void generator_c::decompose_if() {
+generator_c::block_list_t generator_c::decompose_if() {
+  block_list_t blocks;
 
   fmt::print("Need to decompose an if-stmt\n");
 
@@ -117,7 +156,7 @@ void generator_c::decompose_if() {
     on_error(
       { fmt::format("'if' requires 2 or 3 parameters, {} were given", _lists.size()),
         pos});
-    return;
+    return{};
   }
 
   fmt::print("Condition: ");
@@ -144,13 +183,16 @@ void generator_c::decompose_if() {
   //    if condition false, jump `size` instruction bytes to execute false
   
  // TODO : Add in engine a getter for queue. if queue empty, return object_c::interger(0)
-
-
+ 
+  return blocks;
 }
 
-void generator_c::standard_decompose(atom_ptr& atom, bool req_exec) {
+generator_c::block_s generator_c::standard_decompose(atom_ptr& atom, bool req_exec) {
 
-  auto& block = state.instruction_block;
+  //auto& block = state.instruction_block;
+  //auto& data = block.data;
+
+  block_s block{atom->pos, {}};
   auto& data = block.data;
 
   switch(atom->atom_type) {
@@ -187,57 +229,46 @@ void generator_c::standard_decompose(atom_ptr& atom, bool req_exec) {
       break;
     case atom_type_e::SYMBOL:   // Symbols log their own instruction 
       return decompose_symbol(  // so we return here
-        atom->meta,
-        atom->data,
-        atom->pos,
+        atom,
         req_exec);
   }
-  
-  _tracer->register_instruction(
-      state.instruction_block.bump(), atom->pos);
+  return block; 
+  //_tracer->register_instruction(
+  //    state.instruction_block.bump(), atom->pos);
 }
 
 #define PARSER_LOAD_AND_EXPECT_GTE_N(op, n) \
  forge::load_instruction( \
      data, machine::ins_id_e::EXPECT_GTE_N_ARGS, machine::tools::pack<uint8_t>(2)); \
-  _tracer->register_instruction(\
-      state.instruction_block.bump(), pos); \
   forge::load_instruction(data, op); \
   break;
 
-void generator_c::decompose_symbol(
-  const meta_e& meta, const std::string& str, const pos_s& pos, bool req_exec) {
+generator_c::block_s generator_c::decompose_symbol(atom_ptr &atom, bool req_exec) {
 
-  auto& block = state.instruction_block;
+  block_s block{atom->pos, {}};
   auto& data = block.data;
 
-  switch (meta) {
+  switch (atom->meta) {
     default: {
-      fmt::print("{} : {} is not yet implemented - Assuming its an identifier\n\n", (int)meta, str);
+      fmt::print("{} : {} is not yet implemented - Assuming its an identifier\n\n", (int)atom->meta, atom->data);
       [[fallthrough]];                                                    
     }
     case meta_e::IDENTIFIER: { 
       {
-        auto id = _builtin_map->find(str);
+        auto id = _builtin_map->find(atom->data);
         if (id != _builtin_map->end()) {
           data.insert(
             data.end(),
             id->second.data.begin(),
             id->second.data.end());
- 
-          // Add position for each instruction generated
-          for(size_t i = 0; i < id->second.num_instructions; i++) {
-            _tracer->register_instruction(
-                state.instruction_block.bump(), pos);
-          }
-          return;
+          return block;
         }
       }
       forge::load_instruction(
         data,
         (req_exec) ? machine::ins_id_e::EXEC_IDENTIFIER :
                       machine::ins_id_e::PUSH_IDENTIFIER,
-        machine::tools::pack_string(str));
+        machine::tools::pack_string(atom->data));
       break;
     }
     case meta_e::PLUS:
@@ -251,8 +282,7 @@ void generator_c::decompose_symbol(
     case meta_e::MOD:
       PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_MOD, 2);
   }
-  _tracer->register_instruction(
-      state.instruction_block.bump(), pos);
+  return block;
 }
 
 } // namespace

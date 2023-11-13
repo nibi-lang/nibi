@@ -94,6 +94,9 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 {\
   object_c result = ctx.proc_q.front(); \
   ctx.proc_q.pop(); \
+    if (!(result.conditional_self_load(_scope.current()))) { \
+      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", result.dump_to_string(true))); \
+    } \
   while(!ctx.proc_q.empty()) { \
     auto* next = &ctx.proc_q.front(); \
     if (!(next->conditional_self_load(_scope.current()))) { \
@@ -148,6 +151,11 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::EXEC_DIV: MATH_OP(/);
     case ins_id_e::EXEC_MUL: MATH_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
+    //case ins_id_e::EXEC_REPEAT: {
+    //  ctx.pc = 0;
+
+    //  break;
+    //}
     case ins_id_e::EXEC_IDENTIFIER: {
       std::string name((char*)(iv->data), iv->data_len);
       auto* target_call = _scope.current()->get(name);
@@ -270,6 +278,10 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       break;
     }
     case ins_id_e::PUSH_RESULT: {
+      if (ctx.result_q.empty()) {
+        ctx.proc_q.push(object_c::integer(0));
+        break;
+      }
       ctx.proc_q.push(ctx.result_q.front());
       ctx.result_q.pop();
       break;
