@@ -19,7 +19,6 @@ enum class atom_type_e {
 enum class meta_e {
   UNDEFINED = 0,
   IDENTIFIER,
-  ACCESSOR,
   TILDE, BACK_TICK,
   EXCLAMATION_POINT,
   AT, DOLLAR, MOD, HAT, AMPERSAND,

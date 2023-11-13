@@ -151,9 +151,6 @@ void parser_c::decompose_symbol(
         machine::tools::pack_string(str));
       break;
     }
-    case meta_e::ACCESSOR: {
-      return build_accessor(str, req_exec);
-    }
     case meta_e::PLUS:
       PARSER_LOAD_AND_EXPECT_GTE_N(machine::ins_id_e::EXEC_ADD, 2);
     case meta_e::SUB:
@@ -167,34 +164,6 @@ void parser_c::decompose_symbol(
   }
   _tracer->register_instruction(
       state.instruction_block.bump(), pos);
-}
-
-void parser_c::build_accessor(const std::string& str, bool req_exec) {
-
-  std::stack<std::string> fields; 
-
-  std::vector<std::string> accessors;
-  accessors.reserve(10);
-
-  std::string target;
-  std::stringstream source(str);
-
-  while (std::getline(source, target, '.')) {
-    accessors.push_back(target);
-  }
-
-  for(auto i = 0; i < accessors.size()-1; i++) {
-    fmt::print("LOAD ENV {} \n", accessors[i]);
-    fields.push(accessors[i]);
-  }
-
-  fmt::print("Call ID: {}\n", accessors.back());
-
-  while(!fields.empty()) {
-    
-    fmt::print("UNLOAD ENV {}\n", fields.top());
-    fields.pop();
-  }
 }
 
 } // namespace

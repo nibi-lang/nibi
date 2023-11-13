@@ -3,6 +3,7 @@
 #include <stack>
 
 #include "atoms.hpp"
+#include <set>
 
 namespace front {
 
@@ -20,8 +21,7 @@ namespace front {
 class lexer_c {
 public:
   lexer_c() = delete;
-  lexer_c(front::atom_receiver_if &receiver)
-    : _receiver(receiver) {}
+  lexer_c(front::atom_receiver_if &receiver);
 
   //! \brief Submit some string data to the parser.
   //!        If the parser detects a fully processed list,
@@ -56,6 +56,7 @@ private:
   void reset();
 
   std::stack<atom_list_t> _active_lists;
+  std::set<uint8_t> _termChars;
 };
 
 } // namespace

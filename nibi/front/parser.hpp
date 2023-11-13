@@ -53,9 +53,7 @@ private:
     }
 
     inline void next() { current_list_idx++; }
-
     inline bool good() { return current_list_idx < current_list->size(); }
-
     inline bool has_next() {
       if (!current_list) { return false; }
       if (current_list_idx + 1 >= current_list->size()) { return false; }
@@ -76,8 +74,6 @@ private:
 
   void decompose(atom_ptr&, bool req_exec=false);
   void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
-
-  void build_accessor(const std::string&, bool req_exec);
 };
 
 } // namespace

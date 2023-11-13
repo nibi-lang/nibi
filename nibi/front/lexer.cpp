@@ -34,6 +34,11 @@ void print_list(front::atom_list_t &list) {
   fmt::print("\n");
 }
 
+lexer_c::lexer_c(front::atom_receiver_if &receiver)
+    : _receiver(receiver) {
+  _termChars = {'{', '}', '[', ']', '(', ')'};
+}
+
 void lexer_c::insert_atom(
   atom_list_t *list,
   const atom_type_e type,
@@ -270,17 +275,11 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
          std::string word;
          word += line_data[_trace.col];
 
-         // TODO : Make end symbols a set that we search against:
-         auto meta_type = meta_e::IDENTIFIER;
-         while (_trace.col + 1 < line_data.size() && !std::isspace(line_data[_trace.col + 1]) &&
-                line_data[_trace.col + 1] != '(' && line_data[_trace.col + 1] != ')' &&
-                line_data[_trace.col + 1] != '[' && line_data[_trace.col + 1] != ']' &&
-                line_data[_trace.col + 1] != '{' && line_data[_trace.col + 1] != '}') {
+         while (_trace.col + 1 < line_data.size() &&
+                !std::isspace(line_data[_trace.col + 1]) &&
+                (!_termChars.contains(line_data[_trace.col + 1]))) {
 
            word += line_data[_trace.col + 1];
-           if (line_data[_trace.col + 1] == '.') {
-             meta_type = meta_e::ACCESSOR;
-           }
            _trace.col++;
          }
 
@@ -289,7 +288,7 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
             break;
          }
 
-         insert_atom(list, atom_type_e::SYMBOL, meta_type, word);
+         insert_atom(list, atom_type_e::SYMBOL, meta_e::IDENTIFIER, word);
          break;
       }
     }
