@@ -42,7 +42,6 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 
   //print_instruction_data(ctx.instructions->data(), ctx.instructions->size()); \
 
-
   const bytes_t& ins = *ctx.instructions;
 
   while(_engine_okay && 
@@ -71,6 +70,12 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 
 #define BINARY_OP(operation) \
 { \
+  if (ctx.proc_q.size() != 2) {\
+    RAISE_ERROR(\
+      fmt::format( \
+        "Binary operation expects exactly 2 parameters, {} were given",\
+        ctx.proc_q.size()));\
+  } \
   auto lhs = ctx.proc_q.front(); \
   ctx.proc_q.pop(); \
   auto rhs = ctx.proc_q.front(); \
@@ -79,11 +84,27 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
       RAISE_ERROR(fmt::format("Unknown variable `{}`\n", lhs.dump_to_string(true))) \
   } \
   if (!(rhs.conditional_self_load(_scope.current()))) { \
-      RAISE_ERROR(fmt::format("Unknown variable `{}`\n", rhs.dump_to_string(true))) \
+      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", rhs.dump_to_string(true))) \
   } \
   ctx.proc_q.push(lhs operation rhs); \
   break; \
 }
+
+#define MATH_OP(operation) \
+{\
+  object_c result = ctx.proc_q.front(); \
+  ctx.proc_q.pop(); \
+  while(!ctx.proc_q.empty()) { \
+    auto* next = &ctx.proc_q.front(); \
+    if (!(next->conditional_self_load(_scope.current()))) { \
+      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", next->dump_to_string(true))); \
+    } \
+    result = result operation (*next); \
+    ctx.proc_q.pop(); \
+  } \
+  ctx.proc_q.push(result); \
+  break;\
+  }
 
 #define FOR_ALL_ITEMS(body_) \
   while(!ctx.proc_q.empty()) {\
@@ -122,10 +143,10 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::NOP: 
       fmt::print("NOP\n");
       break;
-    case ins_id_e::EXEC_ADD: BINARY_OP(+);
-    case ins_id_e::EXEC_SUB: BINARY_OP(-);
-    case ins_id_e::EXEC_DIV: BINARY_OP(/);
-    case ins_id_e::EXEC_MUL: BINARY_OP(*);
+    case ins_id_e::EXEC_ADD: MATH_OP(+);
+    case ins_id_e::EXEC_SUB: MATH_OP(-);
+    case ins_id_e::EXEC_DIV: MATH_OP(/);
+    case ins_id_e::EXEC_MUL: MATH_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
     case ins_id_e::EXEC_IDENTIFIER: {
       std::string name((char*)(iv->data), iv->data_len);
