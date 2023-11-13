@@ -11,10 +11,10 @@ namespace front {
 //! \brief Parses a "completed" atom list
 //!        and pipes them to a given
 //!        instruction receiver.
-class parser_c final : public atom_receiver_if {
+class generator_c final : public atom_receiver_if {
 public:
-  parser_c() = delete;
-  parser_c(
+  generator_c() = delete;
+  generator_c(
     tracer_ptr ptr,
     machine::instruction_receiver_if& ins_receiver);
 
@@ -72,7 +72,13 @@ private:
   machine::instruction_receiver_if& _ins_receiver;
   front::builtins::builtin_map_t* _builtin_map{nullptr};
 
-  void decompose(atom_ptr&, bool req_exec=false);
+  std::vector<atom_list_t> _lists;
+
+  std::map<std::string, std::function<void()>> _decomp_map;
+
+  void generate();
+  void decompose_if();
+  void standard_decompose(atom_ptr&, bool req_exec=false);
   void decompose_symbol(const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
 };
 

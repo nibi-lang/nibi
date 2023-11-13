@@ -79,14 +79,18 @@ enum class ins_id_e : uint8_t {
   EXEC_DIV,
   EXEC_MUL,
   EXEC_MOD,
-  EXEC_ASSIGN,
+  EXEC_ASSIGN,      
   EXEC_REASSIGN,
+
   EXEC_DBG,          // Write out the data to the console
+  //EXEC_REPEAT,       // Start processing over again
+  //EXEC_FINISH,       // Quit processing, release all proc_data
   PUSH_RESULT,       // Load argument from return stack and into proc_q
   SAVE_RESULTS,      // Move results of computation to results queue
   PUSH_STRING = INS_DATA_BOUNDARY,
   PUSH_INT,
   PUSH_REAL,
+  PUSH_BYTES,
   PUSH_IDENTIFIER,
   EXEC_IDENTIFIER,
   EXPECT_N_ARGS,

@@ -19,12 +19,12 @@ group_s::group_s(
     : traced_file(traced_file),
       tracer(traced_file->get_tracer()),
       engine(ctx, importer),
-      parser(tracer, engine),
-      lexer(parser) {
+      generator(tracer, engine),
+      atomiser(generator) {
 
       engine.set_print_results(in_repl);
 
-      // Tracers may need to live beyond parsers, 
+      // Tracers may need to live beyond generators, 
       // so we give them a ref to the trace stuff
       //
       //  TODO:
@@ -48,7 +48,7 @@ uint8_t repl(settings_s& settings) {
   std::string line;
   size_t line_no{1};
   while (std::getline(std::cin, line)) {
-    ig.lexer.submit(line, line_no++);
+    ig.atomiser.submit(line, line_no++);
   }
   return 0;
 }
@@ -88,12 +88,12 @@ uint8_t file(
   size_t line_no{1};
   std::string line;
   while(std::getline(in, line)) {
-    ig.lexer.submit(line, line_no++);
+    ig.atomiser.submit(line, line_no++);
   }
 
   in.close();
 
-  if (!ig.lexer.finish()) {
+  if (!ig.atomiser.finish()) {
     return -1;
   }
 

@@ -1,4 +1,4 @@
-#include "parser.hpp"
+#include "generator.hpp"
 #include "forge.hpp"
 #include "machine/instructions.hpp"
 #include "machine/object.hpp"
@@ -9,20 +9,23 @@
 
 namespace front {
 
-parser_c::parser_c(
+generator_c::generator_c(
   tracer_ptr tracer,
   machine::instruction_receiver_if& ins_receiver)
   : _tracer(tracer),
     _ins_receiver(ins_receiver) {
   _builtin_map = &builtins::get_builtins();
+  _decomp_map = {
+    { "if", std::bind(&generator_c::decompose_if, this)},
+  };
 }
 
-void parser_c::on_error(error_s error) {
+void generator_c::on_error(error_s error) {
   fmt::print("Parser received an error report\n");;
   _tracer->on_error(error);
 }
 
-void parser_c::on_top_list_complete() {
+void generator_c::on_top_list_complete() {
   // Note: 
   // Engine _must_ be instructed to copy any instruction over
   // that may be referenced later
@@ -32,6 +35,13 @@ void parser_c::on_top_list_complete() {
   // the reference to the shared value will live on. We _could_ update the machine
   // to take a tracer, but for the sake of loose coupling, we are using the interface
   // provided by machine that the tracer utilizes
+
+  if (_lists.empty()) {
+    return;
+  }
+
+  generate();
+
   _ins_receiver.handle_instructions(
     state.instruction_block.data,
     *_tracer.get());
@@ -41,31 +51,104 @@ void parser_c::on_top_list_complete() {
   state.reset(); 
 }
 
-void parser_c::on_list(atom_list_t list) {
 
+void generator_c::on_list(atom_list_t list) {
   if (list.empty()) return;
-
-  auto& block = state.instruction_block;
-  auto& data = block.data;
-
-  state.current_list = &list;
-
-  for(state.current_list_idx = 1;
-      state.current_list_idx < state.current_list->size();
-      state.current_list_idx++) {
-    decompose(state.get_current());
-  }
-
-  decompose(list[0], true);
-
-  state.list_depth++;
-
-  _tracer->register_instruction(
-      state.instruction_block.bump(), list.back()->pos);
-  forge::load_instruction(data, machine::ins_id_e::SAVE_RESULTS);
+  _lists.push_back(std::move(list));
 }
 
-void parser_c::decompose(atom_ptr& atom, bool req_exec) {
+void generator_c::generate() {
+
+  auto& top_list = _lists.back();
+
+  fmt::print("_lists is of size: {}\n", _lists.size());
+  fmt::print("Top list is of size: {}\n", top_list.size());
+
+  fmt::print("First item : {}\n",
+    top_list[0]->data);
+
+  auto decomposition_method = _decomp_map.find(top_list[0]->data);
+  if (decomposition_method != _decomp_map.end()) {
+    return decomposition_method->second();
+  }
+
+  for(auto &&list : _lists) {
+    auto& block = state.instruction_block;
+    auto& data = block.data;
+
+    state.current_list = &list;
+
+    for(state.current_list_idx = 1;
+        state.current_list_idx < state.current_list->size();
+        state.current_list_idx++) {
+      standard_decompose(state.get_current());
+    }
+
+    standard_decompose(list[0], true);
+    // TODO: cant let first item be NOP
+
+    state.list_depth++;
+
+    _tracer->register_instruction(
+        state.instruction_block.bump(), list.back()->pos);
+    forge::load_instruction(data, machine::ins_id_e::SAVE_RESULTS);
+  }
+}
+
+void generator_c::decompose_if() {
+
+  fmt::print("Need to decompose an if-stmt\n");
+
+  pos_s pos = _lists.back()[0]->pos;
+  _lists.pop_back();
+
+  atom_list_t* condition{nullptr};
+  atom_list_t* true_body{nullptr};
+  atom_list_t* false_body{nullptr};
+
+  if (_lists.size() == 2) {
+    condition = &_lists[0];
+    true_body = &_lists[1];
+  } else if (_lists.size() == 3) {
+    condition = &_lists[0];
+    true_body = &_lists[1];
+    false_body = &_lists[2];
+  } else {
+    on_error(
+      { fmt::format("'if' requires 2 or 3 parameters, {} were given", _lists.size()),
+        pos});
+    return;
+  }
+
+  fmt::print("Condition: ");
+  print_list(*condition);
+
+  if (true_body) {
+    fmt::print("TRUE body: ");
+    print_list(*true_body);
+  }
+
+  if (false_body) {
+    fmt::print("FALSE body: ");
+    print_list(*false_body);
+  }
+
+  // decompose condition into list
+  // decompose true into list. get size.
+  // decompose false into list. get size
+  
+
+  // Add condition into main instruction
+  // create instruction for EXEC_CONDITIONAL_JUMP
+  //    if condition true, don't jump, then EXEC_JUMP over false size
+  //    if condition false, jump `size` instruction bytes to execute false
+  
+ // TODO : Add in engine a getter for queue. if queue empty, return object_c::interger(0)
+
+
+}
+
+void generator_c::standard_decompose(atom_ptr& atom, bool req_exec) {
 
   auto& block = state.instruction_block;
   auto& data = block.data;
@@ -73,6 +156,12 @@ void parser_c::decompose(atom_ptr& atom, bool req_exec) {
   switch(atom->atom_type) {
     case atom_type_e::UNDEFINED: {
       // TODO: Burn everything down
+      break;
+    }
+    case atom_type_e::NOP: {
+      forge::load_instruction(
+        data,
+        machine::ins_id_e::NOP);
       break;
     }
     case atom_type_e::INTEGER:
@@ -116,7 +205,7 @@ void parser_c::decompose(atom_ptr& atom, bool req_exec) {
   forge::load_instruction(data, op); \
   break;
 
-void parser_c::decompose_symbol(
+void generator_c::decompose_symbol(
   const meta_e& meta, const std::string& str, const pos_s& pos, bool req_exec) {
 
   auto& block = state.instruction_block;

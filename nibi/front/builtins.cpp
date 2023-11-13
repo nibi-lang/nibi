@@ -143,6 +143,32 @@ builtin_s builtin_dbg() {
 
 // ----------------------------------------------------------
 
+builtin_s builtin_do() {
+
+  builtin_s code;
+
+ // add_instruction(
+ //   code,
+ //   machine::ins_id_e::EXEC_REPEAT);
+
+  return code;
+}
+
+// ----------------------------------------------------------
+
+builtin_s builtin_done() {
+
+  builtin_s code;
+
+  //add_instruction(
+  //  code,
+  //  machine::ins_id_e::EXEC_FINISH);
+
+  return code;
+}
+
+// ----------------------------------------------------------
+
 builtin_map_t& get_builtins() {
   if (!builtin_code.empty()) { return builtin_code; }
 
@@ -150,6 +176,8 @@ builtin_map_t& get_builtins() {
   builtin_code["set"] = builtin_set();
   builtin_code["use"] = builtin_use();
   builtin_code["dbg"] = builtin_dbg();
+  //builtin_code["do"] = builtin_dbg();
+  //builtin_code["done"] = builtin_dbg();
 
   return builtin_code;
 }

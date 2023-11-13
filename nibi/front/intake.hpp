@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "lexer.hpp"
-#include "parser.hpp"
+#include "atomiser.hpp"
+#include "generator.hpp"
 #include "tracer.hpp"
 #include "machine/engine.hpp"
 #include "runtime/context.hpp"
@@ -19,8 +19,8 @@ struct group_s {
   tracer_ptr tracer{nullptr};
 
   machine::engine_c engine;
-  parser_c parser;
-  lexer_c lexer;
+  generator_c generator;
+  atomiser_c atomiser;
 
   group_s(
     traced_file_ptr& traced_file, 

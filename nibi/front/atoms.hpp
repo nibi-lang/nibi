@@ -14,6 +14,7 @@ enum class atom_type_e {
   REAL,
   STRING,
   LOAD_ARG,    // Pull result of previous computation as an argument
+  NOP,
 };
 
 enum class meta_e {

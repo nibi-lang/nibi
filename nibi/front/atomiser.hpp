@@ -7,7 +7,7 @@
 
 namespace front {
 
-//! \class lexer_c
+//! \class atomiser_c
 //! \brief A parser that allows data to be submitted to
 //!        it in pieces. When a list is detected/parsed
 //!        a callback will fire handing the list over.
@@ -18,10 +18,10 @@ namespace front {
 //        (+ 1 2 (/ 1 2))   ->    (/ 1 2) (+ 1 2 LOAD_ARG)
 //
 //
-class lexer_c {
+class atomiser_c {
 public:
-  lexer_c() = delete;
-  lexer_c(front::atom_receiver_if &receiver);
+  atomiser_c() = delete;
+  atomiser_c(front::atom_receiver_if &receiver);
 
   //! \brief Submit some string data to the parser.
   //!        If the parser detects a fully processed list,

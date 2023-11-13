@@ -1,4 +1,4 @@
-#include "lexer.hpp"
+#include "atomiser.hpp"
 
 #include <fmt/format.h>
 #include <algorithm>
@@ -34,12 +34,12 @@ void print_list(front::atom_list_t &list) {
   fmt::print("\n");
 }
 
-lexer_c::lexer_c(front::atom_receiver_if &receiver)
+atomiser_c::atomiser_c(front::atom_receiver_if &receiver)
     : _receiver(receiver) {
   _termChars = {'{', '}', '[', ']', '(', ')'};
 }
 
-void lexer_c::insert_atom(
+void atomiser_c::insert_atom(
   atom_list_t *list,
   const atom_type_e type,
   const meta_e meta,
@@ -57,7 +57,7 @@ void lexer_c::insert_atom(
           _trace.col));
 }
 
-void lexer_c::submit(const char* data, size_t line) {
+void atomiser_c::submit(const char* data, size_t line) {
   if (!data) {
     return;
   }
@@ -65,7 +65,7 @@ void lexer_c::submit(const char* data, size_t line) {
   return submit(val, line);
 }
 
-void lexer_c::submit(std::string &data, size_t line) {
+void atomiser_c::submit(std::string &data, size_t line) {
 
   if (data.empty())
     return;
@@ -84,7 +84,7 @@ void lexer_c::submit(std::string &data, size_t line) {
   }
 }
 
-bool lexer_c::finish() {
+bool atomiser_c::finish() {
   if (!_active_lists.empty()) {
     emit_error("Incomplete list - Finish indicated with data buffered");
     return false;
@@ -128,7 +128,7 @@ bool lexer_c::finish() {
     } \
     break;}
 
-void lexer_c::parse(atom_list_t *list, std::string &line_data) {
+void atomiser_c::parse(atom_list_t *list, std::string &line_data) {
 
   while(_trace.col < line_data.size()) {
 
@@ -173,6 +173,15 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
         // that they should pull the result of the next as 
         // an input arg
         if (list) {
+          if (list->empty()) {
+          list->push_back(
+            std::make_unique<atom_c>(
+                atom_type_e::NOP,
+                meta_e::UNDEFINED,
+                "<nop>",
+                line,
+                col));
+          } else {
           list->push_back(
             std::make_unique<atom_c>(
                 atom_type_e::LOAD_ARG,
@@ -180,6 +189,7 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
                 "<load arg>",
                 line,
                 col));
+          }
         }
 
         _active_lists.push({});
@@ -296,13 +306,13 @@ void lexer_c::parse(atom_list_t *list, std::string &line_data) {
   }
 }
 
-void lexer_c::emit_error(const std::string &err) {
+void atomiser_c::emit_error(const std::string &err) {
   error_s e{err, {_trace.line, _trace.col}};
   _receiver.on_error(e);
   reset();
 }
 
-void lexer_c::reset() {
+void atomiser_c::reset() {
   _trace = {0,0,0};
   _active_lists = {};
 }

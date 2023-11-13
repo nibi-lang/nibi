@@ -14,8 +14,8 @@ include_directories(
 
 set(INTAKE_SOURCES
   front/intake.cpp
-  front/lexer.cpp
-  front/parser.cpp
+  front/atomiser.cpp
+  front/generator.cpp
   front/intake.cpp
   front/tracer.cpp
   front/builtins.cpp
