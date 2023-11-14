@@ -42,5 +42,6 @@ int main(int argc, char**argv) {
   atomiser.submit("(+ 1 2");
   atomiser.submit("(- 10 2))");
 
+  atomiser.indicate_complete();
   return 0;
 }

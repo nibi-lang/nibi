@@ -107,6 +107,22 @@ void atomiser_c::submit(const char* data, size_t line) {
 
 void atomiser_c::submit(std::string &data, size_t line) {
 
+  /*
+        TODO:
+
+        Right now we can submit any number of lines to the 
+        buffer and it "normalizes" it into one long string.
+        This is great for processing, but we may wan't to preserve
+        line and column information to ensure that multi-lined
+        input can be tracked correctly, as the tracker.line/col
+        is the line/col of the buffer, not the input.
+
+        This isn't an issue iff all input is one statement-per-line
+        and it is fed to us one line at a time, but we may 
+        want to just dump an entire file in....
+
+
+    */
   add_to_buffer(normalize(data));
 
   if (!_buffer.ready()) {
@@ -130,6 +146,16 @@ void atomiser_c::submit(std::string &data, size_t line) {
     fmt::print("^\n");
 */
   }
+
+  reset();
+}
+
+void atomiser_c::indicate_complete() {
+  if (_buffer.data.empty()) {
+    return;
+  }
+
+  emit_error("Atomiser containes buffered data");
 }
 
 atom_list_t atomiser_c::parse(atom_list_t *list) {

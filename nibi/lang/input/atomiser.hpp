@@ -35,11 +35,18 @@ public:
   //!        the parser will hand the list via the callback.
   //!        If no full list is detected, the input will be buffered
   //!        and a subsequent `submit` will continue the processing.
-  //! \note When the parser detects the completion of a top-most list
-  //!       the lfin_f callback will be fired to indicate so
+  //! \note  The submission can take multiple statements and will
+  //!        trigger the atom_receiver for every top-level list that
+  //!        is found as long as they are fully formed.
   void submit(const char* data, size_t line=0);
   void submit(std::string &data, size_t line=0);
 
+  //! \brief Indicate that the atomisation is completed. If the
+  //!        atomiser still containes buffered data it will fire
+  //!        an error indicating that there remains an open list
+  void indicate_complete();
+
+  void reset();
 private:
   atom_receiver_if &_receiver;
 
@@ -62,7 +69,6 @@ private:
   void add_to_buffer(const std::string&);
   atom_list_t parse(atom_list_t* list);
   void emit_error(const std::string&);
-  void reset();
 
   const bool at_end() {
     return (_trace.col + 1 >= _buffer.data.size());
