@@ -45,6 +45,7 @@ private:
   void decompose_symbol(
       forge::block_list_t&, atom_ptr&, bool req_exec=false);
 
+  forge::block_list_t decompose_assert(atom_list_t&);
   forge::block_list_t decompose_let(atom_list_t&);
   forge::block_list_t decompose_set(atom_list_t&);
   forge::block_list_t decompose_use(atom_list_t&);

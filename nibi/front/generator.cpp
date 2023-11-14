@@ -19,6 +19,7 @@ namespace {
       forge::forge_data_s bs,
       const machine::ins_id_e& id,
       const machine::bytes_t& data) {
+    fmt::print("Adding {} bytes", data.size());
     forge::load_instruction(bs, id, data);
   }
   inline static void expect_type(
@@ -79,6 +80,7 @@ generator_c::generator_c(
   : _tracer(tracer),
     _ins_receiver(ins_receiver) {
   _decomp_map = {
+  { "assert", std::bind(&generator_c::decompose_assert, this, std::placeholders::_1)},
   { "let", std::bind(&generator_c::decompose_let, this, std::placeholders::_1)},
    { "set", std::bind(&generator_c::decompose_set, this, std::placeholders::_1)},
    { "use", std::bind(&generator_c::decompose_use, this, std::placeholders::_1)},
@@ -272,8 +274,8 @@ void generator_c::decompose_symbol(forge::block_list_t& blocks, atom_ptr &atom, 
       [[fallthrough]];                                                    
     }
     case meta_e::IDENTIFIER: { 
-      forge::load_instruction(
-       { block, atom->pos },
+      add_instruction(
+        data,
         (req_exec) ? machine::ins_id_e::EXEC_IDENTIFIER :
                       machine::ins_id_e::PUSH_IDENTIFIER,
         machine::tools::pack_string(atom->data));
@@ -308,6 +310,32 @@ void generator_c::decompose_symbol(forge::block_list_t& blocks, atom_ptr &atom, 
 //      BUILTINS
 //
 // ---------------------------------- 
+
+forge::block_list_t generator_c::decompose_assert(atom_list_t& list) {
+  fmt::print("Got that assert\n");
+  if (list.size() < 2) {
+    on_error(
+      { fmt::format("'assert' requires 2 or 3 parameters, {} were given", list.size()-1),
+        list[0]->pos});
+  }
+
+  forge::block_list_t blocks;
+  forge::block_s code;
+  forge::forge_data_s data{code, list[0]->pos};
+
+  machine::bytes_t message = {};
+  if (list.size() == 3) {
+    message = machine::tools::pack_string(list[2]->data);
+  }
+
+  standard_decompose(blocks, list[1]);
+
+  add_instruction(data, machine::ins_id_e::EXEC_ASSERT, message);
+
+  blocks.push_back(code);
+
+  return blocks;
+}
 
 forge::block_list_t generator_c::decompose_let(atom_list_t& list) {
 

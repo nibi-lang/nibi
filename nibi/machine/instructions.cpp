@@ -55,6 +55,7 @@ void print_instruction_data(const uint8_t* bytes, size_t len) {
 const char* ins_to_string(const ins_id_e& id) {
   switch (id) {
   case ins_id_e::NOP: { return "NOP"; }
+  case ins_id_e::EXEC_ASSERT: { return "ASSERT"; }
   case ins_id_e::EXEC_IMPORT: { return "IMPORT"; }
   case ins_id_e::EXEC_ADD: { return "ADD"; }
   case ins_id_e::EXEC_SUB: { return "SUB"; }

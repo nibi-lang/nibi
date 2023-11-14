@@ -151,11 +151,18 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::EXEC_DIV: MATH_OP(/);
     case ins_id_e::EXEC_MUL: MATH_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
-    //case ins_id_e::EXEC_REPEAT: {
-    //  ctx.pc = 0;
-
-    //  break;
-    //}
+    case ins_id_e::EXEC_ASSERT: {
+      if (ctx.proc_q.front().to_integer() >= 1) {
+        // Don't remove value so we can chain them
+        break;
+      }
+      if (iv->data_len) {
+        std::string message((char*)(iv->data), iv->data_len);
+        RAISE_ERROR(fmt::format("Assertion failure: {}", message));
+      }
+      RAISE_ERROR("Assertion");
+      break;
+    }
     case ins_id_e::EXEC_IDENTIFIER: {
       std::string name((char*)(iv->data), iv->data_len);
       auto* target_call = _scope.current()->get(name);
