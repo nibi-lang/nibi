@@ -1,71 +1,46 @@
-#include "apps/app.hpp"
+#include <fmt/format.h>
 
-#define VERSION "0.0.0"
+#include "lang/input/atomiser.hpp"
 
-static std::string help_message = fmt::format(R"(
 
-  Nibi Help Page [nibi v{}]
+class receiver_c final : public atom_receiver_if {
+  public:
 
-  Command                   Description
-  --------------------------------------------
+  void on_error (
+    const std::size_t line,
+    const std::size_t& col,
+    const std::string& message) override {
+    fmt::print("Error: ({}, {}): {}\n", line, col, message);
+  }
 
-  -h  --help                Show this message
-  -v  --version             Show version
-  -t  --test                Run tests on target
+  void on_list(atom_list_t list) override {
+    fmt::print("Got list: ");
+    print_atom_list(list);
+    fmt::print("\n");
+  }
+};
 
-  --------------------------------------------
 
-  The first argument given that is not a known Nibi
-  argument will be assumed to be a file or directory
-  to launch.
-  Following unknown arguments will be assumed to be
-  arguments for the specified target file/dir.
+int main(int argc, char**argv) {
 
-)", VERSION);
+  receiver_c receiver;
+  atomiser_c atomiser(receiver);
 
-static std::string version_message = 
-  fmt::format("Nibi version: {}\n", VERSION);
+  //atomiser.submit(R"(
+  //  ;(+ 1 2)
+  //  ;(+ 1 5)
+  //  ;(+ a 1 (- 5 6))
+  //  # This is a thing
+  //  ;(- (+ 1 2 3) (* (+ 5 (+ 6 7)))) ; This is a line
+  //  
 
-void arg_do_test(std::vector<std::string>& args, const size_t& i) {
-  fmt::print("User wants to test !\n");
-  return;
+  //  (putln x (+ 1 2 3 4 9 0) (x 54))(+ 1 2)
+
+  // ; (+ x)
+  //  )");
+ 
+  atomiser.submit("(+ 1 2");
+  atomiser.submit("(- 10 2))");
+
+  return 0;
 }
-
-int main(int argc, char **argv) {
-
-  app::data_ptr app_data {nullptr};
-  {
-    app::arg_map_t arg_map {
-      APP_ARG("-t", "--test", arg_do_test)
-    };
-
-    app_data = app::make_data_ptr(
-      argc, argv,
-      help_message,
-      version_message,
-      arg_map);
-  }
-
-  if (!app_data->target.has_value()) {
-    return front::intake::repl(
-        app_data->intake_settings);
-  }
-
-  if (std::filesystem::is_regular_file(*app_data->target)) {
-    return front::intake::file(
-        app_data->intake_settings,
-        *app_data->target);
-  }
-
-  if (std::filesystem::is_directory(*app_data->target)) {
-    return front::intake::dir(
-        app_data->intake_settings,
-        *app_data->target);
-  }
-
-  fmt::print(
-    "Given target is not a file or directory: {}\n",
-    *app_data->target);
-  return 1;
-}
-

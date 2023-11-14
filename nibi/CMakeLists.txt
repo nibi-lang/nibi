@@ -12,27 +12,9 @@ include_directories(
 
 # Language sources
 
-set(INTAKE_SOURCES
-  front/intake.cpp
-  front/atomiser.cpp
-  front/generator.cpp
-  front/intake.cpp
-  front/tracer.cpp
-  front/imports.cpp)
-
-set(MACHINE_SOURCES
-  machine/instructions.cpp
-  machine/engine.cpp
-  machine/object.cpp)
-
-set(CPPMOD_SOURCES
-  cppmod/modules.cpp
-  cppmod/io/io.cpp)
-
 set(NIBI_SOURCES
-  ${INTAKE_SOURCES}
-  ${MACHINE_SOURCES}
-  ${CPPMOD_SOURCES})
+  lang/input/reader.cpp
+  lang/input/atomiser.cpp)
 
 # Make into lib for quicker compile time
 
@@ -52,17 +34,3 @@ target_link_libraries(
   nibi_static
   fmt::fmt)
 
-# Build the debugger
-
-set(DEBUGGER_APP_NAME "ndb")
-set(DEBUGGER_APP_SOURCES
-  apps/ndb/ndb.cpp
-  apps/ndb/main.cpp)
-
-add_executable(${DEBUGGER_APP_NAME}
-  ${DEBUGGER_APP_SOURCES})
-
-target_link_libraries(
-  ${DEBUGGER_APP_NAME}
-  nibi_static
-  fmt::fmt)
