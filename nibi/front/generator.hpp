@@ -24,9 +24,9 @@ public:
 
 private:
 
-
   machine::bytes_t instruction_set;
 
+  forge::block_s merge_blocks(forge::block_list_t&);
   void merge_and_register_instructions(forge::block_list_t&);
 
   tracer_ptr _tracer{nullptr};
@@ -45,13 +45,16 @@ private:
   void decompose_symbol(
       forge::block_list_t&, atom_ptr&, bool req_exec=false);
 
-  forge::block_list_t decompose_assert(atom_list_t&);
-  forge::block_list_t decompose_let(atom_list_t&);
-  forge::block_list_t decompose_set(atom_list_t&);
-  forge::block_list_t decompose_use(atom_list_t&);
-  forge::block_list_t decompose_dbg(atom_list_t&);
-  forge::block_list_t decompose_if(atom_list_t&);
-     // const meta_e&, const std::string&, const pos_s& pos, bool req_exec=false);
+  [[nodiscard]] forge::block_list_t decompose_assert(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_let(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_set(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_use(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_dbg(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_if(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_eq(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_ne(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_gt(atom_list_t&);
+  [[nodiscard]] forge::block_list_t decompose_lt(atom_list_t&);
 };
 
 } // namespace

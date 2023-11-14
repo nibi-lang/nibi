@@ -10,7 +10,7 @@ namespace machine {
   print_instruction_data(ctx.instructions->data(), ctx.instructions->size()); \
   ctx.error_handler->on_error( \
     ctx.instruction_number, \
-    execution_error_s{s}); \
+    execution_error_s{s, true}); \
   _engine_okay = false; \
   return;
 
@@ -68,6 +68,11 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
   }
 }
 
+#define COND_LOAD_OR_FAIL(target_) \
+  if (!(target_.conditional_self_load(_scope.current()))) {\
+      RAISE_ERROR(fmt::format("Unknown variable `{}`\n", target_.dump_to_string(true))) \
+  } \
+
 #define BINARY_OP(operation) \
 { \
   if (ctx.proc_q.size() != 2) {\
@@ -80,13 +85,9 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
   ctx.proc_q.pop(); \
   auto rhs = ctx.proc_q.front(); \
   ctx.proc_q.pop(); \
-  if (!(lhs.conditional_self_load(_scope.current()))) {\
-      RAISE_ERROR(fmt::format("Unknown variable `{}`\n", lhs.dump_to_string(true))) \
-  } \
-  if (!(rhs.conditional_self_load(_scope.current()))) { \
-      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", rhs.dump_to_string(true))) \
-  } \
-  ctx.proc_q.push(lhs operation rhs); \
+  COND_LOAD_OR_FAIL(lhs)\
+  COND_LOAD_OR_FAIL(rhs)\
+  ctx.proc_q.push(lhs operation rhs);\
   break; \
 }
 
@@ -94,14 +95,10 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
 {\
   object_c result = ctx.proc_q.front(); \
   ctx.proc_q.pop(); \
-    if (!(result.conditional_self_load(_scope.current()))) { \
-      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", result.dump_to_string(true))); \
-    } \
+  COND_LOAD_OR_FAIL(result)\
   while(!ctx.proc_q.empty()) { \
     auto* next = &ctx.proc_q.front(); \
-    if (!(next->conditional_self_load(_scope.current()))) { \
-      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", next->dump_to_string(true))); \
-    } \
+    COND_LOAD_OR_FAIL((*next))\
     result = result operation (*next); \
     ctx.proc_q.pop(); \
   } \
@@ -135,6 +132,7 @@ void engine_c::execute_ctx(execution_ctx_s &ctx) {
      RAISE_ERROR(fmt::format("Unknown variable '{}'\n", var_.to_string()));\
  }
 
+
 void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
 
   //if (iv->op >= INS_DATA_BOUNDARY) {
@@ -151,6 +149,46 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     case ins_id_e::EXEC_DIV: MATH_OP(/);
     case ins_id_e::EXEC_MUL: MATH_OP(*);
     case ins_id_e::EXEC_MOD: BINARY_OP(%);
+    case ins_id_e::EXEC_EQ: {
+      auto lhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      auto rhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      COND_LOAD_OR_FAIL(lhs)
+      COND_LOAD_OR_FAIL(rhs)
+      ctx.proc_q.push(lhs.equals(rhs));
+      break;
+    }
+    case ins_id_e::EXEC_NE: {
+      auto lhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      auto rhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      COND_LOAD_OR_FAIL(lhs)
+      COND_LOAD_OR_FAIL(rhs)
+      ctx.proc_q.push(lhs.not_equals(rhs));
+      break;
+    }
+    case ins_id_e::EXEC_LT: {
+      auto lhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      auto rhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      COND_LOAD_OR_FAIL(lhs)
+      COND_LOAD_OR_FAIL(rhs)
+      ctx.proc_q.push(lhs.is_less_than(rhs));
+      break;
+    }
+    case ins_id_e::EXEC_GT: {
+      auto lhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      auto rhs = ctx.proc_q.front();
+      ctx.proc_q.pop();
+      COND_LOAD_OR_FAIL(lhs)
+      COND_LOAD_OR_FAIL(rhs)
+      ctx.proc_q.push(lhs.is_greater_than(rhs));
+      break;
+    }
     case ins_id_e::EXEC_ASSERT: {
       if (ctx.proc_q.front().to_integer() >= 1) {
         // Don't remove value so we can chain them
@@ -192,9 +230,7 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
     }
     case ins_id_e::EXEC_IMPORT: {
       FOR_ALL_ITEMS({
-
         ASSERT_TYPE(item, data_type_e::STRING)
-
         std::filesystem::path target_path(item.to_string());
         if (!_importer.import_file(
               target_path,
@@ -217,7 +253,6 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       }
 
       auto* val = &ctx.proc_q.front();
-
       if (val->type == data_type_e::IDENTIFIER && 
          !val->conditional_self_load(_scope.current())) {
           RAISE_ERROR(fmt::format("Unknown variable '{}' in assignment\n", val->to_string()));
@@ -313,15 +348,21 @@ void engine_c::execute(execution_ctx_s &ctx,instruction_view_s* iv) {
       std::cout << "OP:" << (int)iv->op << " not implemented yet\n";
     }
   }
+
+  // TODO: We could, maybe _should_ add an error handler means
+  //       so that some classifications of errors (like this one)
+  //       can be handled by the user
+  if (ctx.result_q.size() &&
+      ctx.result_q.front().type == data_type_e::ERROR) {
+    RAISE_ERROR(ctx.result_q.front().to_string())
+  }
 }
 
 void engine_c::call_cpp_fn(object_cpp_fn_c* fnd, execution_ctx_s &ctx) {
   std::vector<object_c> params;
   FOR_ALL_ITEMS({
     if (item.type == data_type_e::IDENTIFIER) {
-      if (!item.conditional_self_load(_scope.current())) { \
-        RAISE_ERROR(fmt::format("Unknown variable '{}'\n", item.to_string()));\
-      }
+      COND_LOAD_OR_FAIL(item);
     }
     params.push_back(item);
   })

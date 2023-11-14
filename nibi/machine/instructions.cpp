@@ -62,6 +62,10 @@ const char* ins_to_string(const ins_id_e& id) {
   case ins_id_e::EXEC_DIV: { return "DIV"; }
   case ins_id_e::EXEC_MUL: { return "MUL"; }
   case ins_id_e::EXEC_MOD: { return "MOD"; }
+  case ins_id_e::EXEC_EQ: { return "EQ"; }
+  case ins_id_e::EXEC_NE: { return "NE"; }
+  case ins_id_e::EXEC_LT: { return "LT"; }
+  case ins_id_e::EXEC_GT: { return "GT"; }
   case ins_id_e::EXEC_ASSIGN: { return "ASSIGN"; }
   case ins_id_e::EXEC_REASSIGN: { return "REASSIGN"; }
   case ins_id_e::EXEC_DBG: { return "DBG"; }

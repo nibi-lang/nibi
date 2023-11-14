@@ -1,0 +1,14 @@
+
+(let x 3)
+(assert (eq x 3))
+
+(set x 4)
+(assert (eq x 4))
+
+(set x (+ 1 2 3 4 5 x))
+(assert (eq x 19))
+
+(set x (+ 1 2 (- 10 2) x))
+
+(assert (eq x 30))
+

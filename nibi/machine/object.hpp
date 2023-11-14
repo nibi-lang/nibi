@@ -268,8 +268,15 @@ public:
     return 0;
   }
 
+#define STR1(x)  #x
+ #define STR(x)  STR1(x)
 #define MACHINE_OBJECT_C_OPERATION(math_op) \
-    if (!is_numeric() || !o.is_numeric()) { return object_c(); } \
+    if (!is_numeric() || !o.is_numeric()) { \
+      return object_c(\
+          object_error_c(STR(math_op),\
+            fmt::format("Invalid operation of type {} and {} (requires numeric types)", \
+              data_type_to_string(type), data_type_to_string(o.type)))); \
+    } \
     if (o.is_real() || is_real()) { \
       return real(to_real() math_op o.to_real());\
     }\
@@ -304,7 +311,48 @@ public:
     }
     return integer(data.integer % o.data.integer);
   }
-
+  object_c equals(const object_c& o) {
+    if (is_numeric() && o.is_numeric()) {
+      if (is_real() || o.is_real()) {
+        return boolean(to_real() == o.to_real());
+      }
+      return boolean(to_integer() == o.to_integer());
+    }
+    if (is_str() && o.is_str()) {
+      return boolean(to_string() == o.to_string());
+    }
+    return object_c(
+        object_error_c("eq", 
+          fmt::format("Invalid comparison of type {} and {}",
+            data_type_to_string(type), data_type_to_string(o.type))));
+  }
+  object_c not_equals(const object_c& o) {
+    return boolean((equals(o).to_integer() == 0));
+  }
+  object_c is_less_than(const object_c& o) {
+    if (is_numeric() && o.is_numeric()) {
+      if (is_real() || o.is_real()) {
+        return boolean(to_real() < o.to_real());
+      }
+      return boolean(to_integer() < o.to_integer());
+    }
+    return object_c(
+        object_error_c("<", 
+          fmt::format("Invalid comparison of type {} and {}",
+            data_type_to_string(type), data_type_to_string(o.type))));
+  }
+  object_c is_greater_than(const object_c& o) {
+    if (is_numeric() && o.is_numeric()) {
+      if (is_real() || o.is_real()) {
+        return boolean(to_real() > o.to_real());
+      }
+      return boolean(to_integer() > o.to_integer());
+    }
+    return object_c(
+        object_error_c(">", 
+          fmt::format("Invalid comparison of type {} and {}",
+            data_type_to_string(type), data_type_to_string(o.type))));
+  }
 private:
   union {
     bool boolean;

@@ -82,6 +82,10 @@ enum class ins_id_e : uint8_t {
   EXEC_ASSIGN,      
   EXEC_REASSIGN,
 
+  EXEC_EQ,
+  EXEC_NE,
+  EXEC_LT,
+  EXEC_GT,
   EXEC_DBG,          // Write out the data to the console
   //EXEC_REPEAT,       // Start processing over again
   //EXEC_FINISH,       // Quit processing, release all proc_data
