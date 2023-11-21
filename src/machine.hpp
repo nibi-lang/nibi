@@ -110,11 +110,21 @@ static inline double real_from_uint64_t(const uint64_t& value) {
   return *reinterpret_cast<const double*>(&value);
 }
 
+static constexpr uint8_t INS_DATA_BOUNDARY = 50;
+
 enum class ins_e : uint8_t {
-  LIST,     // List to execute ()
-  SYMBOL,   // Some symbol, may or may not call it
+  NOP = 0,
+  EXECUTE_LIST, // Present at the end of an instruction list iff builtin wasn't generated
   INTEGER,
   REAL,
+
+
+  // ----------------------------------------------------------------
+  //        Enteries beyond this point require data encoded
+  // ----------------------------------------------------------------
+
+  LIST = INS_DATA_BOUNDARY,     // List to execute ()
+  SYMBOL,   // Some symbol, may or may not call it
   STRING,
   DEFMACRO,
 
@@ -134,5 +144,10 @@ struct ins_view_e {
   uint32_t len;
   uint8_t* data;
 };
+
+static inline size_t fetch_instruction_size_bytes(const ins_view_e& ins) {
+  if (ins.op < INS_DATA_BOUNDARY) { return sizeof(uint8_t); }
+  return sizeof(uint8_t) + sizeof(uint32_t) + ins.len;
+}
 
 
