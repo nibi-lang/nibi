@@ -1,6 +1,6 @@
 
 **/nibi
-
+**/*.dSYM
 **/tags
 
 **/perf.data*

@@ -1,5 +1,12 @@
 #pragma once
 
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 0
+#define VERSION_PATCH 0
+#ifndef BUILD_HASH
+#define BUILD_HASH "<unknown>"
+#endif
+
 #define KIBI_BYTE 1024
 #define MEBI_BYTE KIBI_BYTE * KIBI_BYTE
 

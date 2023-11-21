@@ -1,4 +1,3 @@
-#include "defines.hpp"
 #include "nibi.hpp"
 
 #include <fmt/format.h>
@@ -83,9 +82,15 @@ int nibi_c::execute_from_file(parse_group_s pg) {
 
 int main(int argc, char** argv) {
 
+
   nibi_c app(std::vector<std::string>(argv, argv + argc));
 
   g_nibi = &app;
+
+  DEBUG_OUT(
+    fmt::format("{} | {}",
+      app.get_version(),
+      app.get_build_hash()))
 
   return app.run();
 }

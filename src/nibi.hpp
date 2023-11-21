@@ -1,5 +1,6 @@
 #pragma once
 
+#include "defines.hpp"
 #include <string>
 #include <vector>
 
@@ -18,6 +19,21 @@ public:
   
   [[noreturn]] 
   void shutdown(const int& code, const std::string& message);
+
+  static std::string get_version() {
+    return fmt::format(
+        "version:{}.{}.{}", 
+        VERSION_MAJOR,
+        VERSION_MINOR,
+        VERSION_PATCH);
+  }
+
+  static std::string get_build_hash() {
+    return fmt::format(
+        "build:{}",
+        BUILD_HASH);
+  }
+
 private:
 
   // TODO: Put macro table here (using class fwds)
@@ -25,7 +41,6 @@ private:
   // 
 
   std::vector<std::string> _args;
-
 
   [[nodiscard]]
   int execute_program(
