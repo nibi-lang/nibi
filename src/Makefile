@@ -9,7 +9,8 @@ FRONT_SOURCES := \
 	front/atomiser.cpp
 
 MIDDLE_SOURCES := \
-	middle/bytecode_generator.cpp
+	middle/bytecode_generator.cpp \
+	middle/builtins.cpp
 
 #VM_SOURCES := \
 

@@ -1,28 +1,7 @@
 #include "bytecode_generator.hpp"
-
+#include "builtins.hpp"
 #include <fmt/format.h>
-#include <functional>
-#include <map>
 #include "nibi.hpp"
-
-namespace {
-
-using embedded_builder = std::function<void(bytes_t&)>;
-
-void generate_builtin_macro(bytes_t& data) {
-  fmt::print("asked to generate a 'macro'\n");
-}
-
-void generate_builtin_if(bytes_t& data) {
-  fmt::print("asked to generate 'if'\n");
-}
-
-static std::map<std::string, embedded_builder> embedded_builders = {
-  { "macro", generate_builtin_macro },
-  { "if", generate_builtin_if }
-};
-
-} // namespace
 
 /*
       Regular list '()' with no builtins
@@ -41,6 +20,8 @@ static std::map<std::string, embedded_builder> embedded_builders = {
 
 */
 
+static builtin_map* embedded_builders{nullptr};
+
 #define ENCODE(to_, from_) \
   to_.insert(to_.end(), from_.begin(), from_.end());
 
@@ -49,7 +30,7 @@ static std::map<std::string, embedded_builder> embedded_builders = {
     bytes_t inner_data;\
     auto specific_generator = encode_atom(list_[i], inner_data); \
     if (specific_generator.has_value()) { \
-      (*specific_generator)(inner_data); \
+      (*specific_generator)(inner_data, list_); \
     } else { \
       inner_data.push_back((uint8_t)ins_e::EXECUTE_LIST);\
     }\
@@ -67,8 +48,8 @@ std::optional<embedded_builder> encode_atom(atom_ptr& atom, bytes_t& data) {
         auto encoded_data = pack_string(x->data);
         ENCODE(data, encoded_data);
 
-        auto fn = embedded_builders.find(x->data);
-        if (fn != embedded_builders.end()) {
+        auto fn = embedded_builders->find(x->data);
+        if (fn != embedded_builders->end()) {
           return {fn->second};
         }
         return {};
@@ -116,6 +97,10 @@ std::optional<embedded_builder> encode_atom(atom_ptr& atom, bytes_t& data) {
 }
 
 bytes_t generate_instructions(atom_list_t& list) {
+
+  if (!embedded_builders) {
+    embedded_builders = &get_builders();
+  }
 
   bytes_t program;
   PARSE_LIST_AND_SCAN_BUILTINS(program, list)

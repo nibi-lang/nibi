@@ -23,7 +23,7 @@ int nibi_c::run() {
   // Check args for REPL / file exec / compile etc
 
   return execute_from_file(
-    std::move(prepare_file("nib.test_file")));
+    std::move(prepare_file("assign.test_file")));
 }
 
 parse_group_s nibi_c::prepare_file(const std::string& file) {
