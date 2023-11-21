@@ -1,6 +1,45 @@
 #pragma once
 
-#include "types.hpp"
+#include <fmt/format.h>
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
+
+class atom_c;
+using atom_ptr = std::unique_ptr<atom_c>;
+using atom_list_t = std::vector<atom_ptr>;
+
+struct file_position_s {
+  std::size_t line{0};
+  std::size_t col{0};
+  std::string to_string() const {
+    return fmt::format("({},{})", line, col);
+  }
+};
+
+struct parse_group_s {
+  std::string origin;
+  std::vector<atom_list_t> lists;
+};
+
+struct file_error_s {
+  std::string origin;
+  std::string message;
+  file_position_s pos;
+
+  std::string to_string() {
+    return fmt::format(
+      "Error! origin({}):{} : {}",
+      origin, pos.to_string(), message);
+  }
+};
+
+class list_receiver_if {
+public:
+  virtual void on_list(atom_list_t list) = 0;
+  virtual void on_error(file_error_s err) = 0;
+};
 
 enum class atom_type_e : uint8_t {
   SYMBOL,
@@ -115,10 +154,4 @@ static void print_atom_list(atom_list_t &list) {
     fmt::print("ATOM[{}] ", atom->to_string());
   }
 }
-
-class list_receiver_if {
-public:
-  virtual void on_list(atom_list_t list) = 0;
-  virtual void on_error(file_error_s err) = 0;
-};
 

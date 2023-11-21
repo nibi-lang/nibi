@@ -5,6 +5,7 @@ BIN := nibi
 
 SOURCES := \
 	atomiser.cpp \
+	encoder.cpp \
 	main.cpp
 
 COMPILE := $(COMPILER) $(OPTS) $(SOURCES) -o $(BIN) -lfmt

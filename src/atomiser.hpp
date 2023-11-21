@@ -1,12 +1,4 @@
-#pragma once
-
-#include "types.hpp"
 #include "atoms.hpp"
-
-#include <set>
-#pragma once
-
-#include "types.hpp"
 
 #include <optional>
 #include <string>
