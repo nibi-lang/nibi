@@ -3,18 +3,30 @@ COMPILER := g++
 OPTS := -std=c++20
 BIN := nibi
 
-SOURCES := \
-	atomiser.cpp \
-	encoder.cpp \
-	main.cpp
+FRONT_SOURCES := \
+	front/atomiser.cpp
 
-COMPILE := $(COMPILER) $(OPTS) $(SOURCES) -o $(BIN) -lfmt
+MIDDLE_SOURCES := \
+	middle/bytecode_generator.cpp
+
+#VM_SOURCES := \
+
+SOURCES := \
+	$(FRONT_SOURCES) \
+	$(MIDDLE_SOURCES) \
+	nibi.cpp
+
+INCLUDES := \
+	-I ./ \
+
+COMPILE := $(COMPILER) $(OPTS) $(SOURCES) ${INCLUDES} -o $(BIN) -lfmt
 
 all:
 	$(COMPILE) -O3
 debug:
-	$(COMPILE) -g
+	$(COMPILE) -g -DNIBI_DEBUG=1
 
 clean:
-	rm $(BIN)
+	rm nibi
+	rm -rf nibi.dSYM/
 

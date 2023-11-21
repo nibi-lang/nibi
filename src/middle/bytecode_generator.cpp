@@ -1,23 +1,19 @@
-#include "encoder.hpp"
+#include "bytecode_generator.hpp"
 
 #include <fmt/format.h>
 #include <functional>
 #include <map>
+#include "nibi.hpp"
 
 namespace {
 
-struct data_s {
-  bytes_t bytes;
-  generator_error_cb err_cb;
-};
+using embedded_builder = std::function<void(bytes_t&)>;
 
-using embedded_builder = std::function<void(bytes_t&, generator_error_cb)>;
-
-void generate_builtin_macro(bytes_t& data, generator_error_cb cb) {
+void generate_builtin_macro(bytes_t& data) {
   fmt::print("asked to generate a 'macro'\n");
 }
 
-void generate_builtin_if(bytes_t& data, generator_error_cb cb) {
+void generate_builtin_if(bytes_t& data) {
   fmt::print("asked to generate 'if'\n");
 }
 
@@ -48,28 +44,28 @@ static std::map<std::string, embedded_builder> embedded_builders = {
 #define ENCODE(to_, from_) \
   to_.insert(to_.end(), from_.begin(), from_.end());
 
-#define PARSE_LIST_AND_SCAN_BUILTINS(target_, list_, err_) \
+#define PARSE_LIST_AND_SCAN_BUILTINS(target_, list_) \
   for(size_t i = 0; i < list_.size(); i++) { \
-    data_s inner_data{{}, err_}; \
+    bytes_t inner_data;\
     auto specific_generator = encode_atom(list_[i], inner_data); \
     if (specific_generator.has_value()) { \
-      (*specific_generator)(inner_data.bytes, err_); \
+      (*specific_generator)(inner_data); \
     } else { \
-      inner_data.bytes.push_back((uint8_t)ins_e::EXECUTE_LIST);\
+      inner_data.push_back((uint8_t)ins_e::EXECUTE_LIST);\
     }\
-    ENCODE(target_, inner_data.bytes) \
+    ENCODE(target_, inner_data) \
   }
 
-std::optional<embedded_builder> encode_atom(atom_ptr& atom, data_s &data) {
+std::optional<embedded_builder> encode_atom(atom_ptr& atom, bytes_t& data) {
 
     switch(atom->type) {
       case atom_type_e::SYMBOL: {
-        data.bytes.push_back((uint8_t)ins_e::SYMBOL);
+        data.push_back((uint8_t)ins_e::SYMBOL);
         auto* x = reinterpret_cast<atom_symbol_c*>(atom.get());
         auto encoded_len = pack<uint32_t>(x->data.size());
-        ENCODE(data.bytes, encoded_len)
+        ENCODE(data, encoded_len)
         auto encoded_data = pack_string(x->data);
-        ENCODE(data.bytes, encoded_data);
+        ENCODE(data, encoded_data);
 
         auto fn = embedded_builders.find(x->data);
         if (fn != embedded_builders.end()) {
@@ -78,48 +74,50 @@ std::optional<embedded_builder> encode_atom(atom_ptr& atom, data_s &data) {
         return {};
       }
       case atom_type_e::INTEGER: {
-        data.bytes.push_back((uint8_t)ins_e::INTEGER);
+        data.push_back((uint8_t)ins_e::INTEGER);
         auto* x = reinterpret_cast<atom_int_c*>(atom.get());
         auto encoded_data = pack<int64_t>(x->data);
-        ENCODE(data.bytes, encoded_data);
+        ENCODE(data, encoded_data);
         return {};
       }
       case atom_type_e::REAL: {
-        data.bytes.push_back((uint8_t)ins_e::INTEGER);
+        data.push_back((uint8_t)ins_e::INTEGER);
         auto* x = reinterpret_cast<atom_real_c*>(atom.get());
         auto encoded_data = pack<double>(x->data);
-        ENCODE(data.bytes, encoded_data);
+        ENCODE(data, encoded_data);
         return {};
       }
       case atom_type_e::STRING: {
-        data.bytes.push_back((uint8_t)ins_e::STRING);
+        data.push_back((uint8_t)ins_e::STRING);
         auto* x = reinterpret_cast<atom_string_c*>(atom.get());
         auto encoded_len = pack<uint32_t>(x->data.size());
-        ENCODE(data.bytes, encoded_len)
+        ENCODE(data, encoded_len)
         auto encoded_data = pack_string(x->data);
-        ENCODE(data.bytes, encoded_data);
+        ENCODE(data, encoded_data);
         return {};
       }
       case atom_type_e::LIST: {
-        data.bytes.push_back((uint8_t)ins_e::LIST);
+        data.push_back((uint8_t)ins_e::LIST);
         auto* x = reinterpret_cast<atom_list_c*>(atom.get());
 
         bytes_t program;
-        PARSE_LIST_AND_SCAN_BUILTINS(program, x->data, data.err_cb)
+        PARSE_LIST_AND_SCAN_BUILTINS(program, x->data)
 
         auto encoded_len = pack<uint32_t>(program.size());
-        ENCODE(data.bytes, encoded_len)
-        ENCODE(data.bytes, program)
+        ENCODE(data, encoded_len)
+        ENCODE(data, program)
         return {};
       }
     }
+  
+  g_nibi->shutdown(2,
+    fmt::format(
+      "Internal Error: Unhandled atom type in {}\n", __FILE__));
 }
 
-bytes_t generate_instructions(
-    atom_list_t& list,
-    generator_error_cb err_cb) {
+bytes_t generate_instructions(atom_list_t& list) {
 
   bytes_t program;
-  PARSE_LIST_AND_SCAN_BUILTINS(program, list, err_cb)
+  PARSE_LIST_AND_SCAN_BUILTINS(program, list)
   return program;
 }
