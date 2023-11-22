@@ -23,7 +23,7 @@ int nibi_c::run() {
   // Check args for REPL / file exec / compile etc
 
   return execute_from_file(
-    std::move(prepare_file("assign.test_file")));
+    std::move(prepare_file("scratch.test_file")));
 }
 
 parse_group_s nibi_c::prepare_file(const std::string& file) {
@@ -63,6 +63,11 @@ int nibi_c::execute_from_file(parse_group_s pg) {
   bytes_t program;
   program.reserve(FILE_EXEC_PREALLOC_SIZE);
   for(auto &&list : pg.lists) {
+
+    fmt::print("\n-----------------\n");
+
+    print_atom_list(list);
+
     bytes_t bytes = generate_instructions(list);
 
     program.insert(

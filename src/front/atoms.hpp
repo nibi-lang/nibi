@@ -76,10 +76,10 @@ public:
     STANDARD = 0,
     TYPE_TAG,
     TYPE_TAG_VEC,
+    REF_TAG,
+    REF_TAG_VEC,
     MACRO_TAG,
-    MACRO_TAG_CONT,
     MACRO_TAG_VEC,
-    MACRO_TAG_VEC_CONT
   };
   atom_symbol_c(const std::string& data, const file_position_s& pos)
     : atom_c(atom_type_e::SYMBOL, pos),

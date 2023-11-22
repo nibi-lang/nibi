@@ -66,10 +66,13 @@ static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
 static std::regex is_type_tag(R"([:][a-zA-Z0-9][\-a-zA-Z0-9]+)");
 static std::regex is_type_tag_vec(R"([:][a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
 
+static std::regex is_ref_tag(R"([\^][a-zA-Z0-9][\-a-zA-Z0-9]+)");
+static std::regex is_ref_tag_vec(R"([\^][a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
+
 static std::regex is_macro_type_tag(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+)");
 static std::regex is_macro_type_tag_vec(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
-static std::regex is_macro_type_tag_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+(\.\.))");
-static std::regex is_macro_type_tag_vec_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+](\.\.))");
+//static std::regex is_macro_type_tag_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+(\.\.))");
+//static std::regex is_macro_type_tag_vec_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+](\.\.))");
 
 static std::map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
@@ -362,7 +365,7 @@ bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
   // Attempt to classify an identified tag
   atom_symbol_c::classification_e tag{
     atom_symbol_c::classification_e::STANDARD};
-  if (sym[0] == ':') {
+  if (sym[0] == ':' || sym[0] == '$' || sym[0] == '^') {
     tag = classify_type_tag(sym);
     if (tag == atom_symbol_c::classification_e::STANDARD) {
       emit_error(
@@ -385,14 +388,14 @@ atomiser_c::classify_type_tag(const std::string &sym) {
     return atom_symbol_c::classification_e::TYPE_TAG; }
   if (std::regex_match(sym, is_type_tag_vec)) {
     return atom_symbol_c::classification_e::TYPE_TAG_VEC; }
+  if (std::regex_match(sym, is_ref_tag)) {
+    return atom_symbol_c::classification_e::REF_TAG; }
+  if (std::regex_match(sym, is_ref_tag_vec)) {
+    return atom_symbol_c::classification_e::REF_TAG_VEC; }
   if (std::regex_match(sym, is_macro_type_tag)) {
     return atom_symbol_c::classification_e::MACRO_TAG; }
   if (std::regex_match(sym, is_macro_type_tag_vec)) {
     return atom_symbol_c::classification_e::MACRO_TAG_VEC; }
-  if (std::regex_match(sym, is_macro_type_tag_cont)) {
-    return atom_symbol_c::classification_e::MACRO_TAG_CONT; }
-  if (std::regex_match(sym, is_macro_type_tag_vec_cont)) {
-    return atom_symbol_c::classification_e::MACRO_TAG_VEC_CONT; }
   return atom_symbol_c::classification_e::STANDARD;
 }
 
