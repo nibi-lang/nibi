@@ -72,10 +72,27 @@ public:
 
 class atom_symbol_c final : public atom_c {
 public:
+  enum class classification_e {
+    STANDARD = 0,
+    TYPE_TAG,
+    TYPE_TAG_VEC,
+    MACRO_TAG,
+    MACRO_TAG_CONT,
+    MACRO_TAG_VEC,
+    MACRO_TAG_VEC_CONT
+  };
   atom_symbol_c(const std::string& data, const file_position_s& pos)
     : atom_c(atom_type_e::SYMBOL, pos),
       data(data){}
+  atom_symbol_c(
+      const std::string& data,
+      const file_position_s& pos,
+      const classification_e& c)
+    : atom_c(atom_type_e::SYMBOL, pos),
+      data(data),
+      classification(c){}
   std::string data;
+  classification_e classification{classification_e::STANDARD};
   std::string to_string() override {
     return fmt::format(
       "type:{}, pos:{}, data:{}",

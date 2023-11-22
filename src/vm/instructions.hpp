@@ -150,4 +150,3 @@ static inline size_t fetch_instruction_size_bytes(const ins_view_e& ins) {
   return sizeof(uint8_t) + sizeof(uint32_t) + ins.len;
 }
 
-

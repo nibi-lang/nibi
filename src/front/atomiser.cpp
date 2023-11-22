@@ -51,6 +51,9 @@ private:
   bool collect_identifier(std::string& data, atom_list_t* list);
   bool collect_symbol(std::string& data, atom_list_t* list);
 
+  atom_symbol_c::classification_e
+    classify_type_tag(const std::string& sym);
+
   std::stack<atom_list_t> _active_lists;
   std::set<uint8_t> _termChars;
 };
@@ -59,6 +62,15 @@ namespace {
 
 static std::regex is_identifier(R"([_a-zA-Z][\-_a-zA-Z0-9]{0,30})");
 static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
+
+static std::regex is_type_tag(R"([:][a-zA-Z0-9][\-a-zA-Z0-9]+)");
+static std::regex is_type_tag_vec(R"([:][a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
+
+static std::regex is_macro_type_tag(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+)");
+static std::regex is_macro_type_tag_vec(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
+static std::regex is_macro_type_tag_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+(\.\.))");
+static std::regex is_macro_type_tag_vec_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+](\.\.))");
+
 static std::map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
     {'b', '\b'},  {'v', '\v'},  {'?', '\?'}, {'"', '\"'},
@@ -176,7 +188,8 @@ void atomiser_c::parse(std::string &line_data) {
     if (collect_symbol(line_data, current_list)) { continue; }
 
     emit_error(
-      "Unhandled token identified while parsing list");
+      fmt::format("Unhandled token identified while parsing list: {}", current_char));
+    std::exit(1);
   }
 }
 
@@ -345,11 +358,42 @@ bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
   if (sym.empty()) {
     return false;
   }
+
+  // Attempt to classify an identified tag
+  atom_symbol_c::classification_e tag{
+    atom_symbol_c::classification_e::STANDARD};
+  if (sym[0] == ':') {
+    tag = classify_type_tag(sym);
+    if (tag == atom_symbol_c::classification_e::STANDARD) {
+      emit_error(
+        fmt::format("Malformed suspected type tag '{}'",
+          sym));
+    }
+  }
+
   list->push_back(
     std::make_unique<atom_symbol_c>(
       sym, 
-      file_position_s{_trace.line, start_col}));
+      file_position_s{_trace.line, start_col},
+      tag));
   return true;
+}
+
+atom_symbol_c::classification_e
+atomiser_c::classify_type_tag(const std::string &sym) {
+  if (std::regex_match(sym, is_type_tag)) {
+    return atom_symbol_c::classification_e::TYPE_TAG; }
+  if (std::regex_match(sym, is_type_tag_vec)) {
+    return atom_symbol_c::classification_e::TYPE_TAG_VEC; }
+  if (std::regex_match(sym, is_macro_type_tag)) {
+    return atom_symbol_c::classification_e::MACRO_TAG; }
+  if (std::regex_match(sym, is_macro_type_tag_vec)) {
+    return atom_symbol_c::classification_e::MACRO_TAG_VEC; }
+  if (std::regex_match(sym, is_macro_type_tag_cont)) {
+    return atom_symbol_c::classification_e::MACRO_TAG_CONT; }
+  if (std::regex_match(sym, is_macro_type_tag_vec_cont)) {
+    return atom_symbol_c::classification_e::MACRO_TAG_VEC_CONT; }
+  return atom_symbol_c::classification_e::STANDARD;
 }
 
 class receiver_c : public list_receiver_if {
