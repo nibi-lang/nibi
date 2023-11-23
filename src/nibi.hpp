@@ -5,8 +5,7 @@
 #include <vector>
 
 #include "front/atomiser.hpp"
-#include "middle/bytecode_generator.hpp"
-#include "vm/instructions.hpp"
+#include "middle/analyzer.hpp"
 
 class nibi_c {
 public:
@@ -14,9 +13,6 @@ public:
 
   int run();
 
-  [[nodiscard]]
-  parse_group_s prepare_file(const std::string& file);
-  
   [[noreturn]] 
   void shutdown(const int& code, const std::string& message);
 
@@ -34,6 +30,11 @@ public:
         BUILD_HASH);
   }
 
+  void report_error(
+    const std::string& internal_origin,
+    const file_error_s& error,
+    bool is_fatal=true);
+
 private:
 
   // TODO: Put macro table here (using class fwds)
@@ -42,11 +43,6 @@ private:
 
   std::vector<std::string> _args;
 
-  [[nodiscard]]
-  int execute_program(
-    const bytes_t& program);
-
-  int execute_from_file(parse_group_s);
 };
 
 

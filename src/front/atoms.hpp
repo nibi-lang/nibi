@@ -28,9 +28,9 @@ struct file_error_s {
   std::string message;
   file_position_s pos;
 
-  std::string to_string() {
+  std::string to_string() const {
     return fmt::format(
-      "Error! origin({}):{} : {}",
+      "[{}]{} : {}",
       origin, pos.to_string(), message);
   }
 };

@@ -1,7 +1,6 @@
 #include "nibi.hpp"
 
 #include <fmt/format.h>
-#include "middle/bytecode_generator.hpp"
 
 nibi_c::nibi_c(std::vector<std::string> args)
   : _args(args) {
@@ -20,13 +19,7 @@ void nibi_c::shutdown(const int& code, const std::string& message) {
 
 int nibi_c::run() {
 
-  // Check args for REPL / file exec / compile etc
-
-  return execute_from_file(
-    std::move(prepare_file("scratch.test_file")));
-}
-
-parse_group_s nibi_c::prepare_file(const std::string& file) {
+  std::string file = "scratch.test_file";
 
   std::optional<parse_group_s>parse_group = atomise_file(file);
   if (!parse_group.has_value()) {
@@ -35,50 +28,28 @@ parse_group_s nibi_c::prepare_file(const std::string& file) {
         "No parse group returned for file: {}", file));
   }
 
-  return std::move(*parse_group);
-}
+  std::optional<parse_list_t> parse_list = analyze(std::move(*parse_group));
 
-int nibi_c::execute_program(const bytes_t& program) {
-
-
-  // TODO: Need to make an interface for VM to callback
-  //       errors on. Nibi_c should have a has-a relation
-  //       ship with it - It will contain filegroup pointer
-  //       for it and it will handle errors/ reconstitution
-
+  if (!parse_list.has_value()) {
+    shutdown(2,
+      fmt::format(
+        "No parse list returned for file: {}", file));
+  }
   
-  DEBUG_OUT(
-    fmt::format(
-      "Execute a program of {} bytes", program.size()))
+  fmt::print("Retrieved {} parse list(s)\n", (*parse_list).size());
 
   return 0;
 }
 
-int nibi_c::execute_from_file(parse_group_s pg) {
+void nibi_c::report_error(
+  const std::string& internal_origin,
+  const file_error_s& error,
+  bool is_fatal) {
 
-  DEBUG_OUT(
-    fmt::format(
-      "Execute from file: {}", pg.origin));
-
-  bytes_t program;
-  program.reserve(FILE_EXEC_PREALLOC_SIZE);
-  for(auto &&list : pg.lists) {
-
-    fmt::print("\n-----------------\n");
-
-    print_atom_list(list);
-
-    bytes_t bytes = generate_instructions(list);
-
-    program.insert(
-      program.end(),
-      bytes.begin(),
-      bytes.end());
+  fmt::print("{}: {}\n", ((is_fatal) ? "Fatal error" : "Warning"), error.to_string());
+  if (is_fatal) {
+    shutdown(1, "Non-recoverable error");
   }
-
-  pg.lists.clear();
-  program.shrink_to_fit();
-  return execute_program(program);
 }
 
 // ---------------------------------------
