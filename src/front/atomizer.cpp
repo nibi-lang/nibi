@@ -1,5 +1,3 @@
-#include "atomiser.hpp"
-#include "verify_builtin_form.hpp"
 #include "nibi.hpp"
 
 #include <map>
@@ -10,10 +8,12 @@
 #include <filesystem>
 #include <fstream>
 
-class atomiser_c {
+extern void verify_list(const std::string& origin, atom_list_t& list);
+
+class atomizer_c {
 public:
-  atomiser_c() = delete;
-  atomiser_c(
+  atomizer_c() = delete;
+  atomizer_c(
     const std::string& origin,
     list_receiver_if &receiver);
 
@@ -78,7 +78,7 @@ inline bool check_for_chars(std::string &buffer, char c) {
 
 } // namespace
 
-atomiser_c::atomiser_c(
+atomizer_c::atomizer_c(
   const std::string& origin,
   list_receiver_if &receiver)
     : _origin(origin),
@@ -86,7 +86,7 @@ atomiser_c::atomiser_c(
   _termChars = {'{', '}', '[', ']', '(', ')'};
 }
 
-void atomiser_c::submit(const char* data, size_t line) {
+void atomizer_c::submit(const char* data, size_t line) {
   if (!data) {
     return;
   }
@@ -94,7 +94,7 @@ void atomiser_c::submit(const char* data, size_t line) {
   return submit(val, line);
 }
 
-void atomiser_c::submit(std::string &data, size_t line) {
+void atomizer_c::submit(std::string &data, size_t line) {
 
   if (data.empty())
     return;
@@ -105,7 +105,7 @@ void atomiser_c::submit(std::string &data, size_t line) {
   parse(data);
 }
 
-bool atomiser_c::finish() {
+bool atomizer_c::finish() {
   if (!_active_lists.empty()) {
     emit_error(
       "Incomplete list - finish indicated with data buffered");
@@ -114,7 +114,7 @@ bool atomiser_c::finish() {
   return true;
 }
 
-void atomiser_c::parse(std::string &line_data) {
+void atomizer_c::parse(std::string &line_data) {
 
   //  Here we utilize a stack rather than recursion so we 
   //  can pause processing of a list in the middle in the event
@@ -187,7 +187,7 @@ void atomiser_c::parse(std::string &line_data) {
 #define HAS_NEXT \
   (_trace.col + 1 < data.size())
 
-bool atomiser_c::collect_comments(std::string& data, atom_list_t* list) {
+bool atomizer_c::collect_comments(std::string& data, atom_list_t* list) {
   auto& current_char = data[_trace.col];
   if (current_char == ';' ||
       current_char == '#' && _trace.col == 0) {
@@ -197,7 +197,7 @@ bool atomiser_c::collect_comments(std::string& data, atom_list_t* list) {
   return false;
 }
 
-bool atomiser_c::collect_number(std::string& data, atom_list_t* list) {
+bool atomizer_c::collect_number(std::string& data, atom_list_t* list) {
 
   bool pos{true};
   {
@@ -267,7 +267,7 @@ bool atomiser_c::collect_number(std::string& data, atom_list_t* list) {
   return true;
 }
 
-bool atomiser_c::collect_string(std::string& data, atom_list_t* list) {
+bool atomizer_c::collect_string(std::string& data, atom_list_t* list) {
 
   if (data[_trace.col] != '\"') { return false; }
 
@@ -310,7 +310,7 @@ bool atomiser_c::collect_string(std::string& data, atom_list_t* list) {
   return true;
 }
 
-bool atomiser_c::collect_identifier(std::string& data, atom_list_t* list) {
+bool atomizer_c::collect_identifier(std::string& data, atom_list_t* list) {
 
   auto start_col = _trace.col;
   std::string identifier;
@@ -338,7 +338,7 @@ bool atomiser_c::collect_identifier(std::string& data, atom_list_t* list) {
   return true;
 }
 
-bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
+bool atomizer_c::collect_symbol(std::string& data, atom_list_t* list) {
   auto start_col = _trace.col;
   std::string sym;
   while(!_termChars.contains(data[_trace.col]) &&
@@ -369,7 +369,7 @@ public:
   }
   void on_list(atom_list_t list) override {
 
-    verify_list({file_, list});
+    verify_list(file_, list);
 
     // TODO: Optimize the list ? 
 
@@ -392,12 +392,14 @@ public:
   std::vector<uint8_t> encoded_lists;
 };
 
-void atomiser_c::reset() {
+void atomizer_c::reset() {
   _trace = {0,0};
   _active_lists = {};
 }
 
-bool atomise_file(
+namespace front {
+
+bool atomize_file(
   const std::string& file,
   std::vector<uint8_t>& target) {
 
@@ -416,12 +418,12 @@ bool atomise_file(
   }
 
   receiver_c recv(file, target);
-  atomiser_c atomiser(file, recv);
+  atomizer_c atomizer(file, recv);
 
   std::string line;
   std::size_t line_number{1};
   while (recv.okay && std::getline(in, line)) {
-    atomiser.submit(line, line_number++);
+    atomizer.submit(line, line_number++);
   }
 
   in.close();
@@ -429,3 +431,4 @@ bool atomise_file(
   return true;
 }
 
+} // namespace

@@ -1,18 +1,13 @@
 #include "nibi.hpp"
 
 #include <fmt/format.h>
+#include "front/atom_view.hpp"
 
 nibi_c::nibi_c(std::vector<std::string> args)
-  : _args(args) {
-
-  // TODO: Parse args and prepare app
-  // TODO: Read piped in data and store
-  // TODO: Setup VM
-}
+  : _args(args) {}
 
 void nibi_c::shutdown(const int& code, const std::string& message) {
 
-  // TODO: Shutdown with grace.
   fmt::print("{}\n", message);
   std::exit(code);
 }
@@ -26,13 +21,26 @@ int nibi_c::run() {
   program_data.reserve(
     FILE_EXEC_PREALLOC_SIZE);
 
-  if (!atomise_file(file, program_data)) {
+  if (!front::atomize_file(file, program_data)) {
     shutdown(1,
       fmt::format(
         "Failed to atomize: {}", file));
   }
 
   fmt::print("{} byte(s) generated for program\n", program_data.size());
+
+
+  std::size_t pc{0};
+  bool valid{true};
+  while(valid && pc < program_data.size()) {
+
+    atom_view::view_s* v =
+      (atom_view::view_s*)
+      ((uint8_t*)(program_data.data() + pc));
+
+    fmt::print("{}\n", atom_view::view_to_string(v, true));
+    pc += atom_view::get_size(v, valid);
+  }
 
   return 0;
 }

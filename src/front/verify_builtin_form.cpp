@@ -1,10 +1,20 @@
-#include "verify_builtin_form.hpp"
 #include "nibi.hpp"
+#include "atoms.hpp"
 #include <fmt/format.h>
 #include <set>
+#include <map>
 
 namespace {
-  std::unique_ptr<ptree_map_t> ptree_map{nullptr};
+  struct list_verify_info_s {
+    const std::string& origin;
+    atom_list_t& list;
+  };
+
+  using verification_map_t = std::map<
+    std::string,
+    std::function<void(const list_verify_info_s&)>>;
+
+  std::unique_ptr<verification_map_t> verification_map{nullptr};
 
   std::set<atom_type_e> potential_lvalues {
     atom_type_e::SYMBOL,
@@ -12,10 +22,11 @@ namespace {
   };
 }
 
-void verify_builtin_fn(const list_veify_info_s& tbis);
-void verify_builtin_if(const list_veify_info_s& tbis);
-void verify_builtin_let(const list_veify_info_s& tbis);
-void verify_builtin_set(const list_veify_info_s& tbis);
+void verify_list(const std::string& origin, atom_list_t& list);
+void verify_builtin_fn(const list_verify_info_s& tbis);
+void verify_builtin_if(const list_verify_info_s& tbis);
+void verify_builtin_let(const list_verify_info_s& tbis);
+void verify_builtin_set(const list_verify_info_s& tbis);
 
 #define B_ASSERT(cond_, msg_, pos_) \
   if (!(cond_)) { \
@@ -45,13 +56,13 @@ void verify_builtin_set(const list_veify_info_s& tbis);
   EXPECT_TYPE(atom_type_e::LIST, idx_, tbis.list)
 
 #define ADD_ENTRY(name_, fn_) \
-  (*ptree_map.get())[name_] = fn_;
+  (*verification_map.get())[name_] = fn_;
 
 #define VERIFY_INNER(idx_)\
-  verify_list({\
+  verify_list(\
     tbis.origin, \
     reinterpret_cast<atom_list_c*>( \
-        tbis.list[idx_].get())->data});
+        tbis.list[idx_].get())->data);
 
 #define CONDITIONAL_VERIFY_INNER(idx_) \
   if (tbis.list[idx_]->type == atom_type_e::LIST) {\
@@ -60,19 +71,19 @@ void verify_builtin_set(const list_veify_info_s& tbis);
 
 // ---------------------------------------------------------
 
-ptree_map_t& get_verification_map() {
-  if (ptree_map) return *ptree_map.get();
+verification_map_t& get_verification_map() {
+  if (verification_map) return *verification_map.get();
 
-  ptree_map = std::make_unique<ptree_map_t>();
+  verification_map = std::make_unique<verification_map_t>();
   ADD_ENTRY("fn", verify_builtin_fn)
   ADD_ENTRY("if", verify_builtin_if)
   ADD_ENTRY("let", verify_builtin_let)
   ADD_ENTRY("set", verify_builtin_set)
 
-  return *ptree_map.get();
+  return *verification_map.get();
 }
 
-void verify_builtin_fn(const list_veify_info_s& tbis) {
+void verify_builtin_fn(const list_verify_info_s& tbis) {
   EXPECT_LEN(>=, 4, "Missing required components for construction");
   EXPECT_SYM(1);
   EXPECT_LIST(2);
@@ -91,7 +102,7 @@ void verify_builtin_fn(const list_veify_info_s& tbis) {
   }
 }
 
-void verify_builtin_if(const list_veify_info_s& tbis) {
+void verify_builtin_if(const list_verify_info_s& tbis) {
   B_ASSERT(
     (tbis.list.size() == 3 || tbis.list.size() == 4),
     "'if' requires form '( if <cond> <true> (<false>)? )'",
@@ -102,13 +113,13 @@ void verify_builtin_if(const list_veify_info_s& tbis) {
   }
 }
 
-void verify_builtin_let(const list_veify_info_s& tbis) {
+void verify_builtin_let(const list_verify_info_s& tbis) {
   EXPECT_LEN(==, 3, "'let' requires form '(let <var> <value>)'");
   EXPECT_SYM(1);
   CONDITIONAL_VERIFY_INNER(2);
 }
 
-void verify_builtin_set(const list_veify_info_s& tbis) {
+void verify_builtin_set(const list_verify_info_s& tbis) {
   EXPECT_LEN(==, 3, "'set' requires form '(set <target> <value>)'");
   B_ASSERT(
     (potential_lvalues.contains(tbis.list[1]->type)),
@@ -118,7 +129,8 @@ void verify_builtin_set(const list_veify_info_s& tbis) {
   CONDITIONAL_VERIFY_INNER(2);
 }
 
-void verify_list(const list_veify_info_s& tbis) {
+void verify_list(const std::string& origin, atom_list_t& list) {
+  list_verify_info_s tbis = {origin, list};
   if (tbis.list.empty()) {
     return;
   }

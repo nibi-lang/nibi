@@ -1,6 +1,7 @@
 #include "atoms.hpp"
+#include "atom_view.hpp"
 #include "util.hpp"
-
+#include <limits>
 /*
     Atom binary encoding :
 
@@ -8,7 +9,7 @@
 
     |     HEADER                      |   DATA       |
     | 1 byte | 8 bytes                | ... variable |
-      0xFF     First instruction POS
+      LIST     First instruction POS
 
                ^ 0xFF 0xFF 0xFF 0xFF
                  0xFF 0xFF 0xFF 0xFF iff empty list
@@ -88,19 +89,21 @@ void encode_atom_list(
     const bool include_header) {
 
   if (include_header) {
-    std::vector<uint8_t> header = {
-      0xFF,                     // 'ID'
-      0xFF, 0xFF, 0xFF, 0xFF,   // 'Line'
-      0xFF, 0xFF, 0xFF, 0xFF    // 'Col'
-    };
-    util::merge_vecs(data, header);
+    data.push_back((uint8_t)atom_type_e::LIST);
+    if (list.empty()) {
+      util::pack_into<uint32_t>((uint32_t)std::numeric_limits<uint32_t>::max(), data);
+      util::pack_into<uint32_t>((uint32_t)std::numeric_limits<uint32_t>::max(), data);
+    } else {
+      list[0]->pos.encode_to(data);
+    }
   }
 
   std::vector<uint8_t> encoded_list;
   for(auto& atom : list) {
     atom->encode_to(encoded_list);
   }
-
   util::pack_into<uint16_t>((uint16_t)encoded_list.size(), data);
   util::merge_vecs(data, encoded_list);
 }
+
+

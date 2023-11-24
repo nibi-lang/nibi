@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "front/atomiser.hpp"
+#include "front/front.hpp"
 
 class nibi_c {
 public:

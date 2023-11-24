@@ -7,7 +7,7 @@ BIN := nibi
 
 FRONT_SOURCES := \
 	front/atoms.cpp \
-	front/atomiser.cpp \
+	front/atomizer.cpp \
 	front/verify_builtin_form.cpp
 
 SOURCES := \
