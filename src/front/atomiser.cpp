@@ -421,7 +421,10 @@ std::optional<parse_group_s> atomise_file(const std::string& file) {
   //
   //        In this way we can make the tree walker and the object
   //        storage stuff.. later we can convert the parse trees
-  //        to bytecode 
+  //        to bytecode. 
+  //
+  //        Maybe rename the parse trees to ins_tree and have
+  //        the nodes convert themselves to bytecode.
   //
   //
 
