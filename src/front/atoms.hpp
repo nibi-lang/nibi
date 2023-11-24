@@ -25,11 +25,6 @@ struct file_position_s {
   void encode_to(std::vector<uint8_t>& data) const;
 };
 
-struct parse_group_s {
-  std::string origin;
-  std::vector<atom_list_t> lists;
-};
-
 struct file_error_s {
   std::string origin;
   std::string message;

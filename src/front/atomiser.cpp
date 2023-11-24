@@ -359,10 +359,13 @@ bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
 
 class receiver_c : public list_receiver_if {
 public:
-  receiver_c(const std::string& file) : file_(file) {
+  receiver_c() = delete;
+  receiver_c(
+    const std::string& file,
+    std::vector<uint8_t>& target)
+    : file_(file),
+      target(target) {
 
-    encoded_lists.reserve(
-      FILE_EXEC_PREALLOC_SIZE);
   }
   void on_list(atom_list_t list) override {
 
@@ -370,12 +373,12 @@ public:
 
     // TODO: Optimize the list ? 
 
-    lists.push_back(
-      std::move(list));
-
     encode_atom_list(
       list,
-      encoded_lists);
+      target);
+
+    // Note: At this point the atom list
+    //       is moved into oblivion and freed
   }
 
   void on_error(file_error_s err) override {
@@ -384,8 +387,8 @@ public:
   }
 
   const std::string& file_;
+  std::vector<uint8_t>& target;
   bool okay{true};
-  std::vector<atom_list_t> lists;
   std::vector<uint8_t> encoded_lists;
 };
 
@@ -394,23 +397,25 @@ void atomiser_c::reset() {
   _active_lists = {};
 }
 
-std::optional<parse_group_s> atomise_file(const std::string& file) {
+bool atomise_file(
+  const std::string& file,
+  std::vector<uint8_t>& target) {
 
   {
     std::filesystem::path p(file);
     if (!std::filesystem::is_regular_file(p)) {
       fmt::print("Target '{}' is not a file\n", file);
-      return std::nullopt;
+      return false;
     }
   }
 
   std::ifstream in(file);
   if (!in.is_open()) {
     fmt::print("Unable to open target '{}'\n", file);
-    return std::nullopt;
+    return false;
   }
 
-  receiver_c recv(file);
+  receiver_c recv(file, target);
   atomiser_c atomiser(file, recv);
 
   std::string line;
@@ -421,27 +426,6 @@ std::optional<parse_group_s> atomise_file(const std::string& file) {
 
   in.close();
 
-  //auto form_map = builtin_forms::get_forms();
-  //
-  //  TODO: Map builtins to their respective parse tree(s)
-  //
-  //        Map everything else as something to execute
-  //
-  //
-  //        For now we will tree walk. Objects that represent
-  //        data will be different and isolated from the parse trees.
-  //
-  //        In this way we can make the tree walker and the object
-  //        storage stuff.. later we can convert the parse trees
-  //        to bytecode. 
-  //
-  //        Maybe rename the parse trees to ins_tree and have
-  //        the nodes convert themselves to bytecode.
-  //
-  //
-
-
-
-  return { parse_group_s { file, std::move(recv.lists) }};
+  return true;
 }
 

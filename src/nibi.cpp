@@ -21,24 +21,18 @@ int nibi_c::run() {
 
   std::string file = "scratch.test_file";
 
-  std::optional<parse_group_s>parse_group = atomise_file(file);
-  if (!parse_group.has_value()) {
+  std::vector<uint8_t> program_data;
+
+  program_data.reserve(
+    FILE_EXEC_PREALLOC_SIZE);
+
+  if (!atomise_file(file, program_data)) {
     shutdown(1,
       fmt::format(
-        "No parse group returned for file: {}", file));
+        "Failed to atomize: {}", file));
   }
 
-  /*
-  std::optional<parse_list_t> parse_list = analyze(std::move(*parse_group));
-
-  if (!parse_list.has_value()) {
-    shutdown(2,
-      fmt::format(
-        "No parse list returned for file: {}", file));
-  }
-  
-  fmt::print("Retrieved {} parse list(s)\n", (*parse_list).size());
-  */
+  fmt::print("{} byte(s) generated for program\n", program_data.size());
 
   return 0;
 }
