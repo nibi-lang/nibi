@@ -1,4 +1,5 @@
 #include "atomiser.hpp"
+#include "builtin_forms.hpp"
 
 #include <map>
 #include <regex>
@@ -51,9 +52,6 @@ private:
   bool collect_identifier(std::string& data, atom_list_t* list);
   bool collect_symbol(std::string& data, atom_list_t* list);
 
-  atom_symbol_c::classification_e
-    classify_type_tag(const std::string& sym);
-
   std::stack<atom_list_t> _active_lists;
   std::set<uint8_t> _termChars;
 };
@@ -62,17 +60,6 @@ namespace {
 
 static std::regex is_identifier(R"([_a-zA-Z][\-_a-zA-Z0-9]{0,30})");
 static std::regex is_number(R"([+-]?([0-9]*[.])?[0-9]+)");
-
-static std::regex is_type_tag(R"([:][a-zA-Z0-9][\-a-zA-Z0-9]+)");
-static std::regex is_type_tag_vec(R"([:][a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
-
-static std::regex is_ref_tag(R"([\^][a-zA-Z0-9][\-a-zA-Z0-9]+)");
-static std::regex is_ref_tag_vec(R"([\^][a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
-
-static std::regex is_macro_type_tag(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+)");
-static std::regex is_macro_type_tag_vec(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+])");
-//static std::regex is_macro_type_tag_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+(\.\.))");
-//static std::regex is_macro_type_tag_vec_cont(R"((\$)[a-zA-Z0-9][\-a-zA-Z0-9]+[\+](\.\.))");
 
 static std::map<char, char> char_escape_map = {
     {'n', '\n'},  {'t', '\t'},  {'r', '\r'}, {'a', '\a'},
@@ -362,41 +349,11 @@ bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
     return false;
   }
 
-  // Attempt to classify an identified tag
-  atom_symbol_c::classification_e tag{
-    atom_symbol_c::classification_e::STANDARD};
-  if (sym[0] == ':' || sym[0] == '$' || sym[0] == '^') {
-    tag = classify_type_tag(sym);
-    if (tag == atom_symbol_c::classification_e::STANDARD) {
-      emit_error(
-        fmt::format("Malformed suspected type tag '{}'",
-          sym));
-    }
-  }
-
   list->push_back(
     std::make_unique<atom_symbol_c>(
       sym, 
-      file_position_s{_trace.line, start_col},
-      tag));
+      file_position_s{_trace.line, start_col}));
   return true;
-}
-
-atom_symbol_c::classification_e
-atomiser_c::classify_type_tag(const std::string &sym) {
-  if (std::regex_match(sym, is_type_tag)) {
-    return atom_symbol_c::classification_e::TYPE_TAG; }
-  if (std::regex_match(sym, is_type_tag_vec)) {
-    return atom_symbol_c::classification_e::TYPE_TAG_VEC; }
-  if (std::regex_match(sym, is_ref_tag)) {
-    return atom_symbol_c::classification_e::REF_TAG; }
-  if (std::regex_match(sym, is_ref_tag_vec)) {
-    return atom_symbol_c::classification_e::REF_TAG_VEC; }
-  if (std::regex_match(sym, is_macro_type_tag)) {
-    return atom_symbol_c::classification_e::MACRO_TAG; }
-  if (std::regex_match(sym, is_macro_type_tag_vec)) {
-    return atom_symbol_c::classification_e::MACRO_TAG_VEC; }
-  return atom_symbol_c::classification_e::STANDARD;
 }
 
 class receiver_c : public list_receiver_if {
@@ -452,11 +409,8 @@ std::optional<parse_group_s> atomise_file(const std::string& file) {
 
   in.close();
 
+  auto form_map = builtin_forms::get_forms();
+
   return { parse_group_s { file, std::move(recv.lists) }};
 }
 
-int repl() {
-
-  fmt::print("REPL NOT YET COMPLETED");
-  return 0;
-}
