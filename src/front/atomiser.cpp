@@ -359,13 +359,23 @@ bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
 
 class receiver_c : public list_receiver_if {
 public:
-  receiver_c(const std::string& file) : file_(file) {}
+  receiver_c(const std::string& file) : file_(file) {
+
+    encoded_lists.reserve(
+      FILE_EXEC_PREALLOC_SIZE);
+  }
   void on_list(atom_list_t list) override {
 
     verify_list({file_, list});
 
+    // TODO: Optimize the list ? 
+
     lists.push_back(
       std::move(list));
+
+    encode_atom_list(
+      list,
+      encoded_lists);
   }
 
   void on_error(file_error_s err) override {
@@ -376,6 +386,7 @@ public:
   const std::string& file_;
   bool okay{true};
   std::vector<atom_list_t> lists;
+  std::vector<uint8_t> encoded_lists;
 };
 
 void atomiser_c::reset() {

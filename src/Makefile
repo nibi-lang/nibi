@@ -6,6 +6,7 @@ OPTS := -std=c++20 -DBUILD_HASH="\"$(GIT_HASH)\""
 BIN := nibi
 
 FRONT_SOURCES := \
+	front/atoms.cpp \
 	front/atomiser.cpp \
 	front/verify_builtin_form.cpp
 

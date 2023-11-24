@@ -5,10 +5,16 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include "util.hpp"
 
 class atom_c;
 using atom_ptr = std::unique_ptr<atom_c>;
 using atom_list_t = std::vector<atom_ptr>;
+
+extern void encode_atom_list(
+    const atom_list_t& list,
+    std::vector<uint8_t>& bytes,
+    const bool include_header = true);
 
 struct file_position_s {
   std::size_t line{0};
@@ -16,6 +22,7 @@ struct file_position_s {
   std::string to_string() const {
     return fmt::format("({},{})", line, col);
   }
+  void encode_to(std::vector<uint8_t>& data) const;
 };
 
 struct parse_group_s {
@@ -68,6 +75,9 @@ public:
   atom_type_e type;
   file_position_s pos{0,0};
   virtual std::string to_string() = 0;
+  virtual void encode_to(std::vector<uint8_t>& bytes) const = 0;
+protected:
+  void encode_base(std::vector<uint8_t>& data) const;
 };
 
 class atom_symbol_c final : public atom_c {
@@ -85,6 +95,7 @@ public:
         pos.to_string(),
         data);
   };
+  void encode_to(std::vector<uint8_t>& bytes) const override;
 };
 
 class atom_int_c final : public atom_c {
@@ -100,6 +111,7 @@ public:
         pos.to_string(),
         data);
   };
+  void encode_to(std::vector<uint8_t>& bytes) const override;
 };
 
 class atom_real_c final : public atom_c {
@@ -115,6 +127,7 @@ public:
         pos.to_string(),
         data);
   };
+  void encode_to(std::vector<uint8_t>& bytes) const override;
 };
 
 class atom_string_c final : public atom_c {
@@ -130,6 +143,7 @@ public:
         pos.to_string(),
         data);
   };
+  void encode_to(std::vector<uint8_t>& bytes) const override;
 };
 
 class atom_list_c final : public atom_c {
@@ -149,6 +163,7 @@ public:
         pos.to_string(),
         data_str);
   };
+  void encode_to(std::vector<uint8_t>& bytes) const override;
 };
 
 static void print_atom_list(atom_list_t &list) {
