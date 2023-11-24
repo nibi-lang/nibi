@@ -8,12 +8,8 @@ BIN := nibi
 FRONT_SOURCES := \
 	front/atomiser.cpp
 
-MIDDLE_SOURCES := \
-	middle/analyzer.cpp
-
 SOURCES := \
 	$(FRONT_SOURCES) \
-  $(MIDDLE_SOURCES) \
 	nibi.cpp
 
 INCLUDES := \

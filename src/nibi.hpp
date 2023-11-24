@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "front/atomiser.hpp"
-#include "middle/analyzer.hpp"
 
 class nibi_c {
 public:

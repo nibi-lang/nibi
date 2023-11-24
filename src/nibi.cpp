@@ -28,6 +28,7 @@ int nibi_c::run() {
         "No parse group returned for file: {}", file));
   }
 
+  /*
   std::optional<parse_list_t> parse_list = analyze(std::move(*parse_group));
 
   if (!parse_list.has_value()) {
@@ -37,6 +38,7 @@ int nibi_c::run() {
   }
   
   fmt::print("Retrieved {} parse list(s)\n", (*parse_list).size());
+  */
 
   return 0;
 }
