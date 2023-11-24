@@ -1,5 +1,6 @@
 #include "atomiser.hpp"
-#include "parse_tree.hpp"
+#include "verify_builtin_form.hpp"
+#include "nibi.hpp"
 
 #include <map>
 #include <regex>
@@ -358,11 +359,10 @@ bool atomiser_c::collect_symbol(std::string& data, atom_list_t* list) {
 
 class receiver_c : public list_receiver_if {
 public:
+  receiver_c(const std::string& file) : file_(file) {}
   void on_list(atom_list_t list) override {
-    // print_atom_list(list);
 
-    // TODO: Check here to see if the list is an import.
-    //       If it is, we can import it here. 
+    verify_list({file_, list});
 
     lists.push_back(
       std::move(list));
@@ -373,6 +373,7 @@ public:
     okay = false;
   }
 
+  const std::string& file_;
   bool okay{true};
   std::vector<atom_list_t> lists;
 };
@@ -398,7 +399,7 @@ std::optional<parse_group_s> atomise_file(const std::string& file) {
     return std::nullopt;
   }
 
-  receiver_c recv;
+  receiver_c recv(file);
   atomiser_c atomiser(file, recv);
 
   std::string line;
@@ -428,7 +429,7 @@ std::optional<parse_group_s> atomise_file(const std::string& file) {
   //
   //
 
-  fmt::print("\n\tTODO: Mold atoms into parse tree\n\n");
+
 
   return { parse_group_s { file, std::move(recv.lists) }};
 }
