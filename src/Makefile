@@ -6,7 +6,8 @@ OPTS := -std=c++20 -DBUILD_HASH="\"$(GIT_HASH)\""
 BIN := nibi
 
 FRONT_SOURCES := \
-	front/atomiser.cpp
+	front/atomiser.cpp \
+	front/parse_tree.cpp
 
 SOURCES := \
 	$(FRONT_SOURCES) \

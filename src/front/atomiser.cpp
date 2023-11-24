@@ -1,5 +1,5 @@
 #include "atomiser.hpp"
-#include "builtin_forms.hpp"
+#include "parse_tree.hpp"
 
 #include <map>
 #include <regex>
@@ -409,7 +409,23 @@ std::optional<parse_group_s> atomise_file(const std::string& file) {
 
   in.close();
 
-  auto form_map = builtin_forms::get_forms();
+  //auto form_map = builtin_forms::get_forms();
+  //
+  //  TODO: Map builtins to their respective parse tree(s)
+  //
+  //        Map everything else as something to execute
+  //
+  //
+  //        For now we will tree walk. Objects that represent
+  //        data will be different and isolated from the parse trees.
+  //
+  //        In this way we can make the tree walker and the object
+  //        storage stuff.. later we can convert the parse trees
+  //        to bytecode 
+  //
+  //
+
+  fmt::print("\n\tTODO: Mold atoms into parse tree\n\n");
 
   return { parse_group_s { file, std::move(recv.lists) }};
 }

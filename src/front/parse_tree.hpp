@@ -44,12 +44,16 @@ public:
         parse_tree_node_e::FN,
         pos),
       name(name),
-      params(params),
-      return_type(return_type) {}
+      params(params){}
 
     std::string name;
     std::vector<variable_s> params;
-    datum_info_s return_type;
- 
     parse_list_t body;
 };
+
+struct tree_build_info_s {
+  const std::string& origin;
+  atom_list_t& list;
+};
+
+extern parse_node_ptr build_tree_fn(const tree_build_info_s& tbis);
