@@ -24,17 +24,7 @@ object_ptr core_c::execute(
   return result;
 }
 
-object_ptr core_c::evaluate_list(object_list_t& list, env_c &env) {
-  
-
-}
-
-object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
-
-  auto* atom = walker.next();
-
-  if (!atom) return nullptr;
-
+object_ptr core_c::resolve(atom_view::view_s* atom, env_c &env) {
   switch (atom->id) {
     case (int)atom_type_e::STRING:
       return allocate_object(
@@ -45,7 +35,7 @@ object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
           wrap_real_s{atom->data.real_encoded.value});
     case (int)atom_type_e::INTEGER:
       return allocate_object(
-          wrap_real_s{atom->data.int_encoded.value});
+          wrap_int_s{atom->data.int_encoded.value});
     case (int)atom_type_e::SYMBOL: {
       auto o = env.get(std::string(
           (char*)(atom->data.len_encoded.data), 
@@ -60,11 +50,6 @@ object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
                 atom->data.len_encoded.len)),
             file_position_s{ atom->line, atom->col }));
       }
-
-      if (o->type == data_type_e::CPPFN) {
-        return prep_and_call_cpp_fn(
-          o->as_cpp_fn()->fn, walker, env);
-      }
       return o;
     }
     case (int)atom_type_e::LIST:
@@ -74,14 +59,40 @@ object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
         env);
   };
 
-  /*
+  // Should be unreachable
+  return allocate_object(
+    object_error_c(
+      _origin,
+      "Unhandled atom when attempting to resolve to object",
+      file_position_s{ atom->line, atom->col }));
+}
 
-        Note: on `fn` we need to clone the section 
-        of bytes and store them in an object for
-        later execution when called.. 
+object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
 
-  */
-  return nullptr;
+  if (_yield_value) return _yield_value;
+
+  auto* atom = walker.next();
+
+  if (!atom) {
+    _yield_value = allocate_object(
+      object_error_c(
+        _origin,
+        "Invalid atom evaluation (atom was nullptr)",
+        file_position_s{ atom->line, atom->col }));
+    return _yield_value;
+  }
+
+  object_ptr target = resolve(atom, env);
+
+  if (target->type == data_type_e::CPPFN) {
+    object_ptr result = target->as_cpp_fn()->fn(walker, *this, env); 
+    if (result->type == data_type_e::ERROR) {
+      _yield_value = result;
+    }
+    return result;
+  }
+
+  return target;
 }
 
 object_ptr core_c::object_from_view(atom_view::view_s* view) {
@@ -116,19 +127,6 @@ object_ptr core_c::object_from_view(atom_view::view_s* view) {
       _origin,
       "Unhandled atom when converting object",
       file_position_s{ view->line, view->col }));
-}
-
-object_ptr core_c::prep_and_call_cpp_fn(
-    cpp_fn &fn, atom_view::walker_c& walker, env_c &env) {
-
-  object_list_t params;
-  params.reserve(20);
-
-  while(walker.has_next()) {
-    params.push_back(object_from_view(walker.next()));
-  }
-
- return fn(params, env); 
 }
 
 } // namespace

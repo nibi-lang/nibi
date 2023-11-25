@@ -9,11 +9,13 @@
 #include <fmt/format.h>
 #include "ref.hpp"
 #include "front/atoms.hpp"
+#include "front/atom_view.hpp"
 
 namespace runtime {
 
 class env_c;
 class object_c;
+class core_c;
 
 using object_ptr = ref_counted_ptr_c<object_c>;
 using object_list_t = std::vector<object_ptr>;
@@ -40,7 +42,7 @@ extern const char* data_type_to_string(const data_type_e&);
 
 class object_c;
 using cpp_fn = std::function<runtime::object_ptr(
-    const runtime::object_list_t&, runtime::env_c&)>;
+    atom_view::walker_c&, runtime::core_c &core, runtime::env_c&)>;
 
 class complex_object_c {
   public:
@@ -115,6 +117,7 @@ public:
   complex_object_c* clone() override { 
     return new object_error_c(op, message, pos);
   }
+  bool has_file_info() const { return pos.line; }
   std::string to_string() override {
     // If a line is present, then we know we 'op' relates specifically to a file
     if (pos.line) {

@@ -1,35 +1,35 @@
 #include "runtime/builtins/builtins.hpp"
 #include "runtime/runtime.hpp"
 #include "runtime/object.hpp"
+#include "runtime/core.hpp"
 
 namespace builtins {
 
 runtime::object_ptr assignment_let(
-  const runtime::object_list_t& params,
+  atom_view::walker_c& walker,
+  runtime::core_c &core,
   runtime::env_c &env) {
 
-  fmt::print("Got a let list of size {}\n",
-    params.size());
+  walker.reset();
+  walker.next();  // let
+  auto var = core.object_from_view(
+      walker.next())->to_string();
 
-  // let <id> <list|raw>
-  //
-
-  for(auto &&o : params) {
-
-    fmt::print("{}\n", o->to_string());
-  }
-
-  std::string target_name = params[0]->to_string();
-
-  if (env.get_env(target_name, true)) {
+  if (env.get_env(var, true)) {
     return runtime::external_error(
       fmt::format("variable '{}' already defined",
-        target_name));
+        var));
   }
 
-  
+  runtime::object_ptr value = core.resolve(walker.next(), env);
 
-  return runtime::failure_value();
+  if (value->type == runtime::data_type_e::ERROR) {
+    return value;
+  }
+
+  env.set(var, value);
+
+  return runtime::success_value();
 }
 
 } // namespace

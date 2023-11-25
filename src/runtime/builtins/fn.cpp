@@ -1,13 +1,15 @@
 #include "runtime/builtins/builtins.hpp"
 #include "runtime/runtime.hpp"
 #include "runtime/object.hpp"
+#include "runtime/core.hpp"
 
 namespace builtins {
 
 using namespace runtime;
 
 runtime::object_ptr define_function(
-  const runtime::object_list_t& params,
+  atom_view::walker_c& walker,
+  runtime::core_c &core,
   runtime::env_c &env) {
 
   // fn <name> (params) <body>...

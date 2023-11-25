@@ -23,14 +23,18 @@ public:
     atom_view::walker_c& walker,
     env_c &env);
 
-  object_ptr evaluate_list(object_list_t& list, env_c &env);
+  object_ptr object_from_view(
+      atom_view::view_s* view);
+
+  object_ptr resolve(atom_view::view_s* atom, env_c &env);
+
+  const std::string& get_origin() const {
+    return _origin;
+  }
 private:
   const std::string& _origin;
 
-  object_ptr object_from_view(
-      atom_view::view_s* view);
-  object_ptr prep_and_call_cpp_fn(
-      cpp_fn &fn, atom_view::walker_c& walker, env_c &env);
+  object_ptr _yield_value{nullptr};
 };
 
 } // namespace

@@ -1,13 +1,16 @@
 #include "runtime/builtins/builtins.hpp"
+#include "runtime/core.hpp"
 
 namespace builtins {
 
 extern runtime::object_ptr define_function(
-  const runtime::object_list_t& params,
+  atom_view::walker_c& walker,
+  runtime::core_c &core,
   runtime::env_c &env);
 
 extern runtime::object_ptr assignment_let(
-  const runtime::object_list_t& params,
+  atom_view::walker_c& walker,
+  runtime::core_c &core,
   runtime::env_c &env);
 
 

@@ -55,6 +55,11 @@ int nibi_c::run() {
     auto* e = o->as_error();
     draw(e->op, e->pos, e->message);
   }
+
+  if (!o) return 0;
+
+  fmt::print("({}) result: {}\n", __FILE__, o->to_string());
+
   return 0;
 }
 
