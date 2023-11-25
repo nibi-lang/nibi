@@ -29,17 +29,11 @@ int nibi_c::run() {
 
   fmt::print("{} byte(s) generated for program\n", program_data.size());
 
+  atom_view::walker_c walker(program_data);
 
-  std::size_t pc{0};
-  bool valid{true};
-  while(valid && pc < program_data.size()) {
-
-    atom_view::view_s* v =
-      (atom_view::view_s*)
-      ((uint8_t*)(program_data.data() + pc));
-
+  while(walker.has_next()) {
+    auto* v = walker.next();
     fmt::print("{}\n", atom_view::view_to_string(v, true));
-    pc += atom_view::get_size(v, valid);
   }
 
   return 0;

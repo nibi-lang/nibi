@@ -71,7 +71,6 @@ void atom_real_c::encode_to(std::vector<uint8_t>& data) const {
 
 void atom_string_c::encode_to(std::vector<uint8_t>& data) const {
   encode_base(data);
-  encode_base(data);
   util::pack_into<uint16_t>((uint16_t)this->data.size(), data);
   util::pack_string_into(this->data, data); 
 }
