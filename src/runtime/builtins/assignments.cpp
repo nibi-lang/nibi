@@ -4,18 +4,25 @@
 
 namespace builtins {
 
-using namespace runtime;
-
-runtime::object_ptr define_function(
+runtime::object_ptr assignment_let(
   const runtime::object_list_t& params,
   runtime::env_c &env) {
 
-  // fn <name> (params) <body>...
+  fmt::print("Got a let list of size {}\n",
+    params.size());
+
+  // let <id> <list|raw>
+  //
+
+  for(auto &&o : params) {
+
+    fmt::print("{}\n", o->to_string());
+  }
 
 
-  
+
+
   return builtins::failure_value();
 }
 
 } // namespace
-

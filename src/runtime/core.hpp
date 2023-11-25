@@ -1,10 +1,21 @@
 #pragma once
 
 #include "env.hpp"
+#include "object.hpp"
 #include "runtime.hpp"
 #include "front/atom_view.hpp"
 
 namespace runtime {
+
+static inline runtime::object_ptr success_value() {
+  return runtime::allocate_object(
+    runtime::object_c::boolean(true));
+}
+
+static inline runtime::object_ptr failure_value() {
+  return runtime::allocate_object(
+    runtime::object_c::boolean(false));
+}
 
 class core_c {
 public:
@@ -13,19 +24,21 @@ public:
   core_c(const std::string& origin)
     : _origin(origin){}
 
-
-#warning "get rid of runtime::data_s. Mark-up cpp functions to take their specific arguments and build them out here rather than passing a list"
-
   object_ptr execute(
-    const data_s& data,
+    uint8_t* data,
+    const std::size_t& len,
     env_c &env);
 
   object_ptr evaluate(
-    const data_s& data,
-    atom_view::view_s *atom,
+    atom_view::walker_c& walker,
     env_c &env);
 private:
   const std::string& _origin;
+
+  object_ptr object_from_view(
+      atom_view::view_s* view);
+  object_ptr prep_and_call_cpp_fn(
+      cpp_fn &fn, atom_view::walker_c& walker, env_c &env);
 };
 
 } // namespace

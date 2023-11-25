@@ -3,6 +3,7 @@
 #include "front/front.hpp"
 #include "runtime/core.hpp"
 #include "runtime/runtime.hpp"
+#include "runtime/builtins/builtins.hpp"
 #include "rang.hpp"
 
 #include <fmt/format.h>
@@ -13,7 +14,9 @@
 
 
 nibi_c::nibi_c(std::vector<std::string> args)
-  : _args(args) {}
+  : _args(args) {
+  builtins::populate_env(_global_env);
+}
 
 void nibi_c::shutdown(const int& code, const std::string& message) {
 
@@ -43,13 +46,9 @@ int nibi_c::run() {
       program_data.size()));
 
   runtime::core_c core(file);
-  runtime::data_s data{
-    program_data.data(),
-    program_data.size()
-  };
-
   auto o = core.execute(
-      data,
+      program_data.data(),
+      program_data.size(),
       _global_env);
 
   if (o.get() && o->is_err()) {

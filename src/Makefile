@@ -13,7 +13,11 @@ FRONT_SOURCES := \
 RUNTIME_SOURCES := \
 	runtime/object.cpp \
 	runtime/env.cpp \
-	runtime/core.cpp
+	runtime/core.cpp \
+	runtime/builtins/builtins.cpp \
+	runtime/builtins/assignments.cpp \
+	runtime/builtins/fn.cpp
+
 
 SOURCES := \
 	$(FRONT_SOURCES) \

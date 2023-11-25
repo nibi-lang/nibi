@@ -3,6 +3,7 @@
 #include "defines.hpp"
 #include "runtime/env.hpp"
 #include "runtime/core.hpp"
+#include "runtime/object.hpp"
 
 #include <string>
 #include <vector>

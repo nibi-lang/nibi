@@ -15,6 +15,7 @@ const char* data_type_to_string(const data_type_e& type) {
     case data_type_e::ERROR: return "error";
     case data_type_e::IDENTIFIER: return "identifier";
     case data_type_e::CPPFN: return "cppfn";
+    case data_type_e::LIST: return "list";
   }
   return "unknown";
 }
@@ -29,6 +30,8 @@ std::string object_c::to_string() const {
     case data_type_e::REF: return std::to_string(data.memory_ref);
     case data_type_e::ERROR:
       return reinterpret_cast<object_error_c*>(data.co)->to_string();
+    case data_type_e::LIST:
+      return reinterpret_cast<object_list_c*>(data.co)->to_string();
     case data_type_e::IDENTIFIER:
       [[fallthrough]];
     case data_type_e::STRING: {
@@ -69,6 +72,25 @@ std::string object_c::dump_to_string(bool simple) const {
   return true;
 }
 
+complex_object_c* object_list_c::clone() {
+  object_list_t nl;
+  nl.reserve(list.size());
 
+
+  // TODO: May want to copy this better 
+  for(auto &o : list) {
+    nl.push_back(allocate_object(o->clone()));
+  }
+  return new object_list_c(nl);
+}
+
+std::string object_list_c::to_string() {
+  std::string result = "[";
+  for(auto &o : list) {
+    result += fmt::format(" {}", o->to_string());
+  }
+  result += "]";
+  return result;
+}
 
 } // namespace

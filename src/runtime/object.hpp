@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 #include "ref.hpp"
 #include "front/atoms.hpp"
+
 #include "runtime.hpp"
 
 namespace runtime {
@@ -33,14 +34,15 @@ enum class data_type_e : uint8_t {
   BYTES,
   IDENTIFIER,
   CPPFN,
-  ERROR
+  ERROR,
+  LIST
 };
 
 extern const char* data_type_to_string(const data_type_e&);
 
 class object_c;
 using cpp_fn = std::function<runtime::object_ptr(
-    runtime::object_list_t&, runtime::env_c&)>;
+    const runtime::object_list_t&, runtime::env_c&)>;
 
 class complex_object_c {
   public:
@@ -87,6 +89,15 @@ public:
   }
   std::string to_string() override { return "<cppfn>"; }
   cpp_fn fn;
+};
+
+class object_list_c final : public complex_object_c {
+public:
+  object_list_c(const object_list_t& list) : list(list) {}
+  ~object_list_c() = default;
+  complex_object_c* clone() override;
+  std::string to_string() override;
+  object_list_t list;
 };
 
 class object_error_c final : public complex_object_c {
@@ -170,6 +181,11 @@ public:
     {
       data.co = new object_cpp_fn_c(fn);
     }
+  object_c(const object_list_t& list)
+    : type{data_type_e::LIST}
+    {
+      data.co = new object_list_c(list);
+    }
 
   ~object_c() { clean(); }
 
@@ -234,6 +250,9 @@ public:
   bool is_identifier() const {
     return type == data_type_e::IDENTIFIER;
   }
+  bool is_list() const {
+    return type == data_type_e::LIST;
+  }
   char* as_raw_str(bool& okay) {
     okay = false;
     if (!is_str()) { return nullptr; }
@@ -242,9 +261,6 @@ public:
     return (char*)(reinterpret_cast<object_bytes_c*>(data.co)->data);
   }
   object_cpp_fn_c* as_cpp_fn() {
-    if (type != data_type_e::CPPFN) {
-      return nullptr;
-    }
     return reinterpret_cast<object_cpp_fn_c*>(data.co);
   }
 
@@ -260,6 +276,7 @@ public:
   uint64_t& as_ref() { return data.memory_ref; }
   object_bytes_c* as_bytes() { return reinterpret_cast<object_bytes_c*>(data.co); }
   object_error_c* as_error() { return reinterpret_cast<object_error_c*>(data.co); }
+  object_list_c* as_list() { return reinterpret_cast<object_list_c*>(data.co); }
 
   double to_real() const {
     if (is_real()) { return data.real; }
