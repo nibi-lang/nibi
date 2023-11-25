@@ -6,13 +6,13 @@ env_c::~env_c() {}
 
 env_c::env_c(env_c *parent_env) : parent_env_(parent_env) {}
 
-env_c *env_c::get_env(const std::string &name) {
+env_c *env_c::get_env(const std::string &name, bool limit_scope) {
 
   if (object_map_.find(name) != object_map_.end()) {
     return this;
   }
 
-  if (parent_env_) {
+  if (parent_env_ && !limit_scope) {
     return parent_env_->get_env(name);
   }
 

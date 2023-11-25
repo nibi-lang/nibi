@@ -7,16 +7,6 @@
 
 namespace runtime {
 
-static inline runtime::object_ptr success_value() {
-  return runtime::allocate_object(
-    runtime::object_c::boolean(true));
-}
-
-static inline runtime::object_ptr failure_value() {
-  return runtime::allocate_object(
-    runtime::object_c::boolean(false));
-}
-
 class core_c {
 public:
   core_c() = delete;
@@ -32,6 +22,8 @@ public:
   object_ptr evaluate(
     atom_view::walker_c& walker,
     env_c &env);
+
+  object_ptr evaluate_list(object_list_t& list, env_c &env);
 private:
   const std::string& _origin;
 

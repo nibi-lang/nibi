@@ -10,8 +10,6 @@
 #include "ref.hpp"
 #include "front/atoms.hpp"
 
-#include "runtime.hpp"
-
 namespace runtime {
 
 class env_c;
@@ -111,6 +109,8 @@ public:
     const std::string& message,
     const file_position_s& pos)
     : op(op), message(message), pos(pos) {}
+  object_error_c(
+    const std::string& message) : op(""), message(message){}
   ~object_error_c() = default;
   complex_object_c* clone() override { 
     return new object_error_c(op, message, pos);

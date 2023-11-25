@@ -1,6 +1,24 @@
 #pragma once
 
+#include "runtime/object.hpp"
+
 namespace runtime {
+
+static inline runtime::object_ptr success_value() {
+  return runtime::allocate_object(
+    runtime::object_c::boolean(true));
+}
+
+static inline runtime::object_ptr failure_value() {
+  return runtime::allocate_object(
+    runtime::object_c::boolean(false));
+}
+
+static inline runtime::object_ptr external_error(
+  const std::string& message) {
+  return runtime::allocate_object(
+    runtime::object_error_c(message));
+}
 
 /*
 namespace external {

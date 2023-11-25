@@ -19,7 +19,7 @@ public:
 
   env_c(env_c *parent_env);
 
-  env_c *get_env(const std::string &name);
+  env_c *get_env(const std::string &name, bool limit_scope=false);
   
   object_ptr get(const std::string &name, bool limit_scope=false);
 

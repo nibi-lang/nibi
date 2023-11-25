@@ -14,7 +14,7 @@ runtime::object_ptr define_function(
 
 
   
-  return builtins::failure_value();
+  return runtime::failure_value();
 }
 
 } // namespace

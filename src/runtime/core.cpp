@@ -24,6 +24,11 @@ object_ptr core_c::execute(
   return result;
 }
 
+object_ptr core_c::evaluate_list(object_list_t& list, env_c &env) {
+  
+
+}
+
 object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
 
   auto* atom = walker.next();

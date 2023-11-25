@@ -19,10 +19,17 @@ runtime::object_ptr assignment_let(
     fmt::print("{}\n", o->to_string());
   }
 
+  std::string target_name = params[0]->to_string();
 
+  if (env.get_env(target_name, true)) {
+    return runtime::external_error(
+      fmt::format("variable '{}' already defined",
+        target_name));
+  }
 
+  
 
-  return builtins::failure_value();
+  return runtime::failure_value();
 }
 
 } // namespace
