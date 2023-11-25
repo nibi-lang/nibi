@@ -16,8 +16,10 @@ object_ptr core_c::execute(
 
   object_ptr result = allocate_object(wrap_int_s{0});
   while (walker.has_next()) {
+
     result = evaluate(walker, env);
     if (result->is_err()) {
+
       return result;
     }
   }
@@ -86,12 +88,18 @@ object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
 
   if (target->type == data_type_e::CPPFN) {
     object_ptr result = target->as_cpp_fn()->fn(walker, *this, env); 
+
+    // Check if external function added tracer info
     if (result->type == data_type_e::ERROR) {
+      auto* e = result->as_error();
+      if (!e->has_file_info()) {
+        e->op = _origin;
+        e->pos = file_position_s{ atom->line, atom->col };
+      }
       _yield_value = result;
     }
     return result;
   }
-
   return target;
 }
 

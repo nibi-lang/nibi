@@ -7,7 +7,7 @@ namespace builtins {
 
 using namespace runtime;
 
-runtime::object_ptr define_function(
+runtime::object_ptr builtin_define_function(
   atom_view::walker_c& walker,
   runtime::core_c &core,
   runtime::env_c &env) {
@@ -16,7 +16,7 @@ runtime::object_ptr define_function(
 
 
   
-  return runtime::failure_value();
+  return runtime::value::failure();
 }
 
 } // namespace

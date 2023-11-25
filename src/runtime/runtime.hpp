@@ -4,12 +4,14 @@
 
 namespace runtime {
 
-static inline runtime::object_ptr success_value() {
+namespace value {
+
+static inline runtime::object_ptr success() {
   return runtime::allocate_object(
     runtime::object_c::boolean(true));
 }
 
-static inline runtime::object_ptr failure_value() {
+static inline runtime::object_ptr failure() {
   return runtime::allocate_object(
     runtime::object_c::boolean(false));
 }
@@ -20,6 +22,11 @@ static inline runtime::object_ptr external_error(
     runtime::object_error_c(message));
 }
 
+static inline runtime::object_ptr none() {
+  return runtime::allocate_object();
+}
+
+} // namespace
 /*
 namespace external {
 

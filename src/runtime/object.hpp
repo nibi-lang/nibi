@@ -295,6 +295,12 @@ public:
     return 0;
   }
 
+  bool to_bool() const {
+    if (is_numeric()) { return (to_integer() > 0); }
+    return type != data_type_e::NONE;
+  }
+
+
 #define STR1(x)  #x
  #define STR(x)  STR1(x)
 #define MACHINE_OBJECT_C_OPERATION(math_op) \

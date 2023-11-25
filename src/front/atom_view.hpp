@@ -146,6 +146,8 @@ public:
     _counter = 0;
   }
 
+  void invalidate() { _counter = _size; }
+
   bool is_valid() const { return _valid; }
   bool has_next() const { return _counter < _size; }
   bool is_complete() const { return !has_next(); }

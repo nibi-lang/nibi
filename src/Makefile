@@ -15,7 +15,6 @@ RUNTIME_SOURCES := \
 	runtime/env.cpp \
 	runtime/core.cpp \
 	runtime/builtins/builtins.cpp \
-	runtime/builtins/assignments.cpp \
 	runtime/builtins/fn.cpp
 
 

@@ -27,6 +27,7 @@ void verify_builtin_fn(const list_verify_info_s& tbis);
 void verify_builtin_if(const list_verify_info_s& tbis);
 void verify_builtin_let(const list_verify_info_s& tbis);
 void verify_builtin_set(const list_verify_info_s& tbis);
+void verify_builtin_assert(const list_verify_info_s& tbis);
 
 #define B_ASSERT(cond_, msg_, pos_) \
   if (!(cond_)) { \
@@ -79,6 +80,7 @@ verification_map_t& get_verification_map() {
   ADD_ENTRY("if", verify_builtin_if)
   ADD_ENTRY("let", verify_builtin_let)
   ADD_ENTRY("set", verify_builtin_set)
+  ADD_ENTRY("assert", verify_builtin_assert)
 
   return *verification_map.get();
 }
@@ -127,6 +129,18 @@ void verify_builtin_set(const list_verify_info_s& tbis) {
     tbis.list[1]->pos);
   CONDITIONAL_VERIFY_INNER(1);
   CONDITIONAL_VERIFY_INNER(2);
+}
+
+void verify_builtin_assert(const list_verify_info_s& tbis) {
+  B_ASSERT(
+    (tbis.list.size() == 2 || tbis.list.size() == 3),
+    "'assert' requires form '( assert <cond> (<action/message>)? )'",
+    tbis.list[0]->pos);
+  CONDITIONAL_VERIFY_INNER(1);
+
+  if (tbis.list.size() == 3) {
+    CONDITIONAL_VERIFY_INNER(2);
+  }
 }
 
 void verify_list(const std::string& origin, atom_list_t& list) {
