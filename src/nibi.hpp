@@ -1,10 +1,11 @@
 #pragma once
 
 #include "defines.hpp"
+#include "runtime/env.hpp"
+#include "runtime/core.hpp"
+
 #include <string>
 #include <vector>
-
-#include "front/front.hpp"
 
 class nibi_c {
 public:
@@ -40,8 +41,13 @@ private:
   // TODO: Put core VM here (using class fwds)
   // 
 
+  runtime::env_c _global_env;
   std::vector<std::string> _args;
 
+  void draw(
+    const std::string& file,
+    const file_position_s& pos,
+    const std::string& msg);
 };
 
 

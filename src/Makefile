@@ -10,8 +10,14 @@ FRONT_SOURCES := \
 	front/atomizer.cpp \
 	front/verify_builtin_form.cpp
 
+RUNTIME_SOURCES := \
+	runtime/object.cpp \
+	runtime/env.cpp \
+	runtime/core.cpp
+
 SOURCES := \
 	$(FRONT_SOURCES) \
+	$(RUNTIME_SOURCES) \
 	nibi.cpp
 
 INCLUDES := \

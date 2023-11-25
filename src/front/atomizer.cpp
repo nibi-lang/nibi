@@ -335,6 +335,7 @@ bool atomizer_c::collect_identifier(std::string& data, atom_list_t* list) {
     std::make_unique<atom_symbol_c>(
       identifier, 
       file_position_s{_trace.line, start_col}));
+
   return true;
 }
 
