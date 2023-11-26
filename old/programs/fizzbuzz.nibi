@@ -1,9 +1,0 @@
-(use "io")
-(loop (:= x 1) (< x 20) (set x (+ 1 x)) [
-  (if (and (not (% x 3)) (not (% x 5)))
-      (io::println "FizzBuzz")
-        (if (not (% x 3)) 
-          (io::println "Fizz")
-          (if (not (% x 5)) 
-            (io::println "Buzz") 
-            (io::println x))))])

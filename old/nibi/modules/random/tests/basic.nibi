@@ -1,8 +1,0 @@
-(use "random")
-
-
-(assert (eq (type (random::int)) "i64"))
-(assert (eq (type (random::double)) "f64"))
-
-(assert (eq (type (random::range::int 0 100)) "i64"))
-(assert (eq (type (random::range::double 0 100)) "f64"))

@@ -1,2 +1,0 @@
-(import "inner/x.nibi")
-(assert (eq 42 _private) "unable to access private member from sep file")

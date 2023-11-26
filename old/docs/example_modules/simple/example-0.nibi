@@ -1,9 +1,0 @@
-
-# Since all items are imported into an environment they follow
-# environment naming rules that describe public/private access
-# all symbols starting with `_` are private to the module, but
-# able to be used freely throughout the module code
-
-(:= _some_private_member 0)
-
-(:= some_public_member 1)

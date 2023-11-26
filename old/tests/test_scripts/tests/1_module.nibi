@@ -1,6 +1,0 @@
-
-# Ensure we can't access a private
-
-(use "module")
-
-(assert (eq {module _private} {module _private}) "Expected >> private members not able to be accessed")

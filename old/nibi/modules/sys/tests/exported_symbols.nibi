@@ -1,4 +1,0 @@
-(use "sys")
-(len (sys::args))
-(len (sys::platform))
-(len (sys::stdin))

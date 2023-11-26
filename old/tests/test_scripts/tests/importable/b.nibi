@@ -1,3 +1,0 @@
-(import "deeper/c.nibi")
-
-(:= b 1024)

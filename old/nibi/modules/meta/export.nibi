@@ -1,2 +1,0 @@
-(alias {meta meta_cell} meta::cell)
-(alias {meta meta_locator} meta::locator)

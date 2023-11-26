@@ -1,9 +1,0 @@
-(:= message "i like dogs")
-
-(:= result nil)
-(try
-  (throw message)
-  (set result $e)
-)
-
-(assert (eq message result) "Throw did not give the correct result")

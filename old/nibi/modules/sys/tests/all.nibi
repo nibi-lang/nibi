@@ -1,4 +1,0 @@
-(use "sys")
-(len ({sys get_argv}))
-(len ({sys get_platform}))
-(len ({sys get_stdin}))

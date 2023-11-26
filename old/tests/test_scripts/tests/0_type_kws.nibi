@@ -1,8 +1,0 @@
-(assert (eq "nil" (type nil)))
-(assert (eq "f64" (type nan)))
-(assert (eq "f64" (type inf)))
-(assert (eq "f64" (type (- inf))))
-(assert (eq "i64" (type true)))
-(assert (eq "i64" (type false)))
-(assert (eq 0 false))
-(assert (eq 1 true))

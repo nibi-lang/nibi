@@ -1,4 +1,0 @@
-(alias {random rand_int} random::int)
-(alias {random rand_double} random::double)
-(alias {random rand_range_int} random::range::int)
-(alias {random rand_range_double} random::range::double)

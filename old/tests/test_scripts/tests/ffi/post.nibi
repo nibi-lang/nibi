@@ -1,3 +1,0 @@
-
-(:= ffi::return_true {ffi return_true})
-(:= ffi::echo_int {ffi echo_int})

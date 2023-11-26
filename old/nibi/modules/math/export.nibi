@@ -1,9 +1,0 @@
-
-# Export some symbols so access lists 
-# aren't needed for everything
-
-(alias {math ceil} math::ceil)
-(alias {math floor} math::floor)
-(alias {math ceil_all} math::ceil_list)
-(alias {math floor_all} math::floor_list)
-(alias {math abs} math::abs)

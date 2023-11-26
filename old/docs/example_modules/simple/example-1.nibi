@@ -1,4 +1,0 @@
-
-# This file is imported after example-0 so it has top-level access to all 
-# items loaded in example-0, though example-0 _could_ define a function 
-# that accesses symbols here, as they are not evaluated until called  

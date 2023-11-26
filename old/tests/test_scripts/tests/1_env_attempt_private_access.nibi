@@ -1,9 +1,0 @@
-
-(env dummy_env [
-  (:= public_data 0)
-  (:= _private_data 0)
-  (fn public_accessor_private_data [] (<- _private_data))
-  (fn public_setter_private_data [value] (set _private_data value))
-])
-
-(set {dummy_env _private_data} "Nah breh")

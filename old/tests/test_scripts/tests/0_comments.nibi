@@ -1,8 +1,0 @@
-# This is a comment! 
-
-(:= x 0)
-
-(:= y 0)    # This should be okay and be ignored!
-
-
-# This is all okay too

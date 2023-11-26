@@ -1,9 +1,0 @@
-
-(env outer-env [
-
-  (env inner-pub-env [
-    (:= _inner_priv_x 0)
-  ])
-])
-
-(set {outer-env inner-pub-env _inner_priv_x} 7034)

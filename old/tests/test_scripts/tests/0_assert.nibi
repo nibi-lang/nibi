@@ -1,2 +1,0 @@
-(assert 1 "Scripted tests - 0_assert.test")
-(assert 1)
