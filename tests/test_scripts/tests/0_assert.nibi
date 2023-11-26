@@ -1,0 +1,2 @@
+(assert 1 "OH NO!") ; Oh. No!
+(assert 1)          ; No message

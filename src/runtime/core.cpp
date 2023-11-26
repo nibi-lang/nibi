@@ -16,10 +16,8 @@ object_ptr core_c::execute(
 
   object_ptr result = allocate_object(wrap_int_s{0});
   while (walker.has_next()) {
-
     result = evaluate(walker, env);
     if (result->is_err()) {
-
       return result;
     }
   }

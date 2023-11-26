@@ -9,32 +9,17 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Construct NIBI_PATH
+          command: 'mkdir /tmp/nibi_path'
+      - run:
           name: Update and uprade
           command: 'sudo apt update && sudo apt upgrade'
       - run:
           name: Install tools and libs
-          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential cmake python3 libpthread-stubs0-dev libffi-dev valgrind'
+          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential python3'
       - run:
-          name: Submodules
-          command: 'git submodule update --init --recursive'
-      - run:
-          name: Construct NIBI_PATH
-          command: 'mkdir /tmp/nibi_path'
-      - run:
-          name: Build and install libnibi, and nibi
-          command: 'python3 commander.py -n'
-      - run:
-          name: ldconfig
-          command: 'sudo ldconfig'
-      - run:
-          name: Build and install modules
-          command: 'python3 commander.py -m'
-      - run:
-          name: Check all modules
-          command: 'python3 commander.py -c'
-      - run:
-          name: Run NIBI script tests
-          command: 'python3 commander.py -t'
+          name: Build
+          command: 'make -j3'
       - run:
           name: Run NIBI valgrind tests
-          command: 'python3 commander.py -v'
+          command: 'make test'

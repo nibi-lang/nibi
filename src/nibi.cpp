@@ -26,18 +26,21 @@ void nibi_c::shutdown(const int& code, const std::string& message) {
 
 int nibi_c::run() {
 
-  std::string file = "scratch.test_file";
+  if (_args.size() != 2) {
+    fmt::print("Usage: {} <file>", _args[0]);
+  }
 
   std::vector<uint8_t> program_data;
 
   program_data.reserve(
     FILE_EXEC_PREALLOC_SIZE);
 
-  if (!front::atomize_file(file, program_data)) {
+  if (!front::atomize_file(_args[1], program_data)) {
     shutdown(1,
       fmt::format(
-        "Failed to atomize: {}", file));
+        "Failed to atomize: {}", _args[1]));
   }
+
   program_data.shrink_to_fit();
 
   DEBUG_OUT(
@@ -45,7 +48,7 @@ int nibi_c::run() {
       "{} byte(s) generated for program\n",
       program_data.size()));
 
-  runtime::core_c core(file);
+  runtime::core_c core(_args[1]);
   auto o = core.execute(
       program_data.data(),
       program_data.size(),
@@ -54,6 +57,7 @@ int nibi_c::run() {
   if (o.get() && o->is_err()) {
     auto* e = o->as_error();
     draw(e->op, e->pos, e->message);
+    return 1;
   }
 
   if (!o) return 0;
