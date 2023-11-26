@@ -3,7 +3,6 @@
 #include "front/front.hpp"
 #include "runtime/core.hpp"
 #include "runtime/runtime.hpp"
-#include "runtime/builtins/builtins.hpp"
 #include "rang.hpp"
 
 #include <fmt/format.h>
@@ -12,6 +11,9 @@
 #include <vector>
 #include <iostream>
 
+namespace builtins {
+  extern void populate_env(runtime::env_c &env);
+}
 
 nibi_c::nibi_c(std::vector<std::string> args)
   : _args(args) {

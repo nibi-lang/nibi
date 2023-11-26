@@ -1,12 +1,16 @@
-#include "runtime/builtins/builtins.hpp"
 #include "runtime/core.hpp"
 
 namespace builtins {
 
-extern runtime::object_ptr builtin_define_function(
+runtime::object_ptr builtin_define_function(
   atom_view::walker_c& walker,
   runtime::core_c &core,
-  runtime::env_c &env);
+  runtime::env_c &env) {
+
+  // fn <name> (params) <body>...
+  
+  return runtime::value::failure();
+}
 
 runtime::object_ptr builtin_let(
   atom_view::walker_c& walker,

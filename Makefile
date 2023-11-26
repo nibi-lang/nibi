@@ -8,18 +8,17 @@ BIN := nibi
 FRONT_SOURCES := \
 	src/front/atoms.cpp \
 	src/front/atomizer.cpp \
-	src/front/verify_builtin_form.cpp
+	src/front/verify_form.cpp
 
 RUNTIME_SOURCES := \
 	src/runtime/object.cpp \
 	src/runtime/env.cpp \
-	src/runtime/core.cpp \
-	src/runtime/builtins/builtins.cpp \
-	src/runtime/builtins/fn.cpp
+	src/runtime/core.cpp
 
 SOURCES := \
 	$(FRONT_SOURCES) \
 	$(RUNTIME_SOURCES) \
+	src/builtins.cpp \
 	src/nibi.cpp
 
 COMPILE := $(COMPILER) $(OPTS) $(SOURCES) -I ./src -o $(BIN) -lfmt
