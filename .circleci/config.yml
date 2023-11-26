@@ -16,7 +16,7 @@ jobs:
           command: 'sudo apt update && sudo apt upgrade'
       - run:
           name: Install tools and libs
-          command: 'sudo apt install -y git gcc-9 g++-9 pkg-config build-essential python3'
+          command: 'sudo apt install -y git gcc-10 g++-10 pkg-config build-essential python3'
       - run:
           name: Build
           command: 'make -j3'
