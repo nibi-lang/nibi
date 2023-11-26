@@ -2,7 +2,7 @@
 GIT_HASH := $(shell git rev-parse HEAD | cut -c 1-8)
 
 COMPILER := g++
-OPTS := -std=c++20 -DBUILD_HASH="\"$(GIT_HASH)\""
+OPTS := -std=c++2a -DBUILD_HASH="\"$(GIT_HASH)\""
 BIN := nibi
 
 FRONT_SOURCES := \
