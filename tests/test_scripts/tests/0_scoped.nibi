@@ -1,6 +1,6 @@
-(let x 10)
+(def x 10)
 
-(. (let x 8) (assert (eq x 8)))
+(. (def x 8) (assert (eq x 8)))
 
 (put x "\n")
 

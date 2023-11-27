@@ -25,9 +25,12 @@ namespace {
 void verify_list(const std::string& origin, atom_list_t& list, bool is_data);
 void verify_builtin_fn(const list_verify_info_s& tbis);
 void verify_builtin_if(const list_verify_info_s& tbis);
+void verify_builtin_def(const list_verify_info_s& tbis);
 void verify_builtin_let(const list_verify_info_s& tbis);
-void verify_builtin_set(const list_verify_info_s& tbis);
 void verify_builtin_assert(const list_verify_info_s& tbis);
+void verify_builtin_set_insert(const list_verify_info_s& tbis);
+void verify_builtin_set_erase(const list_verify_info_s& tbis);
+void verify_builtin_set_contains(const list_verify_info_s& tbis);
 
 void verify_builtin_binary_op(const list_verify_info_s& tbis);
 
@@ -83,8 +86,8 @@ verification_map_t& get_verification_map() {
   verification_map = std::make_unique<verification_map_t>();
   ADD_ENTRY("fn", verify_builtin_fn)
   ADD_ENTRY("if", verify_builtin_if)
+  ADD_ENTRY("def", verify_builtin_def)
   ADD_ENTRY("let", verify_builtin_let)
-  ADD_ENTRY("set", verify_builtin_set)
   ADD_ENTRY("assert", verify_builtin_assert)
 
   ADD_ENTRY("lt", verify_builtin_binary_op)
@@ -95,6 +98,9 @@ verification_map_t& get_verification_map() {
   ADD_ENTRY("/", verify_builtin_binary_op)
   ADD_ENTRY("*", verify_builtin_binary_op)
 
+  ADD_ENTRY("set-insert", verify_builtin_set_insert)
+  ADD_ENTRY("set-erase", verify_builtin_set_erase)
+  ADD_ENTRY("set-contains", verify_builtin_set_contains)
   
 
   return *verification_map.get();
@@ -130,17 +136,17 @@ void verify_builtin_if(const list_verify_info_s& tbis) {
   }
 }
 
-void verify_builtin_let(const list_verify_info_s& tbis) {
-  EXPECT_LEN(==, 3, "'let' requires form '(let <var> <value>)'");
+void verify_builtin_def(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 3, "'def' requires form '(def <var> <value>)'");
   EXPECT_SYM(1);
   CONDITIONAL_VERIFY_INNER(2);
 }
 
-void verify_builtin_set(const list_verify_info_s& tbis) {
-  EXPECT_LEN(==, 3, "'set' requires form '(set <target> <value>)'");
+void verify_builtin_let(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 3, "'let' requires form '(let <target> <value>)'");
   B_ASSERT(
     (potential_lvalues.contains(tbis.list[1]->type)),
-    "'set' requires <target> to be a list or a direct value reference",
+    "'let' requires <target> to be a list or a direct value reference",
     tbis.list[1]->pos);
   CONDITIONAL_VERIFY_INNER(1);
   CONDITIONAL_VERIFY_INNER(2);
@@ -156,6 +162,24 @@ void verify_builtin_assert(const list_verify_info_s& tbis) {
   if (tbis.list.size() == 3) {
     CONDITIONAL_VERIFY_INNER(2);
   }
+}
+
+void verify_builtin_set_insert(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 3, "'set-insert' requires form '(set-insert <target> <value>)'");
+  EXPECT_SYM(1);
+  CONDITIONAL_VERIFY_INNER(2);
+}
+
+void verify_builtin_set_erase(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 3, "'set-erase' requires form '(set-erase <target> <value>)'");
+  EXPECT_SYM(1);
+  CONDITIONAL_VERIFY_INNER(2);
+}
+
+void verify_builtin_set_contains(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 3, "'set-contains' requires form '(set-contains <target> <value>)'");
+  EXPECT_SYM(1);
+  CONDITIONAL_VERIFY_INNER(2);
 }
 
 void verify_list(const std::string& origin, atom_list_t& list, bool is_data) {

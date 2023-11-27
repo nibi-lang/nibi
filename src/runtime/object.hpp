@@ -318,6 +318,7 @@ public:
   object_bytes_c* as_bytes() { return reinterpret_cast<object_bytes_c*>(data.co); }
   object_error_c* as_error() { return reinterpret_cast<object_error_c*>(data.co); }
   object_list_c* as_list() const { return reinterpret_cast<object_list_c*>(data.co); }
+  object_set_c* as_set() const { return reinterpret_cast<object_set_c*>(data.co); }
 
   double to_real() const {
     if (is_real()) { return data.real; }

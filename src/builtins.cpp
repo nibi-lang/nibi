@@ -42,7 +42,7 @@ BUILTIN_FN(builtin_define_function, {
   RETURN(runtime::value::failure());
 })
 
-BUILTIN_FN(builtin_let, {
+BUILTIN_FN(builtin_def, {
   auto var = core.object_from_view(
       walker.next())->to_string();
 
@@ -59,7 +59,7 @@ BUILTIN_FN(builtin_let, {
   RETURN(runtime::value::success())
 })
 
-BUILTIN_FN(builtin_set, {
+BUILTIN_FN(builtin_let, {
 
   EVAL(target)
   EVAL(value)
@@ -220,11 +220,59 @@ BUILTIN_FN(builtin_hash, {
   RETURN(
     runtime::allocate_object(runtime::wrap_size_s{seed}))
 })
+
+BUILTIN_FN(builtin_set_insert, {
+  EVAL(lhs)
+  if (lhs->type != runtime::data_type_e::SET) {
+    walker.set_flag();
+    RETURN(runtime::value::external_error(
+      "Expected 'set' type for insertion"));
+  }
+  EVAL(rhs)
+
+  auto& setv = lhs->as_set()->data;
+
+  setv.insert(*(rhs.get()));
+
+  RETURN(runtime::value::success())
+})
+
+BUILTIN_FN(builtin_set_erase, {
+  EVAL(lhs)
+  if (lhs->type != runtime::data_type_e::SET) {
+    walker.set_flag();
+    RETURN(runtime::value::external_error(
+      "Expected 'set' type for removal"));
+  }
+  EVAL(rhs)
+
+  auto& setv = lhs->as_set()->data;
+
+  setv.erase(*rhs.get());
+
+  RETURN(runtime::value::success())
+})
+
+BUILTIN_FN(builtin_set_contains, {
+  EVAL(lhs)
+  if (lhs->type != runtime::data_type_e::SET) {
+    walker.set_flag();
+    RETURN(runtime::value::external_error(
+      "Expected 'set' type for containment check"));
+  }
+  EVAL(rhs)
+
+  auto& setv = lhs->as_set()->data;
+
+  RETURN(runtime::allocate_object(
+    runtime::wrap_bool_s{setv.contains(*rhs.get())}))
+})
+
 void populate_env(runtime::env_c &env) {
 
   ADD_FN("put", builtin_put)
+  ADD_FN("def", builtin_def)
   ADD_FN("let", builtin_let)
-  ADD_FN("set", builtin_set)
   ADD_FN("resolve", builtin_resolve)
   ADD_FN("assert", builtin_assert)
   ADD_FN("lt", builtin_lt)
@@ -237,6 +285,9 @@ void populate_env(runtime::env_c &env) {
   ADD_FN("if", builtin_if)
   ADD_FN(".", builtin_anon_scope)
   ADD_FN("hash", builtin_hash)
+  ADD_FN("set-insert", builtin_set_insert)
+  ADD_FN("set-erase", builtin_set_erase)
+  ADD_FN("set-contains", builtin_set_contains)
 }
 
 } // namespace
