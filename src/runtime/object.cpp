@@ -2,6 +2,29 @@
 #include "env.hpp"
 #include "util.hpp"
 
+#include "env.hpp"
+#include "core.hpp"
+
+#include "objects/ctx.hpp"
+
+/*
+ 
+    TODO:
+
+        Move all of the complex objects to their own respective 
+        files.
+
+        Make a finel time like aberrant, that allows external
+        libs to make an object, 
+        and then make a templated getter on object to retrieve
+        the .co object as a type so we can easily get those
+        types out of the object 
+
+        Consider making a "registry" of types that external 
+        things can use and override the data_type_e to permit 
+        the storage of special types. 
+*/
+
 namespace runtime {
 
 const char* data_type_to_string(const data_type_e& type) {
@@ -34,7 +57,7 @@ std::string object_c::to_string(bool quotes) const {
     case data_type_e::ERROR:
       return reinterpret_cast<object_error_c*>(data.co)->to_string();
     case data_type_e::SET:
-      return reinterpret_cast<object_map_c*>(data.co)->to_string();
+      return reinterpret_cast<object_set_c*>(data.co)->to_string();
     case data_type_e::LIST:
     case data_type_e::VEC:
       return reinterpret_cast<object_list_c*>(data.co)->to_string();
@@ -82,6 +105,8 @@ std::string object_c::dump_to_string(bool simple) const {
   return true;
 }
 
+// ---------------------------------------------
+
 complex_object_c* object_list_c::clone() {
   object_list_t nl;
   nl.reserve(list.size());
@@ -103,15 +128,15 @@ std::string object_list_c::to_string() {
   return result;
 }
 
-complex_object_c* object_map_c::clone() {
+complex_object_c* object_set_c::clone() {
   std::map<std::size_t, object_ptr> ns;
   for(auto& o : data) {
     ns[o.first] = allocate_object(o.second->clone());
   }
-  return new object_map_c(ns);
+  return new object_set_c(ns);
 }
 
-std::string object_map_c::to_string() {
+std::string object_set_c::to_string() {
   std::string result = "{";
   for(auto &o : data) {
     result += fmt::format(" {}", o.second->to_string());
@@ -151,7 +176,7 @@ std::size_t object_error_c::hash() const {
   return seed;
 }
 
-std::size_t object_map_c::hash() const {
+std::size_t object_set_c::hash() const {
   std::size_t seed = data.size();
   std::map<std::size_t, object_ptr>::const_iterator it;
   for(it = data.begin(); it != data.end(); ++it) {
@@ -160,8 +185,5 @@ std::size_t object_map_c::hash() const {
   }
   return seed;
 }
-
-
-
 
 } // namespace

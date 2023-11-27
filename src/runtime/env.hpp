@@ -29,6 +29,9 @@ public:
 
   env_map_t &get_map() { return object_map_; }
 
+  env_c clone();
+
+  std::size_t count() const;
 private:
   inline bool do_set(const std::string &name, const object_ptr &object);
   env_c *parent_env_{nullptr};

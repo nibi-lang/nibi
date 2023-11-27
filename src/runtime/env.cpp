@@ -74,4 +74,22 @@ bool env_c::drop(const std::string &name) {
   return false;
 }
 
+env_c env_c::clone() {
+  env_c new_env(parent_env_);
+  for(auto& [k, v] : object_map_) {
+    new_env.object_map_[k] = runtime::allocate_object(
+      v->clone());
+  }
+  return new_env;
+}
+
+std::size_t env_c::count() const {
+  std::size_t n{0};
+  if (parent_env_) {
+    n += parent_env_->count();
+  }
+  n += object_map_.size();
+  return n;
+}
+
 } // namespace

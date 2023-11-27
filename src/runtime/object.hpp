@@ -11,6 +11,7 @@
 #include "ref.hpp"
 #include "front/atoms.hpp"
 #include "front/atom_view.hpp"
+#include "runtime/objects/fwd.hpp"
 
 namespace runtime {
 
@@ -38,7 +39,8 @@ enum class data_type_e : uint8_t {
   ERROR,
   LIST,
   VEC,
-  SET
+  SET,
+  CTX
 };
 
 extern const char* data_type_to_string(const data_type_e&);
@@ -112,11 +114,11 @@ public:
   std::size_t length() const override { return list.size(); }
 };
 
-class object_map_c final : public complex_object_c {
+class object_set_c final : public complex_object_c {
 public:
-  object_map_c(const std::map<std::size_t, object_ptr>& s)
+  object_set_c(const std::map<std::size_t, object_ptr>& s)
     : data(s) {}
-  ~object_map_c() = default;
+  ~object_set_c() = default;
   complex_object_c* clone() override;
   std::string to_string() override;
   std::size_t hash() const override;
@@ -234,7 +236,13 @@ public:
   object_c(const std::map<std::size_t, object_ptr>& s)
     : type{data_type_e::SET}
     {
-      data.co = new object_map_c(s);
+      data.co = new object_set_c(s);
+    }
+
+  object_c(const data_type_e& type, complex_object_c* obj)
+    : type{type}
+    {
+      data.co = obj;
     }
 
   ~object_c() { clean(); }
@@ -313,10 +321,6 @@ public:
     okay = true;
     return (char*)(reinterpret_cast<object_bytes_c*>(data.co)->data);
   }
-  object_cpp_fn_c* as_cpp_fn() {
-    return reinterpret_cast<object_cpp_fn_c*>(data.co);
-  }
-
   std::string to_string(bool show_quotes=false) const;
   std::string dump_to_string(bool simple=false) const;
 
@@ -327,10 +331,16 @@ public:
   int64_t& as_integer() { return data.integer; }
   double& as_real() { return data.real; }
   uint64_t& as_ref() { return data.memory_ref; }
+
+  // TODO replace this with templated getter
   object_bytes_c* as_bytes() { return reinterpret_cast<object_bytes_c*>(data.co); }
   object_error_c* as_error() { return reinterpret_cast<object_error_c*>(data.co); }
   object_list_c* as_list() const { return reinterpret_cast<object_list_c*>(data.co); }
-  object_map_c* as_set() const { return reinterpret_cast<object_map_c*>(data.co); }
+  object_set_c* as_set() const { return reinterpret_cast<object_set_c*>(data.co); }
+  object_cpp_fn_c* as_cpp_fn() {
+    return reinterpret_cast<object_cpp_fn_c*>(data.co);
+  }
+
 
   double to_real() const {
     if (is_real()) { return data.real; }
@@ -449,12 +459,7 @@ public:
       case data_type_e::INTEGER: return std::hash<int64_t>{}(data.integer);
       case data_type_e::REAL: return std::hash<double>{}(data.real);
       case data_type_e::REF: return std::hash<uint64_t>{}(data.memory_ref);
-      case data_type_e::STRING:
-      case data_type_e::BYTES:
-      case data_type_e::IDENTIFIER:
-      case data_type_e::CPPFN:
-      case data_type_e::ERROR:
-      case data_type_e::LIST:
+      default:
         return data.co->hash();
     }
     return 0;
@@ -467,13 +472,7 @@ public:
       case data_type_e::INTEGER:
       case data_type_e::REAL:
       case data_type_e::REF: return 1;
-      case data_type_e::STRING:
-      case data_type_e::BYTES:
-      case data_type_e::IDENTIFIER:
-      case data_type_e::CPPFN:
-      case data_type_e::ERROR:
-      case data_type_e::LIST:
-      case data_type_e::VEC:
+      default:
         return data.co->length();
     }
     return 0;

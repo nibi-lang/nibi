@@ -22,20 +22,8 @@ namespace {
   };
 }
 
+verification_map_t& get_verification_map();
 void verify_list(const std::string& origin, atom_list_t& list, bool is_data);
-void verify_builtin_fn(const list_verify_info_s& tbis);
-void verify_builtin_if(const list_verify_info_s& tbis);
-void verify_builtin_def(const list_verify_info_s& tbis);
-void verify_builtin_let(const list_verify_info_s& tbis);
-void verify_builtin_assert(const list_verify_info_s& tbis);
-void verify_builtin_set_insert(const list_verify_info_s& tbis);
-void verify_builtin_set_erase(const list_verify_info_s& tbis);
-void verify_builtin_set_contains(const list_verify_info_s& tbis);
-void verify_builtin_vec_push(const list_verify_info_s& tbis);
-void verify_builtin_vec_pop(const list_verify_info_s& tbis);
-void verify_builtin_len(const list_verify_info_s& tbis);
-
-void verify_builtin_binary_op(const list_verify_info_s& tbis);
 
 #define B_ASSERT(cond_, msg_, pos_) \
   if (!(cond_)) { \
@@ -82,36 +70,6 @@ void verify_builtin_binary_op(const list_verify_info_s& tbis);
   }
 
 // ---------------------------------------------------------
-
-verification_map_t& get_verification_map() {
-  if (verification_map) return *verification_map.get();
-
-  verification_map = std::make_unique<verification_map_t>();
-  ADD_ENTRY("fn", verify_builtin_fn)
-  ADD_ENTRY("if", verify_builtin_if)
-  ADD_ENTRY("def", verify_builtin_def)
-  ADD_ENTRY("let", verify_builtin_let)
-  ADD_ENTRY("assert", verify_builtin_assert)
-
-  ADD_ENTRY("lt", verify_builtin_binary_op)
-  ADD_ENTRY("gt", verify_builtin_binary_op)
-  ADD_ENTRY("eq", verify_builtin_binary_op)
-  ADD_ENTRY("+", verify_builtin_binary_op)
-  ADD_ENTRY("-", verify_builtin_binary_op)
-  ADD_ENTRY("/", verify_builtin_binary_op)
-  ADD_ENTRY("*", verify_builtin_binary_op)
-
-  ADD_ENTRY("set-insert", verify_builtin_set_insert)
-  ADD_ENTRY("set-erase", verify_builtin_set_erase)
-  ADD_ENTRY("set-contains", verify_builtin_set_contains)
-
-  ADD_ENTRY("vec-push", verify_builtin_vec_push)
-  ADD_ENTRY("vec-pop", verify_builtin_vec_pop)
-
-  ADD_ENTRY("len", verify_builtin_len)
-
-  return *verification_map.get();
-}
 
 void verify_builtin_fn(const list_verify_info_s& tbis) {
   EXPECT_LEN(>=, 4, "Missing required components for construction");
@@ -235,5 +193,35 @@ void verify_builtin_binary_op(const list_verify_info_s& tbis){
   EXPECT_LEN(==, 3, "'binary operation' requires form '(<op> <lhs> <rhs>)'");
   CONDITIONAL_VERIFY_INNER(1);
   CONDITIONAL_VERIFY_INNER(2);
+}
+
+verification_map_t& get_verification_map() {
+  if (verification_map) return *verification_map.get();
+
+  verification_map = std::make_unique<verification_map_t>();
+  ADD_ENTRY("fn", verify_builtin_fn)
+  ADD_ENTRY("if", verify_builtin_if)
+  ADD_ENTRY("def", verify_builtin_def)
+  ADD_ENTRY("let", verify_builtin_let)
+  ADD_ENTRY("assert", verify_builtin_assert)
+
+  ADD_ENTRY("lt", verify_builtin_binary_op)
+  ADD_ENTRY("gt", verify_builtin_binary_op)
+  ADD_ENTRY("eq", verify_builtin_binary_op)
+  ADD_ENTRY("+", verify_builtin_binary_op)
+  ADD_ENTRY("-", verify_builtin_binary_op)
+  ADD_ENTRY("/", verify_builtin_binary_op)
+  ADD_ENTRY("*", verify_builtin_binary_op)
+
+  ADD_ENTRY("set-insert", verify_builtin_set_insert)
+  ADD_ENTRY("set-erase", verify_builtin_set_erase)
+  ADD_ENTRY("set-contains", verify_builtin_set_contains)
+
+  ADD_ENTRY("vec-push", verify_builtin_vec_push)
+  ADD_ENTRY("vec-pop", verify_builtin_vec_pop)
+
+  ADD_ENTRY("len", verify_builtin_len)
+
+  return *verification_map.get();
 }
 

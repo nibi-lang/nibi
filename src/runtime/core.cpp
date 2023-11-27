@@ -1,4 +1,5 @@
 #include "core.hpp"
+#include "object.hpp"
 
 namespace runtime {
 
