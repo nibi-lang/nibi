@@ -47,7 +47,13 @@ bool env_c::do_set(const std::string &name, const object_ptr &object) {
   return false;
 }
 
-void env_c::set(const std::string &name, const object_ptr &object) {
+void env_c::set(const std::string &name, const object_ptr &object, bool limit_scope) {
+
+  if (limit_scope) {
+    object_map_[name] = object;
+    return;
+  }
+
   if (!do_set(name, object)) {
     object_map_[name] = object;
   }

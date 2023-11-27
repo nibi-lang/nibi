@@ -1,0 +1,7 @@
+(let x 10)
+
+(. (let x 8) (assert (eq x 8)))
+
+(put x "\n")
+
+(assert (eq 10 x) (put "x had an unexpected value: " x "\n"))

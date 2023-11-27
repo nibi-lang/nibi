@@ -1,0 +1,11 @@
+
+(if (eq 1 1)
+    (assert 1)
+    (assert 0 "Failed to to execute correct body"))
+
+(if (eq 1 0)
+    (assert 0 "Failed to to execute correct body")
+    (assert 1))
+
+(if (eq 1 0) (assert 0 "Failed to skip true-body"))
+

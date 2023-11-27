@@ -24,6 +24,11 @@ namespace builtins {
   auto to_ = core.resolve(walker.next(), env); \
   ERROR_CHECK(to_)
 
+#define EVAL_IN(to_, env_) \
+  walker.mark(); \
+  auto to_ = core.resolve(walker.next(), env_); \
+  ERROR_CHECK(to_)
+
 #define ADD_FN(val_, fn_) \
   env.set(val_, \
     runtime::allocate_object( \
@@ -48,7 +53,7 @@ BUILTIN_FN(builtin_let, {
 
   EVAL(value)
 
-  env.set(var, value);
+  env.set(var, value, true);
 
   RETURN(runtime::value::success())
 })
@@ -69,7 +74,7 @@ BUILTIN_FN(builtin_resolve, {
     result = core.resolve(walker.next(), env);
     ERROR_CHECK(result)
   }
-  return result;
+  RETURN(result)
 })
 
 BUILTIN_FN(builtin_assert, {
@@ -171,7 +176,35 @@ BUILTIN_FN(builtin_div, {
   RETURN(base)
 })
 
+BUILTIN_FN(builtin_if, {
+  runtime::env_c penv(&env);
 
+  EVAL_IN(condition, penv)
+
+  if (condition->to_bool()) {
+    EVAL_IN(result, penv)
+    RETURN(result)
+  }
+
+  walker.next(); // Skip true condition
+
+  if (!walker.has_next()) {
+    RETURN(runtime::value::failure())
+  }
+
+  EVAL_IN(result, penv)
+  RETURN(result)
+})
+
+BUILTIN_FN(builtin_anon_scope, {
+  runtime::env_c penv(&env);
+  runtime::object_ptr result = runtime::value::none();
+  while(walker.has_next()) {
+    result = core.resolve(walker.next(), penv);
+    ERROR_CHECK(result)
+  }
+  RETURN(result)
+})
 
 void populate_env(runtime::env_c &env) {
 
@@ -187,7 +220,8 @@ void populate_env(runtime::env_c &env) {
   ADD_FN("-", builtin_sub)
   ADD_FN("/", builtin_div)
   ADD_FN("*", builtin_mul)
-
+  ADD_FN("if", builtin_if)
+  ADD_FN(".", builtin_anon_scope)
 }
 
 } // namespace
