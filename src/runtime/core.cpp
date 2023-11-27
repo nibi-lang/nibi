@@ -67,9 +67,10 @@ object_ptr core_c::resolve(atom_view::view_s* atom, env_c &env) {
       atom_view::walker_c walker(
         (uint8_t*)atom->data.len_encoded.data,
         (std::size_t)atom->data.len_encoded.len);
-      std::set<object_c> s;
+      std::map<std::size_t, object_ptr> s;
       while(walker.has_next()) {
-        s.insert(*resolve(walker.next(), env).get());
+        auto el = resolve(walker.next(), env).get();
+        s[el->hash()] = runtime::allocate_object(el->clone());
       }
       return allocate_object(s);
     }

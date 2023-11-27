@@ -5,7 +5,7 @@
 #include <cstring>
 #include <vector>
 #include <memory>
-#include <set>
+#include <map>
 #include <functional>
 #include <fmt/format.h>
 #include "ref.hpp"
@@ -37,6 +37,7 @@ enum class data_type_e : uint8_t {
   CPPFN,
   ERROR,
   LIST,
+  VEC,
   SET
 };
 
@@ -53,6 +54,7 @@ class complex_object_c {
     virtual complex_object_c* clone() = 0;
     virtual std::string to_string() = 0;
     virtual std::size_t hash() const = 0;
+    virtual std::size_t length() const = 0;
 };
 
 class object_bytes_c final : public complex_object_c {
@@ -82,6 +84,7 @@ public:
   std::size_t hash() const override;
   uint8_t* data{nullptr};
   size_t len{0};
+  std::size_t length() const override { return len; }
 };
 
 class object_cpp_fn_c final : public complex_object_c {
@@ -94,29 +97,31 @@ public:
   std::string to_string() override { return "<cppfn>"; }
   std::size_t hash() const override;
   cpp_fn fn;
+  std::size_t length() const override { return 0; }
 };
 
 class object_list_c final : public complex_object_c {
 public:
-  object_list_c(const object_list_t& list, bool is_data)
-    : list(list), is_data_list(is_data) {}
+  object_list_c(const object_list_t& list)
+    : list(list) {}
   ~object_list_c() = default;
   complex_object_c* clone() override;
   std::string to_string() override;
   std::size_t hash() const override;
   object_list_t list;
-  bool is_data_list{false};
+  std::size_t length() const override { return list.size(); }
 };
 
-class object_set_c final : public complex_object_c {
+class object_map_c final : public complex_object_c {
 public:
-  object_set_c(const std::set<object_c>& s)
+  object_map_c(const std::map<std::size_t, object_ptr>& s)
     : data(s) {}
-  ~object_set_c() = default;
+  ~object_map_c() = default;
   complex_object_c* clone() override;
   std::string to_string() override;
   std::size_t hash() const override;
-  std::set<object_c> data;
+  std::map<std::size_t, object_ptr> data;
+  std::size_t length() const override { return data.size(); }
 };
 
 class object_error_c final : public complex_object_c {
@@ -148,6 +153,11 @@ public:
   std::string op;
   std::string message;
   file_position_s pos;
+  std::size_t length() const override {
+    return op.size() +
+      message.size() +
+      sizeof(std::size_t) +
+      sizeof(std::size_t); }
 };
 
 // Wrappers to wash away type ambiguity on 
@@ -211,17 +221,20 @@ public:
   object_c(const object_list_t& list)
     : type{data_type_e::LIST}
     {
-      data.co = new object_list_c(list, false);
+      data.co = new object_list_c(list);
     }
   object_c(const object_list_t& list, bool is_data)
     : type{data_type_e::LIST}
     {
-      data.co = new object_list_c(list, is_data);
+      if (is_data) {
+        type = data_type_e::VEC;
+      }
+      data.co = new object_list_c(list);
     }
-  object_c(const std::set<object_c>& s)
+  object_c(const std::map<std::size_t, object_ptr>& s)
     : type{data_type_e::SET}
     {
-      data.co = new object_set_c(s);
+      data.co = new object_map_c(s);
     }
 
   ~object_c() { clean(); }
@@ -290,9 +303,8 @@ public:
   bool is_list() const {
     return type == data_type_e::LIST;
   }
-  bool is_data_list() const {
-    if (!is_list()) { return false; }
-    return as_list()->is_data_list;
+  bool is_vec() const {
+    return type == data_type_e::VEC;
   }
   char* as_raw_str(bool& okay) {
     okay = false;
@@ -318,7 +330,7 @@ public:
   object_bytes_c* as_bytes() { return reinterpret_cast<object_bytes_c*>(data.co); }
   object_error_c* as_error() { return reinterpret_cast<object_error_c*>(data.co); }
   object_list_c* as_list() const { return reinterpret_cast<object_list_c*>(data.co); }
-  object_set_c* as_set() const { return reinterpret_cast<object_set_c*>(data.co); }
+  object_map_c* as_set() const { return reinterpret_cast<object_map_c*>(data.co); }
 
   double to_real() const {
     if (is_real()) { return data.real; }
@@ -447,6 +459,26 @@ public:
     }
     return 0;
   }
+
+  std::size_t length() const {
+    switch (type) {
+      case data_type_e::NONE: return 0;
+      case data_type_e::BOOLEAN:
+      case data_type_e::INTEGER:
+      case data_type_e::REAL:
+      case data_type_e::REF: return 1;
+      case data_type_e::STRING:
+      case data_type_e::BYTES:
+      case data_type_e::IDENTIFIER:
+      case data_type_e::CPPFN:
+      case data_type_e::ERROR:
+      case data_type_e::LIST:
+      case data_type_e::VEC:
+        return data.co->length();
+    }
+    return 0;
+  }
+
 private:
   union {
     bool boolean;

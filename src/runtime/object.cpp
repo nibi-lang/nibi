@@ -17,6 +17,7 @@ const char* data_type_to_string(const data_type_e& type) {
     case data_type_e::IDENTIFIER: return "identifier";
     case data_type_e::CPPFN: return "cppfn";
     case data_type_e::LIST: return "list";
+    case data_type_e::VEC: return "vector";
     case data_type_e::SET: return "set";
   }
   return "unknown";
@@ -33,8 +34,9 @@ std::string object_c::to_string(bool quotes) const {
     case data_type_e::ERROR:
       return reinterpret_cast<object_error_c*>(data.co)->to_string();
     case data_type_e::SET:
-      return reinterpret_cast<object_set_c*>(data.co)->to_string();
+      return reinterpret_cast<object_map_c*>(data.co)->to_string();
     case data_type_e::LIST:
+    case data_type_e::VEC:
       return reinterpret_cast<object_list_c*>(data.co)->to_string();
     case data_type_e::IDENTIFIER:
       [[fallthrough]];
@@ -88,40 +90,33 @@ complex_object_c* object_list_c::clone() {
   for(auto &o : list) {
     nl.push_back(allocate_object(o->clone()));
   }
-  return new object_list_c(nl, this->is_data_list);
+  return new object_list_c(nl);
 }
 
 std::string object_list_c::to_string() {
 
-  std::string start_sym = "(";
-  std::string end_sym = ")";
-  if (is_data_list) {
-    start_sym = "[";
-    end_sym = "]";
-  }
-
-  std::string result = start_sym;
+  std::string result = "[";
   for(auto &o : list) {
     result += fmt::format(" {}", o->to_string());
   }
-  result += fmt::format(" {}", end_sym);
+  result += " ]";
   return result;
 }
 
-complex_object_c* object_set_c::clone() {
-  std::set<object_c> ns;
+complex_object_c* object_map_c::clone() {
+  std::map<std::size_t, object_ptr> ns;
   for(auto& o : data) {
-    ns.insert(o.clone());
+    ns[o.first] = allocate_object(o.second->clone());
   }
-  return new object_set_c(ns);
+  return new object_map_c(ns);
 }
 
-std::string object_set_c::to_string() {
+std::string object_map_c::to_string() {
   std::string result = "{";
   for(auto &o : data) {
-    result += fmt::format(" {}", o.to_string());
+    result += fmt::format(" {}", o.second->to_string());
   }
-  result += fmt::format(" {}", "}");
+  result += " }";
   return result;
 }
 
@@ -156,11 +151,11 @@ std::size_t object_error_c::hash() const {
   return seed;
 }
 
-std::size_t object_set_c::hash() const {
+std::size_t object_map_c::hash() const {
   std::size_t seed = data.size();
-  std::set<object_c>::const_iterator it;
+  std::map<std::size_t, object_ptr>::const_iterator it;
   for(it = data.begin(); it != data.end(); ++it) {
-    std::size_t x = (*it).hash();
+    std::size_t x = (*it).second->hash();
     UTIL_PERFORM_HASH(x,seed)
   }
   return seed;

@@ -4,3 +4,5 @@
 
 (let x 9)
 (assert (eq 9 x))
+
+(put "Complete\n")

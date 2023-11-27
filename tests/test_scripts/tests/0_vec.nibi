@@ -1,0 +1,21 @@
+
+(def x [])
+
+(assert (eq 0 (len x)))
+
+(assert (eq 0 (vec-pop x)))
+
+(vec-push x 10)
+(vec-push x 20)
+
+(assert (eq 2 (len x)))
+
+(assert (eq 20 (vec-pop x)))
+
+(assert (eq 1 (len x)))
+
+(assert (eq 10 (vec-pop x)))
+
+(assert (eq 0 (len x)))
+
+(put "Complete\n")

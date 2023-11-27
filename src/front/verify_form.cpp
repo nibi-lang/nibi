@@ -31,6 +31,9 @@ void verify_builtin_assert(const list_verify_info_s& tbis);
 void verify_builtin_set_insert(const list_verify_info_s& tbis);
 void verify_builtin_set_erase(const list_verify_info_s& tbis);
 void verify_builtin_set_contains(const list_verify_info_s& tbis);
+void verify_builtin_vec_push(const list_verify_info_s& tbis);
+void verify_builtin_vec_pop(const list_verify_info_s& tbis);
+void verify_builtin_len(const list_verify_info_s& tbis);
 
 void verify_builtin_binary_op(const list_verify_info_s& tbis);
 
@@ -101,7 +104,11 @@ verification_map_t& get_verification_map() {
   ADD_ENTRY("set-insert", verify_builtin_set_insert)
   ADD_ENTRY("set-erase", verify_builtin_set_erase)
   ADD_ENTRY("set-contains", verify_builtin_set_contains)
-  
+
+  ADD_ENTRY("vec-push", verify_builtin_vec_push)
+  ADD_ENTRY("vec-pop", verify_builtin_vec_pop)
+
+  ADD_ENTRY("len", verify_builtin_len)
 
   return *verification_map.get();
 }
@@ -182,6 +189,21 @@ void verify_builtin_set_contains(const list_verify_info_s& tbis) {
   CONDITIONAL_VERIFY_INNER(2);
 }
 
+void verify_builtin_vec_push(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 3, "'vec-push' requires form '(vec-push <target> <value>)'");
+  EXPECT_SYM(1);
+  CONDITIONAL_VERIFY_INNER(2);
+}
+
+void verify_builtin_vec_pop(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 2, "'vec-pop' requires form '(vec-pop <target>)'");
+  EXPECT_SYM(1);
+}
+
+void verify_builtin_len(const list_verify_info_s& tbis) {
+  EXPECT_LEN(==, 2, "'len' requires form '(len <target>)'");
+}
+
 void verify_list(const std::string& origin, atom_list_t& list, bool is_data) {
   list_verify_info_s tbis = {origin, list};
   if (tbis.list.empty()) {
@@ -189,9 +211,6 @@ void verify_list(const std::string& origin, atom_list_t& list, bool is_data) {
   }
 
   if (is_data) {
-
-    fmt::print("ITEM IS DATA LIST\n");
-
     for(std::size_t i = 0; i < list.size(); i++) {
       if (list[i]->type == atom_type_e::LIST) {
         verify_list(origin, reinterpret_cast<atom_list_c*>(list[i].get())->data, false);

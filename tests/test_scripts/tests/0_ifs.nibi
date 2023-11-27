@@ -9,3 +9,4 @@
 
 (if (eq 1 0) (assert 0 "Failed to skip true-body"))
 
+(put "Complete\n")

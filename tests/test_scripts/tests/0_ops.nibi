@@ -7,3 +7,4 @@
 (assert (eq 0  (- 10 10) ))
 (assert (eq 5  (/ 10 2) ))
 (assert (eq 25 (* 5 5)))
+(put "Complete\n")

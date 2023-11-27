@@ -1,5 +1,6 @@
 #include "runtime/core.hpp"
 #include "util.hpp"
+#include <limits>
 
 namespace builtins {
 
@@ -230,9 +231,9 @@ BUILTIN_FN(builtin_set_insert, {
   }
   EVAL(rhs)
 
-  auto& setv = lhs->as_set()->data;
+  auto& map_data = lhs->as_set()->data;
 
-  setv.insert(*(rhs.get()));
+  map_data[rhs->hash()] = runtime::allocate_object(rhs->clone());
 
   RETURN(runtime::value::success())
 })
@@ -246,9 +247,9 @@ BUILTIN_FN(builtin_set_erase, {
   }
   EVAL(rhs)
 
-  auto& setv = lhs->as_set()->data;
+  auto& map_data = lhs->as_set()->data;
 
-  setv.erase(*rhs.get());
+  map_data.erase(rhs->hash());
 
   RETURN(runtime::value::success())
 })
@@ -262,10 +263,67 @@ BUILTIN_FN(builtin_set_contains, {
   }
   EVAL(rhs)
 
-  auto& setv = lhs->as_set()->data;
+  auto& map_data = lhs->as_set()->data;
+
+  auto it = map_data.find(rhs->hash());
 
   RETURN(runtime::allocate_object(
-    runtime::wrap_bool_s{setv.contains(*rhs.get())}))
+    runtime::wrap_bool_s{it != map_data.end()}))
+})
+
+BUILTIN_FN(builtin_vec_push, {
+  EVAL(lhs)
+  if (lhs->type != runtime::data_type_e::VEC) {
+    walker.set_flag();
+    RETURN(runtime::value::external_error(
+      "Expected 'vec' type for push"));
+  }
+
+  auto* l = lhs->as_list();
+
+  EVAL(rhs)
+
+  l->list.push_back(runtime::allocate_object(rhs->clone()));
+
+  RETURN(runtime::value::success())
+})
+
+BUILTIN_FN(builtin_vec_pop, {
+
+  EVAL(lhs)
+  if (lhs->type != runtime::data_type_e::VEC) {
+    walker.set_flag();
+    RETURN(runtime::value::external_error(
+      "Expected 'vec' type for pop"));
+  }
+
+  auto* l = lhs->as_list();
+
+  if (l->list.empty()) {
+    RETURN(runtime::value::failure())
+  }
+
+  runtime::object_ptr obj = l->list.back();
+
+  l->list.pop_back();
+
+  RETURN(obj)
+})
+
+BUILTIN_FN(builtin_len, {
+
+  EVAL(lhs)
+
+  std::size_t len = lhs->length();
+
+  if (len > std::numeric_limits<int64_t>::max()) {
+    RETURN(runtime::allocate_object(
+      runtime::wrap_size_s{ std::numeric_limits<int64_t>::max() }
+        ))
+  }
+
+  RETURN(
+    runtime::allocate_object(runtime::wrap_size_s{len}))
 })
 
 void populate_env(runtime::env_c &env) {
@@ -288,6 +346,9 @@ void populate_env(runtime::env_c &env) {
   ADD_FN("set-insert", builtin_set_insert)
   ADD_FN("set-erase", builtin_set_erase)
   ADD_FN("set-contains", builtin_set_contains)
+  ADD_FN("vec-push", builtin_vec_push)
+  ADD_FN("vec-pop", builtin_vec_pop)
+  ADD_FN("len", builtin_len)
 }
 
 } // namespace
