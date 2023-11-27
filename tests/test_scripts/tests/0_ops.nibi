@@ -2,3 +2,8 @@
 (assert (lt 0 1))
 (assert (gt 1 0))
 (assert (eq (lt 0 1) (gt 1 0)))
+
+(assert (eq 20 (+ 10 10) ))
+(assert (eq 0  (- 10 10) ))
+(assert (eq 5  (/ 10 2) ))
+(assert (eq 25 (* 5 5)))
