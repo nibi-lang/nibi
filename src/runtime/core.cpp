@@ -52,6 +52,27 @@ object_ptr core_c::resolve(atom_view::view_s* atom, env_c &env) {
       }
       return o;
     }
+    case (int)atom_type_e::DATA_LIST: {
+      atom_view::walker_c walker(
+        (uint8_t*)atom->data.len_encoded.data,
+        (std::size_t)atom->data.len_encoded.len);
+      object_list_t list;
+      list.reserve(20);
+      while(walker.has_next()) {
+        list.push_back(resolve(walker.next(), env));
+      }
+      return allocate_object(list, true);
+    }
+    case (int)atom_type_e::SET: {
+      atom_view::walker_c walker(
+        (uint8_t*)atom->data.len_encoded.data,
+        (std::size_t)atom->data.len_encoded.len);
+      std::set<object_c> s;
+      while(walker.has_next()) {
+        s.insert(*resolve(walker.next(), env).get());
+      }
+      return allocate_object(s);
+    }
     case (int)atom_type_e::LIST:
       return execute(
         atom->data.len_encoded.data,
@@ -125,6 +146,8 @@ object_ptr core_c::object_from_view(atom_view::view_s* view) {
     case (int)atom_type_e::INTEGER:
       return allocate_object(
         wrap_int_s{view->data.int_encoded.value});
+    case (int)atom_type_e::SET:
+    case (int)atom_type_e::DATA_LIST:
     case (int)atom_type_e::LIST: {
       atom_view::walker_c walker(
         (uint8_t*)view->data.len_encoded.data,
@@ -134,7 +157,7 @@ object_ptr core_c::object_from_view(atom_view::view_s* view) {
       while(walker.has_next()) {
         list.push_back(object_from_view(walker.next()));
       }
-      return allocate_object(list);
+      return allocate_object(list, (!(view->id == (int)atom_type_e::LIST)));
     }
   };
   

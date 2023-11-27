@@ -1,4 +1,5 @@
 #include "runtime/core.hpp"
+#include "util.hpp"
 
 namespace builtins {
 
@@ -206,6 +207,19 @@ BUILTIN_FN(builtin_anon_scope, {
   RETURN(result)
 })
 
+BUILTIN_FN(builtin_hash, {
+  std::size_t seed{0};
+  runtime::object_ptr result = runtime::value::none();
+  while(walker.has_next()) {
+    result = core.resolve(walker.next(), env);
+    ERROR_CHECK(result)
+
+    std::size_t x = result->hash();
+    UTIL_PERFORM_HASH(x, seed)
+  }
+  RETURN(
+    runtime::allocate_object(runtime::wrap_size_s{seed}))
+})
 void populate_env(runtime::env_c &env) {
 
   ADD_FN("put", builtin_put)
@@ -222,6 +236,7 @@ void populate_env(runtime::env_c &env) {
   ADD_FN("*", builtin_mul)
   ADD_FN("if", builtin_if)
   ADD_FN(".", builtin_anon_scope)
+  ADD_FN("hash", builtin_hash)
 }
 
 } // namespace

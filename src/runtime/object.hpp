@@ -5,6 +5,7 @@
 #include <cstring>
 #include <vector>
 #include <memory>
+#include <set>
 #include <functional>
 #include <fmt/format.h>
 #include "ref.hpp"
@@ -35,7 +36,8 @@ enum class data_type_e : uint8_t {
   IDENTIFIER,
   CPPFN,
   ERROR,
-  LIST
+  LIST,
+  SET
 };
 
 extern const char* data_type_to_string(const data_type_e&);
@@ -50,6 +52,7 @@ class complex_object_c {
     virtual ~complex_object_c() = default;
     virtual complex_object_c* clone() = 0;
     virtual std::string to_string() = 0;
+    virtual std::size_t hash() const = 0;
 };
 
 class object_bytes_c final : public complex_object_c {
@@ -76,6 +79,7 @@ public:
     result += "]";
     return result;
   }
+  std::size_t hash() const override;
   uint8_t* data{nullptr};
   size_t len{0};
 };
@@ -88,16 +92,31 @@ public:
     return new object_cpp_fn_c(fn);
   }
   std::string to_string() override { return "<cppfn>"; }
+  std::size_t hash() const override;
   cpp_fn fn;
 };
 
 class object_list_c final : public complex_object_c {
 public:
-  object_list_c(const object_list_t& list) : list(list) {}
+  object_list_c(const object_list_t& list, bool is_data)
+    : list(list), is_data_list(is_data) {}
   ~object_list_c() = default;
   complex_object_c* clone() override;
   std::string to_string() override;
+  std::size_t hash() const override;
   object_list_t list;
+  bool is_data_list{false};
+};
+
+class object_set_c final : public complex_object_c {
+public:
+  object_set_c(const std::set<object_c>& s)
+    : data(s) {}
+  ~object_set_c() = default;
+  complex_object_c* clone() override;
+  std::string to_string() override;
+  std::size_t hash() const override;
+  std::set<object_c> data;
 };
 
 class object_error_c final : public complex_object_c {
@@ -125,6 +144,7 @@ public:
     }
     return fmt::format("Error. op: {} message: {}", op, message);
   }
+  std::size_t hash() const override;
   std::string op;
   std::string message;
   file_position_s pos;
@@ -134,6 +154,7 @@ public:
 // object constructor
 struct wrap_bool_s{ const bool &data; };
 struct wrap_int_s{ const int64_t &data; };
+struct wrap_size_s{ const std::size_t &data; };
 struct wrap_real_s{ const double &data; };
 struct wrap_mem_ref_s{ const uint64_t &data; };
 struct wrap_identifier_s{ char* data; size_t len; };
@@ -161,6 +182,9 @@ public:
   object_c(const wrap_int_s& val)
     : type{data_type_e::INTEGER}
     { data.integer = val.data; }
+  object_c(const wrap_size_s& val)
+    : type{data_type_e::INTEGER}
+    { data.integer = static_cast<int64_t>(val.data); }
   object_c(const wrap_real_s& val)
   : type{data_type_e::REAL}
     { data.real = val.data; }
@@ -187,7 +211,17 @@ public:
   object_c(const object_list_t& list)
     : type{data_type_e::LIST}
     {
-      data.co = new object_list_c(list);
+      data.co = new object_list_c(list, false);
+    }
+  object_c(const object_list_t& list, bool is_data)
+    : type{data_type_e::LIST}
+    {
+      data.co = new object_list_c(list, is_data);
+    }
+  object_c(const std::set<object_c>& s)
+    : type{data_type_e::SET}
+    {
+      data.co = new object_set_c(s);
     }
 
   ~object_c() { clean(); }
@@ -256,6 +290,10 @@ public:
   bool is_list() const {
     return type == data_type_e::LIST;
   }
+  bool is_data_list() const {
+    if (!is_list()) { return false; }
+    return as_list()->is_data_list;
+  }
   char* as_raw_str(bool& okay) {
     okay = false;
     if (!is_str()) { return nullptr; }
@@ -279,7 +317,7 @@ public:
   uint64_t& as_ref() { return data.memory_ref; }
   object_bytes_c* as_bytes() { return reinterpret_cast<object_bytes_c*>(data.co); }
   object_error_c* as_error() { return reinterpret_cast<object_error_c*>(data.co); }
-  object_list_c* as_list() { return reinterpret_cast<object_list_c*>(data.co); }
+  object_list_c* as_list() const { return reinterpret_cast<object_list_c*>(data.co); }
 
   double to_real() const {
     if (is_real()) { return data.real; }
@@ -385,6 +423,28 @@ public:
         object_error_c(">", 
           fmt::format("Invalid comparison of type {} and {}",
             data_type_to_string(type), data_type_to_string(o.type))));
+  }
+
+  bool operator<(const object_c& o) const {
+    return hash() < o.hash();
+  }
+
+  std::size_t hash() const {
+    switch (type) {
+      case data_type_e::NONE: return 0;
+      case data_type_e::BOOLEAN: return std::hash<bool>{}(data.boolean);
+      case data_type_e::INTEGER: return std::hash<int64_t>{}(data.integer);
+      case data_type_e::REAL: return std::hash<double>{}(data.real);
+      case data_type_e::REF: return std::hash<uint64_t>{}(data.memory_ref);
+      case data_type_e::STRING:
+      case data_type_e::BYTES:
+      case data_type_e::IDENTIFIER:
+      case data_type_e::CPPFN:
+      case data_type_e::ERROR:
+      case data_type_e::LIST:
+        return data.co->hash();
+    }
+    return 0;
   }
 private:
   union {

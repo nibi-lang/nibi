@@ -9,6 +9,12 @@
 
 namespace util {
 
+#define UTIL_PERFORM_HASH(x_, seed_) \
+  x_ = ((x_ >> 16) ^ x_) * 0x45d9f3b;\
+  x_ = ((x_ >> 16) ^ x_) * 0x45d9f3b;\
+  x_ = (x_ >> 16) ^ x_;\
+  seed_ ^= x_ + 0x9e3779b9 + (seed_ << 6) + (seed_ >> 2);
+
 static constexpr auto merge_vecs = 
   [](std::vector<uint8_t>& to, std::vector<uint8_t>& from) {
     to.insert(

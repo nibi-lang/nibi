@@ -22,7 +22,7 @@ namespace {
   };
 }
 
-void verify_list(const std::string& origin, atom_list_t& list);
+void verify_list(const std::string& origin, atom_list_t& list, bool is_data);
 void verify_builtin_fn(const list_verify_info_s& tbis);
 void verify_builtin_if(const list_verify_info_s& tbis);
 void verify_builtin_let(const list_verify_info_s& tbis);
@@ -62,10 +62,13 @@ void verify_builtin_binary_op(const list_verify_info_s& tbis);
   (*verification_map.get())[name_] = fn_;
 
 #define VERIFY_INNER(idx_)\
+{ \
+  auto * l = reinterpret_cast<atom_list_c*>(tbis.list[idx_].get()); \
   verify_list(\
     tbis.origin, \
-    reinterpret_cast<atom_list_c*>( \
-        tbis.list[idx_].get())->data);
+    l->data, \
+    l->is_data()); \
+}
 
 #define CONDITIONAL_VERIFY_INNER(idx_) \
   if (tbis.list[idx_]->type == atom_type_e::LIST) {\
@@ -155,11 +158,27 @@ void verify_builtin_assert(const list_verify_info_s& tbis) {
   }
 }
 
-void verify_list(const std::string& origin, atom_list_t& list) {
+void verify_list(const std::string& origin, atom_list_t& list, bool is_data) {
   list_verify_info_s tbis = {origin, list};
   if (tbis.list.empty()) {
     return;
   }
+
+  if (is_data) {
+
+    fmt::print("ITEM IS DATA LIST\n");
+
+    for(std::size_t i = 0; i < list.size(); i++) {
+      if (list[i]->type == atom_type_e::LIST) {
+        verify_list(origin, reinterpret_cast<atom_list_c*>(list[i].get())->data, false);
+      } else if (list[i]->type == atom_type_e::DATA_LIST ||
+                 list[i]->type == atom_type_e::SET) {
+        verify_list(origin, reinterpret_cast<atom_list_c*>(list[i].get())->data, true);
+      }
+    }
+    return;
+  }
+
   EXPECT_SYM(0);
   auto* as_sym = reinterpret_cast<atom_symbol_c*>(tbis.list[0].get());
   auto& tm = get_verification_map();

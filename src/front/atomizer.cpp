@@ -7,8 +7,10 @@
 #include <string>
 #include <filesystem>
 #include <fstream>
+#include <limits>
 
-extern void verify_list(const std::string& origin, atom_list_t& list);
+extern void verify_list(
+  const std::string& origin, atom_list_t& list, bool is_data);
 
 class atomizer_c {
 public:
@@ -47,13 +49,20 @@ private:
   void parse(std::string &string_data);
   void reset();
 
+  inline void start_list(const atom_type_e& type);
+  inline void end_list(const atom_type_e& type);
+
   bool collect_comments(std::string& data, atom_list_t* list);
   bool collect_number(std::string& data, atom_list_t* list);
   bool collect_string(std::string& data, atom_list_t* list);
   bool collect_identifier(std::string& data, atom_list_t* list);
   bool collect_symbol(std::string& data, atom_list_t* list);
 
-  std::stack<atom_list_t> _active_lists;
+  struct data_s {
+    atom_list_t list;
+    atom_type_e type;
+  };
+  std::stack<data_s> _active_lists;
   std::set<uint8_t> _termChars;
 };
 
@@ -127,7 +136,7 @@ void atomizer_c::parse(std::string &line_data) {
     atom_list_t* current_list = nullptr;
 
     if (_active_lists.size()) {
-      current_list = &_active_lists.top();
+      current_list = &_active_lists.top().list;
     }
     auto current_char = line_data[_trace.col];
 
@@ -138,10 +147,11 @@ void atomizer_c::parse(std::string &line_data) {
     
     if (collect_comments(line_data, current_list)) { continue; }
 
-    if (current_char == '(') {
-      _active_lists.push({});
-      _trace.col++;
-      continue;
+    switch (current_char) {
+      case '(': start_list(atom_type_e::LIST); continue;
+      case '{': start_list(atom_type_e::SET); continue;
+      case '[': start_list(atom_type_e::DATA_LIST); continue;
+      default: break;
     }
 
     if (!current_list) {
@@ -151,26 +161,11 @@ void atomizer_c::parse(std::string &line_data) {
       return;
     }
 
-    if (current_char == ')') {
-      if (_active_lists.empty()) {
-        _trace.col = line_data.size();
-        return;
-      }
-
-      _trace.col++;
-      atom_list_t top_list = std::move(_active_lists.top());
-      _active_lists.pop();
-
-      if (_active_lists.empty()) {
-        _receiver.on_list(std::move(top_list));
-        continue;
-      }
-
-      _active_lists.top().push_back(
-        std::make_unique<atom_list_c>(
-          std::move(top_list),
-          _active_lists.top()[0]->pos));
-      continue;
+    switch (current_char) {
+      case ')': end_list(atom_type_e::LIST); continue;
+      case '}': end_list(atom_type_e::SET); continue;
+      case ']': end_list(atom_type_e::DATA_LIST); continue;
+      default: break;
     }
 
     if (collect_number(line_data, current_list)) { continue; }
@@ -182,6 +177,46 @@ void atomizer_c::parse(std::string &line_data) {
       fmt::format("Unhandled token identified while parsing list: {}", current_char));
     std::exit(1);
   }
+}
+
+void atomizer_c::start_list(const atom_type_e& type) {
+  _active_lists.push({{}, type});
+  _trace.col++;
+}
+
+void atomizer_c::end_list(const atom_type_e& type) {
+
+  if (_active_lists.empty()) {
+    _trace.col = std::numeric_limits<std::size_t>::max();
+    return;
+  }
+
+  _trace.col++;
+  data_s top_list = std::move(_active_lists.top());
+  _active_lists.pop();
+
+  if (top_list.type != type) {
+    emit_error(
+      fmt::format(
+        "Mismatched list closing symbol for '{}'",
+        atom_type_to_string(top_list.type)));
+    return;
+  }
+
+  if (_active_lists.empty()) {
+    _receiver.on_list(
+        std::move(top_list.list), 
+        (top_list.type == atom_type_e::DATA_LIST ||
+         top_list.type == atom_type_e::SET));
+    return;
+  }
+
+  _active_lists.top().list.push_back(
+    std::make_unique<atom_list_c>(
+      type,
+      std::move(top_list.list),
+      _active_lists.top().list[0]->pos));
+  return;
 }
 
 #define HAS_NEXT \
@@ -368,9 +403,9 @@ public:
       target(target) {
 
   }
-  void on_list(atom_list_t list) override {
+  void on_list(atom_list_t list, bool is_data) override {
 
-    verify_list(file_, list);
+    verify_list(file_, list, is_data);
 
     // TODO: Optimize the list ? 
 

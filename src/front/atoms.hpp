@@ -5,6 +5,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <cassert>
 #include "util.hpp"
 
 class atom_c;
@@ -39,7 +40,7 @@ struct file_error_s {
 
 class list_receiver_if {
 public:
-  virtual void on_list(atom_list_t list) = 0;
+  virtual void on_list(atom_list_t list, bool is_data) = 0;
   virtual void on_error(file_error_s err) = 0;
 };
 
@@ -48,7 +49,9 @@ enum class atom_type_e : uint8_t {
   INTEGER,
   REAL,
   STRING,
-  LIST
+  LIST,
+  DATA_LIST,
+  SET,
 };
 
 static const char* atom_type_to_string(const atom_type_e& type) {
@@ -58,6 +61,8 @@ static const char* atom_type_to_string(const atom_type_e& type) {
     case atom_type_e::REAL: return "real";
     case atom_type_e::STRING: return "string";
     case atom_type_e::LIST: return "list";
+    case atom_type_e::DATA_LIST: return "data_list";
+    case atom_type_e::SET: return "set";
   }
   return "<invalid>";
 }
@@ -143,10 +148,17 @@ public:
 
 class atom_list_c final : public atom_c {
 public:
-  atom_list_c(atom_list_t data, const file_position_s& pos)
-    : atom_c(atom_type_e::LIST, pos),
-      data(std::move(data)){}
+  atom_list_c(const atom_type_e& type, atom_list_t data, const file_position_s& pos)
+    : atom_c(type, pos),
+      data(std::move(data)){
+        assert((uint8_t)type >= (uint8_t)atom_type_e::LIST);
+      }
+  atom_list_c(const atom_type_e& type, const file_position_s& pos)
+    : atom_c(type, pos) {
+      assert((uint8_t)type >= (uint8_t)atom_type_e::LIST);
+    }
   atom_list_t data;
+  bool is_data() const { return (!(type == atom_type_e::LIST)); }
   std::string to_string() override {
     std::string data_str;
     for(const auto &atom : data) {
