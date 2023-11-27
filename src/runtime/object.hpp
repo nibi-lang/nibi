@@ -267,7 +267,7 @@ public:
     return reinterpret_cast<object_cpp_fn_c*>(data.co);
   }
 
-  std::string to_string() const;
+  std::string to_string(bool show_quotes=false) const;
   std::string dump_to_string(bool simple=false) const;
 
   // These methods are not safe on their own.

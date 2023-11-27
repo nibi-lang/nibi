@@ -20,7 +20,7 @@ const char* data_type_to_string(const data_type_e& type) {
   return "unknown";
 }
 
-std::string object_c::to_string() const {
+std::string object_c::to_string(bool quotes) const {
   switch(type) {
     case data_type_e::NONE: return "none";
     case data_type_e::CPPFN: return "<cppfn>";
@@ -36,7 +36,11 @@ std::string object_c::to_string() const {
       [[fallthrough]];
     case data_type_e::STRING: {
       auto* o = reinterpret_cast<object_bytes_c*>(data.co);
-      return std::string((char*)o->data, o->len);
+      std::string str((char*)o->data, o->len);
+      if (quotes) {
+        return fmt::format("\"{}\"", str);
+      }
+      return str;
     }
     case data_type_e::BYTES:
       return reinterpret_cast<object_bytes_c*>(data.co)->to_string();

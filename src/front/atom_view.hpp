@@ -133,9 +133,17 @@ public:
     next();
   }
 
+  void set_flag() {
+    _flag = true;
+  }
+
+  bool is_flagged() const { return _flag; }
+
   void mark() {
     _marker = _counter;
   }
+
+  std::size_t get_mark() const { return _marker; }
 
   void go_to_mark() {
     _counter = _marker;
@@ -143,6 +151,7 @@ public:
 
   void reset() {
     _valid = true;
+    _flag = false;
     _counter = 0;
   }
 
@@ -151,6 +160,7 @@ public:
   bool is_valid() const { return _valid; }
   bool has_next() const { return _counter < _size; }
   bool is_complete() const { return !has_next(); }
+
 private:
   bool _valid{true};
   std::size_t _counter{0};
@@ -158,6 +168,7 @@ private:
 
   uint8_t* _raw_data{nullptr};
   std::size_t _size{0};
+  bool _flag{false};
 };
 
 static inline std::string view_to_string(const view_s* view, bool quote_str=true) {

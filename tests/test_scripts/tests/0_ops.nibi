@@ -1,0 +1,4 @@
+(assert (eq 1 1))
+(assert (lt 0 1))
+(assert (gt 1 0))
+(assert (eq (lt 0 1) (gt 1 0)))

@@ -92,6 +92,16 @@ object_ptr core_c::evaluate(atom_view::walker_c &walker, env_c &env) {
       auto* e = result->as_error();
       if (!e->has_file_info()) {
         e->op = _origin;
+
+        // External function may have flagged the walker 
+        // with the specific instruction that caused the err
+        if (walker.is_flagged()) {
+          walker.go_to_mark();
+
+          auto* x = walker.next();
+          if (x) { atom = x; }
+        }
+
         e->pos = file_position_s{ atom->line, atom->col };
       }
       _yield_value = result;
