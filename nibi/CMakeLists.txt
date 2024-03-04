@@ -32,10 +32,12 @@ if(WITH_ASAN)
 endif()
 
 include(${PROJECT_SOURCE_DIR}/cmake/CheckGit.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/FindFFI.cmake)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib)
 include_directories(${PROJECT_SOURCE_DIR}/lib)
 include_directories(${PROJECT_SOURCE_DIR}/app)
+include_directories(${LIBFFI_INCLUDE_DIR})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -50,10 +52,17 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
-    ffi
+    ${LIBFFI_LIBRARY}
     libnibi
     Threads::Threads
     ${CMAKE_DL_LIBS})
+
+if (APPLE)
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    BUILD_RPATH "/usr/local/lib"
+    INSTALL_RPATH "/usr/local/lib"
+    )
+endif()
 
 install (TARGETS ${PROJECT_NAME}
     DESTINATION bin)
