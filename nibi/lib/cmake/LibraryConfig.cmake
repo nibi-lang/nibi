@@ -32,6 +32,8 @@ endif ()
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(libffi REQUIRED libffi)
 
+include_directories(${LIBFFI_INCLUDE_DIR})
+
 target_link_libraries(${LIBRARY_NAME} -lffi)
 
 # Install library
