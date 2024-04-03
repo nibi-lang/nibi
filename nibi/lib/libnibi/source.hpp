@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "libnibi/ref.hpp"
+#include "config.hpp"
 
 namespace nibi {
 //! \brief A locator interface.
@@ -48,8 +49,8 @@ public:
   }
 
 private:
-  const size_t line_{0};
-  const size_t column_{0};
+  const config::locator_line_underlying_type_t line_{0};
+  const config::locator_column_underlying_type_t column_{0};
   std::shared_ptr<std::string> source_name_{nullptr};
 };
 

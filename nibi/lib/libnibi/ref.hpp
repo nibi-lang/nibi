@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "config.hpp"
 
 namespace nibi {
 
@@ -21,7 +22,7 @@ private:
   ref_counted_c(const ref_counted_c &);
   ref_counted_c &operator=(const ref_counted_c &);
 
-  mutable std::uint32_t ref_count_{0};
+  mutable config::ref_counter_underlying_type_t ref_count_{0};
 };
 
 //! \brief A wrapper that performs operations
