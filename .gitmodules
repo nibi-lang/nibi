@@ -1,3 +1,0 @@
-[submodule "nibi/modules/threads/cpp-net-lib"]
-	path = nibi/modules/threads/cpp-net-lib
-	url = https://github.com/nibi-lang/cpp-net-lib.git
