@@ -51,7 +51,16 @@ public:
   module_cell_c() = delete;
   module_cell_c(rll_ptr lib) : lib_(lib) {}
 
-  ~module_cell_c() {}
+  ~module_cell_c() {
+    if (lib_ && lib_->has_symbol("nibi_runtime_deinit")) {
+      try {
+        auto deinit_func = reinterpret_cast<void (*)()>(
+            lib_->get_symbol("nibi_runtime_deinit"));
+        deinit_func();
+      } catch (...) {
+      }
+    }
+  }
 
   virtual std::string represent_as_string() override {
     return "EXTERNAL_MODULE";
@@ -270,6 +279,22 @@ inline cell_ptr modules_c::load_dylib(std::string &name, env_c &module_env,
     throw interpreter_c::exception_c("Could not load library: " + name +
                                          ".\nFailed with error: " + e.what(),
                                      dylib_list->locator);
+  }
+
+  if (target_lib->has_symbol("nibi_runtime_init")) {
+    try {
+      auto init_func = reinterpret_cast<void (*)()>(
+          target_lib->get_symbol("nibi_runtime_init"));
+      init_func();
+    } catch (const std::exception &e) {
+      throw interpreter_c::exception_c("Module initialization failed: " + name +
+                                           ".\nError: " + e.what(),
+                                       dylib_list->locator);
+    } catch (...) {
+      throw interpreter_c::exception_c("Module initialization failed: " + name +
+                                           ".\nUnknown error",
+                                       dylib_list->locator);
+    }
   }
 
   // Validate all listed symbols and import them to the module environment

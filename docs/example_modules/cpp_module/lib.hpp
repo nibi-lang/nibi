@@ -30,6 +30,12 @@ extern "C" {
 
 API_EXPORT
 extern nibi::cell_ptr example_function(nibi::cell_list_t &list, nibi::env_c &env);
+
+API_EXPORT
+extern void nibi_runtime_init();
+
+API_EXPORT
+extern void nibi_runtime_deinit();
 }
 
 #ifdef __clang__
