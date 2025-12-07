@@ -1,0 +1,15 @@
+(:= size 4096)
+(:= data (<|> 0 size))
+
+(loop (:= i 0) (< i size) (set i (+ i 1))
+  (set (at data i) (- size i)))
+
+(loop (:= i 0) (< i (- size 1)) (set i (+ i 1)) [
+  (loop (:= j 0) (< j (- (- size i) 1)) (set j (+ j 1)) [
+    (if (> (at data j) (at data (+ j 1))) [
+      (:= temp (at data j))
+      (set (at data j) (at data (+ j 1)))
+      (set (at data (+ j 1)) temp)
+    ])
+  ])
+])

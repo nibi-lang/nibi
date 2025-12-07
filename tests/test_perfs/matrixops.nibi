@@ -1,0 +1,25 @@
+(:= size 4096)
+(:= matrix [])
+
+(loop (:= i 0) (< i size) (set i (+ i 1)) [
+  (:= row [])
+  (loop (:= j 0) (< j size) (set j (+ j 1))
+    (|< row (* i j)))
+  (|< matrix row)
+])
+
+(:= row_sums [])
+(loop (:= i 0) (< i size) (set i (+ i 1)) [
+  (:= sum 0)
+  (loop (:= j 0) (< j size) (set j (+ j 1))
+    (set sum (+ sum (at (at matrix i) j))))
+  (|< row_sums sum)
+])
+
+(:= col_sums [])
+(loop (:= j 0) (< j size) (set j (+ j 1)) [
+  (:= sum 0)
+  (loop (:= i 0) (< i size) (set i (+ i 1))
+    (set sum (+ sum (at (at matrix i) j))))
+  (|< col_sums sum)
+])
