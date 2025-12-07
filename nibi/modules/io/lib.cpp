@@ -71,3 +71,7 @@ nibi::cell_ptr nibi_println(nibi::interpreter_c &ci, nibi::cell_list_t &list,
   std::cout << "\n";
   return nibi::allocate_cell(nibi::cell_type_e::NIL);
 }
+
+void nibi_runtime_init() {}
+
+void nibi_runtime_deinit() { std::cout << std::flush; }
