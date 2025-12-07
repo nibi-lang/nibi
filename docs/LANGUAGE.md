@@ -99,7 +99,7 @@ The following table contains the various commands available in this programming 
 | ---------- | ----------- | ------- |
 |
 
- `+`        | Add a series of cells | Resulting value |
+| `+`        | Add a series of cells | Resulting value |
 | `-`        | Subtract a series of cells | Resulting value |
 | `/`        | Divide a series of cells | Resulting value |
 | `*`        | Multiply a series of cells | Resulting value |
