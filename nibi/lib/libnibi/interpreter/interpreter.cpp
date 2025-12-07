@@ -257,6 +257,10 @@ inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
 
     auto fn_info = operation->as_function_info();
 
+    if (call_stack_.size() >= MAX_CALL_DEPTH) {
+      throw exception_c("Maximum recursion depth reached", cell->locator);
+    }
+
     call_stack_.push(list.front());
 
 #if PROFILE_INTERPRETER

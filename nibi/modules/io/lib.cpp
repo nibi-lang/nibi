@@ -74,6 +74,4 @@ nibi::cell_ptr nibi_println(nibi::interpreter_c &ci, nibi::cell_list_t &list,
 
 void nibi_runtime_init() {}
 
-void nibi_runtime_deinit() {
-  std::cout << std::flush;
-}
+void nibi_runtime_deinit() { std::cout << std::flush; }
