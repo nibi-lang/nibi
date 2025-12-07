@@ -1,5 +1,19 @@
 # Region-Based Memory Management for Nibi
 
+
+I chatted with a claude about my runtime rsults after I got the various benchmarks back on nibi. I dont have time to do this idea right now but before this branch
+gets merged in I want to do, at least conceptually, what the clanker laid out below. It boils down to: 
+
+1) make the interpreter aware of/ able to interact-with the allocator and pool
+2) make 2 new constructs to define memory regions and how to lift cells out of them
+
+I made a memory pool that made large allocations happen a LOT faster but it hits hard when lots of small ops kill cells.
+I figure with the ref pointer we have in dedicated regions we could mitigate memory "bloat" at the language level by designating
+high memory use regions and then indicating when its safe to free those batches
+
+Everything works as-is now (tests fine locally) but valgrind and ci have not run so we shall see. 
+
+
 ## Executive Summary
 
 This document outlines a design for adding explicit region-based memory management to Nibi through new language constructs `region` and `lift`. This approach combines the performance benefits of arena allocation with the safety of reference counting, while giving users explicit control over memory regions.
