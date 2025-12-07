@@ -3,6 +3,10 @@
 #include "libnibi/RLL/rll_wrapper.hpp"
 #include "libnibi/source.hpp"
 #include "ref.hpp"
+
+#if NIBI_USE_CELL_POOL
+#include "cell_pool.hpp"
+#endif
 #include <any>
 #include <cassert>
 #include <cstdint>
@@ -661,8 +665,15 @@ public:
 //! \params Ctor arguments for cell
 //! \note This is used to centralize allocations of cells
 //!       so we can swap memory management models
+#if NIBI_USE_CELL_POOL
+inline auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
+  void *memory = cell_pool_c::instance().allocate();
+  return new (memory) cell_c(args...);
+};
+#else
 constexpr auto allocate_cell = [](auto... args) -> nibi::cell_ptr {
   return new cell_c(args...);
 };
+#endif
 
 } // namespace nibi

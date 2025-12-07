@@ -4,7 +4,18 @@
 
 #include <iostream>
 
+#if NIBI_USE_CELL_POOL
+#include "libnibi/cell_pool.hpp"
+#endif
+
 namespace nibi {
+
+#if NIBI_USE_CELL_POOL
+void deallocate_cell_to_pool(cell_c *cell) {
+  cell_pool_c::instance().deallocate(cell);
+}
+#endif
+
 namespace {
 const char *function_type_to_string(function_type_e type) {
   switch (type) {

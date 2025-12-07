@@ -15,5 +15,21 @@ using ref_counter_underlying_type_t = std::uint32_t;
 using locator_line_underlying_type_t = std::uint16_t;
 using locator_column_underlying_type_t = std::uint8_t;
 
+#ifndef NIBI_USE_CELL_POOL
+#define NIBI_USE_CELL_POOL 1
+#endif
+
+#ifndef NIBI_CELL_POOL_INITIAL_BATCH_SIZE
+#define NIBI_CELL_POOL_INITIAL_BATCH_SIZE 64
+#endif
+
+#ifndef NIBI_CELL_POOL_GROWTH_FACTOR
+#define NIBI_CELL_POOL_GROWTH_FACTOR 2
+#endif
+
+#ifndef NIBI_CELL_POOL_COUNT
+#define NIBI_CELL_POOL_COUNT 4
+#endif
+
 } // namespace config
 } // namespace nibi

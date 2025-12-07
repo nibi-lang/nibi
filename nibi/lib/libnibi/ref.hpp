@@ -2,6 +2,14 @@
 
 #include "config.hpp"
 #include <cstdint>
+#include <type_traits>
+
+#if NIBI_USE_CELL_POOL
+namespace nibi {
+class cell_c;
+void deallocate_cell_to_pool(cell_c *cell);
+}
+#endif
 
 namespace nibi {
 
@@ -72,7 +80,15 @@ private:
 
   void release() {
     if ((object_ != nullptr) && (object_->release() == 0)) {
+#if NIBI_USE_CELL_POOL
+      if constexpr (std::is_same_v<T, cell_c>) {
+        deallocate_cell_to_pool(object_);
+      } else {
+        delete object_;
+      }
+#else
       delete object_;
+#endif
       object_ = nullptr;
     }
   }
