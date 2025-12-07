@@ -63,6 +63,10 @@ const char *cell_type_to_string(const cell_type_e type) {
     return "DICT";
   case cell_type_e::ALIAS:
     return "ALIAS";
+  case cell_type_e::ABERRANT:
+    return "ABERRANT";
+  case cell_type_e::ENVIRONMENT:
+    return "ENVIRONMENT";
   }
   return "UNKNOWN";
 }

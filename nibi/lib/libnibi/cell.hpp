@@ -130,8 +130,8 @@ using cell_dict_t = std::unordered_map<std::string, cell_ptr>;
 struct dict_info_s {
   cell_dict_t data;
   dict_info_s() = default;
-  dict_info_s(const dict_info_s &other) : data(other.data){};
-  dict_info_s(cell_dict_t other) : data(std::move(other)){};
+  dict_info_s(const dict_info_s &other) : data(other.data) {};
+  dict_info_s(cell_dict_t other) : data(std::move(other)) {};
 };
 static constexpr uint8_t DICT_ID_FLAG = 24;
 
@@ -156,7 +156,7 @@ struct function_info_s {
   std::optional<lambda_info_s> lambda{std::nullopt};
   env_c *operating_env{nullptr};
   bool isolate{false}; // Set this flag to explicitly clone all params on call
-  function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET){};
+  function_info_s() : name(""), fn(nullptr), type(function_type_e::UNSET) {};
   function_info_s(std::string name, cell_fn_t fn, function_type_e type,
                   env_c *env = nullptr)
       : name(name), fn(fn), type(type), operating_env(env) {}
@@ -227,7 +227,7 @@ public:
   //! \param tag The tag to set
   aberrant_cell_if(std::size_t tag) : tag_(tag) {}
 
-  virtual ~aberrant_cell_if(){};
+  virtual ~aberrant_cell_if() {};
 
   //! \brief Convert the cell to a string
   //! \note If an exception occurs, throw a cell_access_exception_c

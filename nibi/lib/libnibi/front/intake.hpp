@@ -68,7 +68,7 @@ private:
   public:
     parser_c() = delete;
     parser_c(function_router_t &router, error_callback_f ecb)
-        : symbol_router_(router), error_cb_(ecb){};
+        : symbol_router_(router), error_cb_(ecb) {};
     cell_ptr parse(std::vector<token_c> &tokens);
     bool has_next() { return index_ < tokens_->size(); }
     void next() {

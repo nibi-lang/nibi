@@ -5,8 +5,8 @@
 #include <tuple>
 #include <unordered_map>
 
-#include "libnibi/ref.hpp"
 #include "config.hpp"
+#include "libnibi/ref.hpp"
 
 namespace nibi {
 //! \brief A locator interface.

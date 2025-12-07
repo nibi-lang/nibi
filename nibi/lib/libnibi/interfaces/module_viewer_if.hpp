@@ -10,6 +10,7 @@ namespace nibi {
 //! \brief An interface to pull module information
 class module_viewer_if {
 public:
+  virtual ~module_viewer_if() = default;
   virtual module_info_s get_module_info(std::string &directory) = 0;
 };
 

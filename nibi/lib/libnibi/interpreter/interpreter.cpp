@@ -171,8 +171,9 @@ inline bool considered_private(cell_ptr &cell) {
   case cell_type_e::ENVIRONMENT: {
     return cell->as_environment_info().name.starts_with("_");
   }
+  default:
+    return false;
   }
-  return false;
 }
 
 inline cell_ptr interpreter_c::handle_list_cell(cell_ptr &cell, env_c &env,
