@@ -36,8 +36,10 @@ std::optional<std::string> input_buffer_c::submit(std::string &line) {
     return {};
   }
 
-  // Walk the line and see if the given brackets
-  // indicate that we have a full
+  if (_buffer.empty() && !line.empty() && line[0] != '(') {
+    line = "(" + line + ")";
+  }
+
   for (auto &c : line) {
     if (c == '(') {
       _tracker++;
@@ -47,8 +49,6 @@ std::optional<std::string> input_buffer_c::submit(std::string &line) {
     _buffer += c;
   }
 
-  // If we have a statement and all brackets are closed then
-  // we can submit the statement
   if (_tracker == 0 && !_buffer.empty()) {
     std::string ret_buffer = _buffer;
     _buffer.clear();
@@ -66,10 +66,23 @@ void start_repl(repl_config_s config) {
 
   linenoise::SetCompletionCallback(
       [&](const char *editBuffer, std::vector<std::string> &completions) {
-        std::string first = editBuffer;
-        if (completion_map.find(first) != completion_map.end()) {
-          std::vector<std::string> v = completion_map[first];
+        std::string input = editBuffer;
+
+        if (completion_map.find(input) != completion_map.end()) {
+          std::vector<std::string> v = completion_map[input];
           completions.insert(completions.end(), v.begin(), v.end());
+        }
+
+        if (!input.empty() && input[0] != '(') {
+          std::string with_paren = "(" + input;
+          if (completion_map.find(with_paren) != completion_map.end()) {
+            std::vector<std::string> v = completion_map[with_paren];
+            for (const auto &s : v) {
+              if (!s.empty() && s[0] == '(') {
+                completions.push_back(s.substr(1));
+              }
+            }
+          }
         }
       });
 
