@@ -1,17 +1,40 @@
-# Nibi
+<p align="center">
+  <img src="tools/syntax/icons/sxs-icon-dark.svg" alt="Nibi Logo" width="128" height="128">
+</p>
+<center>
+
+  <b>N I B I</b>
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/nibi-lang/nibi/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/nibi-lang/nibi/tree/main)
-![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)
+
+</center>
 
 ## About
 
-The Nibi programming language! Nibi is a list processing language that is under heavy development.
+Nibi is a Lisp-inspired programming language with manual memory management and FFI capabilities.
 
-For documentation on the language please see `docs/LANGUAGE.md` 
+**Features:**
+- Three list types: instruction `()`, data `[]`, and accessor `{}`
+- Manual memory allocation and pointer manipulation
+- Foreign Function Interface for calling C libraries
+- Sized integer types (i8-i64, u8-u64) and float types (f32, f64)
+- Module system with private/public scope control
+- Macros with explicit parameter substitution
+- Exception handling with try/throw
+- Deferred execution
+- Dictionary data structures
+- REPL and application framework with testing support
+
+Nibi provides direct control over memory and access to external libraries while maintaining a dynamic, Lisp-style syntax.
+
+----
 
 ## Demo applications
 
 ### Fizzbuzz
+
+<details>
+<summary>View code</summary>
 
 ```lisp
 (use "io")
@@ -25,7 +48,12 @@ For documentation on the language please see `docs/LANGUAGE.md`
             (io::println x))))])
 ```
 
+</details>
+
 ### Leibniz pi estimation
+
+<details>
+<summary>View code</summary>
 
 ```lisp
 (fn leibniz [n] [
@@ -40,7 +68,12 @@ For documentation on the language please see `docs/LANGUAGE.md`
 (leibniz 65536)
 ```
 
+</details>
+
 ### Magic number game
+
+<details>
+<summary>View code</summary>
 
 ```lisp
 (use "io")
@@ -62,6 +95,43 @@ For documentation on the language please see `docs/LANGUAGE.md`
    (if (< magic_number guess) (io::println "Lower!") (io::println "Higher!"))
 ])
 ```
+
+</details>
+
+### FFI (Foreign Function Interface)
+
+<details>
+<summary>View code</summary>
+
+Calling external C libraries:
+
+```lisp
+(use "io")
+
+(:= math_lib_name "./math.lib")
+
+(:= lib (dict [
+  ["add" (fn [x y] (extern-call math_lib_name "math_add" [:int :int] :int x y))]
+  ["divide" (fn [x y] (extern-call math_lib_name "math_div" [:int :int] :int x y))]
+]))
+
+(:= add (lib :get "add"))
+(:= divide (lib :get "divide"))
+
+(io::println "add(5, 7) = " (add 5 7))
+(io::println "divide(10, 2) = " (divide 10 2))
+```
+
+Corresponding C++ library (`math.lib`):
+
+```cpp
+extern "C" {
+  int math_add(int a, int b) { return a + b; }
+  int math_div(int a, int b) { return a / b; }
+}
+```
+
+</details>
 
 ## Running in Docker
 

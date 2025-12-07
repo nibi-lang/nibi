@@ -1,5 +1,6 @@
 #include "app/repl/repl.hpp"
 #include "app/linenoise/linenoise.hpp"
+#include "app/repl/completions.hpp"
 
 #include <filesystem>
 #include <optional>
@@ -61,23 +62,7 @@ std::optional<std::string> input_buffer_c::submit(std::string &line) {
 
 void start_repl(repl_config_s config) {
 
-  std::unordered_map<std::string, std::vector<std::string>> completion_map = {
-      {"(e", {"(exit "}},        {"(ex", {"(exit "}},
-      {"(u", {"(use \""}},       {"(us", {"(use \""}},
-      {"(bw", {"(bw-"}},         {"(bw-r", {"(bw-rsh "}},
-      {"(bw-l", {"(bw-lsh "}},   {"(bw-a", {"(bw-and "}},
-      {"(bw-o", {"(bw-or "}},    {"(bw-x", {"(bw-xor "}},
-      {"(bw-n", {"(bw-not "}},   {"(:", {"(:= "}},
-      {"(th", {"(throw "}},      {"(tr", {"(try "}},
-      {"(en", {"(env "}},        {"(dr", {"("}},
-      {"(lo", {"(loop "}},       {"(it", {"(iter \""}},
-      {"(im", {"(import \""}},   {"(imp", {"(import \""}},
-      {"(impo", {"(import \""}}, {"(impor", {"(import \""}},
-      {"(d", {"(drop "}},        {"(dr", {"(drop "}},
-      {"(dro", {"(drop "}},      {"(s", {"(set "}},
-      {"(se", {"(set "}},        {"(as", {"(assert "}},
-      {"(cl", {"(clone "}},      {"(c", {"(clone "}},
-  };
+  auto completion_map = completions::get_completion_map();
 
   linenoise::SetCompletionCallback(
       [&](const char *editBuffer, std::vector<std::string> &completions) {

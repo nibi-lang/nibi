@@ -1,0 +1,40 @@
+{
+  "name": "nibi-lang",
+  "displayName": "Nibi Language Support",
+  "description": "Syntax highlighting for the Nibi programming language",
+  "version": "1.0.0",
+  "publisher": "nibi",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "nibi",
+        "aliases": [
+          "Nibi",
+          "nibi"
+        ],
+        "extensions": [
+          ".nibi"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/sxs-icon-light.svg",
+          "dark": "./icons/sxs-icon-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nibi",
+        "scopeName": "source.nibi",
+        "path": "./syntaxes/nibi.tmLanguage.json"
+      }
+    ]
+  }
+}
+
