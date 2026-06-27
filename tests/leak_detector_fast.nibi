@@ -1,0 +1,37 @@
+#!/usr/local/bin/nibi
+
+# Fast-completing variant of leak_detector.nibi intended for use with
+# macOS `leaks --atExit`. Same allocate-then-drop pattern, far fewer cells
+# so the process exits quickly and `leaks` can report.
+#
+# MallocStackLogging=1 leaks --atExit --list -- nibi tests/leak_detector_fast.nibi
+
+(use "io")
+(use "meta")
+
+(:= iters 10)
+(:= walks 2000)
+(:= spawn_per_walk 100)
+
+(:= list (<|> 0 iters))
+(:= progress 0)
+(:= progress_perc (/ iters 100))
+
+(io::println "-------- START --------\n")
+
+(loop (:= i 0) (< i (len list)) (set i (+ i 1)) [
+  (:= inner [])
+  (while (< (at list i) walks) [
+    (set (at list i) (+ (at list i) 1))
+    (|< inner (<|> 0 spawn_per_walk))
+  ])
+  (if (>= progress progress_perc) [
+    (io::println (+ 1 i) " / " (len list))
+    (set progress 0)
+    (drop inner)
+  ] [
+    (set progress (+ progress 1))
+  ])
+])
+
+(io::println "\nCOMPLETE")

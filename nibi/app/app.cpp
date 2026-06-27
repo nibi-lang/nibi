@@ -141,7 +141,13 @@ void show_version() {
 
 void show_module_info(std::string module_name) {
 
-  auto info = module_factory_c::module_viewer()->get_module_info(module_name);
+  module_info_s info;
+  try {
+    info = module_factory_c::module_viewer()->get_module_info(module_name);
+  } catch (nibi::interpreter_c::exception_c &e) {
+    std::cout << "Error: " << e.what() << std::endl;
+    return;
+  }
 
   std::cout << "Description: " << std::endl;
   if (info.description.has_value()) {
